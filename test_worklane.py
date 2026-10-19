@@ -165,6 +165,8 @@ class WorklaneTests(unittest.TestCase):
         runner.post = unittest.mock.Mock()
         runner.verify_pr = unittest.mock.Mock(return_value={})
         runner.pr = unittest.mock.Mock(return_value={"isDraft": False})
+        runner.human_feedback = unittest.mock.Mock(return_value={})
+
         runner.review_threads = unittest.mock.Mock(return_value=[])
         return runner
 

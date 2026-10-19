@@ -229,6 +229,32 @@ class SessionTests(unittest.TestCase):
         self.assertEqual(calls[4]["args"][-2], sessions["finalizer"]["session_id"])
         self.assertNotEqual(calls[3]["args"][-2], sessions["worker"]["session_id"])
 
+    def test_human_feedback_dispatch_resumes_original_worker_with_batch(self):
+        with w.locked(self.state.path / "runner.lock") as fd:
+            self.backend(fd).run("build", self.task, self.tree)
+            original = self.state.session(1, "worker")["session_id"]
+            task = self.state.load(1)
+            task.update(phase="human_review", item=item(1, w.HUMAN), human_feedback_seen={})
+            self.state.save(task)
+            board = FakeBoard([item(1, w.HUMAN)])
+            runner = w.Runner(argparse.Namespace(base="main"), "owner/repo", self.tree,
+                              self.state, board, self.backend(fd))
+            runner.issue = Mock(return_value={"state": "OPEN", "labels": [], "title": "Rework"})
+            batch = {"inline:7": {"body": "Handle this boundary", "author": "human", "state": "",
+                                  "updated_at": "2026-10-19T10:00:00Z"}}
+            runner.human_feedback = Mock(return_value=batch)
+            with patch.object(w, "now", return_value="2026-10-19T10:00:00+00:00"):
+                runner.poll_human_feedback(board.items())
+            with patch.object(w, "now", return_value="2026-10-19T10:05:01+00:00"):
+                runner.poll_human_feedback(board.items())
+                selected = runner.pick(board.items()[0], "worker-3")
+            runner.backend.run("build", selected, self.tree)
+        resumed = self.calls()[1]
+        self.assertEqual(resumed["args"][-2], original)
+        self.assertIn('"human_feedback":', resumed["prompt"])
+        self.assertIn("Handle this boundary", resumed["prompt"])
+        self.assertEqual(board.moves, [(1, w.READY), (1, w.PROGRESS)])
+
     def test_session_is_committed_before_turn_finishes(self):
         with patch.dict(os.environ, {"FAKE_DELAY": ".3"}):
             with w.locked(self.state.path / "runner.lock") as fd, ThreadPoolExecutor(1) as pool:
@@ -454,11 +480,14 @@ class SessionTests(unittest.TestCase):
         runner.verify_pr = Mock()
         runner.post = Mock()
         runner.pr = Mock(return_value={"isDraft": False})
+        runner.human_feedback = Mock(return_value={})
+
         runner.review_threads = Mock(return_value=[])
         with patch.object(w, "command", side_effect=["a" * 40, ""]):
             runner.review(task)
         self.assertEqual([c.args[0] for c in backend.run.call_args_list], ["finalize"])
         self.assertEqual(task["phase"], "human_review")
+        self.assertEqual(task["human_feedback_seen"], {})
 
     def test_reviewer_reuses_worktree_across_changed_pr_heads(self):
         def git(*args, cwd=None):

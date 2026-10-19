@@ -28,6 +28,7 @@ import time
 import uuid
 
 MODEL = "gpt-6.1-sol"
+HUMAN_FEEDBACK_QUIET_SECONDS = 300
 WORKERS = ("worker-1", "worker-2", "worker-3")
 REVIEWER = "reviewer"
 READY, PROGRESS, REVIEW, HUMAN = "Ready for work", "In Progress", "Agent review", "Human review"
@@ -75,6 +76,8 @@ Return the requested structured result, including exact test commands/results.
 """
 BUILD_PROMPT = """Implement the issue completely: design, code, appropriate tests and docs.
 For rework, fix the saved review findings and current PR feedback on the same branch.
+Address the supplied human_feedback batch and read the latest discussion for follow-ups.
+
 Read all inline review threads and replies, including outdated threads; paginate
 GitHub connections. The supplied review_threads are a snapshot; refresh before
 finishing. After committing, pushing and verifying a fix against the current PR
@@ -890,6 +893,101 @@ class Runner:
         return gh("pr", "view", url, "--repo", self.repo,
                   "--json", "url,headRefOid,headRefName,baseRefName,state,isDraft,comments,reviews,body")
 
+    def human_feedback(self, task):
+        """Read every page, including inline threads omitted by gh pr view."""
+        sources = [("issue", f"issues/{task['number']}/comments")]
+        if task.get("pr_url"):
+            pr = self.pr(task["pr_url"])
+            if (pr["state"] != "OPEN" or pr["headRefName"] != task["branch"]
+                    or pr["baseRefName"] != task["base"] or pr["headRefOid"] != task["head_sha"]):
+                raise RuntimeError("Human feedback PR was closed, retargeted or changed; inspect before rework.")
+            number = task["pr_url"].rsplit("/", 1)[1]
+            sources += [("pr", f"issues/{number}/comments"),
+                        ("review", f"pulls/{number}/reviews"),
+                        ("inline", f"pulls/{number}/comments")]
+        feedback = {}
+        for source, endpoint in sources:
+            pages = gh("api", f"repos/{self.repo}/{endpoint}?per_page=100", "--paginate", "--slurp")
+            for entry in (entry for page in pages for entry in page):
+                body = entry.get("body") or ""
+                user = entry.get("user") or {}
+                state = entry.get("state", "").upper()
+                if user.get("type") != "User" or user.get("login", "").endswith("[bot]"):
+                    continue
+                if body.lstrip().startswith("<!-- worklane:"):
+                    continue
+                if source == "review" and state not in {"COMMENTED", "CHANGES_REQUESTED"}:
+                    continue
+                if not body.strip() and state != "CHANGES_REQUESTED":
+                    continue
+                feedback[f"{source}:{entry['id']}"] = {
+                    "body": body, "author": user["login"], "state": state,
+                    "updated_at": entry.get("updated_at") or entry.get("submitted_at") or entry["created_at"],
+                    "url": entry.get("html_url", ""),
+                    **({"path": entry["path"], "line": entry.get("line")} if source == "inline" else {}),
+                }
+        return feedback
+
+    def poll_human_feedback(self, items, active_numbers=()):
+        """Debounce owned human-review work; never adopt unrelated Human review items."""
+        self.feedback_unavailable = set()
+        for task in self.state.all():
+            if task["number"] in active_numbers:
+                continue
+            pending_rework = task.get("phase") == "rework" and task.get("human_feedback_pending")
+            if task.get("phase") != "human_review" and not pending_rework:
+                continue
+            current = next((i for i in items if i["id"] == task.get("item", {}).get("id")), None)
+            if (task.get("phase") == "human_review" and task.get("human_feedback_pending")
+                    and current and current.get("status", "").casefold() == READY.casefold()):
+                task.update(phase="rework", round=0)
+                self.state.save(task)
+                pending_rework = True
+            expected = READY if pending_rework else HUMAN
+            if not current or current.get("status", "").casefold() != expected.casefold():
+                continue
+            try:
+                issue = self.issue(task["number"])
+                if issue["state"] != "OPEN":
+                    continue
+                snapshot = self.human_feedback(task)
+                if "human_feedback_seen" not in task:
+                    # Existing installations have no baseline. Keep feedback newer
+                    # than their saved handoff, rather than replaying old discussion.
+                    cutoff = task["updated_at"]
+                    task["human_feedback_seen"] = {key: value for key, value in snapshot.items()
+                                                    if datetime.fromisoformat(value["updated_at"]) <= datetime.fromisoformat(cutoff)}
+                pending = {key: value for key, value in snapshot.items()
+                           if any(task["human_feedback_seen"].get(key, {}).get(field) != value[field]
+                                  for field in ("body", "author", "state", "updated_at"))}
+                if pending != task.get("human_feedback", {}):
+                    task["human_feedback_observed_at"] = now()
+                task["human_feedback"] = pending
+                task["human_feedback_snapshot"] = snapshot
+                task["issue"] = issue
+                if pending and self.feedback_quiet(task) and not pending_rework:
+                    # Save intent before the remote transition, for crash recovery.
+                    if not task.get("human_feedback_pending"):
+                        task["human_feedback_generation"] = task.get("human_feedback_generation", 0) + 1
+                    task["human_feedback_pending"] = True
+                    self.state.save(task)
+                    self.board.move(current, READY, HUMAN)
+                    current["status"] = READY  # Refresh this dispatch snapshot too.
+                    task.update(phase="rework", round=0)
+                self.state.save(task)
+            except Exception as error:
+                # No partial API snapshot can acknowledge feedback or dispatch work.
+                self.feedback_unavailable.add(task["number"])
+                print(f"#{task['number']} human feedback unavailable: {error}", flush=True)
+
+    @staticmethod
+    def feedback_quiet(task):
+        observed = task.get("human_feedback_observed_at")
+        if not observed:
+            return False
+        elapsed = datetime.fromisoformat(now()) - datetime.fromisoformat(observed)
+        return elapsed.total_seconds() >= HUMAN_FEEDBACK_QUIET_SECONDS
+
     def review_threads(self, url):
         """Read every inline thread and reply; gh pr view omits these discussions."""
         number = self.pr_number(url)
@@ -961,6 +1059,8 @@ class Runner:
 
     def post(self, task, stage, result):
         marker = f"<!-- worklane:{task['number']}:{stage}:{task.get('head_sha', 'question')}:{task.get('round', 0)} -->"
+        if task.get("human_feedback_generation"):
+            marker = marker.replace(" -->", f":human-{task['human_feedback_generation']} -->")
         body = marker + f"\nWorklane {stage} ({self.backend.model})\n\n" + result["summary"]
         if result.get("findings"):
             body += "\n\n" + "\n".join(f"- {f}" for f in result["findings"])
@@ -1085,6 +1185,9 @@ class Runner:
             pr = self.pr(task["pr_url"])
             if pr["isDraft"]:
                 command(["gh", "pr", "ready", task["pr_url"], "--repo", self.repo])
+        if "human_feedback_seen" not in task:
+            task["human_feedback_seen"] = self.human_feedback(task)
+            self.state.save(task)
         self.board.move(task["item"], HUMAN, REVIEW)
         task["phase"] = "human_review"
         self.state.save(task)
@@ -1180,6 +1283,12 @@ class Runner:
         review = slot == REVIEWER
         if previous.get("phase") in {"blocked", "interrupted"} or previous.get("phase") in ACTIVE:
             return None
+        if not review and previous.get("human_feedback_pending"):
+            if (number in getattr(self, "feedback_unavailable", set())
+                    or not previous.get("human_feedback") or not self.feedback_quiet(previous)):
+                return None
+            previous["human_feedback_seen"] = previous["human_feedback_snapshot"]
+            previous.pop("human_feedback_pending", None)
         issue = self.issue(number)
         if issue["state"] != "OPEN":
             return None
@@ -1216,12 +1325,16 @@ class Runner:
 
     def run(self, stop):
         futures = {}
+        assignments = {}
         with ThreadPoolExecutor(max_workers=4) as pool:
             while not stop.is_set():
                 futures = {slot: f for slot, f in futures.items() if not f.done()}
                 if not self.state.paused():
                     try:
                         items = self.board.items()
+                        with locked(self.state.path / "dispatch.lock"):
+                            if not self.state.paused() and not stop.is_set():
+                                self.poll_human_feedback(items, {assignments[slot] for slot in futures})
                         for slot in (*WORKERS, REVIEWER):
                             if slot in futures or stop.is_set() or self.state.paused():
                                 continue
@@ -1230,6 +1343,7 @@ class Runner:
                                 if task:
                                     print(f"{slot}: resuming #{task['number']} ({task.get('resume_stage', 'build')})", flush=True)
                                     futures[slot] = pool.submit(self.execute, task, slot == REVIEWER)
+                                    assignments[slot] = task["number"]
                                     items = [i for i in items if i["id"] != task["item"]["id"]]
                             if task:
                                 continue
@@ -1247,6 +1361,7 @@ class Runner:
                                         if task:
                                             print(f"{slot}: #{task['number']} {task['issue']['title']}", flush=True)
                                             futures[slot] = pool.submit(self.execute, task, slot == REVIEWER)
+                                            assignments[slot] = task["number"]
                                 except Exception as error:
                                     number = item["content"]["number"]
                                     task = self.state.load(number) or {"number": number, "item": item}

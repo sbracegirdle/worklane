@@ -778,7 +778,7 @@ class Board:
                     pullRequests(first:10) { nodes { url } pageInfo { hasNextPage endCursor } }
                   }
                 } content { ... on Issue {
-                  number title body url repository { nameWithOwner }
+                  number title body url state repository { nameWithOwner }
                 } } }
               } } }
             }""", {"id": self.project["id"], "cursor": cursor})
@@ -788,6 +788,8 @@ class Board:
                 raise RuntimeError("Board exceeds 10,000 items; refusing an incomplete queue.")
             for node in connection["nodes"]:
                 issue = node.get("content") or {}
+                if issue.get("state") == "CLOSED":
+                    continue
                 if not issue.get("repository") or issue["repository"]["nameWithOwner"].casefold() != self.repo.casefold():
                     continue
                 content = {key: issue[key] for key in ("number", "title", "body", "url")}

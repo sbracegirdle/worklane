@@ -35,6 +35,10 @@ The batch's 55 operations break down into 1 board page, 14 item status reads,
 CLI command also resolves its subject before its mutation, so an operation is
 not always a single HTTP request. More discussion pages increase HTTP requests;
 worktree `git fetch` traffic and Codex's own `gh` calls are additional.
+For this fixture, five comment subject lookups imply approximately 60 HTTP
+requests (56 GraphQL and 4 REST), from the pinned CLI source. With small discussion
+connections, the published primary-cost formula predicts roughly 56 GraphQL
+points for the batch. These HTTP/point figures are derived, not live measurements.
 
 Unchanged feedback costs two GraphQL reads (issue + PR) and four REST connections
 per snapshot, or 24 GraphQL reads and 48 REST requests per hour per owned PR when
@@ -77,6 +81,8 @@ Status transitions read only the specific item before and after the write, rathe
 than scanning the entire project twice. PR verification no longer downloads
 comments/reviews/body; feedback and inline-thread readers retrieve those separately
 when needed. Thread and reply pagination also detects cursor cycles.
+Closed issues are excluded from the board snapshot before slot selection, avoiding
+three repeated eligibility reads for a closed issue left in Ready for work.
 
 ## Live quota discrepancy
 
@@ -87,6 +93,8 @@ returned HTTP 200 with a `RATE_LIMIT` body, remaining **0**, used **5000**, rese
 GitHub request IDs. At **18:28:12**, a distinct query URL with
 `Cache-Control: no-cache, no-store` still returned remaining **0** and that same
 reset; its quota-only body reported used **5019** and cost **1**.
+A viewer query with `rateLimit(dryRun:true)` at **18:35:31** was also rejected,
+so a dry run could not obtain resource-query costs under this exhausted quota.
 
 The discrepancy is therefore not explained by the usual REST-versus-GraphQL
 resource distinction alone: the REST body itself advertised available GraphQL

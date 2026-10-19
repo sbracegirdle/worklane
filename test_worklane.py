@@ -221,8 +221,10 @@ class WorklaneTests(unittest.TestCase):
         return board
 
     def test_board_excludes_other_repos_and_non_issues(self):
+        closed = self.board_node(5)
+        closed["content"]["state"] = "CLOSED"
         data = [self.board_node(1), self.board_node(2, "owner/other"), {"id": "pr", "content": {}},
-                {"id": "draft", "content": None}]
+                {"id": "draft", "content": None}, closed]
         with patch.object(w, "graphql", return_value=self.board_page(data)):
             items = self.board().items()
         self.assertEqual([i["content"]["number"] for i in items], [1])
@@ -342,6 +344,36 @@ class WorklaneTests(unittest.TestCase):
             process.assert_not_called()
         self.assertEqual(other.snapshot()["until"], 5000)
 
+    def test_budget_serializes_calls_across_repository_instances(self):
+        first = self.runner().budget
+        second = w.GitHubBudget(w.State("other/repo", self.root))
+        entered, release, waiting = threading.Event(), threading.Event(), threading.Event()
+        def request():
+            entered.set()
+            release.wait(2)
+            return "done"
+        with w.ThreadPoolExecutor(max_workers=2) as pool:
+            one = pool.submit(first.call, request)
+            self.assertTrue(entered.wait(2))
+            def another():
+                waiting.set()
+                return second.call(lambda: "later")
+            two = pool.submit(another)
+            self.assertTrue(waiting.wait(2))
+            self.assertFalse(two.done())
+            release.set()
+            self.assertEqual(one.result(timeout=2), "done")
+            self.assertEqual(two.result(timeout=2), "later")
+
+    def test_success_exhausting_last_point_defers_next_request(self):
+        budget = self.runner().budget
+        with patch.object(w.time, "time", return_value=1000):
+            response = budget.call(lambda: "HTTP/2.0 200 OK\nX-RateLimit-Remaining: 0\nX-RateLimit-Reset: 5000\n\n{}")
+            self.assertIn("200 OK", response)
+            with self.assertRaises(w.GitHubRateLimit):
+                budget.call(lambda: self.fail("request escaped cooldown"))
+        self.assertEqual(budget.snapshot()["until"], 5001)
+
     def test_idle_hour_and_exhausted_hour_have_bounded_request_counts(self):
         for exhausted, expected in ((False, 60), (True, 6)):
             runner = self.runner()
@@ -396,6 +428,21 @@ class WorklaneTests(unittest.TestCase):
             with patch.object(w, "graphql", side_effect=more):
                 with self.assertRaisesRegex(RuntimeError, "cyclic"):
                     self.board().linked_prs("item", connection)
+
+    def test_review_thread_and_reply_cursor_cycles_fail_closed(self):
+        runner = self.runner()
+        pages = [{"repository": {"pullRequest": {"reviewThreads": connection([], c)}}}
+                 for c in ("a", "b", "a")]
+        with patch.object(w, "graphql", side_effect=pages):
+            with self.assertRaisesRegex(RuntimeError, "cyclic"):
+                w.Runner.review_threads(runner, self.task()["pr_url"])
+        thread = review_thread()
+        thread["comments"] = connection([], "a")
+        pages = [{"repository": {"pullRequest": {"reviewThreads": connection([thread])}}}]
+        pages += [{"node": {"comments": connection([], c)}} for c in ("b", "a")]
+        with patch.object(w, "graphql", side_effect=pages):
+            with self.assertRaisesRegex(RuntimeError, "cyclic"):
+                w.Runner.review_threads(runner, self.task()["pr_url"])
 
     def test_existing_linked_pr_not_implemented_twice(self):
         selected = item(1)

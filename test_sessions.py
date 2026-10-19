@@ -21,8 +21,39 @@ from test_worklane import FakeBoard, item, result, review_thread
 FAKE_CODEX = r'''
 import json, os, pathlib, sys, time, uuid
 args = sys.argv[1:]
-prompt = sys.stdin.read()
 root = pathlib.Path(os.environ["FAKE_ROOT"])
+if args[0] == "app-server":
+    for line in sys.stdin:
+        request = json.loads(line)
+        with (root / "metadata.jsonl").open("a") as f:
+            f.write(json.dumps(request) + "\n")
+        if "id" not in request:
+            continue
+        method, params = request["method"], request["params"]
+        if os.environ.get("FAKE_RPC_PARTIAL"):
+            print('{"id":', end="", flush=True)
+            time.sleep(5)
+        if os.environ.get("FAKE_RPC_EOF"):
+            sys.exit(1)
+        if os.environ.get("FAKE_RPC_ERROR") == method:
+            print(json.dumps({"id": request["id"], "error": {"code": -32601, "message": "unsupported method"}}), flush=True)
+            continue
+        projects_file = root / "projects.json"
+        projects = json.loads(projects_file.read_text()) if projects_file.exists() else json.loads(os.environ.get("FAKE_PROJECTS", "[]"))
+        value = {}
+        if method == "project/list":
+            offset = int(params.get("cursor") or "0")
+            value = {"data": projects[offset:offset+1], "nextCursor": str(offset+1) if offset+1 < len(projects) else None}
+        elif method == "project/create":
+            project = {"id": params["idempotencyKey"], "name": params["name"], "roots": params["roots"]}
+            if not any(p["id"] == project["id"] for p in projects):
+                projects.append(project)
+                projects_file.write_text(json.dumps(projects))
+            value = {"project": project}
+        print(json.dumps({"method": "some/notification", "params": {}}), flush=True)
+        print(json.dumps({"id": request["id"], "result": value}), flush=True)
+    sys.exit(0)
+prompt = sys.stdin.read()
 with (root / "calls.jsonl").open("a") as f:
     f.write(json.dumps({"args": args, "cwd": os.getcwd(), "prompt": prompt}) + "\n")
 session = args[-2] if "resume" in args else str(uuid.uuid4())
@@ -71,8 +102,100 @@ class SessionTests(unittest.TestCase):
         file = self.root / "calls.jsonl"
         return [json.loads(line) for line in file.read_text().splitlines()] if file.exists() else []
 
+    def metadata_calls(self, method):
+        file = self.root / "metadata.jsonl"
+        calls = [json.loads(line) for line in file.read_text().splitlines()] if file.exists() else []
+        return [call["params"] for call in calls if call["method"] == method]
+
     def backend(self, fd, state=None):
         return w.CodexBackend(w.MODEL, self.tree, state or self.state, fd)
+
+    def test_session_names_include_repository_issue_role_and_clean_title(self):
+        self.task["issue"] = {"title": "  Support\n pleasant\t names 🐍  "}
+        with w.locked(self.state.path / "runner.lock") as fd:
+            backend = self.backend(fd)
+            for stage in ("build", "review", "finalize"):
+                backend.run(stage, self.task, self.tree)
+        names = self.metadata_calls("thread/name/set")
+        for call, role in zip(names, ("worker", "reviewer", "finalizer")):
+            self.assertEqual(call, {"threadId": self.state.session(1, role)["session_id"],
+                                    "name": f"owner/repo #1 [{role}]: Support pleasant names 🐍"})
+        self.assertEqual(len(self.metadata_calls("project/create")), 1)
+        assignments = self.metadata_calls("thread/metadata/update")
+        self.assertEqual({a["threadId"] for a in assignments}, {n["threadId"] for n in names})
+        self.assertEqual(len({a["projectId"] for a in assignments}), 1)
+
+    def test_project_uses_primary_checkout_and_preserves_execution_worktree(self):
+        worktree = self.root / "isolated"
+        worktree.mkdir()
+        with w.locked(self.state.path / "runner.lock") as fd:
+            self.backend(fd).run("build", self.task, worktree)
+        created = self.metadata_calls("project/create")[0]
+        self.assertEqual(created["roots"], [{"path": str(self.tree)}])
+        self.assertEqual(created["name"], "owner/repo")
+        self.assertEqual(self.calls()[0]["cwd"], str(worktree))
+        self.assertEqual(self.state.session(1, "worker")["worktree"], str(worktree))
+
+    def test_existing_project_is_matched_by_root_across_pages_not_name(self):
+        projects = [{"id": "unrelated", "name": "owner/repo", "roots": [{"path": str(self.root)}]},
+                    {"id": "existing", "name": "My chosen name", "roots": [{"path": str(self.tree)}]}]
+        with patch.dict(os.environ, {"FAKE_PROJECTS": json.dumps(projects)}), w.locked(self.state.path / "runner.lock") as fd:
+            self.backend(fd).run("review", self.task, self.tree)
+        self.assertEqual(len(self.metadata_calls("project/list")), 2)
+        self.assertEqual(self.metadata_calls("project/create"), [])
+        self.assertEqual(self.metadata_calls("thread/metadata/update")[0]["projectId"], "existing")
+
+    def test_resume_updates_name_and_reuses_project_after_controller_restart(self):
+        with w.locked(self.state.path / "runner.lock") as fd:
+            self.backend(fd).run("build", self.task, self.tree)
+            original = self.state.session(1, "worker")["session_id"]
+            self.task["issue"] = {"title": "Renamed issue"}
+            self.backend(fd, w.State("owner/repo", self.root)).run("build", self.task, self.tree)
+        names = self.metadata_calls("thread/name/set")
+        self.assertEqual([c["threadId"] for c in names], [original, original])
+        self.assertTrue(names[-1]["name"].endswith("Renamed issue"))
+        self.assertEqual(len(self.metadata_calls("project/create")), 1)
+
+    def test_metadata_failure_is_logged_and_resume_retries_same_session(self):
+        with w.locked(self.state.path / "runner.lock") as fd:
+            with patch.dict(os.environ, {"FAKE_RPC_ERROR": "project/list"}):
+                self.assertEqual(self.backend(fd).run("build", self.task, self.tree)["verdict"], "pass")
+            original = self.state.session(1, "worker")["session_id"]
+            self.backend(fd).run("build", self.task, self.tree)
+        warnings = [e["content"] for e in self.state.log_entries(1) if e["stream"] == "warning"]
+        self.assertTrue(any("unsupported method" in entry for entry in warnings))
+        self.assertEqual(self.calls()[1]["args"][-2], original)
+        self.assertEqual(self.metadata_calls("thread/metadata/update")[0]["threadId"], original)
+
+    def test_ambiguous_projects_do_not_create_or_assign_an_arbitrary_project(self):
+        projects = [{"id": str(n), "roots": [{"path": str(self.tree)}]} for n in range(2)]
+        with patch.dict(os.environ, {"FAKE_PROJECTS": json.dumps(projects)}), w.locked(self.state.path / "runner.lock") as fd:
+            self.backend(fd).run("build", self.task, self.tree)
+        self.assertEqual(self.metadata_calls("project/create"), [])
+        self.assertEqual(self.metadata_calls("thread/metadata/update"), [])
+        self.assertTrue(any("Multiple Codex projects" in e["content"] for e in self.state.log_entries(1)))
+
+    def test_concurrent_sessions_create_one_project(self):
+        with w.locked(self.state.path / "runner.lock") as fd, ThreadPoolExecutor(3) as pool:
+            backend = self.backend(fd)
+            futures = [pool.submit(backend.run, stage, self.task.copy(), self.tree) for stage in ("build", "review", "finalize")]
+            for future in futures:
+                future.result()
+        self.assertEqual(len(self.metadata_calls("project/create")), 1)
+        self.assertEqual(len(self.metadata_calls("thread/metadata/update")), 3)
+
+    def test_app_server_transport_timeout_eof_and_initialize_error(self):
+        for environment, error in (({"FAKE_RPC_PARTIAL": "1"}, "timed out"),
+                                   ({"FAKE_RPC_EOF": "1"}, "closed"),
+                                   ({"FAKE_RPC_ERROR": "initialize"}, "unsupported method")):
+            with self.subTest(environment=environment), patch.dict(os.environ, environment):
+                server = w.CodexAppServer(self.tree, timeout=.2)
+                with self.assertRaisesRegex(RuntimeError, error):
+                    with server:
+                        self.fail("failed initialization must not succeed")
+                self.assertIsNotNone(server.process.poll())
+                self.assertTrue(server.process.stdin.closed)
+                self.assertTrue(server.process.stdout.closed)
 
     def test_feedback_and_reopen_resume_exact_worker_session(self):
         with w.locked(self.state.path / "runner.lock") as fd:

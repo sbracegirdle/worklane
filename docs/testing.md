@@ -1,19 +1,6 @@
-# Development
+# Testing
 
-Install the local checkout in editable mode:
-
-```sh
-uv tool install --editable ~/code/worklane
-```
-
-## Validation
-
-```sh
-cd ~/code/worklane
-uv run python -m unittest -v
-uv run worklane --help
-uv run worklane check --repo ~/code/syntaxiser
-```
+See the [README](../README.md#develop) for development and test commands.
 
 Tests use temporary state and mocked GitHub/agent responses. They cover concurrency,
 eligible statuses, pause, process locks, status preservation, review and handoff

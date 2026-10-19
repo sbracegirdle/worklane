@@ -1,7 +1,7 @@
 # Worklane
 
-A Python CLI that runs up to three coding workers and one independent reviewer
-from a GitHub project board, then hands passing work to a human.
+A Python CLI that runs coding workers and an independent reviewer from a GitHub
+project board, then hands passing work to a human.
 
 [Source repository](https://github.com/sbracegirdle/worklane) ·
 [Project board](https://github.com/users/sbracegirdle/projects/2)
@@ -26,8 +26,35 @@ Make sure `~/.local/bin` is on your PATH.
 From a GitHub repository checkout with issues ready on its project board:
 
 ```sh
-worklane check       # Show the inferred board and eligible queue without changes
-worklane run         # Run in the foreground; Ctrl-C drains active jobs then exits
+cd /path/to/project
+worklane check       # Read-only: show the inferred board, model and eligible queue
+worklane run         # Foreground; Ctrl-C drains active jobs then exits
+```
+
+`worklane` with no arguments is the same as `worklane run`. For background use:
+
+```sh
+worklane start       # Start a detached controller; returns immediately
+worklane status      # Print state, assignments, sessions and blockers
+worklane logs        # Read controller/agent logs from SQLite
+worklane logs 123    # Read logs for one issue
+worklane pause       # Stop all new dispatches; active workers/reviewer finish
+worklane resume      # Resume dispatching in the running controller
+worklane stop        # Pause dispatching, drain active jobs, then exit
+worklane stop --now  # Interrupt agents; saved conversations continue on next start
+```
+
+After `stop`, use `start` again; `resume` does not launch a stopped controller.
+Paused work may finish its current review/handoff and update the board. Workers
+that finish while paused wait in Agent review until dispatch resumes. No service
+is installed, and the controller does not start on login or reboot.
+
+Commands can target another checkout without changing directory:
+
+```sh
+worklane start --repo ~/code/another-project
+worklane status --repo ~/code/another-project
+worklane pause --repo ~/code/another-project
 ```
 
 The board uses **Ready for work**, **In Progress**, **Agent review** and
@@ -36,12 +63,19 @@ not merge, deploy or publish releases. No project configuration files are needed
 
 ## Documentation
 
-- [Operations](docs/operations.md): board setup, commands, review, recovery and limits.
+- [Operations](docs/operations.md): board setup, options, review, recovery and limits.
 - [Storage](docs/storage.md): SQLite design, migration and backups.
-- [Development](docs/development.md): editable install and validation.
+- [Testing](docs/testing.md): test coverage and validation limits.
 
-## Test
+## Develop
+
+Install the local checkout in editable mode, then run validation:
 
 ```sh
+cd ~/code/worklane
+uv tool install --editable .
 uv run python -m unittest -v
+uv run worklane --help
 ```
+
+Use `uv run worklane check --repo /path/to/project` for a read-only live board check.

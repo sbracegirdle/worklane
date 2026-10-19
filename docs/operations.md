@@ -152,6 +152,7 @@ session and stage, including owned tickets already In Progress. This is continua
 of assigned work, not new ticket intake. A stopped finalizer resumes the handoff
 without starting another review round. Board changes made by a human are respected;
 unexpected statuses or closed issues block automatic continuation.
+Merged PRs complete saved issues and role displays automatically; GitHub issue and board statuses remain human-controlled.
 
 Provider errors and other blockers still need inspection and an explicit retry:
 Board drift blocks visibly; explicit retry revalidates saved work without rerunning the completed worker.

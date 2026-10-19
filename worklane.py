@@ -1144,7 +1144,7 @@ class Runner:
     def pr(self, url):
         self.pr_number(url)
         return gh("pr", "view", url, "--repo", self.repo,
-                  "--json", "url,headRefOid,headRefName,baseRefName,state,isDraft,mergeable")
+                  "--json", "url,headRefOid,headRefName,baseRefName,state,isDraft,mergeable,mergedAt")
 
     def human_feedback(self, task):
         """Read every page, including inline threads omitted by gh pr view."""
@@ -1519,6 +1519,41 @@ class Runner:
                 task.pop("child_identity", None)
                 self.state.save(task)
 
+    def reconcile_completed(self, items, active_numbers=()):
+        """Observe human merges without changing GitHub or losing role history."""
+        by_id = {item["id"]: item for item in items}
+        for task in self.state.all():
+            if (task.get("phase") == "done" or task.get("phase") in ACTIVE
+                    or task["number"] in active_numbers or not task.get("pr_url")):
+                continue
+            current = by_id.get(task.get("item", {}).get("id"))
+            status = current.get("status", "").casefold() if current else "missing"
+            if task.get("phase") != "human_review" and current and status != "done":
+                continue
+            key = f"completion:{task['number']}"
+            previous = self.state.get_meta(key, {})
+            if previous.get("status") == status and previous.get("polled_at"):
+                elapsed = datetime.fromisoformat(now()) - datetime.fromisoformat(previous["polled_at"])
+                if elapsed.total_seconds() < 300:
+                    continue
+            try:
+                pr = self.pr(task["pr_url"])
+                if pr["headRefName"] != task["branch"] or pr["baseRefName"] != task["base"]:
+                    raise RuntimeError("Assigned PR was retargeted; completion needs inspection.")
+                if pr["state"] == "MERGED":
+                    task.update(phase="done", completion_source="merged_pr", merged_head_sha=pr["headRefOid"],
+                                completed_at=pr.get("mergedAt") or now())
+                    for field in ("error", "failed_phase", "blocker", "resume_stage", "human_feedback_pending",
+                                  "child_pid", "child_identity"):
+                        task.pop(field, None)
+                    self.state.save(task)
+                    print(f"#{task['number']} completed: assigned PR was merged.", flush=True)
+                self.state.set_meta(key, {"status": status, "polled_at": now()})
+            except GitHubRateLimit:
+                raise
+            except Exception as error:
+                print(f"#{task['number']} completion unavailable: {error}", flush=True)
+
     def reconcile_waiting(self, items, active_numbers=()):
         """Surface lost review handoffs without overwriting external board edits."""
         by_id = {item["id"]: item for item in items}
@@ -1599,7 +1634,7 @@ class Runner:
         number = item["content"]["number"]
         previous = self.state.load(number)
         review = slot == REVIEWER
-        if previous.get("phase") in {"blocked", "interrupted"} or previous.get("phase") in ACTIVE:
+        if previous.get("phase") in {"done", "blocked", "interrupted"} or previous.get("phase") in ACTIVE:
             return None
         if not review and previous.get("human_feedback_pending"):
             if (number in getattr(self, "feedback_unavailable", set())
@@ -1665,6 +1700,7 @@ class Runner:
                         items = self.board.items()
                         with locked(self.state.path / "dispatch.lock"):
                             if not self.state.paused() and not stop.is_set():
+                                self.reconcile_completed(items, {assignments[slot] for slot in futures})
                                 self.reconcile_waiting(items, {assignments[slot] for slot in futures})
                                 self.poll_human_feedback(items, {assignments[slot] for slot in futures})
                         for slot in (*WORKERS, REVIEWER):

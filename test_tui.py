@@ -119,6 +119,19 @@ class TuiTests(unittest.TestCase):
         self.assertEqual(data["selected"]["snippet"], "line 99")
         self.assertEqual(data["selected"]["status"], "interrupted")
 
+    def test_completed_issue_updates_all_role_rows_without_rewriting_history(self):
+        for stage in ("build", "review", "finalize"):
+            run = self.run_record(stage=stage)
+            self.state.finish_run(run, "failed" if stage == "build" else "completed")
+        task = self.state.load(1)
+        task["phase"] = "done"
+        self.state.save(task)
+        history = self.state.runs(1)
+        data = tui.snapshot(self.state)
+        self.assertEqual({row["status"] for row in data["rows"]}, {"completed"})
+        self.assertEqual(tui.issue_groups(data["rows"])[0]["status"], "completed")
+        self.assertEqual(self.state.runs(1), history)
+
     def test_search_finds_metadata_and_historical_text_outside_latest_tail(self):
         old = self.run_record(text="Historical needle")
         old_session = self.state.session(1, "worker")["session_id"]

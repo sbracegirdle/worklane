@@ -142,7 +142,9 @@ def snapshot(state, selected=None):
                 latest = db.execute("""SELECT readable_log(stream,content) AS content,created_at FROM logs WHERE run_id=?
                     AND readable_log(stream,content) != '' ORDER BY id DESC LIMIT 1""", (run["id"],)).fetchone()
             current_role = ROLES.get(task.get("active_stage", task.get("resume_stage", "build")), "worker")
-            if current_role == role and task.get("phase") in {"blocked", "interrupted", "retry", "awaiting_review", "human_review"}:
+            if task.get("phase") == "done" and not active:
+                status = "completed"
+            elif current_role == role and task.get("phase") in {"blocked", "interrupted", "retry", "awaiting_review", "human_review"}:
                 status = task["phase"]
             rows.append({"key": (number, role), "number": number, "role": role, "task": task,
                          "title": task.get("issue", {}).get("title") or task.get("item", {}).get("content", {}).get("title", "Untitled issue"),

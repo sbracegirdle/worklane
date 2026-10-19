@@ -268,6 +268,27 @@ class SessionTests(unittest.TestCase):
                 future.result()
         self.assertEqual(self.state.runs(1)[0]["status"], "completed")
 
+    def test_conflict_rework_resumes_original_worker_with_findings(self):
+        with w.locked(self.state.path / "runner.lock") as fd:
+            backend = self.backend(fd)
+            backend.run("build", self.task, self.tree)
+            original = self.state.session(1, "worker")["session_id"]
+            task = self.state.load(1)
+            task.update(phase="reviewing", round=1, item=item(1, w.REVIEW))
+            board = FakeBoard([item(1, w.REVIEW)])
+            runner = w.Runner(argparse.Namespace(base="main"), "owner/repo", self.tree,
+                              self.state, board, backend)
+            runner.verify_pr = Mock(return_value={"mergeable": "CONFLICTING"})
+            runner.post = Mock()
+            runner.review(task)
+            self.assertEqual(len(self.calls()), 1)
+            runner.issue = Mock(return_value={"state": "OPEN", "labels": [], "title": "Rework"})
+            selected = runner.pick(board.items()[0], "worker-3")
+            backend.run("build", selected, self.tree)
+        self.assertEqual(self.calls()[1]["args"][-2], original)
+        self.assertIn("merge conflicts", self.calls()[1]["prompt"])
+        self.assertEqual(board.moves, [(1, w.READY), (1, w.PROGRESS)])
+
     def test_provider_failure_keeps_session_for_explicit_retry(self):
         with w.locked(self.state.path / "runner.lock") as fd:
             with patch.dict(os.environ, {"FAKE_FAIL": "1"}):
@@ -477,7 +498,7 @@ class SessionTests(unittest.TestCase):
         backend.run.return_value = result()
         runner = w.Runner(None, "owner/repo", self.tree, self.state, FakeBoard([task["item"]]), backend)
         runner.worktree = Mock(return_value=self.tree)
-        runner.verify_pr = Mock()
+        runner.verify_pr = Mock(return_value={"isDraft": False})
         runner.post = Mock()
         runner.pr = Mock(return_value={"isDraft": False})
         runner.human_feedback = Mock(return_value={})

@@ -174,8 +174,9 @@ class AddIssueTests(unittest.TestCase):
         self.assertIn("Could not verify board status", self.errors.getvalue())
         self.assertEqual(self.output.getvalue(), "")
 
-    def test_existing_cli_defaults_and_issue_numbers_are_preserved(self):
-        self.assertEqual(w.parser().parse_args([]).action, "run")
+    def test_tui_default_preserves_explicit_commands_and_issue_numbers(self):
+        self.assertEqual(w.parser().parse_args([]).action, "tui")
+        self.assertEqual(w.parser().parse_args(["run"]).action, "run")
         for action in ("logs", "retry"):
             self.assertEqual(w.parser().parse_args([action, "42"]).number, 42)
 

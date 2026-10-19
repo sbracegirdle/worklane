@@ -45,8 +45,9 @@ class Screen:
     def refresh(self):
         self.frames.append("\n".join(self.lines.values()))
 
-    def getch(self):
-        return next(self.keys, ord("q"))
+    def get_wch(self):
+        key = next(self.keys, ord("q"))
+        return chr(key) if isinstance(key, int) and 0 <= key < 256 else key
 
     def keypad(self, enabled):
         pass
@@ -117,6 +118,139 @@ class TuiTests(unittest.TestCase):
         self.assertEqual(data["logs"][0]["content"], "line 60")
         self.assertEqual(data["selected"]["snippet"], "line 99")
         self.assertEqual(data["selected"]["status"], "interrupted")
+
+    def test_search_finds_metadata_and_historical_text_outside_latest_tail(self):
+        old = self.run_record(text="Historical needle")
+        old_session = self.state.session(1, "worker")["session_id"]
+        for i in range(65):
+            self.state.append_log(old, "agent", f"Old filler {i}")
+        self.state.finish_run(old, "completed")
+        new = self.run_record(text="Latest invocation only")
+        new_session = self.state.session(1, "worker")["session_id"]
+        self.run_record(stage="review", text="Reviewer needle")
+        self.run_record(2, text="Other issue needle")
+        rows = tui.snapshot(self.state)["rows"]
+        before = (self.state.all(), self.state.runs(), self.state.log_entries())
+        for query in ("#1", "TASK 1", "worker", new_session, str(self.tree)):
+            with self.subTest(query=query):
+                self.assertTrue(tui.search_sessions(self.state, query, rows)["results"])
+        saved = tui.search_sessions(self.state, old_session, rows)["results"]
+        self.assertTrue(any(r["row"]["run"]["id"] == old and r["log"] is None for r in saved))
+        results = tui.search_sessions(self.state, "NEEDLE", rows)["results"]
+        self.assertEqual({r["row"]["key"] for r in results}, {(1, "worker"), (1, "reviewer"), (2, "worker")})
+        hit = next(r for r in results if r["row"]["run"]["id"] == old)
+        self.assertEqual(hit["row"]["session"]["session_id"], old_session)
+        context = tui.search_context(self.state, hit)
+        self.assertIn("Historical needle", [log["content"] for log in context])
+        self.assertLessEqual(len(context), 40)
+        self.assertEqual({log["run_id"] for log in context}, {old})
+        self.assertEqual(before, (self.state.all(), self.state.runs(), self.state.log_entries()))
+
+    def test_search_is_literal_unicode_readable_and_bounded(self):
+        run = self.run_record(text="Straße 界 %_' literal")
+        self.state.append_log(run, "agent", "ß" * 100 + " unique marker")
+        self.state.append_log(run, "agent", "item.completed")
+        self.state.append_log(run, "stderr", "2026-10-19T10:05:00Z WARN codex_mcp::client: hidden diagnostic")
+        self.state.append_log(None, "controller", "Controller secret")
+        rows = tui.snapshot(self.state)["rows"]
+        for query in ("STRASSE", "界", "%_'", "unique"):
+            with self.subTest(query=query):
+                result = tui.search_sessions(self.state, query, rows)["results"]
+                self.assertEqual(len(result), 1)
+                self.assertIn(query.casefold(), result[0]["text"].casefold())
+        for query in ("item.completed", "hidden diagnostic", "Controller secret", "absent", " "):
+            self.assertEqual(tui.search_sessions(self.state, query, rows)["results"], [])
+        for i in range(105):
+            self.state.append_log(run, "agent", f"capped match {i}")
+        result = tui.search_sessions(self.state, "capped match", rows)
+        self.assertEqual(len(result["results"]), 100)
+        self.assertTrue(result["truncated"])
+        self.assertEqual(result["results"][0]["text"], "capped match 104")
+
+    def test_search_input_navigation_historical_context_and_back(self):
+        old = self.run_record(text="Historic query 界ć")
+        self.state.finish_run(old, "completed")
+        self.run_record(text="Current output")
+        keys = [ord("/"), *"query 界ćx", curses.KEY_BACKSPACE, 10, 10, ord("a"),
+                curses.KEY_PPAGE, curses.KEY_NPAGE, curses.KEY_END, ord("b"), 27, ord("q")]
+        screen = Screen(keys)
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        before = self.state.all()
+        with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False), \
+             patch.object(tui, "resume_session") as resume:
+            dashboard.run(screen)
+        self.assertEqual(dashboard.search_query, "query 界ć")
+        match = next(frame for frame in screen.frames if "MATCH SESSION LOG" in frame)
+        self.assertIn("Historic query 界ć", match)
+        self.assertNotIn("Current output", match)
+        self.assertTrue(any("Return to the overview" in frame for frame in screen.frames))
+        self.assertIn("ISSUES & SESSIONS", screen.frames[-1])
+        self.assertFalse(dashboard.searching)
+        self.assertEqual(dashboard.focus, (1, None))
+        self.assertEqual(before, self.state.all())
+        resume.assert_not_called()
+
+    def test_search_input_and_historical_transcript_do_not_control_runner(self):
+        self.run_record(text="sxiB")
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        dashboard.control = Mock()
+        dashboard.open_page = Mock()
+        keys = [ord("/")] + list("sxiB") + [10, 10, ord("s"), ord("x"), ord("q"), ord("q"), ord("q")]
+        with patch.object(curses, "has_colors", return_value=False), patch.object(curses, "curs_set"), patch.object(curses, "set_escdelay"):
+            dashboard.run(Screen(keys))
+        self.assertEqual(dashboard.query, "sxiB")
+        dashboard.control.assert_not_called()
+        dashboard.open_page.assert_not_called()
+
+    def test_search_no_matches_edit_cancel_and_restore_transcript(self):
+        self.run_record(text="Current output")
+        screen = Screen([ord("j"), 10, ord("/"), *"missing", 10, ord("/"), 27,
+                         ord("/"), 27, ord("b"), ord("q")])
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+            dashboard.run(screen)
+        self.assertTrue(any("No matches" in frame for frame in screen.frames))
+        self.assertTrue(any("LIVE SESSION LOG" in frame for frame in screen.frames[14:]))
+        self.assertFalse(dashboard.searching)
+
+    def test_search_metadata_results_open_selected_session_and_scroll(self):
+        for number in range(1, 9):
+            self.run_record(number, text=f"Output {number}")
+        screen = Screen([ord("/"), *"worker", 10, curses.KEY_UP, 10, ord("b"),
+                         ord("/"), "x", 27, curses.KEY_DOWN, 10, ord("b"), ord("q"), ord("q")], size=(16, 80))
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+            dashboard.run(screen)
+        matches = [frame for frame in screen.frames if "MATCH SESSION LOG" in frame]
+        self.assertIn("Output 8", matches[0])
+        self.assertIn("Output 1", matches[-1])
+        self.assertEqual(dashboard.query, "worker")
+        self.assertEqual(dashboard.search_query, "worker")
+
+    def test_search_opens_match_inside_long_wrapped_log(self):
+        for text in ("visible needle", "visible\nneedle"):
+            with self.subTest(text=text):
+                self.run_record(text="prefix " * 500 + text + " suffix" * 500)
+                screen = Screen([ord("/"), *"visible needle", 10, 10, ord("b"), ord("q"), ord("q")])
+                dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+                with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+                    dashboard.run(screen)
+                match = next(frame for frame in screen.frames if "MATCH SESSION LOG" in frame)
+                self.assertIn("visible", match)
+                self.assertIn("needle", match)
+
+    def test_search_boundary_match_is_visible_in_small_terminals(self):
+        for prefix, needle, suffix in (("x" * 172, "NEEDLE", "y" * 300),
+                                       ("界" * 84, "探針", "y" * 300)):
+            self.run_record(text=prefix + needle + suffix)
+            for height in (12, 13, 14, 28):
+                with self.subTest(height=height, needle=needle):
+                    screen = Screen(["/", *needle, 10, 10, "b", "q", "q"], size=(height, 50))
+                    dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+                    with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+                        dashboard.run(screen)
+                    match = next(frame for frame in screen.frames if "MATCH SESSION LOG" in frame)
+                    self.assertIn(needle, match)
 
     def test_empty_and_pre_session_assignments_and_blockers(self):
         self.assertEqual(tui.snapshot(self.state)["rows"], [])
@@ -238,6 +372,8 @@ class TuiTests(unittest.TestCase):
         self.assertEqual(body, content)
 
     def test_real_curses_terminal_refresh_resize_logs_and_quit(self):
+        old = self.run_record(text="Historical terminal needle")
+        self.state.finish_run(old, "completed")
         run = self.run_record(text="Inspecting source")
         issue = {"number": 1, "title": "Task 1", "body": "Issue details from persistent cache", "comments": []}
         self.state.set_meta("tui:issue:1", {"value": issue, "retry_at": time.time() + 60})
@@ -251,7 +387,7 @@ class TuiTests(unittest.TestCase):
         subprocess.run(["git", "init", "-q", str(self.tree)], check=True)
         subprocess.run(["git", "-C", str(self.tree), "remote", "add", "origin", "https://github.com/owner/repo.git"], check=True)
         env = {**os.environ, "TERM": "xterm-256color", "XDG_STATE_HOME": str(self.root)}
-        env["NO_COLOR"] = "1"  # A coloured dashboard is explicitly requested by default.
+        env.pop("NO_COLOR", None)  # Exercise colour output independently of the caller's environment.
         process = subprocess.Popen([sys.executable, str(Path(w.__file__).resolve()), "tui", "--repo", str(self.tree), "--refresh", "0.1"],
                                    stdin=slave, stdout=slave, stderr=slave, env=env)
         def cleanup():
@@ -305,6 +441,15 @@ class TuiTests(unittest.TestCase):
                 if key != b"q":
                     os.write(master, b"\n")
                     until(b"LIVE SESSION LOG")
+            os.write(master, b"/terminal needle\n")
+            until(b"SEARCH")
+            os.write(master, b"\n")
+            match = until(b"MATCH SESSION LOG")
+            self.assertIn(b"Historical terminal needle", match)
+            os.write(master, b"b")
+            until(b"SEARCH")
+            os.write(master, b"\x1b")
+            until(b"ISSUES & SESSIONS")
             os.write(master, b"q")
             self.assertEqual(process.wait(timeout=5), 0)
             self.assertTrue(self.state.running())
@@ -483,8 +628,18 @@ class TuiTests(unittest.TestCase):
 
     def test_explicit_monochrome_does_not_initialize_colours(self):
         dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1, no_color=True)
-        with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=True), \
+        with patch.dict(os.environ, {"NO_COLOR": ""}), \
+             patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=True), \
              patch.object(curses, "start_color") as start:
+            dashboard.run(Screen())
+        start.assert_not_called()
+
+    def test_no_color_environment_does_not_initialize_colours(self):
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
+        with patch.dict(os.environ, {"NO_COLOR": "1"}), \
+             patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=True), \
+             patch.object(curses, "start_color") as start, patch.object(curses, "use_default_colors"), \
+             patch.object(curses, "init_pair"), patch.object(curses, "color_pair", return_value=0):
             dashboard.run(Screen())
         start.assert_not_called()
 
@@ -500,6 +655,9 @@ class TuiTests(unittest.TestCase):
             self.assertEqual(w.main(["tui", "--refresh", "0.5"]), 0)
             options = {"project": None, "model": None, "interval": None, "once": None}
             run.assert_called_once_with(self.state, "owner/repo", .5, no_color=False, root=self.tree, options=options)
+            run.reset_mock()
+            self.assertEqual(w.main([]), 0)
+            run.assert_called_once_with(self.state, "owner/repo", 1, no_color=False, root=self.tree, options=options)
             run.reset_mock()
             self.assertEqual(w.main(["tui", "--no-color"]), 0)
             run.assert_called_once_with(self.state, "owner/repo", 1, no_color=True, root=self.tree, options=options)

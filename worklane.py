@@ -1144,7 +1144,7 @@ class Runner:
     def pr(self, url):
         self.pr_number(url)
         return gh("pr", "view", url, "--repo", self.repo,
-                  "--json", "url,headRefOid,headRefName,baseRefName,state,isDraft")
+                  "--json", "url,headRefOid,headRefName,baseRefName,state,isDraft,mergeable")
 
     def human_feedback(self, task):
         """Read every page, including inline threads omitted by gh pr view."""
@@ -1401,11 +1401,32 @@ class Runner:
         task["phase"] = "awaiting_review"
         self.state.save(task)
 
+    def request_rework(self, task):
+        if task["round"] >= 3:
+            raise RuntimeError("Three review rounds failed; human inspection is needed.")
+        self.board.move(task["item"], READY, REVIEW)
+        task["phase"] = "rework"
+        self.state.save(task)
+
+    def requeue_conflict(self, task, pr):
+        if pr.get("mergeable") != "CONFLICTING":
+            return False
+        finding = (f"PR has merge conflicts with {task['base']}; merge the latest base into the assigned branch, "
+                   "resolve conflicts, test and push without force.")
+        result = {"verdict": "changes_requested", "pr_url": task["pr_url"], "head_sha": task["head_sha"],
+                  "summary": "Merge conflicts prevent review and human handoff.", "findings": [finding]}
+        task["review_result"] = result
+        self.state.save(task)
+        self.post(task, "merge conflict", result)
+        self.request_rework(task)
+        return True
+
     def review(self, task):
         if task["question"]:
             tree = self.worktree(task)
         else:
-            self.verify_pr(task, task["head_sha"])
+            if self.requeue_conflict(task, self.verify_pr(task, task["head_sha"])):
+                return
             tree = self.worktree(task, review=True)
         self.refresh_review_threads(task)
         extra = "\nPrimary checkout instructions:\n" + (self.root / "AGENTS.md").read_text() if (self.root / "AGENTS.md").exists() else ""
@@ -1424,11 +1445,7 @@ class Runner:
         if result["verdict"] == "blocked":
             raise RuntimeError("Review blocked: " + result["summary"])
         if result["verdict"] == "changes_requested":
-            if task["round"] >= 3:
-                raise RuntimeError("Three review rounds failed; human inspection is needed.")
-            self.board.move(task["item"], READY, REVIEW)
-            task["phase"] = "rework"
-            self.state.save(task)
+            self.request_rework(task)
             return
         if result["findings"]:
             raise RuntimeError("Review passed with unresolved findings; human review is blocked.")
@@ -1444,12 +1461,22 @@ class Runner:
             self.verify_pr(task, task["head_sha"])
             self.refresh_review_threads(task, require_resolved=True)
             self.post(task, "human testing handoff", handoff)
-            pr = self.pr(task["pr_url"])
+        if "human_feedback_seen" not in task:
+            cutoff = task.get("human_feedback_cutoff")
+            snapshot = self.human_feedback(task)
+            task["human_feedback_seen"] = {key: value for key, value in snapshot.items()
+                                           if cutoff and datetime.fromisoformat(value["updated_at"]) <= datetime.fromisoformat(cutoff)}
+            self.state.save(task)
+        if not task["question"]:
+            pr = self.verify_pr(task, task["head_sha"])
+            if self.requeue_conflict(task, pr):
+                return
+            if pr.get("mergeable") == "UNKNOWN":
+                raise InterruptedRun("GitHub is calculating PR mergeability; the saved handoff will be retried.")
             if pr["isDraft"]:
                 command(["gh", "pr", "ready", task["pr_url"], "--repo", self.repo])
-        if "human_feedback_seen" not in task:
-            task["human_feedback_seen"] = self.human_feedback(task)
-            self.state.save(task)
+                if self.verify_pr(task, task["head_sha"])["isDraft"]:
+                    raise RuntimeError("PR is still a draft; human review is blocked.")
         self.board.move(task["item"], HUMAN, REVIEW)
         task["phase"] = "human_review"
         self.state.save(task)
@@ -1491,6 +1518,27 @@ class Runner:
                 task.pop("child_pid", None)
                 task.pop("child_identity", None)
                 self.state.save(task)
+
+    def reconcile_waiting(self, items, active_numbers=()):
+        """Surface lost review handoffs without overwriting external board edits."""
+        by_id = {item["id"]: item for item in items}
+        for task in self.state.all():
+            if task.get("phase") != "awaiting_review" or task["number"] in active_numbers:
+                continue
+            current = by_id.get(task.get("item", {}).get("id"))
+            if current and current.get("status", "").casefold() == REVIEW.casefold():
+                continue
+            status = self.board.item_status(current) if current else None
+            if status == REVIEW.casefold():
+                current["status"] = REVIEW  # The board listing lagged the direct read.
+                continue
+            task.update(phase="blocked", failed_phase="awaiting_review", resume_stage="build",
+                        blocker="board_status_drift",
+                        error=f"Completed implementation expected {REVIEW}; board is {status or 'missing/closed'}. "
+                              f"Check project automations/manual edits, then run worklane retry {task['number']} "
+                              "to revalidate the saved build. Board status was preserved.")
+            self.state.save(task)
+            print(f"#{task['number']} blocked: {task['error']}", flush=True)
 
     def recover(self, items, slot):
         for task in self.state.all():
@@ -1584,6 +1632,7 @@ class Runner:
                 raise RuntimeError("Ready issue already has a linked PR; inspect it or move it to Agent review instead of creating duplicate work.")
             task = {"number": number, "branch": f"codex/{number}-worklane", "base": self.args.base,
                     "round": 0, "pr_url": "", "head_sha": "", **previous, "phase": "claiming"}
+        task.setdefault("human_feedback_cutoff", previous.get("started_at") or now())
         task.update(item=item, issue=issue, question=question, slot=slot, started_at=now())
         task.pop("completed_turns", None)
         task.pop("error", None)
@@ -1616,6 +1665,7 @@ class Runner:
                         items = self.board.items()
                         with locked(self.state.path / "dispatch.lock"):
                             if not self.state.paused() and not stop.is_set():
+                                self.reconcile_waiting(items, {assignments[slot] for slot in futures})
                                 self.poll_human_feedback(items, {assignments[slot] for slot in futures})
                         for slot in (*WORKERS, REVIEWER):
                             if slot in futures or stop.is_set() or self.state.paused():
@@ -1710,8 +1760,8 @@ def installation_info():
 
 def parser():
     p = argparse.ArgumentParser(description="Three workers and one independent reviewer for a GitHub project board.")
-    p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "board", "status", "logs", "tui", "pause", "resume", "stop", "retry", "add"],
-                   help="Command to run; board opens the project board in your browser (default: run)")
+    p.add_argument("action", nargs="?", default="tui", choices=["run", "start", "check", "board", "status", "logs", "tui", "pause", "resume", "stop", "retry", "add"],
+                   help="Command to run; board opens the project board in your browser (default: tui)")
     p.add_argument("number", nargs="?", type=int, help="Issue number for retry or logs")
     p.add_argument("--repo", default=".", help="Local repository checkout (default: current directory)")
     p.add_argument("--project", help="GitHub board OWNER/NUMBER; auto-detected when unambiguous")
@@ -1826,7 +1876,9 @@ def main(argv=None):
                 task.setdefault("resume_stage", task.get("active_stage", {"reviewing": "review", "finalizing": "finalize"}.get(task.get("failed_phase"), "build")))
                 task.pop("error", None)
                 # Explicit retries may need a new turn after a substantive blocker.
-                if blocked:
+                if blocked and task.pop("blocker", None) == "board_status_drift" and task.get("build_result", {}).get("verdict") == "pass":
+                    task.setdefault("completed_turns", {})["build"] = task["build_result"]
+                elif blocked:
                     task.get("completed_turns", {}).pop(task["resume_stage"], None)
                 state.save(task)
             print("Retry enabled using the saved session. Start Worklane; existing In Progress/Agent review assignments can continue without moving tickets.")

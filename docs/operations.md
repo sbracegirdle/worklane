@@ -48,9 +48,11 @@ issue). Workers verify each fix and resolve its review thread;
 unresolved threads prevent advancement to Human review. Failed reviews return to Ready for work on the same branch, with findings
 included in the next worker's input. After three failed review rounds, the task is
 blocked for inspection instead of looping indefinitely.
+Merge conflicts return to workers; feedback arriving during implementation remains pending after handoff.
 
 After a pass, the same reviewer slot completes any repository-required local
 preview/integration/playground handoff, then moves the issue to Human review.
+Draft PRs are promoted and verified ready before entering Human review; promotion failures block advancement.
 This keeps local integration changes serialized. The tool does not automatically
 merge PRs, publish, deploy or mark issues Done. New human feedback on owned Human
 review issues is batched until five quiet minutes, then resumes the original worker
@@ -152,6 +154,7 @@ without starting another review round. Board changes made by a human are respect
 unexpected statuses or closed issues block automatic continuation.
 
 Provider errors and other blockers still need inspection and an explicit retry:
+Board drift blocks visibly; explicit retry revalidates saved work without rerunning the completed worker.
 
 ```sh
 worklane stop

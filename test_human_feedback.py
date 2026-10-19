@@ -267,7 +267,7 @@ class HumanFeedbackTests(unittest.TestCase):
         self.task.update(phase="reviewing", round=1, item=item(1, w.REVIEW))
         self.board.queue = [item(1, w.REVIEW)]
         self.runner.backend.run.side_effect = [result(), result()]
-        self.runner.verify_pr = Mock()
+        self.runner.verify_pr = Mock(return_value={"isDraft": False})
         self.runner.worktree = Mock(return_value=self.root)
         self.runner.review_threads = Mock(return_value=[])
         self.runner.post = Mock()
@@ -278,6 +278,48 @@ class HumanFeedbackTests(unittest.TestCase):
         feedback.assert_not_called()
         self.assertEqual(self.task["human_feedback_seen"], {})
         self.assertEqual(self.board.moves, [(1, w.HUMAN)])
+
+    def test_first_handoff_does_not_acknowledge_feedback_received_during_work(self):
+        self.task.pop("human_feedback_seen")
+        self.task["human_feedback_cutoff"] = self.clock.isoformat()
+        old = self.feedback("Existing issue discussion", "issue:1")
+        self.advance(60)
+        new = self.feedback("Also change the default command", "review:2")
+        self.task.update(phase="reviewing", round=1, item=item(1, w.REVIEW))
+        self.board.queue = [item(1, w.REVIEW)]
+        self.runner.backend.run.side_effect = [result(), result()]
+        self.runner.verify_pr = Mock(return_value={"isDraft": False})
+        self.runner.worktree = Mock(return_value=self.root)
+        self.runner.review_threads = Mock(return_value=[])
+        self.runner.post = Mock()
+        self.runner.pr.return_value["isDraft"] = False
+        with patch.object(w, "command", side_effect=["a" * 40, ""]), \
+                patch.object(self.runner, "human_feedback", return_value={**old, **new}):
+            self.runner.review(self.task)
+        self.assertEqual(self.task["human_feedback_seen"], old)
+        self.poll({**old, **new})
+        self.assertEqual(self.state.load(1)["human_feedback"], new)
+        self.advance()
+        self.poll({**old, **new})
+        self.assertEqual(self.board.moves, [(1, w.HUMAN), (1, w.READY)])
+
+    def test_feedback_cutoff_survives_review_assignment_and_restart(self):
+        self.task.pop("human_feedback_seen")
+        self.task.update(phase="awaiting_review", started_at=self.clock.isoformat())
+        self.state.save(self.task)
+        self.advance()
+        self.board.queue = [item(1, w.REVIEW)]
+        selected = self.runner.pick(self.board.items()[0], w.REVIEWER)
+        self.assertEqual(selected["human_feedback_cutoff"], self.task["started_at"])
+        self.assertNotEqual(selected["started_at"], selected["human_feedback_cutoff"])
+        reopened = w.State("owner/repo", self.root)
+        self.assertEqual(reopened.load(1)["human_feedback_cutoff"], self.task["started_at"])
+
+    def test_first_worker_records_feedback_cutoff_before_turn(self):
+        self.board.queue = [item(2)]
+        selected = self.runner.pick(self.board.items()[0], "worker-1")
+        self.assertEqual(selected["human_feedback_cutoff"], self.clock.isoformat())
+        self.assertEqual(self.state.load(2)["human_feedback_cutoff"], self.clock.isoformat())
 
     def test_question_handoff_comments_are_unique_across_human_batches(self):
         task = {**self.task, "pr_url": "", "head_sha": "", "human_feedback_generation": 2}

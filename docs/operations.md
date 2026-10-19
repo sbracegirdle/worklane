@@ -44,7 +44,8 @@ reviewable investigation findings without requiring a PR.
 The reviewer independently checks acceptance criteria and tests against the exact
 PR head. Changed heads, blocked checks, unresolved findings and incomplete handoffs
 cannot advance to Human review. Review findings are posted to the PR (or question
-issue). Failed reviews return to Ready for work on the same branch, with findings
+issue). Workers verify each fix and resolve its review thread;
+unresolved threads prevent advancement to Human review. Failed reviews return to Ready for work on the same branch, with findings
 included in the next worker's input. After three failed review rounds, the task is
 blocked for inspection instead of looping indefinitely.
 
@@ -55,6 +56,34 @@ merge PRs, publish, deploy, process Human review feedback or mark issues Done.
 Move an issue back to Ready for work to request another implementation pass.
 If separate legacy feedback automations are enabled, avoid giving them concurrent
 ownership of an issue Worklane is handling.
+
+## Add issues
+
+`worklane add` creates a regular repository issue and places it on the selected
+project board. The title is required; the description is optional (empty by
+default), accepts multiline text, and also supports `--body` as an alias.
+Repository and board selection follow the same rules as `check` and `run`;
+`--repo` and `--project OWNER/NUMBER` override inference.
+
+New issues enter **Ready for work** by default, so a running controller may pick
+them up immediately. If pickup advances the issue to In Progress, Agent review,
+or Human review before verification, `add` still reports successful initial
+placement and preserves the newer status. `--draft` and `--shaping` choose the
+board's **Draft** and **Shaping** statuses instead; these flags cannot be combined.
+Both still create regular repository issues, and verification requires the selected
+status for those destinations.
+
+`add` requires authenticated `gh` with issue/project write access and the selected
+Status option already on the board (case-insensitive). It validates the destination
+before creating the issue and does not add or rename board fields. It does not
+require Codex, start workers, or change controller state. Adding an issue does not
+require the controller's other workflow statuses.
+
+Issue creation and board placement are separate GitHub operations. If placement
+fails, the command exits unsuccessfully and prints the created issue's URL. Keep
+that issue and finish its placement on the named board manually; rerunning `add`
+would create another issue. If creation itself times out, check GitHub before
+retrying because the request may already have succeeded.
 
 ## State, recovery and limits
 

@@ -75,6 +75,16 @@ Return the requested structured result, including exact test commands/results.
 """
 BUILD_PROMPT = """Implement the issue completely: design, code, appropriate tests and docs.
 For rework, fix the saved review findings and current PR feedback on the same branch.
+Read all inline review threads and replies, including outdated threads; paginate
+GitHub connections. The supplied review_threads are a snapshot; refresh before
+finishing. After committing, pushing and verifying a fix against the current PR
+head, reply to each addressed thread with the fix SHA and validation evidence,
+then mark that thread resolved using gh api graphql's resolveReviewThread mutation
+(input: {threadId: THREAD_ID}). Only resolve feedback you verified is addressed;
+leave unaddressed or disputed feedback open and report it as a finding. If you
+cannot resolve an addressed thread, report blocked. Never resolve all threads
+indiscriminately or treat an outdated thread as automatically addressed. On retry,
+check existing replies/resolution before repeating external actions.
 Commit your changes, push the assigned branch without force, and create/update one
 PR against the repository default branch, with a closing reference to the issue.
 Do not request human review yet. Do not alter the primary checkout or shared
@@ -87,6 +97,9 @@ REVIEW_PROMPT = """Independently review the supplied exact revision and issue ac
 Read the complete diff, issue/PR comments, and worker evidence. Inspect actual test
 assertions and run relevant checks yourself. Review correctness, regressions,
 security, documentation and repository-specific content/quality requirements.
+Read all inline review threads and replies, including outdated threads. Verify
+that resolved feedback is addressed at the supplied head; unresolved feedback must
+be reported as findings, even if a code fix exists but its thread remains open.
 Do not implement fixes or change the PR head. Return changes_requested with concrete
 file/line findings when needed, blocked when unable to assess, and pass only when
 all acceptance criteria and applicable checks pass. Echo the supplied head SHA.
@@ -495,8 +508,9 @@ class DatabaseLogWriter:
 
 
 class Board:
-    def __init__(self, repo, path, project=None, *, load_fields=True):
+    def __init__(self, repo, path, project=None, *, load_fields=True, required_statuses=(READY, PROGRESS, HUMAN)):
         self.repo, self.path = repo, path
+        self.required_statuses = required_statuses
         owner, name = repo.split("/")
         if project:
             project_owner, number = project.rsplit("/", 1)
@@ -529,9 +543,38 @@ class Board:
         if not self.field:
             raise RuntimeError("The selected project needs a single-select Status field.")
         self.options = {o["name"].casefold(): o["id"] for o in self.field["options"]}
-        for status in (READY, PROGRESS, HUMAN):
+        for status in self.required_statuses:
             if status.casefold() not in self.options:
                 raise RuntimeError(f"The selected board is missing status {status!r}.")
+
+    def add_issue(self, title, description, status=READY):
+        # Resolve the destination before creating anything on GitHub.
+        option = self.options.get(status.casefold())
+        if not option:
+            raise RuntimeError(f"The selected board is missing status {status!r}.")
+        url = command(["gh", "issue", "create", "--repo", self.repo,
+                       "--title", title, "--body-file", "-"], stdin=description)
+        try:
+            item = gh("project", "item-add", str(self.number), "--owner", self.owner,
+                      "--url", url, "--format", "json")
+            command(["gh", "project", "item-edit", "--id", item["id"],
+                     "--project-id", self.project["id"], "--field-id", self.field["id"],
+                     "--single-select-option-id", option])
+            after = next((i for i in self.items() if i["id"] == item["id"]), None)
+            verified_statuses = {status.casefold()}
+            if status.casefold() == READY.casefold():
+                # The successful Ready write can be picked up before this read.
+                # Accept workflow progress without rewinding the controller.
+                verified_statuses.update(s.casefold() for s in (PROGRESS, REVIEW, HUMAN))
+            if not after or after.get("status", "").casefold() not in verified_statuses:
+                raise RuntimeError(f"Could not verify board status {status!r}.")
+        except (RuntimeError, OSError, ValueError, KeyError, subprocess.TimeoutExpired) as error:
+            raise RuntimeError(
+                f"Issue created: {url}, but board placement in {self.owner}/{self.number} "
+                f"with status {status!r} failed: {error}. "
+                "Keep this issue and finish its board placement manually; do not rerun add."
+            ) from error
+        return url
 
     def ensure_review_status(self):
         if REVIEW.casefold() in self.options:
@@ -837,11 +880,76 @@ class Runner:
         return gh("issue", "view", str(number), "--repo", self.repo,
                   "--json", "number,title,body,state,labels,comments,url")
 
-    def pr(self, url):
+    def pr_number(self, url):
         if not re.fullmatch(r"https://github\.com/" + re.escape(self.repo) + r"/pull/\d+", url, flags=re.I):
             raise RuntimeError("Agent returned a PR outside the assigned repository.")
+        return int(url.rsplit("/", 1)[1])
+
+    def pr(self, url):
+        self.pr_number(url)
         return gh("pr", "view", url, "--repo", self.repo,
                   "--json", "url,headRefOid,headRefName,baseRefName,state,isDraft,comments,reviews,body")
+
+    def review_threads(self, url):
+        """Read every inline thread and reply; gh pr view omits these discussions."""
+        number = self.pr_number(url)
+        owner, name = self.repo.split("/", 1)
+        threads, cursor = [], None
+
+        def next_cursor(connection, previous):
+            page = connection["pageInfo"]
+            if not page["hasNextPage"]:
+                return None
+            following = page["endCursor"]
+            if not following or following == previous:
+                raise RuntimeError("GitHub returned incomplete review-thread pagination.")
+            return following
+
+        while True:
+            data = graphql("""query($owner:String!, $name:String!, $number:Int!, $cursor:String) {
+              repository(owner:$owner, name:$name) { pullRequest(number:$number) {
+                reviewThreads(first:100, after:$cursor) {
+                  nodes { id isResolved isOutdated viewerCanResolve path line
+                    comments(first:100) {
+                      nodes { id body url author { login } }
+                      pageInfo { hasNextPage endCursor }
+                    }
+                  }
+                  pageInfo { hasNextPage endCursor }
+                }
+              } }
+            }""", {"owner": owner, "name": name, "number": number, "cursor": cursor})
+            connection = data["repository"]["pullRequest"]["reviewThreads"]
+            for thread in connection["nodes"]:
+                comments = thread["comments"]
+                replies = list(comments["nodes"])
+                reply_cursor = next_cursor(comments, None)
+                while reply_cursor:
+                    page = graphql("""query($id:ID!, $cursor:String!) {
+                      node(id:$id) { ... on PullRequestReviewThread {
+                        comments(first:100, after:$cursor) {
+                          nodes { id body url author { login } }
+                          pageInfo { hasNextPage endCursor }
+                        }
+                      } }
+                    }""", {"id": thread["id"], "cursor": reply_cursor})
+                    comments = page["node"]["comments"]
+                    replies.extend(comments["nodes"])
+                    reply_cursor = next_cursor(comments, reply_cursor)
+                thread["comments"] = replies
+                threads.append(thread)
+            cursor = next_cursor(connection, cursor)
+            if cursor is None:
+                return threads
+
+    def refresh_review_threads(self, task, *, require_resolved=False):
+        threads = self.review_threads(task["pr_url"]) if task.get("pr_url") and not task["question"] else []
+        task["review_threads"] = threads
+        self.state.save(task)
+        unresolved = [thread for thread in threads if not thread["isResolved"]]
+        if require_resolved and unresolved:
+            references = [f"{thread['id']} ({thread['path']})" for thread in unresolved]
+            raise RuntimeError("Unresolved PR review threads block completion: " + "; ".join(references))
 
     def verify_pr(self, task, sha):
         pr = self.pr(task["pr_url"])
@@ -901,6 +1009,7 @@ class Runner:
 
     def build(self, task):
         tree = self.worktree(task)
+        self.refresh_review_threads(task)
         # Explicitly supply primary-checkout instructions even when untracked there.
         instructions = self.root / "AGENTS.md"
         extra = "\nPrimary checkout instructions:\n" + instructions.read_text() if instructions.exists() else ""
@@ -923,6 +1032,7 @@ class Runner:
                 raise RuntimeError("Worker checkout differs from the pushed PR head.")
             if command(["git", "status", "--porcelain"], cwd=tree):
                 raise RuntimeError("Worker left uncommitted changes.")
+            self.refresh_review_threads(task, require_resolved=True)
         self.post(task, "implementation complete", result)
         self.state.save(task)
         self.board.move(task["item"], REVIEW, PROGRESS)
@@ -935,6 +1045,7 @@ class Runner:
         else:
             self.verify_pr(task, task["head_sha"])
             tree = self.worktree(task, review=True)
+        self.refresh_review_threads(task)
         extra = "\nPrimary checkout instructions:\n" + (self.root / "AGENTS.md").read_text() if (self.root / "AGENTS.md").exists() else ""
         # A stopped finalizer continues the handoff, not a new review round.
         reuse_review = task.get("resume_stage") == "finalize" and task.get("review_result", {}).get("head_sha") == task.get("head_sha")
@@ -959,6 +1070,7 @@ class Runner:
             return
         if result["findings"]:
             raise RuntimeError("Review passed with unresolved findings; human review is blocked.")
+        self.refresh_review_threads(task, require_resolved=True)
         task["phase"] = "finalizing"
         self.state.save(task)
         if not task["question"]:
@@ -968,6 +1080,7 @@ class Runner:
             if handoff["verdict"] != "pass" or handoff["head_sha"] != task["head_sha"] or handoff["findings"]:
                 raise RuntimeError("Local human-testing handoff is incomplete: " + handoff["summary"])
             self.verify_pr(task, task["head_sha"])
+            self.refresh_review_threads(task, require_resolved=True)
             self.post(task, "human testing handoff", handoff)
             pr = self.pr(task["pr_url"])
             if pr["isDraft"]:
@@ -1193,11 +1306,16 @@ def installation_info():
 
 def parser():
     p = argparse.ArgumentParser(description="Three workers and one independent reviewer for a GitHub project board.")
-    p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "board", "status", "logs", "pause", "resume", "stop", "retry"],
+    p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "board", "status", "logs", "pause", "resume", "stop", "retry", "add"],
                    help="Command to run; board opens the project board in your browser (default: run)")
     p.add_argument("number", nargs="?", type=int, help="Issue number for retry or logs")
     p.add_argument("--repo", default=".", help="Local repository checkout (default: current directory)")
     p.add_argument("--project", help="GitHub board OWNER/NUMBER; auto-detected when unambiguous")
+    p.add_argument("-t", "--title", help="With add: new issue title (required)")
+    p.add_argument("-d", "--description", "--body", help="With add: issue description (default: empty)")
+    destination = p.add_mutually_exclusive_group()
+    destination.add_argument("--draft", action="store_true", help="With add: use the board's Draft status")
+    destination.add_argument("--shaping", action="store_true", help="With add: use the board's Shaping status")
     p.add_argument("--model", default=MODEL, help=f"Codex model (default: {MODEL})")
     p.add_argument("--interval", type=int, default=60, help="Polling seconds (minimum 10)")
     p.add_argument("--once", action="store_true", help="Dispatch one batch, wait for it, then exit")
@@ -1219,7 +1337,19 @@ def main(argv=None):
             raise RuntimeError("--interval must be at least 10 seconds.")
         if args.now and args.action != "stop":
             raise RuntimeError("--now is only valid with stop.")
+        if args.action != "add" and (args.title is not None or args.description is not None or args.draft or args.shaping):
+            raise RuntimeError("--title, --description/--body, --draft and --shaping are only valid with add.")
+        if args.action == "add" and (not args.title or not args.title.strip() or args.number is not None):
+            raise RuntimeError("Use worklane add --title TITLE [--description DESCRIPTION] [--draft | --shaping].")
         repo, root, base = repository(Path(args.repo).expanduser())
+        if args.action == "add":
+            if not shutil.which("gh"):
+                raise RuntimeError("Required command missing: gh")
+            status = "Draft" if args.draft else "Shaping" if args.shaping else READY
+            board = Board(repo, root, args.project, required_statuses=(status,))
+            url = board.add_issue(args.title, args.description or "", status)
+            print(f"{url}\nAdded to {board.project['url']} with initial status {status}.")
+            return 0
         if args.action == "board":
             if not shutil.which("gh"):
                 raise RuntimeError("Required command missing: gh")

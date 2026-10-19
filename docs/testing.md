@@ -18,6 +18,8 @@ Unicode wrapping without lost content, resume guards, navigation and resizing.
 A real curses process in a pseudo-terminal verifies colour output, live refresh,
 log following and quitting without stopping the controller. Interactive resume
 uses a mocked invocation; no real coding conversation is resumed by these tests.
+TUI controls use mocked launches; cached issue/board views also run in a real terminal.
+Cache tests cover expiry, offline content, comment pagination and shared GitHub cooldowns.
 
 Metadata tests use a fake app-server subprocess to check naming, project reuse and
 creation, pagination, concurrent roles, resumption, and transport failure cleanup.

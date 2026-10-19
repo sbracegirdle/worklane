@@ -1720,8 +1720,8 @@ def parser():
     destination = p.add_mutually_exclusive_group()
     destination.add_argument("--draft", action="store_true", help="With add: use the board's Draft status")
     destination.add_argument("--shaping", action="store_true", help="With add: use the board's Shaping status")
-    p.add_argument("--model", default=MODEL, help=f"Codex model (default: {MODEL})")
-    p.add_argument("--interval", type=int, default=60, help="Polling seconds (minimum 10)")
+    p.add_argument("--model", help=f"Codex model (default: {MODEL})")
+    p.add_argument("--interval", type=int, help="Polling seconds (minimum 10; default 60)")
     p.add_argument("--once", action="store_true", help="Dispatch one batch, wait for it, then exit")
     p.add_argument("--now", action="store_true", help="With stop: terminate active agents as well")
     p.add_argument("--refresh", type=float, default=1, help="TUI refresh seconds (0.1 to 60; default 1)")
@@ -1734,6 +1734,10 @@ def parser():
 
 def main(argv=None):
     args = parser().parse_args(argv)
+    tui_options = {"project": args.project, "model": args.model, "interval": args.interval,
+                   "once": True if args.once else None}
+    args.model = args.model if args.model is not None else MODEL
+    args.interval = args.interval if args.interval is not None else 60
     original_stdout, original_stderr = sys.stdout, sys.stderr
     output_redirected = False
     budget_token = None
@@ -1773,7 +1777,8 @@ def main(argv=None):
         args.base = base
         if args.action == "tui":
             from worklane_tui import run_tui
-            run_tui(state, repo, args.refresh, no_color=args.no_color)
+            run_tui(state, repo, args.refresh, no_color=args.no_color, root=root,
+                    options=tui_options)
             return 0
         if args.action == "logs":
             for entry in state.log_entries(args.number):
@@ -1791,7 +1796,7 @@ def main(argv=None):
             with locked(state.path / "dispatch.lock"):
                 state.pause(args.action != "resume")
                 if args.action == "stop":
-                    state.set_meta("shutdown", {"immediate": args.now})
+                    state.set_meta("shutdown", {"immediate": args.now, "requested": True})
             runtime = state.get_meta("runtime", {})
             if args.action == "stop":
                 pid = runtime.get("pid")
@@ -1866,7 +1871,7 @@ def main(argv=None):
             command(["codex", "login", "status"])
             state.set_meta("runtime", {"pid": os.getpid(), "identity": process_identity(os.getpid()),
                        "started_at": now(), "checkout": str(root), "project": f"{board.owner}/{board.number}", "model": args.model,
-                       "cli": installation_info()})
+                       "interval": args.interval, "once": args.once, "cli": installation_info()})
             state.set_meta("shutdown", {"immediate": False})
             stop = threading.Event()
             def stop_handler(_signum, _frame):

@@ -16,7 +16,7 @@ from unittest.mock import Mock, patch
 import uuid
 
 import worklane as w
-from test_worklane import FakeBoard, item, result
+from test_worklane import FakeBoard, item, result, review_thread
 
 FAKE_CODEX = r'''
 import json, os, pathlib, sys, time, uuid
@@ -81,6 +81,7 @@ class SessionTests(unittest.TestCase):
             reopened = w.State("owner/repo", self.root)
             task = reopened.load(1)
             task["review_result"] = result("changes_requested", findings=["Fix file.py:12"])
+            task["review_threads"] = [review_thread()]
             self.backend(fd, reopened).run("build", task, self.tree)
         calls = self.calls()
         self.assertNotIn("resume", calls[0]["args"])
@@ -88,6 +89,9 @@ class SessionTests(unittest.TestCase):
         self.assertEqual(calls[1]["args"][-2], original)
         self.assertNotIn("--last", calls[1]["args"])
         self.assertIn("Fix file.py:12", calls[1]["prompt"])
+        self.assertIn("Fix the boundary condition", calls[1]["prompt"])
+        self.assertIn("resolveReviewThread", calls[1]["prompt"])
+        self.assertIn("fix SHA and validation evidence", calls[1]["prompt"])
         self.assertEqual(reopened.session(1, "worker")["session_id"], original)
 
     def test_worker_reviewer_and_finalizer_are_separate_and_resumable(self):
@@ -209,6 +213,7 @@ class SessionTests(unittest.TestCase):
             self.assertEqual(w.main(["run", "--once", "--repo", str(self.tree)]), 0)
         self.assertEqual(self.calls()[1]["args"][-2], original)
         self.assertEqual(self.state.load(1)["phase"], "awaiting_review")
+        self.assertEqual(self.state.get_meta("runtime")["cli"]["module"], str(Path(w.__file__).resolve()))
 
     def test_timeout_retains_session(self):
         with w.locked(self.state.path / "runner.lock") as fd:
@@ -326,6 +331,7 @@ class SessionTests(unittest.TestCase):
         runner.verify_pr = Mock()
         runner.post = Mock()
         runner.pr = Mock(return_value={"isDraft": False})
+        runner.review_threads = Mock(return_value=[])
         with patch.object(w, "command", side_effect=["a" * 40, ""]):
             runner.review(task)
         self.assertEqual([c.args[0] for c in backend.run.call_args_list], ["finalize"])

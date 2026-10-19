@@ -44,7 +44,8 @@ reviewable investigation findings without requiring a PR.
 The reviewer independently checks acceptance criteria and tests against the exact
 PR head. Changed heads, blocked checks, unresolved findings and incomplete handoffs
 cannot advance to Human review. Review findings are posted to the PR (or question
-issue). Failed reviews return to Ready for work on the same branch, with findings
+issue). Workers verify each fix and resolve its review thread;
+unresolved threads prevent advancement to Human review. Failed reviews return to Ready for work on the same branch, with findings
 included in the next worker's input. After three failed review rounds, the task is
 blocked for inspection instead of looping indefinitely.
 

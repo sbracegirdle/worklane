@@ -29,7 +29,7 @@ import threading
 import time
 import uuid
 
-MODEL = "gpt-6.1-sol"
+from worklane_harness import HARNESSES, MODEL, CodexAppServer, terminate, validate_session_id
 HUMAN_FEEDBACK_QUIET_SECONDS = 300
 WORKERS = ("worker-1", "worker-2", "worker-3")
 REVIEWER = "reviewer"
@@ -500,7 +500,7 @@ class State:
             if not db.execute("SELECT 1 FROM tasks WHERE number=?", (number,)).fetchone():
                 return {}
             task = self._get(db, f"task:{number}", {})
-            sessions = db.execute("SELECT role,session_id,worktree,model FROM sessions WHERE number=?", (number,)).fetchall()
+            sessions = db.execute("SELECT role,session_id,backend,worktree,model FROM sessions WHERE number=?", (number,)).fetchall()
         if task:
             task["sessions"] = {row["role"]: dict(row) for row in sessions}
         return task
@@ -549,19 +549,19 @@ class State:
             db.execute("UPDATE runs SET pid=?,identity=?,status='running' WHERE id=?", (pid, task["child_identity"], run_id))
 
     @staticmethod
-    def _attach_session(db, run_id, session_id, model):
-        session_id = str(uuid.UUID(session_id))
+    def _attach_session(db, run_id, session_id, model, backend="codex"):
+        session_id = validate_session_id(backend, session_id)
         run = db.execute("SELECT * FROM runs WHERE id=?", (run_id,)).fetchone()
-        old = db.execute("SELECT session_id FROM sessions WHERE number=? AND role=?", (run["number"], run["role"])).fetchone()
-        if old and old[0] != session_id:
-            raise RuntimeError("Codex returned a different session ID; refusing to replace the saved conversation.")
+        old = db.execute("SELECT session_id,backend FROM sessions WHERE number=? AND role=?", (run["number"], run["role"])).fetchone()
+        if old and (old[0] != session_id or old[1] != backend):
+            raise RuntimeError("Harness returned a different session ID; refusing to replace the saved conversation.")
         stamp = now()
-        db.execute("INSERT INTO sessions VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(number,role) DO UPDATE SET updated_at=excluded.updated_at,worktree=excluded.worktree", (run["number"], run["role"], session_id, "codex", model, run["worktree"], stamp, stamp))
+        db.execute("INSERT INTO sessions VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(number,role) DO UPDATE SET updated_at=excluded.updated_at,worktree=excluded.worktree", (run["number"], run["role"], session_id, backend, model or "", run["worktree"], stamp, stamp))
         db.execute("UPDATE runs SET session_id=? WHERE id=?", (session_id, run_id))
 
-    def attach_session(self, run_id, session_id, model):
+    def attach_session(self, run_id, session_id, model, backend="codex"):
         with self.connect() as db:
-            self._attach_session(db, run_id, session_id, model)
+            self._attach_session(db, run_id, session_id, model, backend)
 
     @staticmethod
     def _log(db, run_id, stream, content):
@@ -574,11 +574,18 @@ class State:
         text = event_text(event)
         cls._log(db, run_id, "agent", text if isinstance(text, str) else str(text))
 
-    def record_event(self, run_id, event, model):
+    def record_event(self, run_id, event, model, backend="codex"):
+        self.record_events(run_id, [event], model, backend)
+
+    def record_events(self, run_id, events, model, backend, *, wire=None):
         with self.connect() as db:
-            self._event(db, run_id, event)
-            if event.get("type") == "thread.started":
-                self._attach_session(db, run_id, event["thread_id"], model)
+            if wire is not None:
+                event_id = db.execute("INSERT INTO run_events(run_id,type,created_at) VALUES (?,?,?)", (run_id, "wire:" + wire.get("type", "unknown"), now())).lastrowid
+                self._put(db, f"event:{event_id}", wire)
+            for event in events:
+                self._event(db, run_id, event)
+                if event.get("type") == "thread.started":
+                    self._attach_session(db, run_id, event["thread_id"], model, backend)
 
     def append_log(self, run_id, stream, text):
         with self.connect() as db:
@@ -866,131 +873,15 @@ class Board:
             raise RuntimeError(f"Could not verify board transition to {status}.")
 
 
-class CodexAppServer:
-    """A bounded metadata-only JSON-RPC connection; never starts agent turns."""
-
-    def __init__(self, cwd, timeout=15):
-        self.cwd, self.timeout = cwd, timeout
-        self.process = None
-
-    def __enter__(self):
-        self.deadline = time.monotonic() + self.timeout
-        self.pending, self.request_id = b"", 0
-        self.process = subprocess.Popen(
-            ["codex", "app-server", "--listen", "stdio://"], cwd=self.cwd,
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-            start_new_session=True)
-        try:
-            self.request("initialize", {
-                "clientInfo": {"name": "worklane", "version": "0.1.0"},
-                "capabilities": {"experimentalApi": True},
-            })
-            self.send({"method": "initialized", "params": {}})
-            return self
-        except BaseException:
-            self.__exit__(None, None, None)
-            raise
-
-    def send(self, message):
-        self.process.stdin.write((json.dumps(message) + "\n").encode())
-        self.process.stdin.flush()
-
-    def request(self, method, params):
-        self.request_id += 1
-        request_id = self.request_id
-        self.send({"id": request_id, "method": method, "params": params})
-        with selectors.DefaultSelector() as selector:
-            selector.register(self.process.stdout, selectors.EVENT_READ)
-            while True:
-                remaining = self.deadline - time.monotonic()
-                if remaining <= 0:
-                    raise RuntimeError(f"Codex metadata request timed out: {method}")
-                if b"\n" not in self.pending:
-                    if not selector.select(remaining):
-                        continue
-                    chunk = os.read(self.process.stdout.fileno(), 65536)
-                    if not chunk:
-                        raise RuntimeError(f"Codex app-server closed during {method}")
-                    self.pending += chunk
-                    if len(self.pending) > 4 * 1024 * 1024:
-                        raise RuntimeError("Codex metadata response exceeded 4 MiB")
-                    continue
-                line, self.pending = self.pending.split(b"\n", 1)
-                message = json.loads(line)
-                if message.get("id") != request_id:
-                    continue  # Notifications may precede the matching response.
-                if "error" in message:
-                    raise RuntimeError(f"Codex {method}: {message['error'].get('message', message['error'])}")
-                return message["result"]
-
-    def __exit__(self, *_):
-        try:
-            try:
-                self.process.stdin.close()
-            except BrokenPipeError:
-                pass
-            try:
-                self.process.wait(timeout=1)
-            except subprocess.TimeoutExpired:
-                CodexBackend.terminate(self.process)
-        finally:
-            self.process.stdout.close()
-
-
-class CodexBackend:
-    """A single CLI invocation; other backends can implement this boundary later."""
-    def __init__(self, model, root, state, runner_fd):
+class AgentBackend:
+    """Shared lifecycle for any harness: isolated sessions, durable events and recovery."""
+    def __init__(self, model, root, state, runner_fd, harness="codex"):
         self.model, self.root, self.state, self.runner_fd = model, root, state, runner_fd
         self.timeout = 8 * 3600
-        self.metadata_lock = threading.Lock()
+        self.harness = HARNESSES[harness](model, root, state)
+        self.model = self.harness.model
 
-    def name_session(self, run_id, session_id, stage, task):
-        """Use Codex APIs rather than editing its database or transcript files."""
-        role = ROLES[stage]
-        issue = task.get("issue", {})
-        content = task.get("item", {}).get("content", {})
-        title = " ".join((issue.get("title") or content.get("title") or "Issue").split())[:120]
-        name = f"{self.state.repo} #{task['number']} [{role}]: {title}"
-        root = self.root.resolve()
-        try:
-            # One metadata connection at a time per controller. The deterministic
-            # creation key also prevents duplicate projects after a crash/retry.
-            with self.metadata_lock, CodexAppServer(root) as server:
-                server.request("thread/name/set", {"threadId": session_id, "name": name})
-                matches, cursor, seen = [], None, set()
-                while True:
-                    page = server.request("project/list", {"cursor": cursor, "limit": 100})
-                    matches.extend(p for p in page["data"] if any(
-                        Path(r["path"]).resolve() == root for r in p["roots"]))
-                    cursor = page.get("nextCursor")
-                    if not cursor:
-                        break
-                    if cursor in seen:
-                        raise RuntimeError("Codex project/list repeated a pagination cursor")
-                    seen.add(cursor)
-                if len(matches) > 1:
-                    raise RuntimeError(f"Multiple Codex projects have root {root}; inspect project membership")
-                project = matches[0] if matches else server.request("project/create", {
-                    "name": self.state.repo, "roots": [{"path": str(root)}],
-                    "idempotencyKey": str(uuid.uuid5(uuid.NAMESPACE_URL, f"worklane-project:{root}")),
-                })["project"]
-                server.request("thread/metadata/update", {"threadId": session_id, "projectId": project["id"]})
-            self.state.append_log(run_id, "session", f"Named {session_id}: {name}; Codex project {project['id']}")
-        except (RuntimeError, OSError, ValueError, KeyError, TypeError) as error:
-            self.state.append_log(run_id, "warning", f"Codex session metadata could not be updated: {error}. Will retry on the next turn.")
-
-    @staticmethod
-    def terminate(process):
-        if process.poll() is None:
-            try:
-                os.killpg(process.pid, signal.SIGTERM)
-            except ProcessLookupError:
-                pass
-            try:
-                process.wait(timeout=15)
-            except subprocess.TimeoutExpired:
-                os.killpg(process.pid, signal.SIGKILL)
-                process.wait()
+    terminate = staticmethod(terminate)
 
     def run(self, stage, task, worktree, extra=""):
         if self.state.get_meta("shutdown", {}).get("immediate"):
@@ -1001,6 +892,8 @@ class CodexBackend:
         result_key = {"worker": "build_result", "reviewer": "review_result", "finalizer": "handoff_result"}[role]
         if not session and (history or task.get(result_key) or role in task.get("legacy_session_roles", [])):
             raise RuntimeError(f"No saved {role} session ID; inspect worklane logs. Refusing to start a replacement conversation.")
+        if session and session.get("backend", "codex") != self.harness.name:
+            raise RuntimeError("Saved conversation belongs to another harness; refusing to replace it.")
         if session and session["worktree"] and Path(session["worktree"]).resolve() != Path(worktree).resolve():
             raise RuntimeError(f"The {role} session belongs to another worktree; refusing to resume in a different directory.")
         prompt = COMMON_PROMPT + {"build": BUILD_PROMPT, "review": REVIEW_PROMPT, "finalize": FINALIZE_PROMPT}[stage]
@@ -1011,23 +904,14 @@ class CodexBackend:
         # descriptors satisfy that protocol without creating any persistent files.
         schema_fd, result_fd = memory_fd("worklane-schema"), memory_fd("worklane-result")
         try:
-            os.write(schema_fd, json.dumps(RESULT_SCHEMA).encode())
-            os.lseek(schema_fd, 0, os.SEEK_SET)
-            args = ["codex", "exec", "--approve-for-me", "--cd", str(worktree),
-                    "--config", 'model_reasoning_effort="high"', "--config", "features.multi_agent=false"]
-            if stage == "finalize":
-                args += ["--add-dir", str(self.root)]
-            if session:
-                args += ["resume"]
-            args += ["--model", self.model, "--json", "--output-schema", f"/proc/self/fd/{schema_fd}",
-                     "--output-last-message", f"/proc/self/fd/{result_fd}"]
-            args += [session["session_id"], "-"] if session else ["-"]
-            return self._invoke(args, prompt, stage, task, worktree, schema_fd, result_fd)
+            args, prompt, env, turn = self.harness.prepare(
+                stage, task, worktree, session, prompt, RESULT_SCHEMA, schema_fd, result_fd)
+            return self._invoke(args, prompt, stage, task, worktree, schema_fd, result_fd, env, turn)
         finally:
             os.close(schema_fd)
             os.close(result_fd)
 
-    def _invoke(self, args, prompt, stage, task, worktree, schema_fd, result_fd):
+    def _invoke(self, args, prompt, stage, task, worktree, schema_fd, result_fd, env, turn):
         run_id = self.state.begin_run(task, stage, worktree)
         process = None
         observed_id, turn_completed, turn_failed = None, False, False
@@ -1042,25 +926,28 @@ class CodexBackend:
                 self.state.append_log(run_id, stream, line.decode(errors="replace"))
                 return
             if not isinstance(event, dict):
-                raise RuntimeError("Codex emitted an unexpected event shape.")
-            # Event and session mapping commit together: there is no separate
-            # transcript-file write to replay or reconcile after a crash.
-            self.state.record_event(run_id, event, self.model)
-            if event.get("type") == "thread.started":
-                value = str(uuid.UUID(event["thread_id"]))
-                if observed_id and observed_id != value:
-                    raise RuntimeError("Agent emitted conflicting session IDs.")
-                first = observed_id is None
-                observed_id = value
-                if first:
-                    self.name_session(run_id, value, stage, task)
-            elif event.get("type") == "turn.completed":
-                turn_completed = True
-            elif event.get("type") in {"turn.failed", "error"}:
-                turn_failed = True
+                raise RuntimeError(f"{self.harness.name} emitted an unexpected event shape.")
+            events = turn.events(event)
+            self.state.record_events(run_id, events, self.model, self.harness.name,
+                                     wire=event if turn.keep_wire else None)
+            for normalized in events:
+                if normalized.get("type") == "thread.started":
+                    value = validate_session_id(self.harness.name, normalized["thread_id"])
+                    if observed_id and observed_id != value:
+                        raise RuntimeError("Agent emitted conflicting session IDs.")
+                    first = observed_id is None
+                    observed_id = value
+                    if first:
+                        self.harness.name_session(run_id, value, stage, task)
+                elif normalized.get("type") == "turn.started":
+                    turn_completed = False
+                elif normalized.get("type") == "turn.completed":
+                    turn_completed = True
+                elif normalized.get("type") in {"turn.failed", "error"}:
+                    turn_failed = True
         try:
             process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                       cwd=worktree, pass_fds=(self.runner_fd, schema_fd, result_fd), start_new_session=True)
+                                       cwd=worktree, env=env, pass_fds=(self.runner_fd, schema_fd, result_fd), start_new_session=True)
             self.state.attach_process(run_id, task, process.pid)
             if self.state.get_meta("shutdown", {}).get("immediate"):
                 raise InterruptedRun("Immediate stop requested while the agent was starting.")
@@ -1078,7 +965,7 @@ class CodexBackend:
                 while selector.get_map():
                     remaining = deadline - time.monotonic()
                     if remaining <= 0:
-                        raise InterruptedRun(f"Codex timed out; saved session can continue. Run ID: {run_id}.")
+                        raise InterruptedRun(f"{self.harness.name} timed out; saved session can continue. Run ID: {run_id}.")
                     for key, _ in selector.select(min(1, remaining)):
                         stream = key.data
                         chunk = os.read(key.fd, 65536)
@@ -1095,19 +982,17 @@ class CodexBackend:
             try:
                 process.wait(timeout=max(.1, deadline - time.monotonic()))
             except subprocess.TimeoutExpired:
-                raise InterruptedRun("Codex timed out while exiting; resume the saved session.") from None
+                raise InterruptedRun(f"{self.harness.name} timed out while exiting; resume the saved session.") from None
             if process.returncode < 0:
-                raise InterruptedRun(f"Codex interrupted by signal {-process.returncode}; session retained.")
+                raise InterruptedRun(f"{self.harness.name} interrupted by signal {-process.returncode}; session retained.")
             if process.returncode:
-                raise RuntimeError(f"Codex exited {process.returncode}; see worklane logs {task['number']} (run {run_id}).")
+                raise RuntimeError(f"{self.harness.name} exited {process.returncode}; see worklane logs {task['number']} (run {run_id}).")
             if not observed_id or not turn_completed or turn_failed:
-                raise RuntimeError(f"Codex did not report a successful turn with a session ID; see worklane logs {task['number']}.")
-            os.lseek(result_fd, 0, os.SEEK_SET)
-            with os.fdopen(os.dup(result_fd), "rb") as result_file:
-                output = json.load(result_file)
-            if not output or set(output) != set(RESULT_SCHEMA["required"]):
+                raise RuntimeError(f"{self.harness.name} did not report a successful turn with a session ID; see worklane logs {task['number']}.")
+            output = turn.result()
+            if not isinstance(output, dict) or set(output) != set(RESULT_SCHEMA["required"]):
                 raise RuntimeError("Missing or invalid structured result.")
-            if output["verdict"] not in {"pass", "changes_requested", "blocked"}:
+            if not isinstance(output["verdict"], str) or output["verdict"] not in {"pass", "changes_requested", "blocked"}:
                 raise RuntimeError("Unknown agent verdict.")
             if not all(isinstance(output[key], str) for key in ("pr_url", "head_sha", "summary")):
                 raise RuntimeError("Invalid result field types.")
@@ -1125,6 +1010,33 @@ class CodexBackend:
                 for pipe in (process.stdin, process.stdout, process.stderr):
                     if pipe:
                         pipe.close()
+
+
+# Compatibility for callers constructing the original default backend directly.
+CodexBackend = AgentBackend
+
+
+class HarnessBackend:
+    """Route roles to harnesses; existing conversations retain their harness and model."""
+    def __init__(self, args, root, state, runner_fd):
+        self.args, self.root, self.state, self.runner_fd = args, root, state, runner_fd
+        self.model = args.model or (MODEL if (args.harness or "codex") == "codex" else "harness default")
+        self.backends, self.lock = {}, threading.Lock()
+
+    def selection(self, role, session=None):
+        if session:
+            return session.get("backend", "codex"), session["model"] or None
+        name = getattr(self.args, role + "_harness") or self.args.harness or "codex"
+        return name, getattr(self.args, role + "_model") or self.args.model
+
+    def run(self, stage, task, worktree, extra=""):
+        role = ROLES[stage]
+        name, model = self.selection(role, self.state.session(task["number"], role))
+        with self.lock:
+            if (name, model) not in self.backends:
+                self.backends[name, model] = AgentBackend(model, self.root, self.state, self.runner_fd, name)
+            backend = self.backends[name, model]
+        return backend.run(stage, task, worktree, extra)
 
 
 class Runner:
@@ -1316,7 +1228,10 @@ class Runner:
         marker = f"<!-- worklane:{task['number']}:{stage}:{task.get('head_sha', 'question')}:{task.get('round', 0)} -->"
         if task.get("human_feedback_generation"):
             marker = marker.replace(" -->", f":human-{task['human_feedback_generation']} -->")
-        body = marker + f"\nWorklane {stage} ({self.backend.model})\n\n" + result["summary"]
+        role = {"agent review": "reviewer", "human testing handoff": "finalizer"}.get(stage, "worker")
+        session = self.state.session(task["number"], role)
+        model = f"{session['backend']} {session['model'] or 'default model'}" if session else self.backend.model
+        body = marker + f"\nWorklane {stage} ({model})\n\n" + result["summary"]
         if result.get("findings"):
             body += "\n\n" + "\n".join(f"- {f}" for f in result["findings"])
         target = task.get("pr_url")
@@ -1794,6 +1709,15 @@ def installation_info():
     return info
 
 
+def harness_option_names():
+    return ["harness", "model", *[f"{role}_{option}" for role in ROLES.values() for option in ("harness", "model")]]
+
+
+def harness_flags(options):
+    return [value for name in harness_option_names() if options.get(name) is not None
+            for value in ("--" + name.replace("_", "-"), str(options[name]))]
+
+
 def parser():
     p = argparse.ArgumentParser(description="Three workers and one independent reviewer for a GitHub project board.")
     p.add_argument("action", nargs="?", default="tui", choices=["run", "start", "check", "board", "status", "logs", "tui", "pause", "resume", "stop", "retry", "add"],
@@ -1806,7 +1730,11 @@ def parser():
     destination = p.add_mutually_exclusive_group()
     destination.add_argument("--draft", action="store_true", help="With add: use the board's Draft status")
     destination.add_argument("--shaping", action="store_true", help="With add: use the board's Shaping status")
-    p.add_argument("--model", help=f"Codex model (default: {MODEL})")
+    p.add_argument("--harness", choices=HARNESSES, help="Default harness (default: codex)")
+    p.add_argument("--model", help=f"Default model override (Codex: {MODEL}; OpenCode: configured default)")
+    for role in ROLES.values():
+        p.add_argument(f"--{role}-harness", choices=HARNESSES, help=f"Harness override for {role}")
+        p.add_argument(f"--{role}-model", help=f"Model override for {role}")
     p.add_argument("--interval", type=int, help="Polling seconds (minimum 10; default 60)")
     p.add_argument("--once", action="store_true", help="Dispatch one batch, wait for it, then exit")
     p.add_argument("--now", action="store_true", help="With stop: terminate active agents as well")
@@ -1822,7 +1750,10 @@ def main(argv=None):
     args = parser().parse_args(argv)
     tui_options = {"project": args.project, "model": args.model, "interval": args.interval,
                    "once": True if args.once else None}
-    args.model = args.model if args.model is not None else MODEL
+    tui_options.update({name: getattr(args, name) for name in harness_option_names()
+                        if getattr(args, name) is not None})
+    args.harness = args.harness or "codex"
+    harness_options = {name: getattr(args, name) for name in harness_option_names()}
     args.interval = args.interval if args.interval is not None else 60
     original_stdout, original_stderr = sys.stdout, sys.stderr
     output_redirected = False
@@ -1919,7 +1850,9 @@ def main(argv=None):
                 state.save(task)
             print("Retry enabled using the saved session. Start Worklane; existing In Progress/Agent review assignments can continue without moving tickets.")
             return 0
-        for binary in ("gh", "codex"):
+        harnesses = {getattr(args, role + "_harness") or args.harness for role in ROLES.values()}
+        harnesses.update(session.get("backend", "codex") for task in state.all() if task.get("phase") != "completed" for session in task.get("sessions", {}).values())
+        for binary in ("gh", *sorted(harnesses)):
             if not shutil.which(binary):
                 raise RuntimeError(f"Required command missing: {binary}")
         budget_token = GITHUB_BUDGET.set(GitHubBudget(state))
@@ -1928,7 +1861,7 @@ def main(argv=None):
         board = Board(repo, root, args.project)
         if args.action == "check":
             items = board.items()
-            print(json.dumps({"repository": repo, "board": board.project["url"], "model": args.model,
+            print(json.dumps({"repository": repo, "board": board.project["url"], "model": args.model or (MODEL if args.harness == "codex" else "harness default"), "harness_options": harness_options,
                               "cli": installation_info(),
                               "workers": 3, "reviewers": 1,
                               "will_add_agent_review": REVIEW.casefold() not in board.options,
@@ -1940,7 +1873,8 @@ def main(argv=None):
                 pass
             state.pause(False)
             child_args = [sys.executable, str(Path(__file__).resolve()), "run", "--repo", str(root),
-                          "--project", f"{board.owner}/{board.number}", "--model", args.model, "--interval", str(args.interval), "--background"]
+                          "--project", f"{board.owner}/{board.number}", "--interval", str(args.interval), "--background"]
+            child_args += harness_flags(harness_options)
             if args.once:
                 child_args.append("--once")
             child = subprocess.Popen(child_args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
@@ -1956,9 +1890,10 @@ def main(argv=None):
         with locked(state.path / "runner.lock", blocking=False) as runner_fd:
             command(["gh", "auth", "setup-git", "--hostname", "github.com"], cwd=root)
             board.ensure_review_status()
-            command(["codex", "login", "status"])
+            for name in sorted(harnesses):
+                command(HARNESSES[name].auth_command)
             state.set_meta("runtime", {"pid": os.getpid(), "identity": process_identity(os.getpid()),
-                       "started_at": now(), "checkout": str(root), "project": f"{board.owner}/{board.number}", "model": args.model,
+                       "started_at": now(), "checkout": str(root), "project": f"{board.owner}/{board.number}", "model": args.model or (MODEL if args.harness == "codex" else "harness default"), "harness_options": harness_options,
                        "interval": args.interval, "once": args.once, "cli": installation_info()})
             state.set_meta("shutdown", {"immediate": False})
             stop = threading.Event()
@@ -1967,9 +1902,9 @@ def main(argv=None):
                 stop.set()
             signal.signal(signal.SIGTERM, stop_handler)
             signal.signal(signal.SIGINT, stop_handler)
-            print(f"Worklane: {repo}; 3 workers, 1 reviewer; Codex {args.model}; board {board.project['url']}", flush=True)
+            print(f"Worklane: {repo}; 3 workers, 1 reviewer; {args.harness} {args.model or 'default model'}; board {board.project['url']}", flush=True)
             print(f"State/logs: {state.path}; intake {'paused' if state.paused() else 'running'}", flush=True)
-            backend = CodexBackend(args.model, root, state, runner_fd)
+            backend = HarnessBackend(args, root, state, runner_fd)
             runner = Runner(args, repo, root, state, board, backend)
             runner.recover_tasks()
             runner.run(stop)

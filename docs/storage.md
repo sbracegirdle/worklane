@@ -54,24 +54,24 @@ No transaction spans an agent turn or network operation.
 
 Creating a run and recording its active stage are one transaction. Recording the
 session and binding it to the run are another transaction, committed immediately
-when Codex emits `thread.started`. A stale task save cannot overwrite the normalized
+when a harness reports its session ID. A stale task save cannot overwrite the normalized
 session mapping. Completed invocations retain their structured results in the run
 ledger even if the controller exits before its next workflow update.
 
 ## Sessions and recovery
 
-Codex owns conversation transcripts; Worklane owns the mapping from each issue's
-worker/reviewer/finalizer role to its exact Codex session ID. Subsequent invocations
-use `codex exec resume <ID>`, never the machine's most recent session. Reviewer
+Harnesses own conversation transcripts; Worklane owns the mapping from each issue's
+worker/reviewer/finalizer role to its exact harness and session ID. Subsequent invocations
+resume that harness and ID, never the machine's most recent session. Reviewer
 history remains separate from implementation history. Finalization has its own
 resumable session because it may prepare local integration artifacts.
 
 The received `thread.started` event, readable log entry and matching session-ID
 mapping commit together. A failed mapping check rolls back all of them; no
 separate transcript write needs replaying. If a previous invocation has no recoverable ID, the tool blocks
-rather than silently creating a new conversation. A missing Codex transcript or
+rather than silently creating a new conversation. A missing harness transcript or
 missing worktree is also a blocker. Worklane's database alone does not contain a
-complete copy of Codex's conversation storage.
+complete copy of the harness's conversation storage.
 
 Interrupted owned assignments can continue while already In Progress or Agent
 review. New worker intake still requires Ready for work. Resuming uses the stored
@@ -105,7 +105,7 @@ guarantee across a GitHub network timeout.
 
 Keep state on a local filesystem. Back up with SQLite's backup API or while the
 controller is stopped; copying only the main file of a live WAL database can omit
-recent writes. Restore Codex's local session storage and referenced worktrees too.
+recent writes. Restore the harness's local session storage and referenced worktrees too.
 
 ## Primary references
 

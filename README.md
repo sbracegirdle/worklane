@@ -10,12 +10,12 @@ project board, then hands passing work to a human.
 
 Requires Linux, Python 3.11+, [uv](https://docs.astral.sh/uv/getting-started/installation/),
 [GitHub CLI](https://cli.github.com/) and
-[Codex CLI](https://learn.chatgpt.com/docs/codex/cli).
+[Codex CLI](https://learn.chatgpt.com/docs/codex/cli) or [OpenCode 2.x](https://opencode.ai/docs/cli/).
 
 ```sh
 gh auth login
 gh auth refresh -s project
-codex login
+codex login # For OpenCode: opencode auth login
 uv tool install git+https://github.com/sbracegirdle/worklane.git
 ```
 
@@ -84,6 +84,7 @@ worklane add -t "Fix startup" --repo ~/code/another-project --project OWNER/NUMB
 
 ## Documentation
 
+- [Harnesses](docs/harnesses.md): global defaults, role overrides and OpenCode.
 - [Operations](docs/operations.md): board setup, options, review, recovery and limits.
 - [Dashboard](docs/dashboard.md): controls and session access.
 - [Storage](docs/storage.md): SQLite design, migration and backups.

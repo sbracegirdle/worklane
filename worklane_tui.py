@@ -12,7 +12,6 @@ import sys
 import threading
 import time
 import unicodedata
-import uuid
 
 import worklane
 from worklane import ROLES, WORKERS, locked, process_identity, readable_log
@@ -63,9 +62,9 @@ def controller_action(action, root, options):
     """Use the same CLI safeguards as commands entered in another terminal."""
     args = [sys.executable, str(Path(worklane.__file__).resolve()), action, "--repo", str(root)]
     if action == "start":
-        for name in ("project", "model", "interval"):
+        for name in ("project", "model", "interval", *[key for key in worklane.harness_option_names() if key != "model"]):
             if options.get(name) is not None:
-                args.extend(["--" + name, str(options[name])])
+                args.extend(["--" + name.replace("_", "-"), str(options[name])])
         if options.get("once"):
             args.append("--once")
     return worklane.command(args, cwd=root, timeout=120)
@@ -172,21 +171,20 @@ def resume_session(state, number, role, *, invoke=None):
         session = state.session(number, role)
         if not session:
             raise RuntimeError("No saved session yet. Enter follows live logs as soon as they arrive.")
-        session_id = str(uuid.UUID(session["session_id"]))
-        if session.get("backend", "codex") != "codex":
-            raise RuntimeError("Interactive resume is supported only for Codex sessions.")
+        harness = worklane.HARNESSES[session.get("backend", "codex")]
         tree = Path(session["worktree"])
         if not tree.is_dir():
             raise RuntimeError("Saved session worktree is missing; inspect it before resuming.")
         for run in state.runs():
             if run.get("pid") and run.get("identity") and process_identity(run["pid"]) == run["identity"]:
                 raise RuntimeError("An agent process is still alive. Stop Worklane and wait before resuming.")
-        if not shutil.which("codex"):
-            raise RuntimeError("Required command missing: codex")
-        result = invoke(["codex", "resume", session_id, "--sandbox", "workspace-write", "--ask-for-approval", "on-request",
-                         "--disable", "multi_agent"], cwd=tree, pass_fds=(fd,))
+        if not shutil.which(harness.name):
+            raise RuntimeError(f"Required command missing: {harness.name}")
+        environment = harness.environment()
+        kwargs = {"env": environment} if environment is not None else {}
+        result = invoke(harness.resume_args(session), cwd=tree, pass_fds=(fd,), **kwargs)
         if result.returncode:
-            raise RuntimeError(f"Codex resume exited {result.returncode}; saved session retained.")
+            raise RuntimeError(f"{harness.name} resume exited {result.returncode}; saved session retained.")
 
 
 def search_sessions(state, query, rows, limit=100):
@@ -365,7 +363,8 @@ class Dashboard:
 
     def settings(self):
         runtime = self.state.get_meta("runtime", {})
-        return {**{key: runtime[key] for key in ("project", "model", "interval", "once") if key in runtime},
+        return {**{key: runtime[key] for key in ("project", "interval", "once") if key in runtime},
+                **runtime.get("harness_options", {key: runtime[key] for key in ("model",) if key in runtime}),
                 **{key: value for key, value in self.options.items() if value is not None}}
 
     def open_page(self, kind, *, number=None, fallback=None):
@@ -834,7 +833,7 @@ class Dashboard:
                 c.endwin()
                 try:
                     resume_session(self.state, chosen["number"], chosen["role"])
-                    self.message = "Returned from Codex. Worklane was not started; inspect changes before restarting."
+                    self.message = "Returned from the agent. Worklane was not started; inspect changes before restarting."
                 except (RuntimeError, OSError, ValueError) as error:
                     self.message = str(error)
                 finally:

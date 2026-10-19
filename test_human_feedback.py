@@ -104,6 +104,7 @@ class HumanFeedbackTests(unittest.TestCase):
         self.poll(first)
         self.assertEqual(self.board.moves, [])
         edited = self.feedback("Edited request")
+        self.advance(300)
         self.poll(edited)
         self.advance()
         self.poll(edited)
@@ -128,6 +129,25 @@ class HumanFeedbackTests(unittest.TestCase):
             self.runner.poll_human_feedback(self.board.items(), {1})
         feedback.assert_not_called()
         self.assertEqual(self.board.moves, [])
+
+    def test_idle_feedback_reads_twelve_times_per_hour_and_survives_restart(self):
+        with patch.object(self.runner, "human_feedback", return_value={}) as feedback:
+            for minute in range(60):
+                if minute == 2:
+                    self.runner.state = w.State("owner/repo", self.root)
+                self.runner.poll_human_feedback(self.board.items())
+                self.advance(60)
+        self.assertEqual(feedback.call_count, 12)
+        self.assertEqual(self.runner.issue.call_count, 12)
+
+    def test_feedback_quota_failure_stops_before_other_tasks(self):
+        self.state.save({**self.task, "number": 2, "item": item(2, w.HUMAN)})
+        self.board.queue.append(item(2, w.HUMAN))
+        with patch.object(self.runner, "human_feedback", side_effect=w.GitHubRateLimit("quota")) as feedback:
+            with self.assertRaises(w.GitHubRateLimit):
+                self.runner.poll_human_feedback(self.board.items())
+        feedback.assert_called_once()
+        self.assertEqual(self.state.load(1)["human_feedback_seen"], {})
 
     def test_deleted_pending_feedback_does_not_start_worker(self):
         first = self.feedback()

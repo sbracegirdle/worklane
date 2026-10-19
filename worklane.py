@@ -9,7 +9,9 @@ from __future__ import annotations
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
+from contextvars import ContextVar
 import ctypes
+from email.utils import parsedate_to_datetime
 from datetime import datetime, timezone
 import fcntl
 from importlib import metadata
@@ -34,6 +36,49 @@ REVIEWER = "reviewer"
 READY, PROGRESS, REVIEW, HUMAN = "Ready for work", "In Progress", "Agent review", "Human review"
 ACTIVE = {"building", "reviewing", "finalizing", "claiming"}
 ROLES = {"build": "worker", "review": "reviewer", "finalize": "finalizer"}
+
+
+class GitHubRateLimit(RuntimeError):
+    """GitHub quota exhaustion, including the project CLI's masked error."""
+
+    def __init__(self, message, retry_at=0, *, deferred=False):
+        super().__init__(message)
+        self.retry_at, self.deferred = retry_at, deferred
+
+
+GITHUB_BUDGET = ContextVar("github_budget", default=None)
+
+
+def github_scoped(method):
+    def scoped(self, *args, **kwargs):
+        token = GITHUB_BUDGET.set(self.budget)
+        try:
+            return method(self, *args, **kwargs)
+        finally:
+            GITHUB_BUDGET.reset(token)
+    return scoped
+
+
+def rate_limit_error(detail):
+    lower = detail.casefold()
+    if not any(term in lower for term in ("rate limit", "rate_limit", "secondary rate")):
+        return None
+    headers = dict(re.findall(r"^([\w-]+):\s*([^\r\n]+)", lower, re.M))
+    retry_at = 0
+    retry = headers.get("retry-after", "")
+    if retry.isdigit():
+        retry_at = time.time() + int(retry)
+    elif retry:
+        try:
+            retry_at = parsedate_to_datetime(retry).timestamp()
+        except (ValueError, TypeError):
+            pass
+    if headers.get("x-ratelimit-remaining") == "0":
+        try:
+            retry_at = max(retry_at, float(headers.get("x-ratelimit-reset", 0)) + 1)
+        except ValueError:
+            pass
+    return GitHubRateLimit(detail, retry_at)
 
 
 class InterruptedRun(RuntimeError):
@@ -130,11 +175,39 @@ def now():
 
 
 def command(args, *, cwd=None, stdin=None, timeout=120):
+    budget = GITHUB_BUDGET.get() if str(args[0]) == "gh" else None
+    if budget:
+        return budget.call(lambda: raw_command(args, cwd=cwd, stdin=stdin, timeout=timeout))
+    return raw_command(args, cwd=cwd, stdin=stdin, timeout=timeout)
+
+
+def raw_command(args, *, cwd=None, stdin=None, timeout=120):
     result = subprocess.run([str(a) for a in args], cwd=cwd, input=stdin,
                             text=True, capture_output=True, timeout=timeout)
     if result.returncode:
-        raise RuntimeError(f"{args[0]} failed: {result.stderr.strip() or result.stdout.strip()}")
-    return result.stdout.strip()
+        detail = "\n".join(part.strip() for part in (result.stdout, result.stderr) if part.strip())
+        limited = rate_limit_error(detail) if str(args[0]) == "gh" else None
+        if str(args[0]) == "gh" and ((limited and not limited.retry_at) or "unknown owner type" in detail.casefold()) and "graphql" not in args:
+            # gh project discards the GraphQL error during owner resolution.
+            # A single probe preserves auth/network failures instead of guessing.
+            try:
+                raw_command(["gh", "api", "-i", "graphql", "-f", "query=query { viewer { login } }"])
+            except GitHubRateLimit as probe:
+                raise probe from None
+            except (RuntimeError, OSError, subprocess.TimeoutExpired):
+                if not limited:
+                    raise
+        if limited:
+            raise limited
+        raise RuntimeError(f"{args[0]} failed: {detail}")
+    response = result.stdout.strip()
+    if str(args[0]) == "gh" and "graphql" in args:
+        body = json.loads(response.replace("\r\n", "\n").split("\n\n", 1)[-1])
+        if body.get("errors"):
+            limited = rate_limit_error(response)
+            if limited:
+                raise limited
+    return response
 
 
 def gh(*args, cwd=None, stdin=None):
@@ -142,11 +215,14 @@ def gh(*args, cwd=None, stdin=None):
 
 
 def graphql(query, variables=None):
-    result = gh("api", "graphql", "--input", "-", stdin=json.dumps({
+    response = command(["gh", "api", "-i", "graphql", "--input", "-"], stdin=json.dumps({
         "query": query, "variables": variables or {},
     }))
+    # gh includes HTTP headers so quota failures retain their authoritative reset.
+    result = json.loads(response.replace("\r\n", "\n").split("\n\n", 1)[-1])
     if result.get("errors"):
-        raise RuntimeError(json.dumps(result["errors"]))
+        detail = json.dumps(result["errors"])
+        raise rate_limit_error(response) or RuntimeError(detail)
     return result["data"]
 
 
@@ -497,6 +573,52 @@ class State:
             return True
 
 
+class GitHubBudget:
+    """Serialize controller GitHub calls and share cooldowns across repositories."""
+    def __init__(self, state):
+        self.state = State("_github", state.path.parent.parent)
+
+    def snapshot(self):
+        return self.state.get_meta("github_backoff", {})
+
+    def check(self):
+        saved = self.snapshot()
+        if time.time() < saved.get("until", 0):
+            raise GitHubRateLimit(saved["error"], saved["until"], deferred=True)
+
+    def record(self, error):
+        with locked(self.state.path / "budget.lock"):
+            self._record(error)
+
+    def _record(self, error):
+        if error.deferred:
+            return
+        old = self.snapshot()
+        delay = min(max(old.get("delay", 30) * 2, 60), 3600)
+        until = max(old.get("until", 0), time.time() + delay, error.retry_at)
+        self.state.set_meta("github_backoff", {"delay": delay, "until": until,
+                            "error": str(error), "generation": uuid.uuid4().hex})
+        error.deferred = True  # Callers observing the same failure do not double it.
+
+    def clear(self, previous):
+        with locked(self.state.path / "budget.lock"):
+            if self.snapshot() == previous:
+                self.state.set_meta("github_backoff", {})
+
+    def call(self, invoke):
+        with locked(self.state.path / "budget.lock"):
+            self.check()
+            try:
+                response = invoke()
+                if re.search(r"^x-ratelimit-remaining:\s*0\s*$", response, re.I | re.M):
+                    error = rate_limit_error("API rate limit exhausted\n" + response.split("\n\n", 1)[0])
+                    self._record(error)
+                return response
+            except GitHubRateLimit as error:
+                self._record(error)
+                raise
+
+
 class DatabaseLogWriter:
     """File-like controller output sink; no controller.log file is created."""
     def __init__(self, state, stream, tee=None):
@@ -611,22 +733,95 @@ class Board:
         if REVIEW.casefold() not in self.options:
             raise RuntimeError("Could not create Agent review status.")
 
+    @staticmethod
+    def next_cursor(page, seen):
+        if not page["hasNextPage"]:
+            return None
+        cursor = page.get("endCursor")
+        if not cursor or cursor in seen:
+            raise RuntimeError("GitHub returned incomplete or cyclic pagination.")
+        seen.add(cursor)
+        return cursor
+
+    def linked_prs(self, item_id, connection):
+        links, seen = [], set()
+        while connection:
+            links.extend(pr["url"] for pr in connection["nodes"])
+            cursor = self.next_cursor(connection["pageInfo"], seen)
+            if cursor is None:
+                break
+            data = graphql("""query($id:ID!, $cursor:String!) {
+              node(id:$id) { ... on ProjectV2Item {
+                links: fieldValueByName(name:"Linked pull requests") {
+                  ... on ProjectV2ItemFieldPullRequestValue {
+                    pullRequests(first:100, after:$cursor) {
+                      nodes { url } pageInfo { hasNextPage endCursor }
+                    }
+                  }
+                }
+              } }
+            }""", {"id": item_id, "cursor": cursor})
+            connection = data["node"]["links"]["pullRequests"]
+        return list(dict.fromkeys(links))
+
     def items(self):
-        data = gh("project", "item-list", str(self.number), "--owner", self.owner,
-                  "--limit", "10000", "--format", "json")
-        if len(data["items"]) < data["totalCount"]:
-            raise RuntimeError("Board exceeds 10,000 items; refusing an incomplete queue.")
-        return [i for i in data["items"] if i.get("content", {}).get("type") == "Issue"
-                and i["content"].get("repository", "").casefold() == self.repo.casefold()]
+        # Match gh's board-linked PR field, including non-closing links.
+        items, cursor, seen, count = [], None, set(), 0
+        while True:
+            data = graphql("""query($id:ID!, $cursor:String) {
+              node(id:$id) { ... on ProjectV2 { items(first:100, after:$cursor) {
+                totalCount pageInfo { hasNextPage endCursor }
+                nodes { id fieldValueByName(name:"Status") {
+                  ... on ProjectV2ItemFieldSingleSelectValue { name }
+                } links: fieldValueByName(name:"Linked pull requests") {
+                  ... on ProjectV2ItemFieldPullRequestValue {
+                    pullRequests(first:10) { nodes { url } pageInfo { hasNextPage endCursor } }
+                  }
+                } content { ... on Issue {
+                  number title body url state repository { nameWithOwner }
+                } } }
+              } } }
+            }""", {"id": self.project["id"], "cursor": cursor})
+            connection = data["node"]["items"]
+            count += len(connection["nodes"])
+            if max(connection["totalCount"], count) > 10000:
+                raise RuntimeError("Board exceeds 10,000 items; refusing an incomplete queue.")
+            for node in connection["nodes"]:
+                issue = node.get("content") or {}
+                if issue.get("state") == "CLOSED":
+                    continue
+                if not issue.get("repository") or issue["repository"]["nameWithOwner"].casefold() != self.repo.casefold():
+                    continue
+                content = {key: issue[key] for key in ("number", "title", "body", "url")}
+                content.update(type="Issue", repository=issue["repository"]["nameWithOwner"])
+                links = (node.get("links") or {}).get("pullRequests")
+                items.append({"id": node["id"], "status": (node.get("fieldValueByName") or {}).get("name", ""),
+                              "title": issue["title"], "content": content,
+                              "linked pull requests": self.linked_prs(node["id"], links)})
+            cursor = self.next_cursor(connection["pageInfo"], seen)
+            if cursor is None:
+                if count != connection["totalCount"]:
+                    raise RuntimeError("GitHub returned incomplete board pagination.")
+                return items
+
+    def item_status(self, item):
+        data = graphql("""query($id:ID!) { node(id:$id) { ... on ProjectV2Item {
+          project { id } fieldValueByName(name:"Status") {
+            ... on ProjectV2ItemFieldSingleSelectValue { name }
+          }
+        } } }""", {"id": item["id"]})
+        node = data.get("node") or {}
+        if node.get("project", {}).get("id") != self.project["id"]:
+            return None
+        return (node.get("fieldValueByName") or {}).get("name", "").casefold()
 
     def move(self, item, status, expected):
-        current = next((i for i in self.items() if i["id"] == item["id"]), None)
-        if not current or current.get("status", "").casefold() != expected.casefold():
+        current = self.item_status(item)
+        if current != expected.casefold():
             raise RuntimeError(f"Issue status changed; expected {expected!r}. Leaving it for inspection.")
         command(["gh", "project", "item-edit", "--id", item["id"], "--project-id", self.project["id"],
                  "--field-id", self.field["id"], "--single-select-option-id", self.options[status.casefold()]])
-        after = next((i for i in self.items() if i["id"] == item["id"]), None)
-        if not after or after.get("status", "").casefold() != status.casefold():
+        if self.item_status(item) != status.casefold():
             raise RuntimeError(f"Could not verify board transition to {status}.")
 
 
@@ -894,6 +1089,7 @@ class CodexBackend:
 class Runner:
     def __init__(self, args, repo, root, state, board, backend):
         self.args, self.repo, self.root, self.state, self.board, self.backend = args, repo, root, state, board, backend
+        self.budget = GitHubBudget(state)
 
     def issue(self, number):
         return gh("issue", "view", str(number), "--repo", self.repo,
@@ -907,7 +1103,7 @@ class Runner:
     def pr(self, url):
         self.pr_number(url)
         return gh("pr", "view", url, "--repo", self.repo,
-                  "--json", "url,headRefOid,headRefName,baseRefName,state,isDraft,comments,reviews,body")
+                  "--json", "url,headRefOid,headRefName,baseRefName,state,isDraft")
 
     def human_feedback(self, task):
         """Read every page, including inline threads omitted by gh pr view."""
@@ -962,6 +1158,11 @@ class Runner:
             expected = READY if pending_rework else HUMAN
             if not current or current.get("status", "").casefold() != expected.casefold():
                 continue
+            polled = task.get("human_feedback_polled_at")
+            if not pending_rework and not task.get("human_feedback") and polled:
+                elapsed = datetime.fromisoformat(now()) - datetime.fromisoformat(polled)
+                if elapsed.total_seconds() < 300:
+                    continue
             try:
                 issue = self.issue(task["number"])
                 if issue["state"] != "OPEN":
@@ -981,6 +1182,7 @@ class Runner:
                 task["human_feedback"] = pending
                 task["human_feedback_snapshot"] = snapshot
                 task["issue"] = issue
+                task["human_feedback_polled_at"] = now()
                 if pending and self.feedback_quiet(task) and not pending_rework:
                     # Save intent before the remote transition, for crash recovery.
                     if not task.get("human_feedback_pending"):
@@ -991,6 +1193,8 @@ class Runner:
                     current["status"] = READY  # Refresh this dispatch snapshot too.
                     task.update(phase="rework", round=0)
                 self.state.save(task)
+            except GitHubRateLimit:
+                raise
             except Exception as error:
                 # No partial API snapshot can acknowledge feedback or dispatch work.
                 self.feedback_unavailable.add(task["number"])
@@ -1010,14 +1214,7 @@ class Runner:
         owner, name = self.repo.split("/", 1)
         threads, cursor = [], None
 
-        def next_cursor(connection, previous):
-            page = connection["pageInfo"]
-            if not page["hasNextPage"]:
-                return None
-            following = page["endCursor"]
-            if not following or following == previous:
-                raise RuntimeError("GitHub returned incomplete review-thread pagination.")
-            return following
+        seen = set()
 
         while True:
             data = graphql("""query($owner:String!, $name:String!, $number:Int!, $cursor:String) {
@@ -1037,7 +1234,8 @@ class Runner:
             for thread in connection["nodes"]:
                 comments = thread["comments"]
                 replies = list(comments["nodes"])
-                reply_cursor = next_cursor(comments, None)
+                reply_seen = set()
+                reply_cursor = Board.next_cursor(comments["pageInfo"], reply_seen)
                 while reply_cursor:
                     page = graphql("""query($id:ID!, $cursor:String!) {
                       node(id:$id) { ... on PullRequestReviewThread {
@@ -1049,10 +1247,10 @@ class Runner:
                     }""", {"id": thread["id"], "cursor": reply_cursor})
                     comments = page["node"]["comments"]
                     replies.extend(comments["nodes"])
-                    reply_cursor = next_cursor(comments, reply_cursor)
+                    reply_cursor = Board.next_cursor(comments["pageInfo"], reply_seen)
                 thread["comments"] = replies
                 threads.append(thread)
-            cursor = next_cursor(connection, cursor)
+            cursor = Board.next_cursor(connection["pageInfo"], seen)
             if cursor is None:
                 return threads
 
@@ -1123,13 +1321,20 @@ class Runner:
         self.state.save(task)
         return path
 
+    def agent_result(self, task, stage, tree, extra):
+        completed = task.setdefault("completed_turns", {})
+        if stage not in completed:
+            completed[stage] = self.backend.run(stage, task, tree, extra)
+            self.state.save(task)
+        return completed[stage]
+
     def build(self, task):
         tree = self.worktree(task)
         self.refresh_review_threads(task)
         # Explicitly supply primary-checkout instructions even when untracked there.
         instructions = self.root / "AGENTS.md"
         extra = "\nPrimary checkout instructions:\n" + instructions.read_text() if instructions.exists() else ""
-        result = self.backend.run("build", task, tree, extra)
+        result = self.agent_result(task, "build", tree, extra)
         task["build_result"] = result
         self.state.save(task)
         if result["verdict"] != "pass":
@@ -1165,7 +1370,7 @@ class Runner:
         extra = "\nPrimary checkout instructions:\n" + (self.root / "AGENTS.md").read_text() if (self.root / "AGENTS.md").exists() else ""
         # A stopped finalizer continues the handoff, not a new review round.
         reuse_review = task.get("resume_stage") == "finalize" and task.get("review_result", {}).get("head_sha") == task.get("head_sha")
-        result = task["review_result"] if reuse_review else self.backend.run("review", task, tree, extra)
+        result = task["review_result"] if reuse_review else self.agent_result(task, "review", tree, extra)
         task["review_result"] = result
         self.state.save(task)
         if not task["question"]:
@@ -1190,7 +1395,7 @@ class Runner:
         task["phase"] = "finalizing"
         self.state.save(task)
         if not task["question"]:
-            handoff = self.backend.run("finalize", task, tree, extra)
+            handoff = self.agent_result(task, "finalize", tree, extra)
             task["handoff_result"] = handoff
             self.state.save(task)
             if handoff["verdict"] != "pass" or handoff["head_sha"] != task["head_sha"] or handoff["findings"]:
@@ -1208,6 +1413,7 @@ class Runner:
         task["phase"] = "human_review"
         self.state.save(task)
 
+    @github_scoped
     def execute(self, task, is_review):
         try:
             self.review(task) if is_review else self.build(task)
@@ -1216,6 +1422,12 @@ class Runner:
             task["phase"], task["error"] = "interrupted", str(error)
             self.state.save(task)
             print(f"#{task['number']} interrupted; saved session will resume on start: {error}", flush=True)
+        except GitHubRateLimit as error:
+            self.github_backoff(error)
+            task.update(phase="interrupted", resume_stage="finalize" if task["phase"] == "finalizing" else "review" if is_review else "build",
+                        error=str(error))
+            self.state.save(task)
+            print(f"#{task['number']} waiting for GitHub quota; completed turns are saved.", flush=True)
         except Exception as error:
             task["failed_phase"] = task["phase"]
             task["phase"], task["error"] = "blocked", str(error)
@@ -1261,7 +1473,8 @@ class Runner:
                     task["phase"] = "awaiting_review"
                 elif stage == "review" and status == READY.casefold() and task.get("review_result", {}).get("verdict") == "changes_requested":
                     task["phase"] = "rework"
-                elif stage == "finalize" and status == HUMAN.casefold() and task.get("handoff_result", {}).get("verdict") == "pass":
+                elif status == HUMAN.casefold() and (stage == "finalize" and task.get("handoff_result", {}).get("verdict") == "pass"
+                        or task.get("question") and task.get("review_result", {}).get("verdict") == "pass"):
                     task["phase"] = "human_review"
                 else:
                     task.update(phase="blocked", error=f"Saved work expected {expected}; board is {current.get('status')}. Human status changes are preserved.")
@@ -1280,12 +1493,12 @@ class Runner:
                     continue
                 if task.get("phase") == "retry" and pr["headRefOid"] != task["head_sha"]:
                     task.update(head_sha=pr["headRefOid"], resume_stage="review", round=task.get("round", 0) + 1)
+                    task.pop("completed_turns", None)
                     stage = "review"
                 elif pr["headRefOid"] != task["head_sha"]:
                     task.update(phase="blocked", error="PR head changed during interruption; explicitly retry for a fresh review turn.")
                     self.state.save(task)
                     continue
-                self.verify_pr(task, task["head_sha"])
             task.update(item=current, issue=issue, slot=slot,
                         phase={"build": "building", "review": "reviewing", "finalize": "finalizing"}[stage])
             task.pop("error", None)
@@ -1331,21 +1544,33 @@ class Runner:
             task = {"number": number, "branch": f"codex/{number}-worklane", "base": self.args.base,
                     "round": 0, "pr_url": "", "head_sha": "", **previous, "phase": "claiming"}
         task.update(item=item, issue=issue, question=question, slot=slot, started_at=now())
+        task.pop("completed_turns", None)
         task.pop("error", None)
         self.state.save(task)
         if not review:
-            self.board.move(item, PROGRESS, READY)
+            try:
+                self.board.move(item, PROGRESS, READY)
+            except GitHubRateLimit:
+                task.update(phase="interrupted", resume_stage="build")
+                self.state.save(task)
+                raise
             task["phase"] = "building"
             self.state.save(task)
         return task
 
+    def github_backoff(self, error):
+        self.budget.record(error)
+        print(f"GitHub quota cooldown until {self.budget.snapshot().get('until')}: {error}", flush=True)
+
+    @github_scoped
     def run(self, stop):
         futures = {}
         assignments = {}
         with ThreadPoolExecutor(max_workers=4) as pool:
             while not stop.is_set():
                 futures = {slot: f for slot, f in futures.items() if not f.done()}
-                if not self.state.paused():
+                backoff = self.budget.snapshot()
+                if not self.state.paused() and time.time() >= backoff.get("until", 0) and len(futures) < 4:
                     try:
                         items = self.board.items()
                         with locked(self.state.path / "dispatch.lock"):
@@ -1354,6 +1579,7 @@ class Runner:
                         for slot in (*WORKERS, REVIEWER):
                             if slot in futures or stop.is_set() or self.state.paused():
                                 continue
+                            self.budget.check()
                             with locked(self.state.path / "dispatch.lock"):
                                 task = None if self.state.paused() or stop.is_set() else self.recover(items, slot)
                                 if task:
@@ -1365,6 +1591,7 @@ class Runner:
                                 continue
                             expected = REVIEW if slot == REVIEWER else READY
                             for item in items:
+                                self.budget.check()
                                 if item.get("status", "").casefold() != expected.casefold():
                                     continue
                                 try:
@@ -1378,6 +1605,8 @@ class Runner:
                                             print(f"{slot}: #{task['number']} {task['issue']['title']}", flush=True)
                                             futures[slot] = pool.submit(self.execute, task, slot == REVIEWER)
                                             assignments[slot] = task["number"]
+                                except GitHubRateLimit:
+                                    raise  # Stop the remaining slots against an exhausted quota.
                                 except Exception as error:
                                     number = item["content"]["number"]
                                     task = self.state.load(number) or {"number": number, "item": item}
@@ -1389,6 +1618,9 @@ class Runner:
                                     # Never dispatch the same item twice from this poll snapshot.
                                     items = [i for i in items if i["id"] != item["id"]]
                                     break
+                        self.budget.clear(backoff)
+                    except GitHubRateLimit as error:
+                        self.github_backoff(error)
                     except Exception as error:
                         print(f"Queue unavailable: {error}", flush=True)
                 if self.args.once:
@@ -1461,6 +1693,7 @@ def main(argv=None):
     args = parser().parse_args(argv)
     original_stdout, original_stderr = sys.stdout, sys.stderr
     output_redirected = False
+    budget_token = None
     try:
         if args.version:
             print(json.dumps(installation_info(), indent=2))
@@ -1538,15 +1771,20 @@ def main(argv=None):
                 if task.get("phase") not in ACTIVE | {"blocked", "interrupted"}:
                     raise RuntimeError("Only blocked/interrupted tasks need retry.")
                 # Never change board state here. Resume only its current authorized lane.
+                blocked = task["phase"] == "blocked"
                 task["phase"] = "retry"
                 task.setdefault("resume_stage", task.get("active_stage", {"reviewing": "review", "finalizing": "finalize"}.get(task.get("failed_phase"), "build")))
                 task.pop("error", None)
+                # Explicit retries may need a new turn after a substantive blocker.
+                if blocked:
+                    task.get("completed_turns", {}).pop(task["resume_stage"], None)
                 state.save(task)
             print("Retry enabled using the saved session. Start Worklane; existing In Progress/Agent review assignments can continue without moving tickets.")
             return 0
         for binary in ("gh", "codex"):
             if not shutil.which(binary):
                 raise RuntimeError(f"Required command missing: {binary}")
+        budget_token = GITHUB_BUDGET.set(GitHubBudget(state))
         if not args.base:
             args.base = gh("repo", "view", repo, "--json", "defaultBranchRef")["defaultBranchRef"]["name"]
         board = Board(repo, root, args.project)
@@ -1602,6 +1840,8 @@ def main(argv=None):
         print(f"worklane: {error}", file=sys.stderr)
         return 1
     finally:
+        if budget_token is not None:
+            GITHUB_BUDGET.reset(budget_token)
         if output_redirected:
             try:
                 sys.stdout.flush()

@@ -18,3 +18,11 @@ Unicode wrapping without lost content, resume guards, navigation and resizing.
 A real curses process in a pseudo-terminal verifies colour output, live refresh,
 log following and quitting without stopping the controller. Interactive resume
 uses a mocked invocation; no real coding conversation is resumed by these tests.
+
+Metadata tests use a fake app-server subprocess to check naming, project reuse and
+creation, pagination, concurrent roles, resumption, and transport failure cleanup.
+
+Issue-creation tests cover literal multiline descriptions, destination validation,
+Draft/Shaping selection, concurrent controller pickup, and recovery guidance after
+partial failure. GitHub writes are mocked; live issue creation and board placement
+require a disposable repository and board for manual validation.

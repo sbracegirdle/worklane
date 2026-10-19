@@ -131,10 +131,101 @@ def resume_session(state, number, role, *, invoke=None):
             raise RuntimeError(f"Codex resume exited {result.returncode}; saved session retained.")
 
 
+def search_sessions(state, query, rows, limit=100):
+    """Literal Unicode search across session metadata and all readable invocations."""
+    needle = plain(query).strip().casefold()
+    results = []
+    if not needle:
+        return {"results": results, "truncated": False}
+    by_key = {row["key"]: row for row in rows}
+
+    def metadata(row):
+        return " · ".join(str(value) for value in (
+            f"#{row['number']}", row["title"], row["role"], row["status"],
+            row["session"].get("session_id", ""),
+            row["session"].get("worktree") or row["run"].get("worktree", "")))
+
+    def invocation(row, run):
+        return dict(row, run=run, status=run["status"], session=dict(row["session"],
+            session_id=run.get("session_id") or "not saved yet", worktree=run["worktree"]))
+
+    for row in rows:
+        text = metadata(row)
+        if needle in plain(text).casefold():
+            results.append({"row": row, "log": None, "text": text})
+            if len(results) > limit:
+                return {"results": results[:limit], "truncated": True}
+    with state.connect() as db:
+        db.create_function("search_text", 2, lambda stream, content: plain(readable_log(stream, content)).casefold(), deterministic=True)
+        db.create_function("readable_log", 2, readable_log, deterministic=True)
+        db.execute("BEGIN")
+        runs = {}
+        for record in db.execute("SELECT * FROM runs ORDER BY started_at DESC,rowid DESC"):
+            row = by_key.get((record["number"], record["role"]))
+            if row is None or record["id"] == row["run"].get("id"):
+                continue
+            historical = invocation(row, dict(record))
+            text = metadata(historical)
+            if needle in plain(text).casefold():
+                results.append({"row": historical, "log": None, "text": text})
+                if len(results) > limit:
+                    return {"results": results[:limit], "truncated": True}
+        logs = db.execute("""SELECT l.id,l.run_id,l.stream,l.created_at,
+            readable_log(l.stream,l.content) AS content,r.number,r.role
+            FROM logs l JOIN runs r ON r.id=l.run_id
+            WHERE instr(search_text(l.stream,l.content),?) > 0
+            ORDER BY l.id DESC LIMIT ?""", (needle, limit + 1 - len(results)))
+        for log in logs:
+            row = by_key.get((log["number"], log["role"]))
+            if row is None:
+                continue
+            run_id = log["run_id"]
+            if run_id not in runs:
+                runs[run_id] = dict(db.execute("SELECT * FROM runs WHERE id=?", (run_id,)).fetchone())
+            run = runs[run_id]
+            historical = invocation(row, run)
+            content = plain(log["content"])
+            # Keep the matching portion visible even in a long command output.
+            position = search_position(content, needle)
+            excerpt = content[max(0, position - 25):]
+            results.append({"row": historical, "log": dict(log), "text": excerpt})
+    return {"results": results[:limit], "truncated": len(results) > limit}
+
+
+def search_context(state, result):
+    """Bounded context around a hit, confined to its exact historical invocation."""
+    log = result["log"]
+    with state.connect() as db:
+        db.create_function("readable_log", 2, readable_log, deterministic=True)
+        db.execute("BEGIN")
+        fields = "id,run_id,stream,created_at,readable_log(stream,content) AS content"
+        if log is None:
+            logs = db.execute(f"SELECT {fields} FROM logs WHERE run_id=? AND readable_log(stream,content)!='' ORDER BY id DESC LIMIT 40",
+                              (result["row"]["run"].get("id"),)).fetchall()
+            return [dict(row) for row in reversed(logs)]
+        before = db.execute(f"SELECT {fields} FROM logs WHERE run_id=? AND id<=? AND readable_log(stream,content)!='' ORDER BY id DESC LIMIT 20",
+                            (log["run_id"], log["id"])).fetchall()
+        after = db.execute(f"SELECT {fields} FROM logs WHERE run_id=? AND id>? AND readable_log(stream,content)!='' ORDER BY id LIMIT 20",
+                           (log["run_id"], log["id"])).fetchall()
+    return [dict(row) for row in [*reversed(before), *after]]
+
+
 def plain(value):
     """Keep log content from injecting control characters into the terminal."""
     return "".join(" " if char.isspace() else char for char in str(value)
                    if not unicodedata.category(char).startswith("C") or char.isspace())
+
+
+def search_position(text, needle):
+    """Map a casefolded match back to a character offset (ß expands to ss)."""
+    position = text.casefold().find(needle)
+    if position < 0:
+        return -1
+    for index, char in enumerate(text):
+        position -= len(char.casefold())
+        if position < 0:
+            return index
+    return len(text)
 
 
 def cell_width(char):
@@ -179,6 +270,11 @@ class Dashboard:
         self.focus, self.expanded = None, None
         self.message = "Select an issue to see its sessions; Enter on a session opens its transcript."
         self.colors = {}
+        self.searching, self.editing = False, False
+        self.query, self.search_index = "", 0
+        self.search_query = ""
+        self.search_data = {"results": [], "truncated": False}
+        self.search_origin, self.open_result, self.anchor_log = None, None, None
 
     def put(self, screen, y, text, style=0):
         height, width = screen.getmaxyx()
@@ -284,15 +380,35 @@ class Dashboard:
             return self.colors.get("warn", 0)
         return self.colors.get(kind, 0) if kind in {"live", "bad", "warn", "files"} else 0
 
+    def draw_search(self, screen, bottom):
+        c = self.curses
+        results = self.search_data["results"]
+        label = "Type a query; Enter searches; Esc cancels" if self.editing else f"{len(results)} results" + (" (first 100; refine query)" if self.search_data["truncated"] else "")
+        self.put(screen, 2, "  / " + self.query + ("▏" if self.editing else ""), c.A_BOLD)
+        self.put(screen, 3, "  SEARCH  ·  " + label, c.A_DIM)
+        capacity = max(1, (bottom - 4) // 2)
+        start = max(0, self.search_index - capacity + 1)
+        for index, result in enumerate(results[start:start + capacity], start):
+            row, log = result["row"], result["log"]
+            selected = index == self.search_index
+            y = 4 + (index - start) * 2
+            label = f"#{row['number']} / {row['role']} · {row['title']}"
+            label += " · " + (log["created_at"] if log else "session")
+            self.put(screen, y, (" › " if selected else "   ") + label, c.A_REVERSE if selected else 0)
+            self.put(screen, y + 1, "    " + result["text"], c.A_DIM)
+        if not results and not self.editing:
+            self.put(screen, 5, "  No matches. Press / to search again.", c.A_DIM)
+
     def draw_transcript(self, screen, data, bottom):
         c = self.curses
         chosen = data["selected"]
         label = f"#{chosen['number']} / {chosen['role']}" if chosen else "controller"
         name = "SESSION" if chosen else "CONTROLLER"
-        self.paint(screen, 3, [(f"  LIVE {name} LOG  ", c.A_BOLD), (label, self.colors.get("agent", 0)),
+        context = self.searching and self.open_result is not None
+        self.paint(screen, 3, [(f"  {'MATCH' if context else 'LIVE'} {name} LOG  ", c.A_BOLD), (label, self.colors.get("agent", 0)),
                                ("  ·  b / Esc / q back", c.A_DIM)])
         width = max(1, screen.getmaxyx()[1] - 7)
-        lines, headers = [], []
+        lines, headers, anchor = [], [], None
         for log in data["logs"]:
             content = log["content"]
             stream = log.get("stream", "agent")
@@ -307,11 +423,18 @@ class Dashboard:
             headers.append(len(lines))
             lines.append([("  " + log["created_at"][11:19] + "  ", c.A_DIM),
                           (speaker, self.colors.get(kind, 0) | c.A_BOLD)])
-            for line in content.splitlines():
+            position = search_position(plain(content), plain(self.search_query).strip().casefold()) if self.anchor_log is not None and log.get("id") == self.anchor_log else -1
+            for raw_line, line in zip(content.splitlines(keepends=True), content.splitlines()):
+                if 0 <= position < len(plain(raw_line)) and anchor is None:
+                    anchor = len(lines) + len(wrapped(plain(line)[:position], width)) - 1
                 for part in wrapped(line, width):
                     lines.append([("  │ ", self.colors.get(kind, 0)), (part, self.transcript_style(line, kind))])
+                position -= len(plain(raw_line))
             lines.append([])
         capacity = max(1, bottom - 4)
+        if anchor is not None:
+            self.offset = max(0, len(lines) - anchor - capacity // 2)
+        self.anchor_log = None
         self.offset = min(self.offset, max(0, len(lines) - capacity))
         end = len(lines) - self.offset
         start = max(0, end - capacity)
@@ -329,7 +452,7 @@ class Dashboard:
             self.paint(screen, y, spans)
         if not lines:
             self.put(screen, 5, "  Waiting for log output…", c.A_DIM)
-        self.put(screen, 2, "  " + ("FOLLOWING LIVE" if not self.offset else "SCROLLED BACK") + "  ·  PgUp / PgDn scroll  ·  End follows", c.A_DIM)
+        self.put(screen, 2, "  " + ("MATCH CONTEXT" if context else "FOLLOWING LIVE" if not self.offset else "SCROLLED BACK") + "  ·  PgUp / PgDn scroll  ·  End " + ("last context" if context else "follows"), c.A_DIM)
 
     def draw(self, screen, data):
         c = self.curses
@@ -353,6 +476,8 @@ class Dashboard:
         bottom = height - (6 if self.detail else 4)
         if self.detail:
             self.draw_transcript(screen, data, bottom)
+        elif self.searching:
+            self.draw_search(screen, bottom)
         else:
             self.draw_overview(screen, data, issues, bottom)
         self.put(screen, bottom, "  " + "─" * max(0, width - 5), c.A_DIM)
@@ -368,7 +493,11 @@ class Dashboard:
         error = chosen["task"].get("error") if chosen else None
         self.put(screen, height - 2, "  " + (error or self.message),
                  self.colors.get("warn", 0) if error else c.A_DIM)
-        controls = "b / Esc / Enter / q back   PgUp / PgDn scroll   End follow" if self.detail else "↑ ↓ / j k select   Enter expand / open   ← collapse   a resume   q quit"
+        controls = "b / Esc / Enter / q back   PgUp / PgDn scroll   / search   End " + ("context" if self.searching else "follow")
+        if self.searching and not self.detail:
+            controls = "Enter search   Backspace edit   Esc cancel" if self.editing else "↑ ↓ / j k select   Enter open   / edit   b / Esc / q back"
+        elif not self.detail:
+            controls = "↑ ↓ / j k select   Enter expand / open   / search   a resume   q quit"
         self.put(screen, height - 1, "  " + controls, self.colors.get("live", 0))
         screen.refresh()
 
@@ -400,11 +529,15 @@ class Dashboard:
                 issues = issue_groups(data["rows"])
                 nodes = self.nodes(issues, chosen)
                 focused = next((node for node in nodes if node[0] == self.focus), None)
-                if focused:
+                if focused and not self.searching:
                     issue, row = focused[1:]
                     chosen = row or next((r for r in issue["sessions"] if r["active"]), issue["sessions"][-1])
                     if chosen["key"] != self.selected and self.detail:
                         data = snapshot(self.state, chosen["key"])
+                    data["selected"] = chosen
+                if self.searching and self.detail and self.open_result:
+                    chosen = self.open_result["row"]
+                    data["logs"] = search_context(self.state, self.open_result)
                     data["selected"] = chosen
                 self.selected = chosen["key"] if chosen else None
                 self.draw(screen, data)
@@ -412,7 +545,53 @@ class Dashboard:
                 self.message = f"Database temporarily unavailable: {error}"
                 self.put(screen, screen.getmaxyx()[0] - 2, self.message, self.colors.get("bad", 0))
                 screen.refresh()
-            key = screen.getch()
+            try:
+                key = screen.get_wch()
+            except c.error:
+                key = -1
+            text_key = key if isinstance(key, str) else ""
+            if isinstance(key, str) and len(key) == 1 and ord(key) < 256:
+                key = ord(key)
+            if self.searching and not self.detail:
+                if self.editing:
+                    if key == 27:
+                        self.editing = False
+                        self.query = self.search_query
+                        if not self.search_data["results"]:
+                            self.searching = False
+                            self.open_result = None
+                            self.selected, self.focus, self.detail, self.offset = self.search_origin
+                    elif key in (10, 13, c.KEY_ENTER):
+                        try:
+                            self.search_data = search_sessions(self.state, self.query, data["rows"] if data else [])
+                            self.search_query = self.query
+                            self.search_index, self.editing = 0, False
+                        except sqlite3.Error as error:
+                            self.message = f"Search temporarily unavailable: {error}"
+                    elif key in (8, 127, c.KEY_BACKSPACE):
+                        self.query = self.query[:-1]
+                    elif text_key.isprintable():
+                        self.query += text_key
+                elif key in (27, ord("b"), ord("q"), 8, 127, c.KEY_BACKSPACE):
+                    self.searching = False
+                    self.open_result = None
+                    self.selected, self.focus, self.detail, self.offset = self.search_origin
+                elif key == ord("/"):
+                    self.editing = True
+                elif key in (c.KEY_DOWN, ord("j"), c.KEY_UP, ord("k")) and self.search_data["results"]:
+                    step = 1 if key in (c.KEY_DOWN, ord("j")) else -1
+                    self.search_index = (self.search_index + step) % len(self.search_data["results"])
+                elif key in (10, 13, c.KEY_ENTER) and self.search_data["results"]:
+                    self.open_result = self.search_data["results"][self.search_index]
+                    self.anchor_log = self.open_result["log"]["id"] if self.open_result["log"] else None
+                    self.detail, self.offset = True, 0
+                continue
+            if key == ord("/"):
+                if not self.searching:
+                    self.search_origin = (self.selected, self.focus, self.detail, self.offset)
+                self.searching, self.editing, self.detail = True, True, False
+                self.open_result = None
+                continue
             if key in (27, ord("b"), ord("q"), 8, 127, c.KEY_BACKSPACE):
                 if self.detail:
                     self.detail, self.offset = False, 0
@@ -447,6 +626,9 @@ class Dashboard:
                     self.expanded.discard(self.focus[0])
                     self.focus = (self.focus[0], None)
             if key == ord("a") and chosen:
+                if self.searching:
+                    self.message = "Return to the overview to resume the latest saved session."
+                    continue
                 # Refuse before leaving curses if the controller is obviously busy;
                 # resume_session acquires the lock again to close the race.
                 if data["busy"]:

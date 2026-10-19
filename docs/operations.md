@@ -51,6 +51,7 @@ blocked for inspection instead of looping indefinitely.
 
 After a pass, the same reviewer slot completes any repository-required local
 preview/integration/playground handoff, then moves the issue to Human review.
+Draft PRs are promoted and verified ready before entering Human review; promotion failures block advancement.
 This keeps local integration changes serialized. The tool does not automatically
 merge PRs, publish, deploy or mark issues Done. New human feedback on owned Human
 review issues is batched until five quiet minutes, then resumes the original worker

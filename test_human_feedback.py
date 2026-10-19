@@ -267,7 +267,7 @@ class HumanFeedbackTests(unittest.TestCase):
         self.task.update(phase="reviewing", round=1, item=item(1, w.REVIEW))
         self.board.queue = [item(1, w.REVIEW)]
         self.runner.backend.run.side_effect = [result(), result()]
-        self.runner.verify_pr = Mock()
+        self.runner.verify_pr = Mock(return_value={"isDraft": False})
         self.runner.worktree = Mock(return_value=self.root)
         self.runner.review_threads = Mock(return_value=[])
         self.runner.post = Mock()

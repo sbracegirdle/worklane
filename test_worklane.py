@@ -163,7 +163,7 @@ class WorklaneTests(unittest.TestCase):
         runner = w.Runner(self.args, "owner/repo", self.root, self.state, board or FakeBoard(), backend)
         runner.worktree = unittest.mock.Mock(return_value=self.root)
         runner.post = unittest.mock.Mock()
-        runner.verify_pr = unittest.mock.Mock(return_value={})
+        runner.verify_pr = unittest.mock.Mock(return_value={"isDraft": False})
         runner.pr = unittest.mock.Mock(return_value={"isDraft": False})
         runner.human_feedback = unittest.mock.Mock(return_value={})
 
@@ -407,12 +407,18 @@ class WorklaneTests(unittest.TestCase):
     def test_completed_review_and_finalizer_survive_quota_failure(self):
         task = self.task()
         runner = self.runner(FakeBoard([task["item"]]), [result(), result()])
-        runner.pr.side_effect = [w.GitHubRateLimit("ready exhausted"), {"isDraft": False}]
-        with patch.object(w, "command", return_value="a" * 40) as cmd:
-            cmd.side_effect = ["a" * 40, "", "a" * 40, ""]
+        del runner.verify_pr
+        pr = {"state": "OPEN", "headRefOid": task["head_sha"], "headRefName": task["branch"],
+              "baseRefName": task["base"], "isDraft": True}
+        runner.pr.side_effect = ([pr] * 4 + [w.GitHubRateLimit("ready verification exhausted")]
+                                 + [dict(pr, isDraft=False)] * 4)
+        with patch.object(w, "command", side_effect=["a" * 40, "", "", "a" * 40, ""]) as cmd:
             runner.execute(task, True)
             self.assertEqual(task["resume_stage"], "finalize")
+            self.assertEqual(runner.board.moves, [])
             runner.execute(self.state.load(1), True)
+        self.assertEqual([c.args[0] for c in cmd.call_args_list if c.args[0][0] == "gh"],
+                         [["gh", "pr", "ready", task["pr_url"], "--repo", runner.repo]])
         self.assertEqual([c.args[0] for c in runner.backend.run.call_args_list], ["review", "finalize"])
         self.assertEqual(self.state.load(1)["phase"], "human_review")
 
@@ -472,6 +478,78 @@ class WorklaneTests(unittest.TestCase):
         self.assertEqual(board.moves, [(1, w.HUMAN)])
         self.assertEqual(task["phase"], "human_review")
         self.assertEqual([call.args[0] for call in runner.backend.run.call_args_list], ["review", "finalize"])
+
+    def test_human_handoff_verifies_ready_pr_and_only_promotes_drafts(self):
+        for draft in (True, False):
+            with self.subTest(draft=draft):
+                task = self.task()
+                board = FakeBoard([task["item"]])
+                runner = self.runner(board, [result(), result()])
+                del runner.verify_pr
+                pr = {"state": "OPEN", "headRefOid": task["head_sha"], "headRefName": task["branch"],
+                      "baseRefName": task["base"], "isDraft": draft}
+                runner.pr.side_effect = lambda _: dict(pr)
+
+                def command(args, **kwargs):
+                    if args[0] == "git":
+                        return task["head_sha"] if args[1] == "rev-parse" else ""
+                    self.assertEqual(args, ["gh", "pr", "ready", task["pr_url"], "--repo", runner.repo])
+                    self.assertEqual(board.moves, [])
+                    self.assertEqual([c.args[0] for c in runner.backend.run.call_args_list], ["review", "finalize"])
+                    self.assertIn("human_feedback_seen", task)
+                    pr["isDraft"] = False
+                    return ""
+
+                with patch.object(w, "command", side_effect=command) as cmd:
+                    runner.review(task)
+                self.assertEqual(sum(c.args[0][0] == "gh" for c in cmd.call_args_list), int(draft))
+                self.assertEqual(runner.pr.call_count, 5 if draft else 4)
+                self.assertFalse(pr["isDraft"])
+                self.assertEqual(board.moves, [(1, w.HUMAN)])
+                self.assertEqual(self.state.load(1)["phase"], "human_review")
+
+    def test_failed_or_unverified_draft_promotion_blocks_human_review(self):
+        cases = (
+            ({}, RuntimeError("promotion denied"), "promotion denied"),
+            ({}, None, "still a draft"),
+            ({"isDraft": False, "headRefOid": "b" * 40}, None, "head changed"),
+            ({"isDraft": False, "state": "CLOSED"}, None, "closed"),
+            ({"isDraft": False, "headRefName": "other"}, None, "branch/base"),
+            ({"isDraft": False, "baseRefName": "other"}, None, "branch/base"),
+            (RuntimeError("verification unavailable"), None, "verification unavailable"),
+        )
+        for change, failure, error in cases:
+            with self.subTest(error=error, change=change):
+                task = self.task()
+                board = FakeBoard([task["item"]])
+                runner = self.runner(board, [result(), result()])
+                del runner.verify_pr
+                pr = {"state": "OPEN", "headRefOid": task["head_sha"], "headRefName": task["branch"],
+                      "baseRefName": task["base"], "isDraft": True}
+                after = change if isinstance(change, Exception) else {**pr, **change}
+                runner.pr.side_effect = [pr] * 4 + [after]
+                with patch.object(w, "command", side_effect=[task["head_sha"], "", failure or ""]) as cmd:
+                    runner.execute(task, True)
+                self.assertEqual(cmd.call_args_list[-1].args[0],
+                                 ["gh", "pr", "ready", task["pr_url"], "--repo", runner.repo])
+                self.assertEqual(board.moves, [])
+                self.assertEqual(self.state.load(1)["phase"], "blocked")
+                self.assertIn(error, task["error"])
+
+    def test_changed_pr_before_promotion_blocks_human_review(self):
+        task = self.task()
+        board = FakeBoard([task["item"]])
+        runner = self.runner(board, [result(), result()])
+        del runner.verify_pr
+        pr = {"state": "OPEN", "headRefOid": task["head_sha"], "headRefName": task["branch"],
+              "baseRefName": task["base"], "isDraft": True}
+        runner.pr.side_effect = [pr] * 3 + [dict(pr, headRefOid="b" * 40)]
+        with patch.object(w, "command", side_effect=[task["head_sha"], ""]) as cmd:
+            runner.execute(task, True)
+        self.assertTrue(all(c.args[0][0] == "git" for c in cmd.call_args_list))
+        self.assertEqual(board.moves, [])
+        self.assertEqual(task["phase"], "blocked")
+        self.assertIn("head changed", task["error"])
 
     def test_review_threads_include_all_pages_and_replies(self):
         runner = self.runner()

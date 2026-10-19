@@ -13,6 +13,7 @@ Omitted models use Codex's Worklane default or OpenCode's configured model; save
 
 Background starts and TUI restarts preserve these options; existing conversations never switch harnesses or silently replace missing history.
 Both harnesses share isolation, review gates, logs, result validation, interruption recovery, and interactive TUI resume.
+Child environments discard inherited `PWD`, keeping runs, history checks, and interactive resumes in their assigned worktree.
 
 OpenCode uses private CLI servers, JSON events, session titles, and prompted JSON results; malformed or incomplete results block progress.
 Its `--auto` respects explicit permission denials; Worklane disables subagents, but OpenCode provides no Codex workspace sandbox.

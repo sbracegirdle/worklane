@@ -204,7 +204,7 @@ class OpenCodeHarness:
         # OpenCode 2 can create a missing --session ID. Export must succeed first.
         validate_session_id("opencode", session["session_id"])
         check = subprocess.run(["opencode", "session", "export", "--standalone", session["session_id"]],
-                               cwd=worktree, capture_output=True, timeout=30)
+                               cwd=worktree, env=OpenCodeHarness.environment(), capture_output=True, timeout=30)
         if check.returncode:
             raise RuntimeError("OpenCode cannot read the saved session; refusing to create a replacement conversation.")
 
@@ -225,6 +225,8 @@ class OpenCodeHarness:
     @staticmethod
     def environment():
         env = dict(os.environ)
+        # OpenCode prefers inherited PWD over the subprocess's assigned cwd.
+        env.pop("PWD", None)
         config = json.loads(env.get("OPENCODE_CONFIG_CONTENT") or "{}")
         permissions = config.setdefault("permission", {})
         if isinstance(permissions, str):

@@ -5,6 +5,7 @@ import io
 import json
 import os
 from pathlib import Path
+import shutil
 import signal
 import subprocess
 import sys
@@ -21,10 +22,17 @@ FAKE_OPENCODE = r'''
 import json, os, pathlib, sys, time, uuid
 root = pathlib.Path(os.environ['FAKE_ROOT'])
 args = sys.argv[1:]
+# OpenCode 2 changes directory to inherited PWD before handling any command.
+if os.environ.get('PWD'):
+    os.chdir(os.environ['PWD'])
+with (root / 'opencode-invocations.jsonl').open('a') as handle:
+    handle.write(json.dumps({'args': args, 'cwd': os.getcwd()}) + '\n')
 if args[:2] == ['session', 'export']:
     exists = (root / args[-1]).exists() and not os.environ.get('FAKE_DELETED')
     print(json.dumps({'session': {'id': args[-1]}}) if exists else 'not found')
     sys.exit(0 if exists else 1)
+if args[0] != 'run':
+    sys.exit(0)  # Fake interactive resume; never start an actual agent.
 prompt = sys.stdin.read()
 with (root / 'opencode-calls.jsonl').open('a') as handle:
     handle.write(json.dumps({'args': args, 'prompt': prompt, 'cwd': os.getcwd(),
@@ -71,6 +79,8 @@ class HarnessTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.tree = self.root / 'checkout'
         self.tree.mkdir()
+        self.controller = self.root / 'controller'
+        self.controller.mkdir()
         self.state = w.State('owner/repo', self.root)
         self.bin = self.root / 'bin'
         self.bin.mkdir()
@@ -78,7 +88,8 @@ class HarnessTests(unittest.TestCase):
             executable = self.bin / name
             executable.write_text(f'#!{sys.executable}\n' + script)
             executable.chmod(0o755)
-        env = patch.dict(os.environ, PATH=str(self.bin) + os.pathsep + os.environ['PATH'], FAKE_ROOT=str(self.root))
+        env = patch.dict(os.environ, PATH=str(self.bin) + os.pathsep + os.environ['PATH'],
+                         FAKE_ROOT=str(self.root), PWD=str(self.controller))
         env.start()
         self.addCleanup(env.stop)
         self.task = {'number': 1, 'phase': 'building', 'issue': {'title': 'Harness support'}}
@@ -90,6 +101,28 @@ class HarnessTests(unittest.TestCase):
     def calls(self):
         file = self.root / 'opencode-calls.jsonl'
         return [json.loads(line) for line in file.read_text().splitlines()] if file.exists() else []
+
+    def test_inherited_pwd_cannot_redirect_runs_exports_or_interactive_resume(self):
+        for stage, role in w.ROLES.items():
+            with self.subTest(role=role):
+                tree = self.root / role
+                tree.mkdir()
+                with w.locked(self.state.path / 'runner.lock') as fd:
+                    self.backend(fd).run(stage, self.task, tree)
+                    self.backend(fd).run(stage, self.task, tree)
+                tui.resume_session(self.state, 1, role)
+                invocations = [json.loads(line) for line in
+                               (self.root / 'opencode-invocations.jsonl').read_text().splitlines()][-5:]
+                self.assertEqual([call['args'][0] for call in invocations],
+                                 ['run', 'session', 'run', 'session', str(tree)])
+                self.assertEqual([call['cwd'] for call in invocations], [str(tree)] * 5)
+                self.assertEqual(os.environ['PWD'], str(self.controller))
+
+    def test_deleted_controller_pwd_does_not_prevent_worker_start(self):
+        with w.locked(self.state.path / 'runner.lock') as fd, \
+             patch.dict(os.environ, PWD=str(self.root / 'deleted-controller')):
+            self.assertEqual(self.backend(fd).run('build', self.task, self.tree)['verdict'], 'pass')
+        self.assertEqual(self.calls()[0]['cwd'], str(self.tree))
 
     def test_each_role_has_separate_named_session_and_persistent_wire_events(self):
         with w.locked(self.state.path / 'runner.lock') as fd:
@@ -300,6 +333,32 @@ class HarnessTests(unittest.TestCase):
         argv = launch.call_args.args[0]
         for flag in options[::2]:
             self.assertEqual(argv[argv.index(flag) + 1], options[options.index(flag) + 1])
+
+
+@unittest.skipUnless(os.environ.get('WORKLANE_TEST_OPENCODE') == '1',
+                     'Set WORKLANE_TEST_OPENCODE=1 for the installed CLI empty-input probe')
+class InstalledOpenCodeTests(unittest.TestCase):
+    def test_inherited_pwd_does_not_override_subprocess_worktree(self):
+        self.assertIsNotNone(shutil.which('opencode'), 'OpenCode must be installed for this opt-in check')
+        with tempfile.TemporaryDirectory(prefix='worklane-opencode-pwd-') as directory:
+            root = Path(directory)
+            tree, controller = root / 'worktree', root / 'controller'
+            tree.mkdir()
+            controller.mkdir()
+            for inherited_pwd in (controller, root / 'deleted-controller'):
+                with self.subTest(inherited_pwd=inherited_pwd), patch.dict(os.environ, {
+                    'PWD': str(inherited_pwd), 'XDG_DATA_HOME': str(root / 'data'),
+                    'XDG_STATE_HOME': str(root / 'state'), 'XDG_CACHE_HOME': str(root / 'cache'),
+                    'XDG_CONFIG_HOME': str(root / 'config'),
+                }):
+                    harness = w.HARNESSES['opencode'](None, controller, Mock(repo='owner/repo'))
+                    args, _, env, _ = harness.prepare('build', {'number': 30}, tree, None, '', {}, -1, -1)
+                    # Empty input stops before any provider or agent turn can run.
+                    completed = subprocess.run(args, input='', cwd=tree, env=env,
+                                               text=True, capture_output=True, timeout=30)
+                    output = completed.stdout + completed.stderr
+                    self.assertIn('You must provide a message', output)
+                    self.assertNotIn('Failed to change directory', output)
 
 
 if __name__ == '__main__':

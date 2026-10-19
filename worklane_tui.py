@@ -56,7 +56,53 @@ def issue_view(repo, number):
 
 def board_view(repo, root, project):
     board = worklane.Board(repo, root, project, load_fields=False)
-    return {"url": board.project["url"], "items": board.items()}
+    return {"url": board.project["url"], "project": f"{board.owner}/{board.number}", "items": board.items()}
+
+
+def load_editor(repo, root, project, number=None):
+    board = worklane.Board(repo, root, project, required_statuses=())
+    statuses = [option["name"] for option in board.field["options"]]
+    if not statuses:
+        raise RuntimeError("The board has no Status options.")
+    item = None
+    if number is not None:
+        item = next((item for item in board.items() if item["content"]["number"] == number), None)
+        if item is None:
+            raise RuntimeError("This open issue is no longer on the selected board.")
+    original = dict(item["content"]) if item else {"title": "", "body": ""}
+    status = item["status"] if item else next((s for s in statuses if s.casefold() == worklane.READY.casefold()), statuses[0])
+    return {"board": board, "number": number, "item": item, "original": original,
+            "title": original["title"], "body": original.get("body") or "",
+            "status": status, "statuses": ([""] if item and not status else []) + statuses,
+            "field": 0, "cursor": len(original["title"])}
+
+
+def save_editor(repo, editor):
+    """Preflight stale selections and preserve partial-write recovery information."""
+    board, item = editor["board"], editor["item"]
+    title, body, status = editor["title"].strip(), editor["body"], editor["status"]
+    if not title:
+        raise ValueError("Title is required.")
+    if item is None:
+        return board.add_issue(title, body, status)
+    current = worklane.gh("issue", "view", str(editor["number"]), "--repo", repo,
+                          "--json", "title,body,state,url")
+    if current["state"] != "OPEN" or any(current.get(key) != editor["original"].get(key) for key in ("title", "body")):
+        raise RuntimeError("Issue changed on GitHub; cancel and reopen the editor before saving.")
+    if board.item_status(item) != item["status"].casefold():
+        raise RuntimeError("Board status changed; cancel and reopen the editor before saving.")
+    text_changed = (title, body) != (current["title"], current.get("body") or "")
+    if text_changed:
+        worklane.command(["gh", "issue", "edit", str(editor["number"]), "--repo", repo,
+                          "--title", title, "--body-file", "-"], stdin=body)
+        # A later status failure can be retried without overwriting external text edits.
+        editor["original"].update(title=title, body=body)
+    try:
+        if status != item["status"]:
+            board.move(item, status, item["status"])
+    except (RuntimeError, OSError, ValueError, KeyError, subprocess.TimeoutExpired) as error:
+        raise RuntimeError(f"Issue text saved; board status was not confirmed: {error}" if text_changed else str(error)) from error
+    return current["url"]
 
 
 def controller_action(action, root, options):
@@ -412,6 +458,149 @@ class Dashboard:
         self.search_origin, self.open_result, self.anchor_log = None, None, None
         self.root, self.options = Path(root or ".").resolve(), options or {}
         self.cache, self.page, self.jobs = ViewCache(state), None, {}
+        self.editor = None
+
+    def github(self, loader):
+        token = worklane.GITHUB_BUDGET.set(worklane.GitHubBudget(self.state))
+        try:
+            return loader()
+        finally:
+            worklane.GITHUB_BUDGET.reset(token)
+
+    def open_editor(self, number=None):
+        if "view" in self.jobs:
+            self.message = "Wait for the current GitHub action before editing."
+            return
+        editor = {"loading": True}
+        self.editor = editor
+        project = self.page.get("project") if self.page else self.settings().get("project")
+        def done(value):
+            if self.editor is editor:
+                self.editor = value
+                self.message = "Tab changes fields; F2 saves; Esc cancels."
+        def load():
+            try:
+                return self.github(lambda: load_editor(self.repo, self.root, project, number))
+            except (RuntimeError, OSError, ValueError, KeyError, subprocess.TimeoutExpired):
+                editor["loading"] = False
+                editor["failed"] = True
+                raise
+        self.submit(load, done)
+
+    def save_issue(self):
+        editor = self.editor
+        if not editor["title"].strip():
+            self.message = "Title is required."
+            return
+        if editor.get("saving") or editor.get("uncertain") or "view" in self.jobs:
+            return
+        editor["saving"] = True
+        def write():
+            try:
+                return self.github(lambda: save_editor(self.repo, editor))
+            except (RuntimeError, OSError, ValueError, KeyError, subprocess.TimeoutExpired) as error:
+                if editor["item"] is None:
+                    editor["uncertain"] = True
+                    raise RuntimeError(f"{error} Creation may have reached GitHub; inspect the board before adding again.") from error
+                raise
+            finally:
+                editor["saving"] = False
+        def done(url):
+            # A confirmed write stays complete even if local cache cleanup fails.
+            self.editor = None
+            self.message = f"Saved {url}"
+            # Invalidate all persisted board/issue variants after a successful write.
+            try:
+                with self.state.connect() as db:
+                    db.execute("DELETE FROM state_values WHERE owner LIKE 'meta:tui:board:%' OR owner LIKE 'meta:tui:issue:%'")
+            except sqlite3.Error as error:
+                self.message += f"; cache refresh failed: {error}"
+                return
+            page = self.page
+            while page:
+                page["pending"] = True
+                page = page.get("parent")
+        self.submit(write, done)
+
+    def editor_key(self, key, text):
+        c, editor = self.curses, self.editor
+        if key == 27 and not editor.get("saving"):
+            self.editor = None
+            self.message = "Editor closed."
+            return
+        if editor.get("loading") or editor.get("failed") or editor.get("saving"):
+            return
+        if key == c.KEY_F2:
+            self.save_issue()
+            return
+        fields = ("title", "body", "status")
+        field = fields[editor["field"]]
+        if key in (9, c.KEY_BTAB):
+            editor["field"] = (editor["field"] + (1 if key == 9 else -1)) % 3
+            editor["cursor"] = len(editor[fields[editor["field"]]])
+            return
+        if field == "status":
+            if key in (c.KEY_LEFT, c.KEY_UP, c.KEY_RIGHT, c.KEY_DOWN, ord(" ")):
+                choices = editor["statuses"]
+                editor["status"] = choices[(choices.index(editor["status"]) + (-1 if key in (c.KEY_LEFT, c.KEY_UP) else 1)) % len(choices)]
+            return
+        value, cursor = editor[field], editor["cursor"]
+        if key in (c.KEY_LEFT, c.KEY_RIGHT):
+            cursor = max(0, min(len(value), cursor + (-1 if key == c.KEY_LEFT else 1)))
+        elif key in (c.KEY_HOME, c.KEY_END):
+            cursor = value.rfind("\n", 0, cursor) + 1 if key == c.KEY_HOME else (value.find("\n", cursor) if "\n" in value[cursor:] else len(value))
+        elif key in (c.KEY_UP, c.KEY_DOWN) and field == "body":
+            start = value.rfind("\n", 0, cursor) + 1
+            column = cursor - start
+            if key == c.KEY_UP and start:
+                previous = value.rfind("\n", 0, start - 1) + 1
+                cursor = min(previous + column, start - 1)
+            elif key == c.KEY_DOWN and "\n" in value[cursor:]:
+                following = value.find("\n", cursor) + 1
+                end = value.find("\n", following)
+                cursor = min(following + column, end if end >= 0 else len(value))
+        elif key in (8, 127, c.KEY_BACKSPACE):
+            value, cursor = value[:max(0, cursor - 1)] + value[cursor:], max(0, cursor - 1)
+        elif key == c.KEY_DC:
+            value = value[:cursor] + value[cursor + 1:]
+        elif key in (10, 13, c.KEY_ENTER) and field == "title":
+            editor["field"], editor["cursor"] = 1, len(editor["body"])
+            return
+        elif text.isprintable() or (key in (10, 13, c.KEY_ENTER) and field == "body"):
+            insert = "\n" if key in (10, 13, c.KEY_ENTER) else text
+            value, cursor = value[:cursor] + insert + value[cursor:], cursor + len(insert)
+        editor[field], editor["cursor"] = value, cursor
+
+    def draw_editor(self, screen, bottom):
+        editor, c = self.editor, self.curses
+        self.put(screen, 2, "  ISSUE EDITOR", c.A_BOLD)
+        if editor.get("loading") or editor.get("failed"):
+            self.put(screen, 3, "  Loading board fields…" if editor.get("loading") else "  Could not load editor; Esc returns.")
+            return
+        self.put(screen, 2, f"  {'NEW ISSUE' if editor['number'] is None else 'EDIT ISSUE #' + str(editor['number'])} · Title", c.A_BOLD)
+        def marked(field):
+            value = editor[field]
+            if ("title", "body", "status")[editor["field"]] == field:
+                cursor = editor["cursor"]
+                return value[:cursor] + "▏" + value[cursor:]
+            return value
+        title = marked("title")
+        width = max(1, screen.getmaxyx()[1] - 4)
+        # Keep the insertion point visible even for long titles in small terminals.
+        title_rows = wrapped(title, width)
+        title_index = next((i for i, row in enumerate(title_rows) if "▏" in row), 0)
+        self.put(screen, 3, "  " + title_rows[title_index], c.A_REVERSE if editor["field"] == 0 else 0)
+        self.put(screen, 4, "  Description (Enter adds a line)", c.A_BOLD if editor["field"] == 1 else c.A_DIM)
+        lines = [part for line in marked("body").split("\n") for part in wrapped(line, width)]
+        capacity = max(1, bottom - 6)
+        cursor_line = next((i for i, line in enumerate(lines) if "▏" in line), 0)
+        start = max(0, cursor_line - capacity + 1)
+        for y, line in enumerate(lines[start:start + capacity], 5):
+            self.put(screen, y, "  " + line)
+        self.put(screen, bottom - 1, "  Status: " + (editor["status"] or "No status") + "  ←/→",
+                 c.A_REVERSE if editor["field"] == 2 else 0)
+        if editor.get("uncertain"):
+            self.put(screen, bottom + 1, "  Creation uncertain; Esc and inspect the board.", c.A_BOLD)
 
     def submit(self, loader, done, *, channel="view"):
         if channel in self.jobs:
@@ -437,7 +626,7 @@ class Dashboard:
                     done(future.result())
                 except (RuntimeError, OSError, ValueError, KeyError, sqlite3.Error, subprocess.TimeoutExpired) as error:
                     self.message = str(error)
-        if self.page and self.page.get("pending") and "view" not in self.jobs:
+        if not self.editor and self.page and self.page.get("pending") and "view" not in self.jobs:
             self.refresh_page(self.page)
 
     def settings(self):
@@ -464,6 +653,8 @@ class Dashboard:
             value, error = result
             if value is not None:
                 page["value"] = value
+                if value.get("project"):
+                    page["project"] = value["project"]
             self.message = ("Showing saved content. " if page["value"] else "") + error if error else "Cached for 60s; r checks for updates after expiry."
         page["pending"] = not self.submit(lambda: self.cache.read(page["key"], loader), done)
 
@@ -706,8 +897,10 @@ class Dashboard:
                               (f"{'●' * workers}{'○' * max(0, limit - workers)} {workers}/{limit}", self.colors.get("live", 0)),
                               ("    Review ", c.A_DIM), (f"{'●' if reviews else '○'} {reviews}/1", self.colors.get("agent", 0))])
         issues = issue_groups(data["rows"])
-        bottom = height - (6 if self.detail else 4)
-        if self.page:
+        bottom = height - (6 if self.detail and not self.editor else 4)
+        if self.editor:
+            self.draw_editor(screen, bottom)
+        elif self.page:
             self.draw_page(screen, bottom)
         elif self.detail:
             self.draw_transcript(screen, data, bottom)
@@ -717,12 +910,12 @@ class Dashboard:
             self.draw_overview(screen, data, issues, bottom)
         self.put(screen, bottom, "  " + "─" * max(0, width - 5), c.A_DIM)
         chosen = data["selected"]
-        if self.detail and chosen and not self.page:
+        if self.detail and chosen and not self.page and not self.editor:
             session, run = chosen["session"], chosen["run"]
             self.paint(screen, bottom + 1, [(f"  #{chosen['number']}  ", c.A_BOLD), (chosen["title"], 0)])
             self.put(screen, bottom + 2, f"  {chosen['role'].upper()}  ·  Session {session.get('session_id', 'not saved yet')}", c.A_DIM)
             self.put(screen, bottom + 3, f"  {session.get('worktree') or run.get('worktree', 'Worktree not created yet')}", c.A_DIM)
-        elif chosen and not self.page:
+        elif chosen and not self.page and not self.editor:
             self.paint(screen, bottom + 1, [(f"  #{chosen['number']}  ", c.A_BOLD),
                                            (chosen["title"], 0), (f"  /  {chosen['role']}", self.colors.get("agent", 0))])
         error = chosen["task"].get("error") if chosen and not self.page and not self.jobs else None
@@ -733,10 +926,14 @@ class Dashboard:
             controls = "Enter search   Backspace edit   Esc cancel" if self.editing else "↑↓/jk select  Enter open  / edit  b/Esc/q back"
         elif not self.detail:
             controls = "s start x stop c config i issue B board q quit"
+            if width >= 70:
+                controls = "s start x stop c config i issue B board n new e edit q quit"
             if width >= 100:
-                controls = "s start  x stop  c config  i issue  B board  / search  ↑↓/jk select  Enter open  a resume  q quit"
+                controls = "s start x stop c config i issue B board n new e edit / search ↑↓ select Enter open a resume q quit"
         if self.page:
-            controls = "↑↓/jk select  Enter/i issue  r refresh  b/Esc/q back" if self.page["kind"] == "board" else "↑↓/jk/PgUp/PgDn scroll  Home/End  r refresh  b/Esc/q back"
+            controls = "↑↓/jk select Enter/i issue n new e edit r refresh Esc back" if self.page["kind"] == "board" else "↑↓/PgUp/PgDn scroll e edit r refresh Esc back"
+        if self.editor:
+            controls = "Tab field  ←/→ status  F2 save  Esc cancel"
         self.put(screen, height - 1, "  " + controls, self.colors.get("live", 0))
         screen.refresh()
 
@@ -792,12 +989,24 @@ class Dashboard:
             text_key = key if isinstance(key, str) else ""
             if isinstance(key, str) and len(key) == 1 and ord(key) < 256:
                 key = ord(key)
+            if self.editor:
+                self.editor_key(key, text_key)
+                continue
             if self.page:
                 page = self.page
                 if key in (27, ord("b"), ord("q"), 8, 127, c.KEY_BACKSPACE):
                     self.page = page.get("parent")
                 elif key == ord("r"):
                     self.refresh_page(page)
+                elif key == ord("n") and page["kind"] == "board":
+                    self.open_editor()
+                elif key == ord("e"):
+                    if page["kind"] == "issue":
+                        self.open_editor(page["number"])
+                    else:
+                        items = sorted((page["value"] or {}).get("items", []), key=lambda item: (item["status"], item["content"]["number"]))
+                        if items:
+                            self.open_editor(items[min(page["index"], len(items) - 1)]["content"]["number"])
                 elif page["kind"] == "board":
                     items = sorted((page["value"] or {}).get("items", []), key=lambda item: (item["status"], item["content"]["number"]))
                     if key in (c.KEY_DOWN, ord("j"), c.KEY_UP, ord("k")) and items:
@@ -806,6 +1015,7 @@ class Dashboard:
                         item = items[page["index"]]["content"]
                         self.open_page("issue", number=item["number"], fallback=item)
                         self.page["parent"] = page
+                        self.page["project"] = page["project"]
                 else:
                     step = max(1, screen.getmaxyx()[0] - 8)
                     if key in (c.KEY_DOWN, ord("j"), c.KEY_NPAGE):
@@ -869,6 +1079,10 @@ class Dashboard:
                     self.message = str(error)
                 finally:
                     screen.timeout(max(1, int(self.refresh * 1000)))
+                continue
+            if not self.detail and not self.searching and key in (ord("n"), ord("e")):
+                if key == ord("n") or chosen:
+                    self.open_editor(None if key == ord("n") else chosen["number"])
                 continue
             if key == ord("B"):
                 self.open_page("board")

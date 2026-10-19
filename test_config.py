@@ -188,6 +188,24 @@ class ConfigTests(unittest.TestCase):
             dashboard.draw(screen, tui.snapshot(self.state))
         self.assertIn("0/3", screen.frames[-1])
 
+    def test_config_and_issue_editor_shortcuts_coexist_after_returning_from_setup(self):
+        w.save_config(self.root, {"workers": 2})
+        task = {"number": 1, "phase": "building", "issue": {"title": "Configured issue"}}
+        run = self.state.begin_run(task, "build", self.root)
+        self.state.finish_run(run, "completed")
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1, root=self.root)
+        screen = SetupScreen(["c", "\x1b", "n", "e", "q"])
+        with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False), \
+             patch.object(dashboard, "open_editor") as editor:
+            dashboard.run(screen)
+        self.assertEqual([call.args for call in editor.call_args_list], [(None,), (1,)])
+        for size in ((12, 70), (28, 110)):
+            screen = Screen(size=size)
+            dashboard.draw(screen, tui.snapshot(self.state))
+            for control in ("c config", "n new", "e edit", "q quit"):
+                self.assertIn(control, screen.frames[-1])
+        self.assertEqual(w.load_config(self.root)["workers"], 2)
+
     def test_dispatch_uses_configured_workers_and_keeps_one_reviewer(self):
         for count in (1, 5):
             with self.subTest(count=count):

@@ -423,6 +423,101 @@ class WorklaneTests(unittest.TestCase):
                 self.assertEqual(board.moves, [])
                 runner.backend.run.assert_not_called()
 
+    def test_merged_pr_completes_missing_board_task_before_drift_checks(self):
+        for phase in ("human_review", "awaiting_review", "blocked"):
+            with self.subTest(phase=phase):
+                task = {**self.task(), "phase": phase, "build_result": result(), "error": "Old blocker",
+                        "resume_stage": "review", "human_feedback_pending": True}
+                self.state.set_meta("completion:1", {})
+                run = self.state.begin_run(task, "review", self.root)
+                self.state.attach_session(run, "12345678-1234-4234-8234-123456789012", w.MODEL)
+                self.state.finish_run(run, "completed", result=result())
+                history = self.state.runs(1)
+                session = self.state.session(1, "reviewer")
+                runner = self.runner(FakeBoard())
+                runner.pr.return_value = {"state": "MERGED", "headRefName": task["branch"],
+                    "baseRefName": "main", "headRefOid": "b" * 40, "mergedAt": "2026-10-19T12:00:00Z"}
+                runner.run(threading.Event())
+                saved = self.state.load(1)
+                self.assertEqual(saved["phase"], "done")
+                self.assertEqual(saved["merged_head_sha"], "b" * 40)
+                self.assertEqual(saved["build_result"], result())
+                self.assertNotIn("error", saved)
+                self.assertNotIn("resume_stage", saved)
+                self.assertNotIn("human_feedback_pending", saved)
+                self.assertEqual(self.state.runs(1), history)
+                self.assertEqual(self.state.session(1, "reviewer"), session)
+                self.assertEqual(runner.board.moves, [])
+                runner.backend.run.assert_not_called()
+
+    def test_merged_task_cannot_be_dispatched_from_stale_ready_board_status(self):
+        task = {**self.task(w.READY), "phase": "human_review"}
+        self.state.save(task)
+        runner = self.runner(FakeBoard([task["item"]]))
+        runner.pr.return_value = {"state": "MERGED", "headRefName": task["branch"],
+                                 "baseRefName": "main", "headRefOid": "a" * 40}
+        runner.run(threading.Event())
+        self.assertEqual(self.state.load(1)["phase"], "done")
+        runner.backend.run.assert_not_called()
+        self.assertEqual(runner.board.moves, [])
+
+    def test_closed_unmerged_or_retargeted_pr_does_not_complete_task(self):
+        for change in ({"state": "CLOSED"}, {"baseRefName": "other"}, {"headRefName": "other"}):
+            with self.subTest(change=change):
+                task = {**self.task(w.HUMAN), "phase": "human_review"}
+                self.state.save(task)
+                self.state.set_meta("completion:1", {})
+                runner = self.runner()
+                runner.pr.return_value = {"state": "MERGED", "headRefName": task["branch"],
+                                         "baseRefName": "main", "headRefOid": "a" * 40, **change}
+                runner.reconcile_completed([])
+                self.assertEqual(self.state.load(1)["phase"], "human_review")
+                self.assertEqual(runner.board.moves, [])
+
+    def test_completion_checks_are_bounded_without_changing_feedback_cutoff(self):
+        task = {**self.task(w.HUMAN), "phase": "human_review"}
+        self.state.save(task)
+        before = self.state.load(1)
+        runner = self.runner(FakeBoard([task["item"]]))
+        runner.pr.return_value = {"state": "OPEN", "headRefName": task["branch"], "baseRefName": "main"}
+        with patch.object(w, "now", return_value="2026-10-19T12:00:00+00:00"):
+            runner.reconcile_completed(runner.board.items())
+        self.assertEqual(self.state.load(1), before)
+        reopened = self.runner(runner.board)
+        reopened.pr = runner.pr
+        with patch.object(w, "now", return_value="2026-10-19T12:04:59+00:00"):
+            reopened.reconcile_completed(runner.board.items())
+        runner.pr.assert_called_once()
+        runner.pr.return_value.update(state="MERGED", headRefOid="a" * 40)
+        # Closed issues disappear from the board intake; check that change immediately.
+        with patch.object(w, "now", return_value="2026-10-19T12:04:59+00:00"):
+            reopened.reconcile_completed([])
+        self.assertEqual(self.state.load(1)["phase"], "done")
+
+    def test_completion_does_not_touch_live_assignments_or_completed_tasks(self):
+        for phase, active in (("building", ()), ("human_review", (1,)), ("done", ())):
+            with self.subTest(phase=phase):
+                task = {**self.task(), "phase": phase}
+                self.state.save(task)
+                runner = self.runner()
+                runner.reconcile_completed([], active)
+                runner.pr.assert_not_called()
+                self.assertEqual(self.state.load(1)["phase"], phase)
+
+    def test_completion_api_failure_preserves_task_and_rate_limit(self):
+        task = {**self.task(), "phase": "human_review"}
+        self.state.save(task)
+        before = self.state.load(1)
+        runner = self.runner()
+        runner.pr.side_effect = RuntimeError("network unavailable")
+        runner.reconcile_completed([])
+        self.assertEqual(self.state.load(1), before)
+        self.assertEqual(self.state.get_meta("completion:1", {}), {})
+        runner.pr.side_effect = w.GitHubRateLimit("exhausted")
+        with self.assertRaises(w.GitHubRateLimit):
+            runner.reconcile_completed([])
+        self.assertEqual(self.state.load(1), before)
+
     def test_waiting_review_uses_direct_status_when_listing_lags(self):
         task = {**self.task(), "phase": "awaiting_review", "build_result": result()}
         self.state.save(task)

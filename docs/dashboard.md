@@ -21,7 +21,7 @@ The log view shows the latest 40 readable entries from the role's latest invocat
 `worklane logs NUMBER` for complete history. The transcript footer shows its saved session ID,
 worktree and blocker. Unicode log lines wrap by display width.
 Use an interactive terminal of at least 50 columns and 12 rows with Python curses;
-use `--no-color` for monochrome. Redirected output should use `status` or `logs`.
+use `--no-color` or `NO_COLOR=1` for monochrome. Redirected output should use `status` or `logs`.
 Transcripts colour activity and hide protocol noise; `logs NUMBER --raw` shows original records.
 
 Codex exec cannot accept interactive input while running. To resume a conversation,

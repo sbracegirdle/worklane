@@ -227,6 +227,19 @@ class TuiTests(unittest.TestCase):
                 self.assertIn("visible", match)
                 self.assertIn("needle", match)
 
+    def test_search_boundary_match_is_visible_in_small_terminals(self):
+        for prefix, needle, suffix in (("x" * 172, "NEEDLE", "y" * 300),
+                                       ("界" * 84, "探針", "y" * 300)):
+            self.run_record(text=prefix + needle + suffix)
+            for height in (12, 13, 14, 28):
+                with self.subTest(height=height, needle=needle):
+                    screen = Screen(["/", *needle, 10, 10, "b", "q", "q"], size=(height, 50))
+                    dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+                    with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+                        dashboard.run(screen)
+                    match = next(frame for frame in screen.frames if "MATCH SESSION LOG" in frame)
+                    self.assertIn(needle, match)
+
     def test_empty_and_pre_session_assignments_and_blockers(self):
         self.assertEqual(tui.snapshot(self.state)["rows"], [])
         self.state.save({"number": 9, "phase": "blocked", "error": "Provider unavailable"})
@@ -355,7 +368,7 @@ class TuiTests(unittest.TestCase):
         subprocess.run(["git", "init", "-q", str(self.tree)], check=True)
         subprocess.run(["git", "-C", str(self.tree), "remote", "add", "origin", "https://github.com/owner/repo.git"], check=True)
         env = {**os.environ, "TERM": "xterm-256color", "XDG_STATE_HOME": str(self.root)}
-        env["NO_COLOR"] = "1"  # A coloured dashboard is explicitly requested by default.
+        env.pop("NO_COLOR", None)  # Exercise colour output independently of the caller's environment.
         process = subprocess.Popen([sys.executable, str(Path(w.__file__).resolve()), "tui", "--repo", str(self.tree), "--refresh", "0.1"],
                                    stdin=slave, stdout=slave, stderr=slave, env=env)
         def cleanup():
@@ -588,8 +601,18 @@ class TuiTests(unittest.TestCase):
 
     def test_explicit_monochrome_does_not_initialize_colours(self):
         dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1, no_color=True)
-        with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=True), \
+        with patch.dict(os.environ, {"NO_COLOR": ""}), \
+             patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=True), \
              patch.object(curses, "start_color") as start:
+            dashboard.run(Screen())
+        start.assert_not_called()
+
+    def test_no_color_environment_does_not_initialize_colours(self):
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
+        with patch.dict(os.environ, {"NO_COLOR": "1"}), \
+             patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=True), \
+             patch.object(curses, "start_color") as start, patch.object(curses, "use_default_colors"), \
+             patch.object(curses, "init_pair"), patch.object(curses, "color_pair", return_value=0):
             dashboard.run(Screen())
         start.assert_not_called()
 

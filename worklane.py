@@ -494,7 +494,7 @@ class DatabaseLogWriter:
 
 
 class Board:
-    def __init__(self, repo, path, project=None):
+    def __init__(self, repo, path, project=None, *, load_fields=True):
         self.repo, self.path = repo, path
         owner, name = repo.split("/")
         if project:
@@ -519,7 +519,8 @@ class Board:
             self.project = candidates[0]
             self.owner = self.project.get("owner", {}).get("login", owner)
             self.number = self.project["number"]
-        self.refresh_fields()
+        if load_fields:
+            self.refresh_fields()
 
     def refresh_fields(self):
         fields = gh("project", "field-list", str(self.number), "--owner", self.owner, "--format", "json")["fields"]
@@ -1081,7 +1082,8 @@ def installation_info():
 
 def parser():
     p = argparse.ArgumentParser(description="Three workers and one independent reviewer for a GitHub project board.")
-    p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "status", "logs", "pause", "resume", "stop", "retry"])
+    p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "board", "status", "logs", "pause", "resume", "stop", "retry"],
+                   help="Command to run; board opens the project board in your browser (default: run)")
     p.add_argument("number", nargs="?", type=int, help="Issue number for retry or logs")
     p.add_argument("--repo", default=".", help="Local repository checkout (default: current directory)")
     p.add_argument("--project", help="GitHub board OWNER/NUMBER; auto-detected when unambiguous")
@@ -1107,6 +1109,13 @@ def main(argv=None):
         if args.now and args.action != "stop":
             raise RuntimeError("--now is only valid with stop.")
         repo, root, base = repository(Path(args.repo).expanduser())
+        if args.action == "board":
+            if not shutil.which("gh"):
+                raise RuntimeError("Required command missing: gh")
+            board = Board(repo, root, args.project, load_fields=False)
+            command(["gh", "project", "view", str(board.number), "--owner", board.owner, "--web"], cwd=root)
+            print(f"Opened project board: {board.project['url']}")
+            return 0
         state = State(repo)
         if args.action == "run":
             sys.stdout = DatabaseLogWriter(state, "controller", None if args.background else original_stdout)

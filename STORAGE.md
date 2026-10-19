@@ -1,6 +1,8 @@
-# Storage decision: SQLite metadata, JSONL transcripts
+# Storage decision: SQLite for all Worklane data
 
-Worklane uses SQLite for controller state and keeps streamed agent output as files.
+Worklane uses SQLite for all of its durable runtime data, including controller
+output, agent events, results, issue/PR details and session mappings. There are no
+persistent JSON, JSONL, schema, result or log files, and no JSON payload columns.
 This remains a local CLI with no server or additional Python runtime dependency:
 the implementation uses Python's standard-library `sqlite3` module.
 
@@ -18,14 +20,24 @@ claim that SQLite would coordinate multiple distributed queue owners.
 
 ## What is stored
 
-- `tasks`: issue number, indexed phase, flexible JSON payload, timestamp. The JSON
-  payload keeps issue/PR evidence extensible, inside a database transaction rather
-  than as an independently replaced file.
+- `tasks`: issue number, indexed phase and timestamp.
+- `state_values`: typed relational rows for nested task details, settings,
+  structured results and event fields. Containers, parent/child relationships,
+  keys and scalar types are preserved without serializing JSON blobs.
 - `sessions`: issue, role, exact session ID, backend/model, stable worktree and
   timestamps. `(issue, role)` is unique, and a session ID cannot belong to two roles.
 - `runs`: one invocation per row, including role/stage, session ID, process identity,
-  status, log/result paths, timing, structured result and error.
-- `metadata`: controller runtime, pause/shutdown state and migration/schema version.
+  status, timing, worktree and error. Results reference typed database values.
+- `run_events`: event identity, invocation, type and timestamp; all event fields
+  are stored as typed database values.
+- `logs`: controller output, stderr and readable agent output. `worklane logs`
+  reads this table; `worklane logs NUMBER` filters it by issue.
+- `migration_archive`: original bytes of imported legacy files, retained inside
+  SQLite before their external copies are removed.
+
+Runtime settings use typed database values too. The schema version is SQLite's
+`user_version`. Empty process-lock files and Git worktrees remain on disk as
+operational resources; they are not parallel state/log stores.
 
 Each thread opens a short-lived connection. WAL mode permits readers alongside
 writes; writers wait up to 30 seconds. Foreign keys and uniqueness constraints
@@ -46,9 +58,9 @@ use `codex exec resume <ID>`, never the machine's most recent session. Reviewer
 history remains separate from implementation history. Finalization has its own
 resumable session because it may prepare local integration artifacts.
 
-The JSONL log is flushed and synced before the matching session-ID transaction.
-If the controller crashes between those operations, startup replays that event
-from the log. If a previous invocation has no recoverable ID, the tool blocks
+The received `thread.started` event, readable log entry and matching session-ID
+mapping commit together. A failed mapping check rolls back all of them; no
+separate transcript write needs replaying. If a previous invocation has no recoverable ID, the tool blocks
 rather than silently creating a new conversation. A missing Codex transcript or
 missing worktree is also a blocker. Worklane's database alone does not contain a
 complete copy of Codex's conversation storage.
@@ -61,11 +73,20 @@ closed issues and changed PR heads are checked before work continues.
 
 ## Migration and operational boundaries
 
-The one-time JSON import is transactional and idempotent. Original JSON files are
-left untouched; later runs use SQLite exclusively. Explicit stage-labelled logs
+Imports from the first JSON format and the intermediate mixed SQLite/file format
+are transactional and idempotent. Original file bytes are archived inside SQLite;
+external files are removed only after a successful commit and a content check.
+If cleanup is interrupted, the next startup completes it. Explicit stage-labelled logs
 can supply a known session ID. The first release did not label every log's role,
 so migration does not guess ownership for those old logs. Stop old controllers
 before upgrading and do not run the old JSON writer against migrated state.
+
+Codex and GitHub still exchange JSON over their interfaces. For Codex's required
+schema and output paths, Linux `memfd_create` descriptors expose in-memory files
+through `/proc/self/fd`. Both descriptors are inherited by the child, then closed
+after the parsed result is stored in SQLite. They leave no temporary JSON files,
+even if a process is killed. Codex's own conversation-history storage is owned by
+Codex; Worklane does not replace that backend's transcript implementation.
 
 The existing local process lock still limits one controller and is inherited by
 agents. SQLite does not replace that lock or make GitHub status updates atomic.

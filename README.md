@@ -4,7 +4,8 @@ A reusable Python CLI that takes issues from a GitHub project board, runs up to
 three coding workers and one independent reviewer, and hands passing work to a
 human. No configuration files are needed in the projects it works on.
 
-[Source repository](https://github.com/sbracegirdle/worklane)
+[Source repository](https://github.com/sbracegirdle/worklane) ·
+[Project board](https://github.com/users/sbracegirdle/projects/2)
 
 Currently uses your authenticated **Codex CLI**, with **`gpt-6.1-sol`** and high
 reasoning effort by default. The backend boundary is separate from queue handling
@@ -44,7 +45,9 @@ worklane run         # Foreground; Ctrl-C drains active jobs then exits
 
 ```sh
 worklane start       # Start a detached controller; returns immediately
-worklane status      # Show state, assignments, blockers and log locations as JSON
+worklane status      # Print state, assignments, sessions and blockers
+worklane logs        # Read controller/agent logs from SQLite
+worklane logs 123    # Read logs for one issue
 worklane pause       # Stop all new dispatches; active workers/reviewer finish
 worklane resume      # Resume dispatching in the running controller
 worklane stop        # Pause dispatching, drain active jobs, then exit
@@ -116,17 +119,22 @@ Runtime data lives outside project checkouts:
 
 ```text
 ~/.local/state/worklane/OWNER--REPO/
-  controller.log       # Background controller output
-  state.sqlite3        # Tasks, role/session IDs, run history, controls and runtime
-  logs/NUMBER/         # Codex JSONL logs and structured results
+  state.sqlite3        # All Worklane state, events, logs, results and session IDs
   worktrees/           # Preserved worker and detached review checkouts
 ```
 
-SQLite is the source of truth. Existing `tasks/*.json`, `runtime.json` and
-`control.json` are imported once in a transaction and retained unchanged as
-rollback references. The old controller must be stopped before this migration.
+SQLite is the only durable Worklane data store. Tasks, nested issue/PR data,
+events, results, controller output, agent output, controls and session mappings
+are stored in database tables. There are no JSON payload columns or persistent
+JSON, JSONL, result, schema or log files. JSON is only an API/CLI exchange format;
+Codex's required schema/result paths use memory-backed file descriptors.
+
+Existing JSON state and mixed SQLite/file storage are migrated transactionally.
+Original file bytes are archived inside SQLite before the files are removed, so
+rollback evidence is retained without leaving separate storage files. The old
+controller must be stopped before this migration.
 Unlabelled old logs are not guessed into a worker/reviewer session: uncertain
-legacy conversation ownership requires inspection. New run logs record their role
+legacy conversation ownership requires inspection. New runs record their role
 and session explicitly. See [the storage decision](STORAGE.md) for the comparison.
 
 `XDG_STATE_HOME` changes the base directory. All checkouts of the same repository
@@ -178,8 +186,8 @@ starting. Account usage limits can block a run, in which case retry explicitly.
 
 If a previously launched role has no recoverable session ID, or Codex cannot resume
 the saved ID, Worklane blocks rather than silently starting a new conversation.
-It can replay a flushed JSONL `thread.started` event if a crash happened just before
-the database commit. A crash before any recoverable ID was emitted needs manual
+The `thread.started` event and its session mapping are committed in one transaction.
+A crash before any recoverable ID was committed needs manual
 inspection. Deleting Codex history or a session worktree also requires recovery;
 Worklane does not substitute another session or checkout.
 

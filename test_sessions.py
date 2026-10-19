@@ -41,6 +41,11 @@ print(json.dumps({"type": "turn.completed"}), flush=True)
 '''
 
 
+def legacy_json_fixture(path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value))
+
+
 class SessionTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -183,7 +188,8 @@ class SessionTests(unittest.TestCase):
             deadline = time.monotonic() + 5
             while not self.state.session(1, "worker") and time.monotonic() < deadline:
                 time.sleep(.01)
-            w.main(["stop", "--now", "--repo", str(self.tree)])
+            if self.state.session(1, "worker") and self.state.running():
+                w.main(["stop", "--now", "--repo", str(self.tree)])
         issue = {"state": "OPEN", "title": "one task", "labels": []}
         with patch.dict(os.environ, {"XDG_STATE_HOME": str(self.root)}), \
              patch.object(w, "repository", return_value=("owner/repo", self.tree, "main")), \
@@ -223,21 +229,22 @@ class SessionTests(unittest.TestCase):
                 self.backend(fd).run("build", self.task, other)
         self.assertEqual(len(self.calls()), 1)
 
-    def test_log_replays_session_event_after_controller_crash(self):
-        path = self.root / "recover.jsonl"
+    def test_session_event_and_mapping_commit_together_before_crash(self):
         session_id = str(uuid.uuid4())
-        run_id = self.state.begin_run(self.task, "build", self.tree, path, self.root / "result.json")
-        path.write_text(json.dumps({"type": "thread.started", "thread_id": session_id}) + "\n")
+        run_id = self.state.begin_run(self.task, "build", self.tree)
+        event = {"type": "thread.started", "thread_id": session_id}
+        self.state.record_event(run_id, event, w.MODEL)
         reopened = w.State("owner/repo", self.root)
         reopened.recover_runs()
         self.assertEqual(reopened.session(1, "worker")["session_id"], session_id)
         self.assertEqual(reopened.runs(1)[0]["status"], "interrupted")
+        self.assertEqual(reopened.events(run_id), [event])
 
     def test_database_prevents_cross_role_session_reuse(self):
         with w.locked(self.state.path / "runner.lock") as fd:
             self.backend(fd).run("build", self.task, self.tree)
         session = self.state.session(1, "worker")["session_id"]
-        run = self.state.begin_run(self.task, "review", self.tree, self.root / "log", self.root / "result")
+        run = self.state.begin_run(self.task, "review", self.tree)
         with self.assertRaises(sqlite3.IntegrityError):
             self.state.attach_session(run, session, w.MODEL)
         self.assertIsNone(self.state.session(1, "reviewer"))
@@ -264,23 +271,28 @@ class SessionTests(unittest.TestCase):
         with reopened.connect() as db:
             self.assertEqual(db.execute("PRAGMA integrity_check").fetchone()[0], "ok")
 
-    def test_json_migration_is_atomic_idempotent_and_preserves_originals(self):
+    def test_json_migration_is_atomic_idempotent_and_archives_originals_in_sqlite(self):
         base = self.root / "legacy"
         path = base / "worklane" / "old--repo"
         (path / "tasks").mkdir(parents=True)
         original = {"number": 7, "phase": "building"}
-        w.write_json(path / "tasks/7.json", original)
+        legacy_json_fixture(path / "tasks/7.json", original)
         (path / "tasks/8.json").write_text("invalid")
         with self.assertRaises(ValueError):
             w.State("old/repo", base)
         with closing(sqlite3.connect(path / "state.sqlite3")) as db:
-            self.assertEqual(db.execute("SELECT count(*) FROM tasks").fetchone()[0], 0)
+            exists = db.execute("SELECT 1 FROM sqlite_master WHERE name='tasks'").fetchone()
+            self.assertEqual(db.execute("SELECT count(*) FROM tasks").fetchone()[0] if exists else 0, 0)
         (path / "tasks/8.json").unlink()
-        w.write_json(path / "control.json", {"paused": True})
+        legacy_json_fixture(path / "control.json", {"paused": True})
         migrated = w.State("old/repo", base)
         self.assertEqual(migrated.load(7)["phase"], "building")
         self.assertTrue(migrated.paused())
-        self.assertEqual(w.read_json(path / "tasks/7.json"), original)
+        self.assertFalse((path / "tasks/7.json").exists())
+        self.assertFalse((path / "control.json").exists())
+        with migrated.connect() as db:
+            archived = db.execute("SELECT content FROM migration_archive WHERE path='tasks/7.json'").fetchone()[0]
+        self.assertEqual(json.loads(archived), original)
         migrated.save({"number": 7, "phase": "awaiting_review"})
         self.assertEqual(w.State("old/repo", base).load(7)["phase"], "awaiting_review")
 
@@ -291,7 +303,7 @@ class SessionTests(unittest.TestCase):
         session_id = str(uuid.uuid4())
         log = path / "worker.jsonl"
         log.write_text(json.dumps({"type": "thread.started", "thread_id": session_id}) + "\n")
-        w.write_json(path / "tasks/7.json", {"number": 7, "phase": "awaiting_review", "active_stage": "build", "log": str(log)})
+        legacy_json_fixture(path / "tasks/7.json", {"number": 7, "phase": "awaiting_review", "active_stage": "build", "log": str(log)})
         migrated = w.State("old/repo", base)
         self.assertEqual(migrated.session(7, "worker")["session_id"], session_id)
 
@@ -334,7 +346,7 @@ class SessionTests(unittest.TestCase):
         self.task["head_sha"] = git("rev-parse", "HEAD")
         runner = w.Runner(None, "owner/repo", self.tree, self.state, FakeBoard(), Mock())
         first = runner.worktree(self.task, review=True)
-        run = self.state.begin_run(self.task, "review", first, self.root / "log", self.root / "result")
+        run = self.state.begin_run(self.task, "review", first)
         session_id = str(uuid.uuid4())
         self.state.attach_session(run, session_id, w.MODEL)
         self.state.finish_run(run, "completed")
@@ -347,6 +359,84 @@ class SessionTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(git("rev-parse", "HEAD", cwd=second), self.task["head_sha"])
         self.assertEqual(self.state.session(1, "reviewer")["session_id"], session_id)
+
+    def test_all_agent_storage_is_sqlite_without_json_or_log_files(self):
+        with w.locked(self.state.path / "runner.lock") as fd:
+            expected = self.backend(fd).run("build", self.task, self.tree)
+        files = [p for p in self.state.path.rglob("*") if p.is_file()]
+        self.assertFalse([p for p in files if p.suffix in {".json", ".jsonl", ".log"}])
+        run = self.state.runs(1)[0]
+        self.assertEqual(run["result"], expected)
+        self.assertEqual(self.state.events(run["id"])[0]["type"], "thread.started")
+        self.assertTrue(self.state.log_entries(1))
+        with self.state.connect() as db:
+            columns = {row["name"] for row in db.execute("PRAGMA table_info(tasks)")}
+            self.assertNotIn("payload", columns)
+            self.assertEqual(db.execute("PRAGMA integrity_check").fetchone()[0], "ok")
+
+    def test_memory_backed_protocol_supports_managed_python_without_os_helper(self):
+        with patch.object(os, "memfd_create", None, create=True):
+            fd = w.memory_fd("worklane-test")
+            try:
+                os.write(fd, b"memory-only")
+                os.lseek(fd, 0, os.SEEK_SET)
+                self.assertEqual(os.read(fd, 32), b"memory-only")
+                self.assertIn("memfd:worklane-test", os.readlink(f"/proc/self/fd/{fd}"))
+            finally:
+                os.close(fd)
+
+    def test_controller_output_is_logged_in_database(self):
+        writer = w.DatabaseLogWriter(self.state, "controller")
+        writer.write("controller started\npartial")
+        writer.flush()
+        reopened = w.State("owner/repo", self.root)
+        self.assertEqual([row["content"] for row in reopened.log_entries()], ["controller started", "partial"])
+        self.assertFalse((self.state.path / "controller.log").exists())
+
+    def test_invalid_session_event_rolls_back_event_and_log(self):
+        run = self.state.begin_run(self.task, "build", self.tree)
+        session = str(uuid.uuid4())
+        self.state.record_event(run, {"type": "thread.started", "thread_id": session}, w.MODEL)
+        with self.assertRaises(RuntimeError):
+            self.state.record_event(run, {"type": "thread.started", "thread_id": str(uuid.uuid4())}, w.MODEL)
+        self.assertEqual(len(self.state.events(run)), 1)
+        self.assertEqual(len(self.state.log_entries(1)), 1)
+        self.assertEqual(self.state.session(1, "worker")["session_id"], session)
+
+    def test_migration_from_sqlite_v1_imports_files_and_normalizes_payloads(self):
+        base = self.root / "v1"
+        path = base / "worklane/old--repo"
+        path.mkdir(parents=True)
+        log = path / "logs/7/run.jsonl"
+        log.parent.mkdir(parents=True)
+        session_id, run_id = str(uuid.uuid4()), str(uuid.uuid4())
+        event = {"type": "thread.started", "thread_id": session_id}
+        log.write_text(json.dumps(event) + "\n")
+        output = path / "logs/7/run.result.json"
+        output.write_text(json.dumps(result()))
+        with closing(sqlite3.connect(path / "state.sqlite3")) as db:
+            db.executescript('''
+                CREATE TABLE tasks(number INTEGER PRIMARY KEY,phase TEXT,payload TEXT,updated_at TEXT);
+                CREATE TABLE metadata(key TEXT PRIMARY KEY,value TEXT);
+                CREATE TABLE sessions(number INTEGER,role TEXT,session_id TEXT,backend TEXT,model TEXT,worktree TEXT,created_at TEXT,updated_at TEXT);
+                CREATE TABLE runs(id TEXT,number INTEGER,role TEXT,stage TEXT,session_id TEXT,status TEXT,started_at TEXT,finished_at TEXT,pid INTEGER,identity TEXT,log TEXT,result_path TEXT,worktree TEXT,error TEXT,result TEXT);
+            ''')
+            db.execute("INSERT INTO tasks VALUES (7,'building',?,?)", (json.dumps({"number": 7, "phase": "building"}), w.now()))
+            db.execute("INSERT INTO metadata VALUES ('control',?)", (json.dumps({"paused": True}),))
+            db.execute("INSERT INTO sessions VALUES (7,'worker',?,'codex',?,?,?,?)", (session_id, w.MODEL, str(self.tree), w.now(), w.now()))
+            db.execute("INSERT INTO runs VALUES (?,7,'worker','build',?,'completed',?,?,NULL,NULL,?,?,?,NULL,?)",
+                       (run_id, session_id, w.now(), w.now(), str(log), str(output), str(self.tree), json.dumps(result())))
+            db.commit()
+        migrated = w.State("old/repo", base)
+        self.assertTrue(migrated.paused())
+        self.assertEqual(migrated.session(7, "worker")["session_id"], session_id)
+        self.assertEqual(migrated.runs(7)[0]["result"], result())
+        self.assertEqual(migrated.events(run_id), [event])
+        self.assertFalse(log.exists())
+        self.assertFalse(output.exists())
+        with migrated.connect() as db:
+            self.assertEqual(db.execute("SELECT count(*) FROM migration_archive").fetchone()[0], 2)
+            self.assertNotIn("payload", {row["name"] for row in db.execute("PRAGMA table_info(tasks)")})
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
+import ctypes
 from datetime import datetime, timezone
 import fcntl
 import json
@@ -35,6 +36,23 @@ ROLES = {"build": "worker", "review": "reviewer", "finalize": "finalizer"}
 
 class InterruptedRun(RuntimeError):
     """A stopped invocation that must continue in the same session."""
+
+
+def memory_fd(name):
+    """Some managed Python builds omit os.memfd_create despite Linux support."""
+    native = getattr(os, "memfd_create", None)
+    if native:
+        return native(name)
+    libc = ctypes.CDLL(None, use_errno=True)
+    create = getattr(libc, "memfd_create", None)
+    if create is None:
+        raise RuntimeError("This Linux runtime does not support memory-backed protocol files.")
+    create.argtypes, create.restype = [ctypes.c_char_p, ctypes.c_uint], ctypes.c_int
+    fd = create(name.encode(), 1)  # MFD_CLOEXEC; Popen explicitly inherits these FDs.
+    if fd < 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error))
+    return fd
 RESULT_SCHEMA = {
     "type": "object", "additionalProperties": False,
     "properties": {
@@ -115,13 +133,6 @@ def graphql(query, variables=None):
     return result["data"]
 
 
-def write_json(path, data):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(path.name + f".{os.getpid()}.{threading.get_ident()}.tmp")
-    temporary.write_text(json.dumps(data, indent=2) + "\n")
-    temporary.replace(path)
-
-
 def read_json(path, default=None):
     return json.loads(path.read_text()) if path.exists() else default
 
@@ -147,35 +158,25 @@ def process_identity(pid):
 
 
 class State:
+    """All durable Worklane state, including structured events and logs, is SQLite."""
+    VERSION = 2
+
     def __init__(self, repo, root=None):
         base = Path(root or os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state"))
         self.path = base / "worklane" / repo.casefold().replace("/", "--")
         self.path.mkdir(parents=True, exist_ok=True, mode=0o700)
         self.database = self.path / "state.sqlite3"
         with self.connect() as db:
-            db.execute("PRAGMA journal_mode=WAL")
-            db.executescript("""
-              CREATE TABLE IF NOT EXISTS metadata (key TEXT PRIMARY KEY, value TEXT NOT NULL);
-              CREATE TABLE IF NOT EXISTS tasks (
-                number INTEGER PRIMARY KEY, phase TEXT NOT NULL, payload TEXT NOT NULL, updated_at TEXT NOT NULL);
-              CREATE TABLE IF NOT EXISTS sessions (
-                number INTEGER NOT NULL REFERENCES tasks(number), role TEXT NOT NULL,
-                session_id TEXT NOT NULL UNIQUE, backend TEXT NOT NULL, model TEXT NOT NULL,
-                worktree TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
-                PRIMARY KEY(number, role));
-              CREATE TABLE IF NOT EXISTS runs (
-                id TEXT PRIMARY KEY, number INTEGER NOT NULL REFERENCES tasks(number),
-                role TEXT NOT NULL, stage TEXT NOT NULL, session_id TEXT,
-                status TEXT NOT NULL, started_at TEXT NOT NULL, finished_at TEXT,
-                pid INTEGER, identity TEXT, log TEXT NOT NULL, result_path TEXT NOT NULL,
-                worktree TEXT NOT NULL, error TEXT, result TEXT);
-              CREATE INDEX IF NOT EXISTS runs_task ON runs(number, started_at);
-            """)
-        self.migrate_json()
+            version = db.execute("PRAGMA user_version").fetchone()[0]
+        if version > self.VERSION:
+            raise RuntimeError("This state database needs a newer Worklane version.")
+        if version != self.VERSION:
+            with locked(self.path / "runner.lock", blocking=False):
+                self._upgrade()
+        self._remove_archived_files()
 
     @contextmanager
     def connect(self):
-        # Connections are short-lived and thread-local; writes queue for up to 30s.
         db = sqlite3.connect(self.database, timeout=30)
         db.row_factory = sqlite3.Row
         db.execute("PRAGMA foreign_keys=ON")
@@ -186,79 +187,171 @@ class State:
         finally:
             db.close()
 
-    def get_meta(self, key, default=None):
-        with self.connect() as db:
-            row = db.execute("SELECT value FROM metadata WHERE key=?", (key,)).fetchone()
-        return json.loads(row[0]) if row else default
+    @staticmethod
+    def _put(db, owner, value):
+        """Store nested data as typed relational rows, never a JSON payload blob."""
+        db.execute("DELETE FROM state_values WHERE owner=?", (owner,))
+        rows = []
+        def visit(value, parent=None, position=0, key=None):
+            node = len(rows)
+            kind = "null" if value is None else "bool" if isinstance(value, bool) else "int" if isinstance(value, int) else "float" if isinstance(value, float) else "str" if isinstance(value, str) else "dict" if isinstance(value, dict) else "list" if isinstance(value, list) else None
+            if kind is None:
+                raise TypeError(f"Unsupported state value: {type(value).__name__}")
+            rows.append((owner, node, parent, position, key, kind,
+                         value if kind == "str" else None,
+                         int(value) if kind in {"int", "bool"} else None,
+                         value if kind == "float" else None))
+            if kind == "dict":
+                for index, (child_key, child) in enumerate(value.items()):
+                    visit(child, node, index, child_key)
+            elif kind == "list":
+                for index, child in enumerate(value):
+                    visit(child, node, index)
+        visit(value)
+        db.executemany("INSERT INTO state_values VALUES (?,?,?,?,?,?,?,?,?)", rows)
 
-    def set_meta(self, key, value):
-        with self.connect() as db:
-            db.execute("INSERT INTO metadata VALUES (?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
-                       (key, json.dumps(value)))
+    @staticmethod
+    def _get(db, owner, default=None):
+        rows = db.execute("SELECT * FROM state_values WHERE owner=? ORDER BY node", (owner,)).fetchall()
+        if not rows:
+            return default
+        values = {}
+        for row in rows:
+            kind = row["kind"]
+            value = {} if kind == "dict" else [] if kind == "list" else row["text_value"] if kind == "str" else bool(row["integer_value"]) if kind == "bool" else row["integer_value"] if kind == "int" else row["real_value"] if kind == "float" else None
+            values[row["node"]] = value
+            if row["parent"] is not None:
+                parent = values[row["parent"]]
+                if isinstance(parent, list):
+                    parent.append(value)
+                else:
+                    parent[row["key"]] = value
+        return values[0]
 
-    def migrate_json(self):
-        if self.get_meta("json_migrated", False):
-            return
-        # Never snapshot JSON while the previous controller may still be writing it.
-        with locked(self.path / "runner.lock", blocking=False):
-            with self.connect() as db:
-                if db.execute("SELECT 1 FROM metadata WHERE key='json_migrated'").fetchone():
-                    return
+    def _upgrade(self):
+        files = list((self.path / "tasks").glob("*.json")) + [self.path / f for f in ("runtime.json", "control.json", "controller.log")]
+        files += list((self.path / "logs").rglob("*"))
+        files = [f for f in files if f.is_file() and not f.is_symlink()]
+        with self.connect() as db:
+            if db.execute("PRAGMA user_version").fetchone()[0] == self.VERSION:
+                return
+            db.execute("PRAGMA journal_mode=WAL")
+            db.execute("PRAGMA foreign_keys=OFF")
+            db.execute("BEGIN IMMEDIATE")
+            old = {}
+            columns = {r["name"] for r in db.execute("PRAGMA table_info(tasks)")}
+            if "payload" in columns:
+                old = {table: [dict(r) for r in db.execute(f"SELECT * FROM {table}")] for table in ("tasks", "sessions", "runs", "metadata")}
+                for table in ("runs", "sessions", "tasks", "metadata"):
+                    db.execute(f"DROP TABLE {table}")
+            statements = [
+                "CREATE TABLE IF NOT EXISTS tasks(number INTEGER PRIMARY KEY,phase TEXT NOT NULL,updated_at TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS state_values(owner TEXT NOT NULL,node INTEGER NOT NULL,parent INTEGER,position INTEGER,key TEXT,kind TEXT NOT NULL,text_value TEXT,integer_value INTEGER,real_value REAL,PRIMARY KEY(owner,node))",
+                "CREATE TABLE IF NOT EXISTS sessions(number INTEGER NOT NULL REFERENCES tasks(number),role TEXT NOT NULL,session_id TEXT NOT NULL UNIQUE,backend TEXT NOT NULL,model TEXT NOT NULL,worktree TEXT NOT NULL,created_at TEXT NOT NULL,updated_at TEXT NOT NULL,PRIMARY KEY(number,role))",
+                "CREATE TABLE IF NOT EXISTS runs(id TEXT PRIMARY KEY,number INTEGER NOT NULL REFERENCES tasks(number),role TEXT NOT NULL,stage TEXT NOT NULL,session_id TEXT,status TEXT NOT NULL,started_at TEXT NOT NULL,finished_at TEXT,pid INTEGER,identity TEXT,worktree TEXT NOT NULL,error TEXT)",
+                "CREATE INDEX IF NOT EXISTS runs_task ON runs(number,started_at)",
+                "CREATE TABLE IF NOT EXISTS run_events(id INTEGER PRIMARY KEY,run_id TEXT NOT NULL REFERENCES runs(id),type TEXT NOT NULL,created_at TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS logs(id INTEGER PRIMARY KEY,run_id TEXT REFERENCES runs(id),stream TEXT NOT NULL,content TEXT NOT NULL,created_at TEXT NOT NULL)",
+                "CREATE TABLE IF NOT EXISTS migration_archive(path TEXT PRIMARY KEY,content BLOB NOT NULL)",
+            ]
+            for statement in statements:
+                db.execute(statement)
+            if old:
+                for row in old["tasks"]:
+                    self._save(db, json.loads(row["payload"]))
+                for row in old["metadata"]:
+                    self._put(db, "meta:" + row["key"], json.loads(row["value"]))
+                for row in old["sessions"]:
+                    db.execute("INSERT INTO sessions VALUES (?,?,?,?,?,?,?,?)", tuple(row[k] for k in ("number", "role", "session_id", "backend", "model", "worktree", "created_at", "updated_at")))
+                for row in old["runs"]:
+                    keys = ("id", "number", "role", "stage", "session_id", "status", "started_at", "finished_at", "pid", "identity", "worktree", "error")
+                    db.execute("INSERT INTO runs VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", tuple(row[k] for k in keys))
+                    if row["result"]:
+                        self._put(db, "result:" + row["id"], json.loads(row["result"]))
+                    log = Path(row["log"])
+                    if log.is_file():
+                        for line in log.read_text(errors="replace").splitlines():
+                            try:
+                                event = json.loads(line)
+                            except ValueError:
+                                self._log(db, row["id"], "stdout", line)
+                            else:
+                                self._event(db, row["id"], event)
+                    stderr = log.with_suffix(".stderr.log")
+                    if stderr.is_file():
+                        self._log(db, row["id"], "stderr", stderr.read_text(errors="replace"))
+            else:
                 for file in sorted((self.path / "tasks").glob("*.json")):
                     task = read_json(file)
                     phase = task.get("failed_phase", task.get("phase"))
-                    known_roles = {"building": ["worker"], "claiming": ["worker"], "awaiting_review": ["worker"],
-                                   "reviewing": ["worker", "reviewer"], "rework": ["worker", "reviewer"],
-                                   "finalizing": list(ROLES.values()), "human_review": list(ROLES.values())}.get(phase, [])
-                    task["legacy_session_roles"] = known_roles if task.get("log") else []
+                    possible = {"building": ["worker"], "claiming": ["worker"], "awaiting_review": ["worker"], "reviewing": ["worker", "reviewer"], "rework": ["worker", "reviewer"], "finalizing": list(ROLES.values()), "human_review": list(ROLES.values())}.get(phase, [])
+                    task["legacy_session_roles"] = possible if task.get("log") else []
                     self._save(db, task)
-                    # The old format did not label each log's role. Only attach an
-                    # ID when explicit stage metadata identifies it unambiguously.
                     role = ROLES.get(task.get("active_stage"))
                     ids = self.log_sessions(task.get("log"))
                     if role and len(ids) == 1:
-                        stamp = now()
                         tree = str(self.path / "worktrees" / (str(task["number"]) if role == "worker" else f"review-{task['number']}-{task.get('round', 0)}"))
-                        db.execute("INSERT INTO sessions VALUES (?,?,?,?,?,?,?,?)",
-                                   (task["number"], role, ids[0], "codex", MODEL, tree, stamp, stamp))
-                for key, file in (("control", "control.json"), ("runtime", "runtime.json")):
-                    if (self.path / file).exists():
-                        db.execute("INSERT OR IGNORE INTO metadata VALUES (?,?)",
-                                   (key, json.dumps(read_json(self.path / file))))
-                db.execute("INSERT INTO metadata VALUES ('json_migrated','true')")
-                db.execute("INSERT OR REPLACE INTO metadata VALUES ('schema_version','1')")
+                        db.execute("INSERT INTO sessions VALUES (?,?,?,?,?,?,?,?)", (task["number"], role, ids[0], "codex", MODEL, tree, now(), now()))
+                for key in ("control", "runtime"):
+                    file = self.path / f"{key}.json"
+                    if file.exists():
+                        self._put(db, "meta:" + key, read_json(file))
+            for file in files:
+                db.execute("INSERT OR IGNORE INTO migration_archive VALUES (?,?)", (str(file.relative_to(self.path)), file.read_bytes()))
+                if file.name == "controller.log":
+                    self._log(db, None, "controller", file.read_text(errors="replace"))
+            db.execute(f"PRAGMA user_version={self.VERSION}")
+            if db.execute("PRAGMA foreign_key_check").fetchone():
+                raise RuntimeError("State migration failed its foreign key check.")
+
+    def _remove_archived_files(self):
+        with self.connect() as db:
+            rows = db.execute("SELECT path FROM migration_archive").fetchall()
+        for row in rows:
+            file = self.path / row["path"]
+            if file.is_file() and not file.is_symlink():
+                with self.connect() as db:
+                    content = db.execute("SELECT content FROM migration_archive WHERE path=?", (row["path"],)).fetchone()[0]
+                if file.read_bytes() != content:
+                    raise RuntimeError(f"Legacy file changed after migration; inspect {file} before removing it.")
+                file.unlink()
+
+    def get_meta(self, key, default=None):
+        with self.connect() as db:
+            return self._get(db, "meta:" + key, default)
+
+    def set_meta(self, key, value):
+        with self.connect() as db:
+            self._put(db, "meta:" + key, value)
 
     @staticmethod
     def log_sessions(path):
         ids = []
         if path and Path(path).is_file():
-            with Path(path).open(errors="replace") as log:
-                for line in log:
-                    try:
-                        event = json.loads(line)
-                    except ValueError:
-                        continue
-                    if event.get("type") == "thread.started" and event.get("thread_id"):
-                        session_id = str(uuid.UUID(event["thread_id"]))
-                        if session_id not in ids:
-                            ids.append(session_id)
+            for line in Path(path).read_text(errors="replace").splitlines():
+                try:
+                    event = json.loads(line)
+                except ValueError:
+                    continue
+                if event.get("type") == "thread.started" and event.get("thread_id"):
+                    value = str(uuid.UUID(event["thread_id"]))
+                    if value not in ids:
+                        ids.append(value)
         return ids
 
-    @staticmethod
-    def _save(db, task):
-        payload = {k: v for k, v in task.items() if k != "sessions"}
-        db.execute("INSERT INTO tasks VALUES (?,?,?,?) ON CONFLICT(number) DO UPDATE SET "
-                   "phase=excluded.phase,payload=excluded.payload,updated_at=excluded.updated_at",
-                   (task["number"], task.get("phase", "unknown"), json.dumps(payload), now()))
+    @classmethod
+    def _save(cls, db, task):
+        db.execute("INSERT INTO tasks VALUES (?,?,?) ON CONFLICT(number) DO UPDATE SET phase=excluded.phase,updated_at=excluded.updated_at", (task["number"], task.get("phase", "unknown"), now()))
+        cls._put(db, f"task:{task['number']}", {k: v for k, v in task.items() if k != "sessions"})
 
     def load(self, number):
         with self.connect() as db:
-            row = db.execute("SELECT payload FROM tasks WHERE number=?", (number,)).fetchone()
+            if not db.execute("SELECT 1 FROM tasks WHERE number=?", (number,)).fetchone():
+                return {}
+            task = self._get(db, f"task:{number}", {})
             sessions = db.execute("SELECT role,session_id,worktree,model FROM sessions WHERE number=?", (number,)).fetchall()
-        if not row:
-            return {}
-        task = json.loads(row[0])
-        task["sessions"] = {s["role"]: dict(s) for s in sessions}
+        if task:
+            task["sessions"] = {row["role"]: dict(row) for row in sessions}
         return task
 
     def save(self, task):
@@ -268,7 +361,7 @@ class State:
 
     def all(self):
         with self.connect() as db:
-            numbers = [r[0] for r in db.execute("SELECT number FROM tasks ORDER BY number")]
+            numbers = [row[0] for row in db.execute("SELECT number FROM tasks ORDER BY number")]
         return [self.load(number) for number in numbers]
 
     def paused(self):
@@ -283,58 +376,84 @@ class State:
     def runs(self, number=None):
         with self.connect() as db:
             query = "SELECT * FROM runs" + (" WHERE number=?" if number is not None else "") + " ORDER BY started_at"
-            return [dict(row) for row in db.execute(query, (number,) if number is not None else ())]
+            rows = [dict(row) for row in db.execute(query, (number,) if number is not None else ())]
+            for row in rows:
+                row["result"] = self._get(db, "result:" + row["id"])
+            return rows
 
-    def begin_run(self, task, stage, tree, log, result):
-        run_id = str(uuid.uuid4())
-        role = ROLES[stage]
+    def begin_run(self, task, stage, tree):
+        run_id, role = str(uuid.uuid4()), ROLES[stage]
         session = self.session(task["number"], role)
-        task.update(active_stage=stage, active_run_id=run_id, log=str(log))
+        task.pop("log", None)
+        task.update(active_stage=stage, active_run_id=run_id, log_run_id=run_id)
         with self.connect() as db:
             self._save(db, task)
-            db.execute("INSERT INTO runs(id,number,role,stage,session_id,status,started_at,log,result_path,worktree) "
-                       "VALUES (?,?,?,?,?,'starting',?,?,?,?)", (run_id, task["number"], role, stage,
-                       session["session_id"] if session else None, now(), str(log), str(result), str(tree)))
+            db.execute("INSERT INTO runs(id,number,role,stage,session_id,status,started_at,worktree) VALUES (?,?,?,?,?,'starting',?,?)", (run_id, task["number"], role, stage, session["session_id"] if session else None, now(), str(tree)))
         return run_id
 
     def attach_process(self, run_id, task, pid):
         task.update(child_pid=pid, child_identity=process_identity(pid))
         with self.connect() as db:
             self._save(db, task)
-            db.execute("UPDATE runs SET pid=?,identity=?,status='running' WHERE id=?",
-                       (pid, task["child_identity"], run_id))
+            db.execute("UPDATE runs SET pid=?,identity=?,status='running' WHERE id=?", (pid, task["child_identity"], run_id))
+
+    @staticmethod
+    def _attach_session(db, run_id, session_id, model):
+        session_id = str(uuid.UUID(session_id))
+        run = db.execute("SELECT * FROM runs WHERE id=?", (run_id,)).fetchone()
+        old = db.execute("SELECT session_id FROM sessions WHERE number=? AND role=?", (run["number"], run["role"])).fetchone()
+        if old and old[0] != session_id:
+            raise RuntimeError("Codex returned a different session ID; refusing to replace the saved conversation.")
+        stamp = now()
+        db.execute("INSERT INTO sessions VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(number,role) DO UPDATE SET updated_at=excluded.updated_at,worktree=excluded.worktree", (run["number"], run["role"], session_id, "codex", model, run["worktree"], stamp, stamp))
+        db.execute("UPDATE runs SET session_id=? WHERE id=?", (session_id, run_id))
 
     def attach_session(self, run_id, session_id, model):
-        session_id = str(uuid.UUID(session_id))
         with self.connect() as db:
-            run = db.execute("SELECT * FROM runs WHERE id=?", (run_id,)).fetchone()
-            old = db.execute("SELECT session_id FROM sessions WHERE number=? AND role=?",
-                             (run["number"], run["role"])).fetchone()
-            if old and old[0] != session_id:
-                raise RuntimeError("Codex returned a different session ID; refusing to replace the saved conversation.")
-            stamp = now()
-            db.execute("INSERT INTO sessions VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(number,role) "
-                       "DO UPDATE SET updated_at=excluded.updated_at,worktree=excluded.worktree",
-                       (run["number"], run["role"], session_id, "codex", model, run["worktree"], stamp, stamp))
-            db.execute("UPDATE runs SET session_id=? WHERE id=?", (session_id, run_id))
+            self._attach_session(db, run_id, session_id, model)
+
+    @staticmethod
+    def _log(db, run_id, stream, content):
+        db.execute("INSERT INTO logs(run_id,stream,content,created_at) VALUES (?,?,?,?)", (run_id, stream, content, now()))
+
+    @classmethod
+    def _event(cls, db, run_id, event):
+        cursor = db.execute("INSERT INTO run_events(run_id,type,created_at) VALUES (?,?,?)", (run_id, event.get("type", "unknown"), now()))
+        cls._put(db, f"event:{cursor.lastrowid}", event)
+        text = event.get("item", {}).get("text") or event.get("message") or event.get("type", "unknown")
+        cls._log(db, run_id, "agent", text if isinstance(text, str) else str(text))
+
+    def record_event(self, run_id, event, model):
+        with self.connect() as db:
+            self._event(db, run_id, event)
+            if event.get("type") == "thread.started":
+                self._attach_session(db, run_id, event["thread_id"], model)
+
+    def append_log(self, run_id, stream, text):
+        with self.connect() as db:
+            self._log(db, run_id, stream, text)
+
+    def log_entries(self, number=None):
+        with self.connect() as db:
+            query = "SELECT logs.* FROM logs LEFT JOIN runs ON logs.run_id=runs.id"
+            if number is not None:
+                query += " WHERE runs.number=?"
+            return [dict(row) for row in db.execute(query + " ORDER BY logs.id", (number,) if number is not None else ())]
+
+    def events(self, run_id):
+        with self.connect() as db:
+            return [self._get(db, f"event:{row[0]}") for row in db.execute("SELECT id FROM run_events WHERE run_id=? ORDER BY id", (run_id,))]
 
     def finish_run(self, run_id, status, error=None, result=None):
         with self.connect() as db:
-            db.execute("UPDATE runs SET status=?,finished_at=?,error=?,result=? WHERE id=?",
-                       (status, now(), error, json.dumps(result) if result is not None else None, run_id))
+            db.execute("UPDATE runs SET status=?,finished_at=?,error=? WHERE id=?", (status, now(), error, run_id))
+            if result is not None:
+                self._put(db, "result:" + run_id, result)
 
     def recover_runs(self):
-        # Log is flushed before the session transaction: replay the event if a crash
-        # occurred between those operations. Never choose a different conversation.
         for run in self.runs():
-            if run["status"] not in {"starting", "running"}:
-                continue
-            ids = self.log_sessions(run["log"])
-            if len(ids) == 1:
-                self.attach_session(run["id"], ids[0], self.get_meta("runtime", {}).get("model", MODEL))
-            elif len(ids) > 1:
-                raise RuntimeError("Multiple session IDs in one run log; inspect state before recovery.")
-            self.finish_run(run["id"], "interrupted", "Controller exited before invocation completed.")
+            if run["status"] in {"starting", "running"}:
+                self.finish_run(run["id"], "interrupted", "Controller exited before invocation completed.")
 
     def running(self):
         try:
@@ -342,6 +461,35 @@ class State:
                 return False
         except RuntimeError:
             return True
+
+
+class DatabaseLogWriter:
+    """File-like controller output sink; no controller.log file is created."""
+    def __init__(self, state, stream, tee=None):
+        self.state, self.stream, self.tee = state, stream, tee
+        self.mutex = threading.RLock()
+        self.pending = ""
+
+    def write(self, text):
+        if self.tee:
+            self.tee.write(text)
+        with self.mutex:
+            self.pending += text
+            while "\n" in self.pending:
+                line, self.pending = self.pending.split("\n", 1)
+                self.state.append_log(None, self.stream, line)
+        return len(text)
+
+    def flush(self):
+        if self.tee:
+            self.tee.flush()
+        with self.mutex:
+            if self.pending:
+                self.state.append_log(None, self.stream, self.pending)
+                self.pending = ""
+
+    def isatty(self):
+        return False
 
 
 class Board:
@@ -441,117 +589,131 @@ class CodexBackend:
             raise InterruptedRun("Immediate stop requested before the next agent turn.")
         role = ROLES[stage]
         session = self.state.session(task["number"], role)
-        history = [r for r in self.state.runs(task["number"]) if r["role"] == role]
+        history = [run for run in self.state.runs(task["number"]) if run["role"] == role]
         result_key = {"worker": "build_result", "reviewer": "review_result", "finalizer": "handoff_result"}[role]
         if not session and (history or task.get(result_key) or role in task.get("legacy_session_roles", [])):
-            raise RuntimeError(f"No saved {role} session ID; inspect the logs. Refusing to start a replacement conversation.")
+            raise RuntimeError(f"No saved {role} session ID; inspect worklane logs. Refusing to start a replacement conversation.")
         if session and session["worktree"] and Path(session["worktree"]).resolve() != Path(worktree).resolve():
             raise RuntimeError(f"The {role} session belongs to another worktree; refusing to resume in a different directory.")
-        directory = self.state.path / "logs" / str(task["number"])
-        directory.mkdir(parents=True, exist_ok=True)
-        stamp = str(time.time_ns())
-        schema, result = directory / f"{stamp}.schema.json", directory / f"{stamp}.result.json"
-        write_json(schema, RESULT_SCHEMA)
         prompt = COMMON_PROMPT + {"build": BUILD_PROMPT, "review": REVIEW_PROMPT, "finalize": FINALIZE_PROMPT}[stage]
         if session:
             prompt += "\nContinue this existing conversation. Inspect the current files, PR and feedback before acting; a previous turn may have been interrupted. Do not discard existing work or duplicate completed external actions.\n"
         prompt += f"\nPrimary checkout: {self.root}\nAssigned task (JSON):\n{json.dumps(task)}\n{extra}"
-        # exec-level flags precede the resume subcommand: resume does not accept
-        # --cd/--add-dir/--approve-for-me itself in the installed Codex CLI.
-        args = ["codex", "exec", "--approve-for-me", "--cd", str(worktree),
-                "--config", 'model_reasoning_effort="high"',
-                "--config", "features.multi_agent=false"]
-        if stage == "finalize":
-            args += ["--add-dir", str(self.root)]
-        if session:
-            args += ["resume"]
-        args += ["--model", self.model, "--json", "--output-schema", str(schema),
-                 "--output-last-message", str(result)]
-        args += [session["session_id"], "-"] if session else ["-"]
-        log_path = directory / f"{stamp}.jsonl"
-        run_id = self.state.begin_run(task, stage, worktree, log_path, result)
+        # Codex requires paths for its schema and result. Linux memory-backed file
+        # descriptors satisfy that protocol without creating any persistent files.
+        schema_fd, result_fd = memory_fd("worklane-schema"), memory_fd("worklane-result")
+        try:
+            os.write(schema_fd, json.dumps(RESULT_SCHEMA).encode())
+            os.lseek(schema_fd, 0, os.SEEK_SET)
+            args = ["codex", "exec", "--approve-for-me", "--cd", str(worktree),
+                    "--config", 'model_reasoning_effort="high"', "--config", "features.multi_agent=false"]
+            if stage == "finalize":
+                args += ["--add-dir", str(self.root)]
+            if session:
+                args += ["resume"]
+            args += ["--model", self.model, "--json", "--output-schema", f"/proc/self/fd/{schema_fd}",
+                     "--output-last-message", f"/proc/self/fd/{result_fd}"]
+            args += [session["session_id"], "-"] if session else ["-"]
+            return self._invoke(args, prompt, stage, task, worktree, schema_fd, result_fd)
+        finally:
+            os.close(schema_fd)
+            os.close(result_fd)
+
+    def _invoke(self, args, prompt, stage, task, worktree, schema_fd, result_fd):
+        run_id = self.state.begin_run(task, stage, worktree)
         process = None
         observed_id, turn_completed, turn_failed = None, False, False
-        def event_received(line):
+        def received(stream, line):
             nonlocal observed_id, turn_completed, turn_failed
+            if stream == "stderr":
+                self.state.append_log(run_id, stream, line.decode(errors="replace"))
+                return
             try:
                 event = json.loads(line)
             except ValueError:
+                self.state.append_log(run_id, stream, line.decode(errors="replace"))
                 return
+            if not isinstance(event, dict):
+                raise RuntimeError("Codex emitted an unexpected event shape.")
+            # Event and session mapping commit together: there is no separate
+            # transcript-file write to replay or reconcile after a crash.
+            self.state.record_event(run_id, event, self.model)
             if event.get("type") == "thread.started":
                 value = str(uuid.UUID(event["thread_id"]))
                 if observed_id and observed_id != value:
                     raise RuntimeError("Agent emitted conflicting session IDs.")
-                self.state.attach_session(run_id, value, self.model)
                 observed_id = value
             elif event.get("type") == "turn.completed":
                 turn_completed = True
             elif event.get("type") in {"turn.failed", "error"}:
                 turn_failed = True
         try:
-            with log_path.open("wb") as log, log_path.with_suffix(".stderr.log").open("wb") as stderr:
-                process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=stderr,
-                                           cwd=worktree, pass_fds=(self.runner_fd,), start_new_session=True)
-                self.state.attach_process(run_id, task, process.pid)
-                if self.state.get_meta("shutdown", {}).get("immediate"):
-                    raise InterruptedRun("Immediate stop requested while the agent was starting.")
-                try:
-                    process.stdin.write(prompt.encode())
-                except BrokenPipeError:
-                    pass
-                finally:
-                    process.stdin.close()
-                deadline, pending = time.monotonic() + self.timeout, b""
-                with selectors.DefaultSelector() as selector:
-                    selector.register(process.stdout, selectors.EVENT_READ)
-                    while selector.get_map():
-                        remaining = deadline - time.monotonic()
-                        if remaining <= 0:
-                            raise InterruptedRun(f"Codex timed out; session saved for continuation. See {log_path}.")
-                        if not selector.select(min(1, remaining)):
-                            continue
-                        chunk = os.read(process.stdout.fileno(), 65536)
+            process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                       cwd=worktree, pass_fds=(self.runner_fd, schema_fd, result_fd), start_new_session=True)
+            self.state.attach_process(run_id, task, process.pid)
+            if self.state.get_meta("shutdown", {}).get("immediate"):
+                raise InterruptedRun("Immediate stop requested while the agent was starting.")
+            try:
+                process.stdin.write(prompt.encode())
+            except BrokenPipeError:
+                pass
+            finally:
+                process.stdin.close()
+            deadline = time.monotonic() + self.timeout
+            buffers = {"stdout": b"", "stderr": b""}
+            with selectors.DefaultSelector() as selector:
+                selector.register(process.stdout, selectors.EVENT_READ, "stdout")
+                selector.register(process.stderr, selectors.EVENT_READ, "stderr")
+                while selector.get_map():
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        raise InterruptedRun(f"Codex timed out; saved session can continue. Run ID: {run_id}.")
+                    for key, _ in selector.select(min(1, remaining)):
+                        stream = key.data
+                        chunk = os.read(key.fd, 65536)
                         if not chunk:
-                            selector.unregister(process.stdout)
-                            break
-                        log.write(chunk)
-                        log.flush()
-                        os.fsync(log.fileno())
-                        pending += chunk
-                        while b"\n" in pending:
-                            line, pending = pending.split(b"\n", 1)
-                            event_received(line)
-                    if pending.strip():
-                        event_received(pending)
-                process.stdout.close()
-                try:
-                    process.wait(timeout=max(.1, deadline - time.monotonic()))
-                except subprocess.TimeoutExpired:
-                    raise InterruptedRun("Codex timed out while exiting; resume the saved session.") from None
+                            selector.unregister(key.fileobj)
+                            if buffers[stream].strip():
+                                received(stream, buffers[stream])
+                            buffers[stream] = b""
+                            continue
+                        buffers[stream] += chunk
+                        while b"\n" in buffers[stream]:
+                            line, buffers[stream] = buffers[stream].split(b"\n", 1)
+                            received(stream, line)
+            try:
+                process.wait(timeout=max(.1, deadline - time.monotonic()))
+            except subprocess.TimeoutExpired:
+                raise InterruptedRun("Codex timed out while exiting; resume the saved session.") from None
             if process.returncode < 0:
                 raise InterruptedRun(f"Codex interrupted by signal {-process.returncode}; session retained.")
             if process.returncode:
-                raise RuntimeError(f"Codex exited {process.returncode}; see {log_path.with_suffix('.stderr.log')}.")
+                raise RuntimeError(f"Codex exited {process.returncode}; see worklane logs {task['number']} (run {run_id}).")
             if not observed_id or not turn_completed or turn_failed:
-                raise RuntimeError(f"Codex did not report a successful turn with a session ID; see {log_path}.")
-            output = read_json(result)
+                raise RuntimeError(f"Codex did not report a successful turn with a session ID; see worklane logs {task['number']}.")
+            os.lseek(result_fd, 0, os.SEEK_SET)
+            with os.fdopen(os.dup(result_fd), "rb") as result_file:
+                output = json.load(result_file)
             if not output or set(output) != set(RESULT_SCHEMA["required"]):
-                raise RuntimeError(f"Missing or invalid structured result; see {log_path}.")
+                raise RuntimeError("Missing or invalid structured result.")
             if output["verdict"] not in {"pass", "changes_requested", "blocked"}:
                 raise RuntimeError("Unknown agent verdict.")
-            if not all(isinstance(output[k], str) for k in ("pr_url", "head_sha", "summary")):
+            if not all(isinstance(output[key], str) for key in ("pr_url", "head_sha", "summary")):
                 raise RuntimeError("Invalid result field types.")
-            if not isinstance(output["findings"], list) or not all(isinstance(f, str) for f in output["findings"]):
+            if not isinstance(output["findings"], list) or not all(isinstance(value, str) for value in output["findings"]):
                 raise RuntimeError("Invalid review findings.")
             self.state.finish_run(run_id, "completed", result=output)
             return output
         except BaseException as error:
             if process:
                 self.terminate(process)
-                if process.stdout:
-                    process.stdout.close()
             self.state.finish_run(run_id, "interrupted" if isinstance(error, InterruptedRun) else "failed", str(error))
             raise
+        finally:
+            if process:
+                for pipe in (process.stdin, process.stdout, process.stderr):
+                    if pipe:
+                        pipe.close()
 
 
 class Runner:
@@ -892,19 +1054,22 @@ def repository(path):
 
 def parser():
     p = argparse.ArgumentParser(description="Three workers and one independent reviewer for a GitHub project board.")
-    p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "status", "pause", "resume", "stop", "retry"])
-    p.add_argument("number", nargs="?", type=int, help="Issue number for retry")
+    p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "status", "logs", "pause", "resume", "stop", "retry"])
+    p.add_argument("number", nargs="?", type=int, help="Issue number for retry or logs")
     p.add_argument("--repo", default=".", help="Local repository checkout (default: current directory)")
     p.add_argument("--project", help="GitHub board OWNER/NUMBER; auto-detected when unambiguous")
     p.add_argument("--model", default=MODEL, help=f"Codex model (default: {MODEL})")
     p.add_argument("--interval", type=int, default=60, help="Polling seconds (minimum 10)")
     p.add_argument("--once", action="store_true", help="Dispatch one batch, wait for it, then exit")
     p.add_argument("--now", action="store_true", help="With stop: terminate active agents as well")
+    p.add_argument("--background", action="store_true", help=argparse.SUPPRESS)
     return p
 
 
 def main(argv=None):
     args = parser().parse_args(argv)
+    original_stdout, original_stderr = sys.stdout, sys.stderr
+    output_redirected = False
     try:
         if args.interval < 10:
             raise RuntimeError("--interval must be at least 10 seconds.")
@@ -912,7 +1077,15 @@ def main(argv=None):
             raise RuntimeError("--now is only valid with stop.")
         repo, root, base = repository(Path(args.repo).expanduser())
         state = State(repo)
+        if args.action == "run":
+            sys.stdout = DatabaseLogWriter(state, "controller", None if args.background else original_stdout)
+            sys.stderr = DatabaseLogWriter(state, "controller-error", None if args.background else original_stderr)
+            output_redirected = True
         args.base = base
+        if args.action == "logs":
+            for entry in state.log_entries(args.number):
+                print(f"{entry['created_at']} [{entry['stream']}] {entry['content']}")
+            return 0
         if args.action == "status":
             runtime = state.get_meta("runtime", {})
             print(json.dumps({"repository": repo, "running": state.running(), "paused": state.paused(),
@@ -927,7 +1100,7 @@ def main(argv=None):
             runtime = state.get_meta("runtime", {})
             if args.action == "stop":
                 pid = runtime.get("pid")
-                if pid and process_identity(pid) == runtime.get("identity"):
+                if state.running() and pid and process_identity(pid) == runtime.get("identity"):
                     os.kill(pid, signal.SIGTERM)
                 if args.now:
                     for task in state.all():
@@ -972,22 +1145,20 @@ def main(argv=None):
             with locked(state.path / "runner.lock", blocking=False):
                 pass
             state.pause(False)
-            log_path = state.path / "controller.log"
             child_args = [sys.executable, str(Path(__file__).resolve()), "run", "--repo", str(root),
-                          "--project", f"{board.owner}/{board.number}", "--model", args.model, "--interval", str(args.interval)]
+                          "--project", f"{board.owner}/{board.number}", "--model", args.model, "--interval", str(args.interval), "--background"]
             if args.once:
                 child_args.append("--once")
-            with log_path.open("a") as log:
-                child = subprocess.Popen(child_args, stdout=log, stderr=log, start_new_session=True)
+            child = subprocess.Popen(child_args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
             for _ in range(100):
                 if child.poll() is not None:
-                    raise RuntimeError(f"Controller exited; see {log_path}.")
+                    raise RuntimeError("Controller exited; see worklane logs.")
                 runtime = state.get_meta("runtime", {})
                 if runtime.get("pid") == child.pid:
-                    print(f"Started {repo} (PID {child.pid}); logs: {log_path}")
+                    print(f"Started {repo} (PID {child.pid}); use worklane logs to inspect SQLite logs.")
                     return 0
                 time.sleep(0.1)
-            raise RuntimeError(f"Controller is still starting; check {log_path} before starting again.")
+            raise RuntimeError("Controller is still starting; check worklane logs before starting again.")
         with locked(state.path / "runner.lock", blocking=False) as runner_fd:
             command(["gh", "auth", "setup-git", "--hostname", "github.com"], cwd=root)
             board.ensure_review_status()
@@ -1011,6 +1182,13 @@ def main(argv=None):
     except (RuntimeError, OSError, sqlite3.Error, subprocess.TimeoutExpired, ValueError, KeyError) as error:
         print(f"worklane: {error}", file=sys.stderr)
         return 1
+    finally:
+        if output_redirected:
+            try:
+                sys.stdout.flush()
+                sys.stderr.flush()
+            finally:
+                sys.stdout, sys.stderr = original_stdout, original_stderr
 
 
 if __name__ == "__main__":

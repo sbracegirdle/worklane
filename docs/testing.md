@@ -13,6 +13,12 @@ the controller, checking that the exact original session is resumed. A harmless
 live Sol 6.1 two-turn check verified both the unchanged session ID and recall of
 information present only in the previous turn.
 
+Dashboard tests exercise SQLite refresh, separate role sessions, log tails,
+Unicode wrapping without lost content, resume guards, navigation and resizing.
+A real curses process in a pseudo-terminal verifies colour output, live refresh,
+log following and quitting without stopping the controller. Interactive resume
+uses a mocked invocation; no real coding conversation is resumed by these tests.
+
 Metadata tests use a fake app-server subprocess to check naming, project reuse and
 creation, pagination, concurrent roles, resumption, and transport failure cleanup.
 

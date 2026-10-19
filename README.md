@@ -37,6 +37,7 @@ worklane run         # Foreground; Ctrl-C drains active jobs then exits
 ```sh
 worklane start       # Start a detached controller; returns immediately
 worklane status      # Print state, assignments, sessions and blockers
+worklane tui         # Live agent overview and session logs
 worklane logs        # Read controller/agent logs from SQLite
 worklane logs 123    # Read logs for one issue
 worklane pause       # Stop all new dispatches; active workers/reviewer finish
@@ -84,6 +85,7 @@ worklane add -t "Fix startup" --repo ~/code/another-project --project OWNER/NUMB
 ## Documentation
 
 - [Operations](docs/operations.md): board setup, options, review, recovery and limits.
+- [Dashboard](docs/dashboard.md): controls and session access.
 - [Storage](docs/storage.md): SQLite design, migration and backups.
 - [Testing](docs/testing.md): test coverage and validation limits.
 - [Local installations](docs/installation.md): test unmerged changes and identify the installed revision.

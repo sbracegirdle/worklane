@@ -89,11 +89,15 @@ retrying because the request may already have succeeded.
 
 ## State, recovery and limits
 
-GitHub quota failures automatically suspend controller requests and preserve
-completed agent turns for recovery. Unchanged Human review feedback is checked
-every five minutes; pending feedback retains the controller polling interval.
-See [the API budget audit](github-api-budget.md) for measured request counts,
-pagination, shared cooldown scope and the live REST/GraphQL quota discrepancy.
+GitHub requests use targeted, paginated reads and share a persisted cooldown
+across controllers using the same state root; agent subprocesses and other
+machines are outside that coordination. Quota failures honor reset/retry headers,
+otherwise backing off from one minute to one hour, and resume saved work without
+repeating completed agent turns. Unchanged Human review feedback is checked every
+five minutes; pending feedback retains the controller interval. Tests measure 60
+board reads per idle hour, six attempts per exhausted-quota hour, and 55 logical
+GitHub operations for three builds plus review, excluding startup and agent calls.
+Live GraphQL costs and the conflicting REST/GraphQL quota reports remain unverified.
 
 Runtime data lives outside project checkouts:
 

@@ -74,6 +74,16 @@ Return the requested structured result, including exact test commands/results.
 """
 BUILD_PROMPT = """Implement the issue completely: design, code, appropriate tests and docs.
 For rework, fix the saved review findings and current PR feedback on the same branch.
+Read all inline review threads and replies, including outdated threads; paginate
+GitHub connections. The supplied review_threads are a snapshot; refresh before
+finishing. After committing, pushing and verifying a fix against the current PR
+head, reply to each addressed thread with the fix SHA and validation evidence,
+then mark that thread resolved using gh api graphql's resolveReviewThread mutation
+(input: {threadId: THREAD_ID}). Only resolve feedback you verified is addressed;
+leave unaddressed or disputed feedback open and report it as a finding. If you
+cannot resolve an addressed thread, report blocked. Never resolve all threads
+indiscriminately or treat an outdated thread as automatically addressed. On retry,
+check existing replies/resolution before repeating external actions.
 Commit your changes, push the assigned branch without force, and create/update one
 PR against the repository default branch, with a closing reference to the issue.
 Do not request human review yet. Do not alter the primary checkout or shared
@@ -86,6 +96,9 @@ REVIEW_PROMPT = """Independently review the supplied exact revision and issue ac
 Read the complete diff, issue/PR comments, and worker evidence. Inspect actual test
 assertions and run relevant checks yourself. Review correctness, regressions,
 security, documentation and repository-specific content/quality requirements.
+Read all inline review threads and replies, including outdated threads. Verify
+that resolved feedback is addressed at the supplied head; unresolved feedback must
+be reported as findings, even if a code fix exists but its thread remains open.
 Do not implement fixes or change the PR head. Return changes_requested with concrete
 file/line findings when needed, blocked when unable to assess, and pass only when
 all acceptance criteria and applicable checks pass. Echo the supplied head SHA.
@@ -724,11 +737,76 @@ class Runner:
         return gh("issue", "view", str(number), "--repo", self.repo,
                   "--json", "number,title,body,state,labels,comments,url")
 
-    def pr(self, url):
+    def pr_number(self, url):
         if not re.fullmatch(r"https://github\.com/" + re.escape(self.repo) + r"/pull/\d+", url, flags=re.I):
             raise RuntimeError("Agent returned a PR outside the assigned repository.")
+        return int(url.rsplit("/", 1)[1])
+
+    def pr(self, url):
+        self.pr_number(url)
         return gh("pr", "view", url, "--repo", self.repo,
                   "--json", "url,headRefOid,headRefName,baseRefName,state,isDraft,comments,reviews,body")
+
+    def review_threads(self, url):
+        """Read every inline thread and reply; gh pr view omits these discussions."""
+        number = self.pr_number(url)
+        owner, name = self.repo.split("/", 1)
+        threads, cursor = [], None
+
+        def next_cursor(connection, previous):
+            page = connection["pageInfo"]
+            if not page["hasNextPage"]:
+                return None
+            following = page["endCursor"]
+            if not following or following == previous:
+                raise RuntimeError("GitHub returned incomplete review-thread pagination.")
+            return following
+
+        while True:
+            data = graphql("""query($owner:String!, $name:String!, $number:Int!, $cursor:String) {
+              repository(owner:$owner, name:$name) { pullRequest(number:$number) {
+                reviewThreads(first:100, after:$cursor) {
+                  nodes { id isResolved isOutdated viewerCanResolve path line
+                    comments(first:100) {
+                      nodes { id body url author { login } }
+                      pageInfo { hasNextPage endCursor }
+                    }
+                  }
+                  pageInfo { hasNextPage endCursor }
+                }
+              } }
+            }""", {"owner": owner, "name": name, "number": number, "cursor": cursor})
+            connection = data["repository"]["pullRequest"]["reviewThreads"]
+            for thread in connection["nodes"]:
+                comments = thread["comments"]
+                replies = list(comments["nodes"])
+                reply_cursor = next_cursor(comments, None)
+                while reply_cursor:
+                    page = graphql("""query($id:ID!, $cursor:String!) {
+                      node(id:$id) { ... on PullRequestReviewThread {
+                        comments(first:100, after:$cursor) {
+                          nodes { id body url author { login } }
+                          pageInfo { hasNextPage endCursor }
+                        }
+                      } }
+                    }""", {"id": thread["id"], "cursor": reply_cursor})
+                    comments = page["node"]["comments"]
+                    replies.extend(comments["nodes"])
+                    reply_cursor = next_cursor(comments, reply_cursor)
+                thread["comments"] = replies
+                threads.append(thread)
+            cursor = next_cursor(connection, cursor)
+            if cursor is None:
+                return threads
+
+    def refresh_review_threads(self, task, *, require_resolved=False):
+        threads = self.review_threads(task["pr_url"]) if task.get("pr_url") and not task["question"] else []
+        task["review_threads"] = threads
+        self.state.save(task)
+        unresolved = [thread for thread in threads if not thread["isResolved"]]
+        if require_resolved and unresolved:
+            references = [f"{thread['id']} ({thread['path']})" for thread in unresolved]
+            raise RuntimeError("Unresolved PR review threads block completion: " + "; ".join(references))
 
     def verify_pr(self, task, sha):
         pr = self.pr(task["pr_url"])
@@ -788,6 +866,7 @@ class Runner:
 
     def build(self, task):
         tree = self.worktree(task)
+        self.refresh_review_threads(task)
         # Explicitly supply primary-checkout instructions even when untracked there.
         instructions = self.root / "AGENTS.md"
         extra = "\nPrimary checkout instructions:\n" + instructions.read_text() if instructions.exists() else ""
@@ -810,6 +889,7 @@ class Runner:
                 raise RuntimeError("Worker checkout differs from the pushed PR head.")
             if command(["git", "status", "--porcelain"], cwd=tree):
                 raise RuntimeError("Worker left uncommitted changes.")
+            self.refresh_review_threads(task, require_resolved=True)
         self.post(task, "implementation complete", result)
         self.state.save(task)
         self.board.move(task["item"], REVIEW, PROGRESS)
@@ -822,6 +902,7 @@ class Runner:
         else:
             self.verify_pr(task, task["head_sha"])
             tree = self.worktree(task, review=True)
+        self.refresh_review_threads(task)
         extra = "\nPrimary checkout instructions:\n" + (self.root / "AGENTS.md").read_text() if (self.root / "AGENTS.md").exists() else ""
         # A stopped finalizer continues the handoff, not a new review round.
         reuse_review = task.get("resume_stage") == "finalize" and task.get("review_result", {}).get("head_sha") == task.get("head_sha")
@@ -846,6 +927,7 @@ class Runner:
             return
         if result["findings"]:
             raise RuntimeError("Review passed with unresolved findings; human review is blocked.")
+        self.refresh_review_threads(task, require_resolved=True)
         task["phase"] = "finalizing"
         self.state.save(task)
         if not task["question"]:
@@ -855,6 +937,7 @@ class Runner:
             if handoff["verdict"] != "pass" or handoff["head_sha"] != task["head_sha"] or handoff["findings"]:
                 raise RuntimeError("Local human-testing handoff is incomplete: " + handoff["summary"])
             self.verify_pr(task, task["head_sha"])
+            self.refresh_review_threads(task, require_resolved=True)
             self.post(task, "human testing handoff", handoff)
             pr = self.pr(task["pr_url"])
             if pr["isDraft"]:

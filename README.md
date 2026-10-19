@@ -105,6 +105,22 @@ issue). Failed reviews return to Ready for work on the same branch, with finding
 included in the next worker's input. After three failed review rounds, the task is
 blocked for inspection instead of looping indefinitely.
 
+Inline PR review threads and all replies are included in worker/reviewer input,
+including outdated and resolved discussions. After pushing and verifying a fix,
+workers reply with the fix SHA and validation evidence and resolve each addressed
+thread using GitHub's review-thread API. Unaddressed or disputed feedback stays
+open; outdated threads are not automatically resolved. Workers check existing
+replies and resolution state when resuming to avoid duplicate actions. Ordinary
+PR conversation comments and review summaries have no resolved state and remain
+part of the discussion/evidence.
+
+The controller refreshes thread state before accepting implementation and before
+and after the local testing handoff. Open threads block completion, including
+outdated threads; GitHub read failures also block rather than assume resolution.
+The independent reviewer verifies that resolved feedback is addressed at the
+reviewed SHA. If a worker lacks permission to resolve an addressed thread, it
+reports a blocker for inspection; the controller never bulk-resolves feedback.
+
 After a pass, the same reviewer slot completes any repository-required local
 preview/integration/playground handoff, then moves the issue to Human review.
 This keeps local integration changes serialized. The tool does not automatically

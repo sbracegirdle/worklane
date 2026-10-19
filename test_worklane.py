@@ -23,6 +23,18 @@ def result(verdict="pass", sha="a" * 40, findings=None):
             "summary": "Validated acceptance criteria", "findings": findings or []}
 
 
+def review_thread(identifier="thread-1", *, resolved=False, outdated=False):
+    return {"id": identifier, "isResolved": resolved, "isOutdated": outdated,
+            "viewerCanResolve": True, "path": "file.py", "line": 4,
+            "comments": [{"id": "comment-1", "body": "Fix the boundary condition",
+                          "url": "https://github.com/owner/repo/pull/9#discussion_r1",
+                          "author": {"login": "reviewer"}}]}
+
+
+def connection(nodes, cursor=None):
+    return {"nodes": nodes, "pageInfo": {"hasNextPage": cursor is not None, "endCursor": cursor}}
+
+
 class FakeBoard:
     def __init__(self, items=()):
         self.queue = list(items)
@@ -153,6 +165,7 @@ class WorklaneTests(unittest.TestCase):
         runner.post = unittest.mock.Mock()
         runner.verify_pr = unittest.mock.Mock(return_value={})
         runner.pr = unittest.mock.Mock(return_value={"isDraft": False})
+        runner.review_threads = unittest.mock.Mock(return_value=[])
         return runner
 
     def task(self, status=w.REVIEW):
@@ -232,6 +245,152 @@ class WorklaneTests(unittest.TestCase):
         self.assertEqual(task["phase"], "human_review")
         self.assertEqual([call.args[0] for call in runner.backend.run.call_args_list], ["review", "finalize"])
 
+    def test_review_threads_include_all_pages_and_replies(self):
+        runner = self.runner()
+        first = review_thread()
+        comments = first["comments"] * 100
+        first["comments"] = connection(comments, "reply-page-2")
+        rest = [review_thread(f"thread-{i}", resolved=True) for i in range(2, 101)]
+        for thread in rest:
+            thread["comments"] = connection(thread["comments"])
+        last = review_thread("thread-101", outdated=True)
+        last["viewerCanResolve"] = False
+        last["comments"] = connection(last["comments"])
+        reply = {"id": "reply", "body": "Still needs a fix", "url": "reply-url", "author": None}
+        pages = [{"repository": {"pullRequest": {"reviewThreads": connection([first, *rest], "thread-page-2")}}},
+                 {"node": {"comments": connection([reply])}},
+                 {"repository": {"pullRequest": {"reviewThreads": connection([last])}}}]
+        with patch.object(w, "graphql", side_effect=pages) as api:
+            threads = w.Runner.review_threads(runner, self.task()["pr_url"])
+        self.assertEqual(len(threads), 101)
+        self.assertEqual(threads[0]["comments"], comments + [reply])
+        self.assertTrue(threads[1]["isResolved"])
+        self.assertTrue(threads[-1]["isOutdated"])
+        self.assertFalse(threads[-1]["viewerCanResolve"])
+        self.assertEqual(api.call_args_list[0].args[1], {"owner": "owner", "name": "repo", "number": 9, "cursor": None})
+        self.assertEqual(api.call_args_list[1].args[1], {"id": "thread-1", "cursor": "reply-page-2"})
+        self.assertEqual(api.call_args_list[2].args[1]["cursor"], "thread-page-2")
+        self.assertTrue(all(call.args[0].startswith("query") for call in api.call_args_list))
+
+    def test_review_thread_api_errors_fail_closed(self):
+        runner = self.runner()
+        with patch.object(w, "gh", return_value={"data": {}, "errors": [{"message": "Forbidden"}]}):
+            with self.assertRaisesRegex(RuntimeError, "Forbidden"):
+                w.Runner.review_threads(runner, self.task()["pr_url"])
+
+    def test_review_thread_pagination_cannot_silently_truncate(self):
+        runner = self.runner()
+        page = {"repository": {"pullRequest": {"reviewThreads": {
+            "nodes": [], "pageInfo": {"hasNextPage": True, "endCursor": None}}}}}
+        with patch.object(w, "graphql", return_value=page):
+            with self.assertRaisesRegex(RuntimeError, "incomplete review-thread pagination"):
+                w.Runner.review_threads(runner, self.task()["pr_url"])
+
+    def test_review_thread_lookup_rejects_other_repositories(self):
+        with patch.object(w, "graphql") as api:
+            with self.assertRaisesRegex(RuntimeError, "outside the assigned repository"):
+                w.Runner.review_threads(self.runner(), "https://github.com/other/repo/pull/9")
+        api.assert_not_called()
+
+    def test_worker_receives_threads_and_must_resolve_them_before_completion(self):
+        task = self.task(w.PROGRESS)
+        task["phase"] = "building"
+        board = FakeBoard([task["item"]])
+        runner = self.runner(board)
+        open_thread = review_thread()
+        resolved_thread = review_thread(resolved=True)
+        runner.review_threads.side_effect = [[open_thread], [resolved_thread]]
+
+        def build(stage, supplied, tree, extra):
+            self.assertEqual(stage, "build")
+            self.assertEqual(supplied["review_threads"], [open_thread])
+            return result()
+
+        runner.backend.run.side_effect = build
+        with patch.object(w, "command", side_effect=["a" * 40, ""]):
+            runner.build(task)
+        self.assertEqual(board.moves, [(1, w.REVIEW)])
+        self.assertEqual(self.state.load(1)["review_threads"], [resolved_thread])
+
+    def test_worker_pass_with_open_thread_does_not_advance(self):
+        for existing_pr in (False, True):
+            with self.subTest(existing_pr=existing_pr):
+                task = self.task(w.PROGRESS)
+                task["phase"] = "building"
+                if not existing_pr:
+                    task["pr_url"] = ""
+                board = FakeBoard([task["item"]])
+                runner = self.runner(board, [result()])
+                runner.review_threads.return_value = [review_thread()]
+                with patch.object(w, "command", side_effect=["a" * 40, ""]):
+                    runner.execute(task, False)
+                self.assertEqual(board.moves, [])
+                self.assertEqual(task["phase"], "blocked")
+                self.assertIn("thread-1 (file.py)", task["error"])
+                runner.post.assert_not_called()
+
+    def test_open_threads_block_passing_review_even_when_outdated(self):
+        for outdated in (False, True):
+            with self.subTest(outdated=outdated):
+                task = self.task()
+                board = FakeBoard([task["item"]])
+                runner = self.runner(board, [result()])
+                runner.review_threads.return_value = [review_thread(outdated=outdated)]
+                with patch.object(w, "command", side_effect=["a" * 40, ""]):
+                    runner.execute(task, True)
+                self.assertEqual(board.moves, [])
+                self.assertEqual(task["phase"], "blocked")
+                self.assertIn("Unresolved PR review threads", task["error"])
+                self.assertEqual([c.args[0] for c in runner.backend.run.call_args_list], ["review"])
+
+    def test_resolved_threads_are_supplied_to_reviewer_and_allow_handoff(self):
+        task = self.task()
+        board = FakeBoard([task["item"]])
+        runner = self.runner(board)
+        threads = [review_thread(resolved=True, outdated=True)]
+        runner.review_threads.return_value = threads
+
+        def review(stage, supplied, tree, extra):
+            self.assertEqual(supplied["review_threads"], threads)
+            return result()
+
+        runner.backend.run.side_effect = review
+        with patch.object(w, "command", side_effect=["a" * 40, ""]):
+            runner.review(task)
+        self.assertEqual(board.moves, [(1, w.HUMAN)])
+
+    def test_thread_opened_during_handoff_blocks_human_review(self):
+        task = self.task()
+        board = FakeBoard([task["item"]])
+        runner = self.runner(board, [result(), result()])
+        runner.review_threads.side_effect = [[], [], [review_thread()]]
+        with patch.object(w, "command", side_effect=["a" * 40, ""]):
+            runner.execute(task, True)
+        self.assertEqual(board.moves, [])
+        self.assertEqual(task["phase"], "blocked")
+        self.assertEqual([c.args[0] for c in runner.backend.run.call_args_list], ["review", "finalize"])
+
+    def test_thread_fetch_failure_never_advances_worker_or_reviewer(self):
+        for reviewing in (False, True):
+            with self.subTest(reviewing=reviewing):
+                task = self.task(w.REVIEW if reviewing else w.PROGRESS)
+                board = FakeBoard([task["item"]])
+                runner = self.runner(board)
+                runner.review_threads.side_effect = RuntimeError("GitHub unavailable")
+                runner.execute(task, reviewing)
+                self.assertEqual(board.moves, [])
+                self.assertEqual(task["phase"], "blocked")
+                runner.backend.run.assert_not_called()
+
+    def test_question_review_does_not_fetch_pr_threads(self):
+        task = self.task()
+        task.update(question=True, pr_url="", head_sha="")
+        board = FakeBoard([task["item"]])
+        runner = self.runner(board, [result(sha="")])
+        runner.review(task)
+        runner.review_threads.assert_not_called()
+        self.assertEqual(board.moves, [(1, w.HUMAN)])
+
     def test_stale_review_never_moves_to_human(self):
         task = self.task()
         board = FakeBoard([task["item"]])
@@ -262,6 +421,7 @@ class WorklaneTests(unittest.TestCase):
         task = self.task()
         board = FakeBoard([task["item"]])
         runner = self.runner(board, [result("changes_requested", findings=["Fix boundary"] )])
+        runner.review_threads.return_value = [review_thread()]
         with patch.object(w, "command", side_effect=["a" * 40, ""]):
             runner.review(task)
         self.assertEqual(board.moves, [(1, w.READY)])

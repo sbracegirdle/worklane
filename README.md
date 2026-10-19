@@ -69,6 +69,18 @@ The board uses **Ready for work**, **In Progress**, **Agent review** and
 **Human review** statuses. Worklane creates isolated worktrees and PRs; it does
 not merge, deploy or publish releases. No project configuration files are needed.
 
+## Add issues
+
+Create an issue in **Ready for work** by default, or choose **Draft** or **Shaping** with the corresponding flag.
+See [issue creation](docs/operations.md#add-issues) for requirements, verification and recovery.
+
+```sh
+worklane add --title "Fix the settings page" --description "Save changes when Apply is clicked."
+worklane add -t "Explore offline support" -d "Document caching options." --shaping
+worklane add -t "Early idea" --draft
+worklane add -t "Fix startup" --repo ~/code/another-project --project OWNER/NUMBER
+```
+
 ## Documentation
 
 - [Operations](docs/operations.md): board setup, options, review, recovery and limits.

@@ -28,6 +28,31 @@ def group_rank(row):
     return (GROUP_ORDER.index(group) if group in GROUP_ORDER else len(GROUP_ORDER), group, row["number"], row["role"])
 
 
+def issue_groups(rows):
+    """One parent per issue, with role sessions kept in workflow order."""
+    issues = {}
+    for row in rows:
+        issue = issues.setdefault(row["number"], {"number": row["number"], "title": row["title"],
+                                               "task": row["task"], "sessions": []})
+        issue["sessions"].append(row)
+    for issue in issues.values():
+        sessions = issue["sessions"]
+        sessions.sort(key=lambda row: ("worker", "reviewer", "finalizer").index(row["role"]))
+        phase = issue["task"].get("phase", "unknown")
+        phase = "completed" if phase == "done" else phase
+        if phase in {"blocked", "failed", "interrupted", "retry", "awaiting_review", "human_review", "completed"}:
+            status = phase
+        elif any(row["active"] for row in sessions):
+            status = "running"
+        elif phase in {"claiming", "building", "reviewing", "finalizing"}:
+            status = "interrupted" if any(row["run"] for row in sessions) else "queued"
+        else:
+            status = phase
+        issue["status"] = status
+    return sorted(issues.values(), key=lambda issue: (
+        GROUP_ORDER.index(issue["status"]) if issue["status"] in GROUP_ORDER else len(GROUP_ORDER), issue["number"]))
+
+
 def snapshot(state, selected=None):
     """One consistent read, latest invocation per issue/role, bounded log tails."""
     busy = state.running()
@@ -122,8 +147,14 @@ def wrapped(value, width):
     for char in plain(value):
         size = cell_width(char)
         if row and used + size > width:
-            rows.append("".join(row))
-            row, used = [], 0
+            space = max((i for i, value in enumerate(row) if value == " "), default=-1)
+            if space > 0 and any(value != " " for value in row[:space]):
+                rows.append("".join(row[:space + 1]))
+                row = row[space + 1:]
+                used = sum(cell_width(value) for value in row)
+            else:
+                rows.append("".join(row))
+                row, used = [], 0
         row.append(char)
         used += size
     return rows + ["".join(row)]
@@ -145,7 +176,8 @@ class Dashboard:
         self.curses, self.state, self.repo, self.refresh = curses, state, repo, refresh
         self.selected, self.detail, self.offset = None, False, 0
         self.no_color = no_color
-        self.message = "Enter: follow selected session live. a: interactive resume after stopping Worklane."
+        self.focus, self.expanded = None, None
+        self.message = "Select an issue to see its sessions; Enter on a session opens its transcript."
         self.colors = {}
 
     def put(self, screen, y, text, style=0):
@@ -160,6 +192,145 @@ class Dashboard:
         name = "bad" if status in {"blocked", "failed"} else "warn" if status in {"interrupted", "retry"} else "good" if status in {"completed", "human_review"} else "live"
         return self.colors.get(name, 0)
 
+    def paint(self, screen, y, spans):
+        """Draw one row with independently styled text spans."""
+        height, width = screen.getmaxyx()
+        if not 0 <= y < height:
+            return
+        x = 0
+        for text, style in spans:
+            text = clipped(text, max(0, width - x - 1))
+            if not text:
+                continue
+            try:
+                screen.addstr(y, x, text, style)
+            except self.curses.error:
+                pass
+            x += sum(cell_width(char) for char in text)
+
+    def nodes(self, issues, chosen):
+        if self.expanded is None:
+            self.expanded = {chosen["number"]} if chosen else set()
+        nodes = []
+        for issue in issues:
+            nodes.append(((issue["number"], None), issue, None))
+            if issue["number"] in self.expanded:
+                nodes.extend((row["key"], issue, row) for row in issue["sessions"])
+        if self.focus not in {node[0] for node in nodes}:
+            self.focus = (chosen["number"], None) if chosen else None
+            if self.focus not in {node[0] for node in nodes}:
+                self.focus = nodes[0][0] if nodes else None
+        return nodes
+
+    def draw_overview(self, screen, data, issues, bottom):
+        c = self.curses
+        muted = c.A_DIM
+        nodes = self.nodes(issues, data["selected"])
+        lines, group, focus_line, parent_lines = [], None, 0, {}
+        for key, issue, row in nodes:
+            if row is None and issue["status"] != group:
+                group = issue["status"]
+                count = sum(item["status"] == group for item in issues)
+                lines.append([(f"  {group.replace('_', ' ').upper()}  ·  {count} issue{'s' if count != 1 else ''}", self.tone(group) | c.A_BOLD)])
+            if key == self.focus:
+                focus_line = len(lines)
+            if row is None:
+                parent_lines[issue["number"]] = len(lines)
+                selected = key == self.focus
+                expanded = issue["number"] in self.expanded
+                lines.append([(" › " if selected else "   ", self.colors.get("live", 0) | c.A_BOLD),
+                              ("▾ " if expanded else "▸ ", self.tone(issue["status"])),
+                              (f"#{issue['number']}  {issue['title']}", c.A_BOLD if selected else 0),
+                              (f"  {len(issue['sessions'])} session{'s' if len(issue['sessions']) != 1 else ''}", muted)])
+            else:
+                selected = key == self.focus
+                branch = "└─" if row is issue["sessions"][-1] else "├─"
+                status = row_group(row).replace("_", " ")
+                snippet = next((line.strip() for line in row["snippet"].splitlines() if line.strip()), "Waiting for activity…")
+                lines.append([(" › " if selected else "   ", self.colors.get("live", 0) | c.A_BOLD),
+                              (f"  {branch} ", muted),
+                              (f"{row['role']:<10}", self.colors.get("agent", 0) | (c.A_BOLD if selected else 0)),
+                              (f" {status:<16}", self.tone(row_group(row))),
+                              (f"  {snippet}", 0 if selected else muted)])
+        capacity = max(1, bottom - 4)
+        # Keep the focused item and its issue/state context visible when scrolling.
+        start = max(0, focus_line - capacity + 2)
+        if focus_line < capacity:
+            start = 0
+        if self.focus and self.focus[1] is not None:
+            parent_line = parent_lines[self.focus[0]]
+            if start > parent_line:
+                start = parent_line
+        visible = lines[start:start + capacity]
+        self.put(screen, 3, "  ISSUES & SESSIONS", c.A_BOLD)
+        for y, spans in enumerate(visible, 4):
+            self.paint(screen, y, spans)
+        if not nodes:
+            self.put(screen, 5, "  No issues yet. Start Worklane in another terminal to follow progress.", muted)
+        self.put(screen, 2, f"  {len(issues)} issues  ·  {len(data['rows'])} sessions  ·  Enter expands issues / opens sessions", muted)
+
+    def transcript_style(self, text, kind):
+        c = self.curses
+        text = text.strip()
+        if text == "Passed":
+            return self.colors.get("good", 0) | c.A_BOLD
+        if text in {"Blocked", "Changes requested"}:
+            return self.colors.get("bad" if text == "Blocked" else "warn", 0) | c.A_BOLD
+        if text.startswith(("PR:", "Revision:", "$ ")):
+            return self.colors.get("live", 0)
+        if text == "Findings:" or text.startswith("#"):
+            return self.colors.get("agent", 0) | c.A_BOLD
+        if text.startswith("- "):
+            return self.colors.get("warn", 0)
+        return self.colors.get(kind, 0) if kind in {"live", "bad", "warn", "files"} else 0
+
+    def draw_transcript(self, screen, data, bottom):
+        c = self.curses
+        chosen = data["selected"]
+        label = f"#{chosen['number']} / {chosen['role']}" if chosen else "controller"
+        name = "SESSION" if chosen else "CONTROLLER"
+        self.paint(screen, 3, [(f"  LIVE {name} LOG  ", c.A_BOLD), (label, self.colors.get("agent", 0)),
+                               ("  ·  b / Esc / q back", c.A_DIM)])
+        width = max(1, screen.getmaxyx()[1] - 7)
+        lines, headers = [], []
+        for log in data["logs"]:
+            content = log["content"]
+            stream = log.get("stream", "agent")
+            if content.startswith("$ "):
+                speaker, kind = "COMMAND", "live"
+            elif content.startswith("Files:"):
+                speaker, kind = "FILES", "files"
+            elif stream in {"stderr", "controller-error"}:
+                speaker, kind = "WARNING" if "warn" in content.lower() else "ERROR", "warn" if "warn" in content.lower() else "bad"
+            else:
+                speaker, kind = ("AGENT", "agent") if stream == "agent" else ("OUTPUT", "live")
+            headers.append(len(lines))
+            lines.append([("  " + log["created_at"][11:19] + "  ", c.A_DIM),
+                          (speaker, self.colors.get(kind, 0) | c.A_BOLD)])
+            for line in content.splitlines():
+                for part in wrapped(line, width):
+                    lines.append([("  │ ", self.colors.get(kind, 0)), (part, self.transcript_style(line, kind))])
+            lines.append([])
+        capacity = max(1, bottom - 4)
+        self.offset = min(self.offset, max(0, len(lines) - capacity))
+        end = len(lines) - self.offset
+        start = max(0, end - capacity)
+        visible = lines[start:end]
+        if visible and start not in headers and visible[0]:
+            header = next((index for index in reversed(headers) if index < start), None)
+            if header is not None:
+                visible = [lines[header] + [("  ·  continued", c.A_DIM)]] + visible
+                blank = next((i for i, spans in enumerate(visible) if not spans), None)
+                if blank is not None:
+                    del visible[blank]
+                else:
+                    del visible[1]
+        for y, spans in enumerate(visible, 4):
+            self.paint(screen, y, spans)
+        if not lines:
+            self.put(screen, 5, "  Waiting for log output…", c.A_DIM)
+        self.put(screen, 2, "  " + ("FOLLOWING LIVE" if not self.offset else "SCROLLED BACK") + "  ·  PgUp / PgDn scroll  ·  End follows", c.A_DIM)
+
     def draw(self, screen, data):
         c = self.curses
         height, width = screen.getmaxyx()
@@ -169,72 +340,36 @@ class Dashboard:
             screen.refresh()
             return
         state = "STOPPED" if not data["busy"] else "PAUSED" if data["paused"] else "RUNNING"
-        self.put(screen, 0, f" WORKLANE  /  {self.repo}  /  {state}", c.A_BOLD | self.colors.get("live", 0))
-        active = [r for r in data["rows"] if r["active"]]
-        workers = sum(r["role"] == "worker" for r in active)
-        reviews = sum(r["role"] in {"reviewer", "finalizer"} for r in active)
-        self.put(screen, 1, f" Workers [{'●' * workers}{'○' * max(0, len(WORKERS) - workers)}] {workers}/3   Review [{'●' if reviews else '○'}] {reviews}/1   {len(data['rows'])} sessions", self.colors.get("live", 0))
-        chosen = data["selected"]
+        self.paint(screen, 0, [("  WORKLANE", c.A_BOLD | self.colors.get("live", 0)),
+                              ("  /  " + self.repo, c.A_DIM),
+                              ("   ● " + state, self.colors.get("good" if state == "RUNNING" else "warn", 0) | c.A_BOLD)])
+        active = [row for row in data["rows"] if row["active"]]
+        workers = sum(row["role"] == "worker" for row in active)
+        reviews = sum(row["role"] in {"reviewer", "finalizer"} for row in active)
+        self.paint(screen, 1, [("  Workers ", c.A_DIM),
+                              (f"{'●' * workers}{'○' * max(0, len(WORKERS) - workers)} {workers}/3", self.colors.get("live", 0)),
+                              ("    Review ", c.A_DIM), (f"{'●' if reviews else '○'} {reviews}/1", self.colors.get("agent", 0))])
+        issues = issue_groups(data["rows"])
+        bottom = height - (6 if self.detail else 4)
         if self.detail:
-            label = "SESSION" if chosen else "CONTROLLER"
-            self.put(screen, 3, f" LIVE {label} LOG  ·  b/Esc/Enter/q: back  ·  PgUp/PgDn scroll", c.A_BOLD)
+            self.draw_transcript(screen, data, bottom)
         else:
-            self.put(screen, 3, " ISSUE / AGENT         STATE             ACTIVITY", c.A_BOLD)
-        body_bottom = max(5, height - 7)
-        if not self.detail:
-            capacity = max(1, body_bottom - 4)
-            pages, page_keys, group = [[]], [set()], None
-            for row in data["rows"]:
-                current = row_group(row)
-                header = current != group or not pages[-1]
-                needed = 2 + int(header)
-                if pages[-1] and len(pages[-1]) + needed > capacity:
-                    pages.append([])
-                    page_keys.append(set())
-                    header = True
-                selected = chosen and row["key"] == chosen["key"]
-                attr = self.tone(current) | (c.A_BOLD if selected else 0)
-                agent = row["task"].get("slot", row["role"]) if row["active"] else row["role"]
-                label = f"{'›' if selected else ' '} #{row['number']} {agent}"
-                if capacity < 3:
-                    pages[-1].append((f"{label} · {current.replace('_', ' ')}", attr))
-                else:
-                    if header:
-                        count = sum(row_group(r) == current for r in data["rows"])
-                        pages[-1].append((f" {current.replace('_', ' ').upper()}  ({count})", c.A_BOLD | self.tone(current)))
-                    pages[-1].append((f"{label:<22} {row['status']:<17} {plain(row['snippet'])}", attr))
-                    pages[-1].append((f"  {row['title']}", self.tone(current)))
-                page_keys[-1].add(row["key"])
-                group = current
-            page = next((i for i, keys in enumerate(page_keys) if chosen and chosen["key"] in keys), 0)
-            self.put(screen, 2, f" State groups · page {page + 1}/{len(pages)} · ↑/↓ selects across groups", self.colors.get("live", 0))
-            for y, (text, style) in enumerate(pages[page], 4):
-                self.put(screen, y, text, style)
-            if not data["rows"]:
-                self.put(screen, 4, " No assignments yet. Start Worklane in another terminal to watch agents here.")
-        else:
-            lines = []
-            for log in data["logs"]:
-                for line in log["content"].splitlines():
-                    lines.extend(wrapped(f"{log['created_at'][11:19]} {line}", max(1, width - 2)))
-            capacity = body_bottom - 4
-            self.offset = min(self.offset, max(0, len(lines) - capacity))
-            end = len(lines) - self.offset
-            for y, line in enumerate(lines[max(0, end - capacity):end], 4):
-                self.put(screen, y, line)
-            if not lines:
-                self.put(screen, 4, " Waiting for log output…")
-        self.put(screen, body_bottom, "─" * (width - 1))
-        if chosen:
+            self.draw_overview(screen, data, issues, bottom)
+        self.put(screen, bottom, "  " + "─" * max(0, width - 5), c.A_DIM)
+        chosen = data["selected"]
+        if self.detail and chosen:
             session, run = chosen["session"], chosen["run"]
-            self.put(screen, body_bottom + 1, f" #{chosen['number']} {chosen['role']} · {chosen['title']} · phase: {chosen['task'].get('phase', '?')}", c.A_BOLD)
-            self.put(screen, body_bottom + 2, f" Session: {session.get('session_id', 'not saved yet')} · activity: {chosen['activity_at']}")
-            self.put(screen, body_bottom + 3, f" Worktree: {session.get('worktree') or run.get('worktree', 'not created yet')}")
-            self.put(screen, body_bottom + 4, f" {chosen['task'].get('error') or run.get('error') or chosen['task'].get('pr_url') or 'Live attach: Enter follows output; interactive resume requires Worklane stopped.'}", self.tone(chosen["status"]))
-        else:
-            self.put(screen, body_bottom + 1, f" Database: {self.state.database}")
-        self.put(screen, height - 2, f" {self.message}", self.colors.get("warn", 0))
-        self.put(screen, height - 1, (" b/Esc/Enter/q back · PgUp/PgDn scroll · End follow · refresh " if self.detail else " ↑/↓ j/k select · Enter logs · a resume · q quit · refresh ") + f"{self.refresh:g}s")
+            self.paint(screen, bottom + 1, [(f"  #{chosen['number']}  ", c.A_BOLD), (chosen["title"], 0)])
+            self.put(screen, bottom + 2, f"  {chosen['role'].upper()}  ·  Session {session.get('session_id', 'not saved yet')}", c.A_DIM)
+            self.put(screen, bottom + 3, f"  {session.get('worktree') or run.get('worktree', 'Worktree not created yet')}", c.A_DIM)
+        elif chosen:
+            self.paint(screen, bottom + 1, [(f"  #{chosen['number']}  ", c.A_BOLD),
+                                           (chosen["title"], 0), (f"  /  {chosen['role']}", self.colors.get("agent", 0))])
+        error = chosen["task"].get("error") if chosen else None
+        self.put(screen, height - 2, "  " + (error or self.message),
+                 self.colors.get("warn", 0) if error else c.A_DIM)
+        controls = "b / Esc / Enter / q back   PgUp / PgDn scroll   End follow" if self.detail else "↑ ↓ / j k select   Enter expand / open   ← collapse   a resume   q quit"
+        self.put(screen, height - 1, "  " + controls, self.colors.get("live", 0))
         screen.refresh()
 
     def run(self, screen):
@@ -251,7 +386,7 @@ class Dashboard:
                 background = -1
             except c.error:
                 pass
-            for i, (name, color) in enumerate((("live", c.COLOR_CYAN), ("good", c.COLOR_GREEN), ("warn", c.COLOR_YELLOW), ("bad", c.COLOR_RED)), 1):
+            for i, (name, color) in enumerate((("live", c.COLOR_CYAN), ("good", c.COLOR_GREEN), ("warn", c.COLOR_YELLOW), ("bad", c.COLOR_RED), ("agent", c.COLOR_MAGENTA), ("files", c.COLOR_BLUE)), 1):
                 c.init_pair(i, color, background)
                 self.colors[name] = c.color_pair(i)
         c.set_escdelay(25)
@@ -262,6 +397,15 @@ class Dashboard:
             try:
                 data = snapshot(self.state, self.selected)
                 chosen = data["selected"]
+                issues = issue_groups(data["rows"])
+                nodes = self.nodes(issues, chosen)
+                focused = next((node for node in nodes if node[0] == self.focus), None)
+                if focused:
+                    issue, row = focused[1:]
+                    chosen = row or next((r for r in issue["sessions"] if r["active"]), issue["sessions"][-1])
+                    if chosen["key"] != self.selected and self.detail:
+                        data = snapshot(self.state, chosen["key"])
+                    data["selected"] = chosen
                 self.selected = chosen["key"] if chosen else None
                 self.draw(screen, data)
             except sqlite3.Error as error:
@@ -276,7 +420,14 @@ class Dashboard:
                     return
                 continue
             if key in (10, 13, c.KEY_ENTER):
-                self.detail, self.offset = not self.detail, 0
+                if not self.detail and self.focus and self.focus[1] is None:
+                    number = self.focus[0]
+                    if number in self.expanded:
+                        self.expanded.remove(number)
+                    else:
+                        self.expanded.add(number)
+                else:
+                    self.detail, self.offset = not self.detail, 0
                 continue
             if self.detail:
                 if key == c.KEY_PPAGE:
@@ -285,10 +436,16 @@ class Dashboard:
                     self.offset = max(0, self.offset - max(1, screen.getmaxyx()[0] - 12))
                 elif key == c.KEY_END:
                     self.offset = 0
-            elif chosen and key in (c.KEY_DOWN, ord("j"), c.KEY_UP, ord("k")):
-                index = data["rows"].index(chosen)
-                step = 1 if key in (c.KEY_DOWN, ord("j")) else -1
-                self.selected = data["rows"][(index + step) % len(data["rows"])]["key"]
+            elif data and self.focus:
+                if key in (c.KEY_DOWN, ord("j"), c.KEY_UP, ord("k")):
+                    index = next(i for i, node in enumerate(nodes) if node[0] == self.focus)
+                    step = 1 if key in (c.KEY_DOWN, ord("j")) else -1
+                    self.focus = nodes[(index + step) % len(nodes)][0]
+                elif key in (c.KEY_RIGHT, ord("l")):
+                    self.expanded.add(self.focus[0])
+                elif key in (c.KEY_LEFT, ord("h")):
+                    self.expanded.discard(self.focus[0])
+                    self.focus = (self.focus[0], None)
             if key == ord("a") and chosen:
                 # Refuse before leaving curses if the controller is obviously busy;
                 # resume_session acquires the lock again to close the race.

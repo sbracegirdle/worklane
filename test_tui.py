@@ -27,16 +27,20 @@ class Screen:
     def __init__(self, keys=(), size=(28, 110)):
         self.keys, self.size, self.lines = iter(keys), size, {}
         self.frames = []
+        self.styles = {}
 
     def getmaxyx(self):
         return self.size
 
     def erase(self):
         self.lines = {}
+        self.styles = {}
 
     def addstr(self, y, x, text, style):
         assert 0 <= y < self.size[0]
-        self.lines[y] = text
+        before = self.lines.get(y, "")
+        self.lines[y] = before[:x].ljust(x) + text
+        self.styles.setdefault(y, []).append((text, style))
 
     def refresh(self):
         self.frames.append("\n".join(self.lines.values()))
@@ -189,7 +193,7 @@ class TuiTests(unittest.TestCase):
     def test_terminal_rendering_navigation_and_quitting_do_not_control_runner(self):
         self.run_record()
         self.run_record(2, text="Running tests")
-        screen = Screen([ord("j"), 10, curses.KEY_PPAGE, curses.KEY_END, 27, ord("a"), ord("q")])
+        screen = Screen([ord("j"), ord("j"), 10, ord("j"), 10, curses.KEY_PPAGE, curses.KEY_END, 27, ord("a"), ord("q")])
         dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
         before = self.state.all()
         with w.locked(self.state.path / "runner.lock"), \
@@ -212,6 +216,9 @@ class TuiTests(unittest.TestCase):
             dashboard.draw(screen, tui.snapshot(self.state))
             self.assertTrue(screen.frames)
         self.assertEqual(tui.clipped("你好world", 5), "你好w")
+        paragraph = "Inspecting source before running tests"
+        self.assertEqual("".join(tui.wrapped(paragraph, 20)), paragraph)
+        self.assertEqual(tui.wrapped(paragraph, 20)[0], "Inspecting source ")
         self.assertEqual(tui.clipped("e\u0301", 1), "e\u0301")
         self.assertNotIn("\x1b", tui.plain("\x1b[31mred\x1b[0m"))
         self.assertNotIn("\x07", tui.plain("bell\x07"))
@@ -224,8 +231,8 @@ class TuiTests(unittest.TestCase):
         data = tui.snapshot(self.state)
         data["logs"] = [{"created_at": "2026-10-19T12:34:56Z", "content": content}]
         dashboard.draw(screen, data)
-        body = "".join(screen.lines[y] for y in range(4, 21) if y in screen.lines)
-        self.assertEqual(body, "12:34:56 " + content)
+        body = "".join(line[4:] for y, line in screen.lines.items() if 4 <= y < 22 and line.startswith("  │ "))
+        self.assertEqual(body, content)
 
     def test_real_curses_terminal_refresh_resize_logs_and_quit(self):
         run = self.run_record(text="Inspecting source")
@@ -262,8 +269,13 @@ class TuiTests(unittest.TestCase):
             self.assertIn(b"[36m", output)  # Cyan activity indicators in a colour terminal.
             self.state.append_log(run, "agent", "Fresh output from agent")
             until(b"Fresh output")
-            os.write(master, b"\n")
-            until(b"LIVE SESSION LOG")
+            os.write(master, b"j\n")
+            transcript = until(b"LIVE SESSION LOG")
+            self.assertRegex(transcript, rb"\x1b\[[0-9;]*35m")
+            self.state.append_log(run, "agent", "$ uv run tests\nTranscript command output")
+            command = until(b"Transcript command output")
+            self.assertIn(b"COMMAND", command)
+            self.assertRegex(command, rb"\x1b\[[0-9;]*36m")
             fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 5, 30, 0, 0))
             os.kill(process.pid, signal.SIGWINCH)
             until(b"enlarge terminal")
@@ -273,7 +285,7 @@ class TuiTests(unittest.TestCase):
             # All back keys must leave the session view, including after resize.
             for key in (b"b", b"\x1b", b"q"):
                 os.write(master, key)
-                until(b"ISSUE / AGENT")
+                until(b"ISSUES & SESSIONS")
                 self.assertIsNone(process.poll())
                 if key != b"q":
                     os.write(master, b"\n")
@@ -352,8 +364,10 @@ class TuiTests(unittest.TestCase):
             self.assertIn("item.completed", out.getvalue())
             self.assertIn("codex_mcp", out.getvalue())
 
-    def test_state_groups_and_selection_remain_visible_across_pages(self):
-        self.run_record(1)
+    def test_issue_tree_groups_each_issue_once_with_role_sessions_underneath(self):
+        worker = self.run_record(1)
+        self.state.finish_run(worker, "completed")
+        self.run_record(1, stage="review", text="Independent review")
         self.state.save({"number": 2, "phase": "blocked", "issue": {"title": "Blocked task"}})
         run = self.run_record(3)
         self.state.finish_run(run, "completed")
@@ -362,33 +376,74 @@ class TuiTests(unittest.TestCase):
         self.state.save(task)
         with w.locked(self.state.path / "runner.lock"):
             data = tui.snapshot(self.state)
-            self.assertEqual([tui.row_group(r) for r in data["rows"]], ["running", "blocked", "human_review"])
+            issues = tui.issue_groups(data["rows"])
+            self.assertEqual([(i["number"], i["status"]) for i in issues], [(1, "running"), (2, "blocked"), (3, "human_review")])
+            self.assertEqual([r["role"] for r in issues[0]["sessions"]], ["worker", "reviewer"])
             dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
             screen = Screen(size=(28, 110))
             dashboard.draw(screen, data)
             frame = screen.frames[-1]
-            self.assertLess(frame.index("RUNNING  (1)"), frame.index("BLOCKED  (1)"))
-            self.assertLess(frame.index("BLOCKED  (1)"), frame.index("HUMAN REVIEW  (1)"))
-            # Small pages repeat the group header and retain the selected row.
-            for row in data["rows"]:
-                for size in ((14, 80), (12, 50)):
-                    data["selected"] = row
-                    screen = Screen(size=size)
-                    dashboard.draw(screen, data)
-                    self.assertIn(f"#{row['number']}", screen.lines[5 if size[0] == 14 else 4])
-                    if size[0] == 14:
-                        self.assertIn(tui.row_group(row).replace("_", " ").upper(), screen.lines[4])
+            self.assertIn("RUNNING  ·  1 issue", frame)
+            self.assertIn("BLOCKED  ·  1 issue", frame)
+            self.assertEqual(sum("#1  Task 1" in line for y, line in screen.lines.items() if y < 24), 1)
+            self.assertIn("├─ worker", frame)
+            self.assertIn("└─ reviewer", frame)
+            self.assertNotIn("Session:", frame)
+            self.assertNotIn(str(self.tree), frame)
+            # An issue remains visible with its selected child in a small viewport.
+            dashboard.focus = (1, "reviewer")
+            screen = Screen(size=(12, 50))
+            dashboard.draw(screen, data)
+            self.assertTrue(any("#1  Task 1" in line for y, line in screen.lines.items() if 4 <= y < 8))
+            self.assertTrue(any("reviewer" in line for y, line in screen.lines.items() if 4 <= y < 8))
+
+    def test_issue_expand_collapse_and_session_navigation_open_the_correct_logs(self):
+        self.run_record(1, text="Worker one")
+        self.run_record(1, stage="review", text="Reviewer one")
+        self.run_record(2, text="Worker two")
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
+        # Collapse issue one, select and expand issue two, then open its worker.
+        screen = Screen([curses.KEY_LEFT, ord("j"), curses.KEY_RIGHT, ord("j"), 10, ord("b"), curses.KEY_LEFT, ord("q")])
+        with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+            dashboard.run(screen)
+        detail = next(frame for frame in screen.frames if "LIVE SESSION LOG" in frame)
+        self.assertIn("Worker two", detail)
+        self.assertNotIn("Reviewer one", detail)
+        self.assertEqual(dashboard.focus, (2, None))
+        self.assertNotIn(2, dashboard.expanded)
+
+    def test_transcript_uses_coloured_speakers_commands_errors_and_verdicts(self):
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
+        dashboard.detail = True
+        dashboard.colors = {"live": 1, "good": 2, "warn": 3, "bad": 4, "agent": 5, "files": 6}
+        data = tui.snapshot(self.state)
+        data["logs"] = [
+            {"created_at": "2026-10-19T12:34:56Z", "stream": "agent", "content": "Inspecting source"},
+            {"created_at": "2026-10-19T12:34:57Z", "stream": "agent", "content": "$ uv run tests\nTests passed"},
+            {"created_at": "2026-10-19T12:34:58Z", "stream": "agent", "content": "Files: main.py"},
+            {"created_at": "2026-10-19T12:34:59Z", "stream": "stderr", "content": "Provider failure"},
+            {"created_at": "2026-10-19T12:35:00Z", "stream": "agent", "content": "Passed\nPR: https://github.com/owner/repo/pull/1"},
+        ]
+        screen = Screen(size=(40, 110))
+        dashboard.draw(screen, data)
+        spans = [span for y, spans in screen.styles.items() if 4 <= y < 34 for span in spans]
+        self.assertIn(("AGENT", 5 | curses.A_BOLD), spans)
+        self.assertIn(("$ uv run tests", 1), spans)
+        self.assertIn(("Files: main.py", 6), spans)
+        self.assertIn(("Provider failure", 4), spans)
+        self.assertIn(("Passed", 2 | curses.A_BOLD), spans)
+        self.assertIn(("PR: https://github.com/owner/repo/pull/1", 1), spans)
 
     def test_back_keys_restore_overview_even_during_database_errors(self):
         self.run_record()
         for key in (27, 10, 13, curses.KEY_ENTER, ord("b"), ord("q"), 8, 127, curses.KEY_BACKSPACE):
             with self.subTest(key=key):
-                screen = Screen([10, key, ord("q")])
+                screen = Screen([ord("j"), 10, key, ord("q")])
                 dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
                 with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
                     dashboard.run(screen)
-                self.assertIn("LIVE SESSION LOG", screen.frames[1])
-                self.assertIn("ISSUE / AGENT", screen.frames[2])
+                self.assertIn("LIVE SESSION LOG", screen.frames[2])
+                self.assertIn("ISSUES & SESSIONS", screen.frames[3])
                 self.assertFalse(dashboard.detail)
         dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
         dashboard.detail = True
@@ -401,14 +456,14 @@ class TuiTests(unittest.TestCase):
     def test_interactive_resume_returns_to_overview_and_restores_keypad(self):
         self.run_record()
         dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
-        screen = Screen([10, ord("a"), ord("q")])
+        screen = Screen([ord("j"), 10, ord("a"), ord("q")])
         with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False), \
              patch.object(curses, "def_prog_mode"), patch.object(curses, "endwin"), \
              patch.object(curses, "reset_prog_mode"), patch.object(curses, "flushinp"), \
              patch.object(tui, "resume_session") as resume:
             dashboard.run(screen)
         resume.assert_called_once_with(self.state, 1, "worker")
-        self.assertIn("ISSUE / AGENT", screen.frames[2])
+        self.assertIn("ISSUES & SESSIONS", screen.frames[3])
         self.assertFalse(dashboard.detail)
 
     def test_explicit_monochrome_does_not_initialize_colours(self):

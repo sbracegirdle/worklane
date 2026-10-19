@@ -2,14 +2,15 @@
 
 Run `worklane tui` alongside the controller to view local SQLite state. Use
 `--repo PATH` for another checkout and `--refresh 0.5` to change the refresh period
-(default: one second). Sessions are grouped by state, with counts and automatic
-paging as you select across groups. Viewing and quitting leave the controller and
+(default: one second). Issues are grouped by their current state. Expand an issue to see its worker,
+reviewer and finalizer sessions underneath; each issue appears once. Viewing and quitting leave the controller and
 agents running.
 
 | Key | Action |
 | --- | --- |
-| Up/Down or `k`/`j` | Select a worker, reviewer or finalizer session |
-| Enter | Follow the selected invocation's log tail; press again to return |
+| Up/Down or `k`/`j` | Select an issue or one of its visible sessions |
+| Enter | Expand/collapse an issue; open the selected session's transcript |
+| Right / Left or `l` / `h` | Expand an issue / collapse to its issue row |
 | Page Up / Page Down / End | Scroll the tail / return to following output |
 | `a` | Resume the selected saved Codex conversation after stopping Worklane |
 | `b`, Esc, Backspace or `q` | Return from session logs to the overview |
@@ -21,8 +22,12 @@ original records, which remain stored in SQLite. Agent errors and meaningful MCP
 failures remain visible. Structured agent results show the summary, verdict, PR
 and findings as readable text instead of JSON.
 
+Transcripts use coloured speaker labels and gutters, with distinct colours for
+commands, file changes, warnings, errors, verdicts and findings. Timestamps appear
+once per record, and paragraphs wrap to the terminal width.
+
 The log view shows the latest 40 readable entries from the role's latest invocation.
-Use `worklane logs NUMBER` for complete history. The footer shows its saved session ID,
+Use `worklane logs NUMBER` for complete history. The transcript footer shows its saved session ID,
 worktree, phase and blocker or PR link. Unicode log lines wrap by display width.
 Use an interactive terminal of at least 50 columns and 12 rows with Python curses;
 colours are enabled by default even when `NO_COLOR` is set. Use

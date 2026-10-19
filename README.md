@@ -74,6 +74,7 @@ not merge, deploy or publish releases. No project configuration files are needed
 - [Operations](docs/operations.md): board setup, options, review, recovery and limits.
 - [Storage](docs/storage.md): SQLite design, migration and backups.
 - [Testing](docs/testing.md): test coverage and validation limits.
+- [Local installations](docs/installation.md): test unmerged changes and identify the installed revision.
 
 ## Develop
 
@@ -83,6 +84,7 @@ Install the local checkout in editable mode, then run validation:
 cd ~/code/worklane
 uv tool install --editable .
 uv run python -m unittest -v
+WORKLANE_TEST_INSTALL=1 uv run python -m unittest -v test_installation
 uv run worklane --help
 ```
 

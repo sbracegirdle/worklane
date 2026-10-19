@@ -18,7 +18,8 @@ agents running.
 Protocol markers and Codex MCP transport diagnostics are hidden from the dashboard
 and default `worklane logs` output. Use `worklane logs NUMBER --raw` to inspect the
 original records, which remain stored in SQLite. Agent errors and meaningful MCP
-failures remain visible.
+failures remain visible. Structured agent results show the summary, verdict, PR
+and findings as readable text instead of JSON.
 
 The log view shows the latest 40 readable entries from the role's latest invocation.
 Use `worklane logs NUMBER` for complete history. The footer shows its saved session ID,

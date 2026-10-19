@@ -2,6 +2,7 @@
 import curses
 import fcntl
 import io
+import json
 import os
 from pathlib import Path
 import pty
@@ -297,6 +298,40 @@ class TuiTests(unittest.TestCase):
         self.state.append_log(run, "stderr", "Agent failed: required MCP tool unavailable")
         self.assertIn("required MCP tool unavailable", tui.snapshot(self.state)["selected"]["snippet"])
         self.assertTrue(any(log["content"] == warning for log in self.state.log_entries(1)))
+
+    def test_structured_results_render_as_summary_and_findings_without_json(self):
+        report = {"verdict": "changes_requested", "summary": "Review complete. Add tests for retries.",
+                  "pr_url": "https://github.com/owner/repo/pull/1", "head_sha": "a" * 40,
+                  "findings": ["Handle the interrupted task.", "Keep the original session."]}
+        for indent in (None, 2):
+            with self.subTest(indent=indent):
+                raw = json.dumps(report, indent=indent)
+                run = self.run_record(text=raw)
+                data = tui.snapshot(self.state)
+                self.assertTrue(data["selected"]["snippet"].startswith(report["summary"]))
+                text = data["logs"][-1]["content"]
+                self.assertIn("Changes requested", text)
+                self.assertIn("PR: " + report["pr_url"], text)
+                self.assertIn("Revision: " + report["head_sha"], text)
+                self.assertIn("- Handle the interrupted task.", text)
+                self.assertNotIn('"verdict"', text)
+                self.assertNotIn('"summary"', text)
+                dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
+                screen = Screen(size=(36, 110))
+                dashboard.detail = True
+                dashboard.draw(screen, data)
+                self.assertIn(report["summary"], screen.frames[-1])
+                self.assertNotIn('"findings"', screen.frames[-1])
+                self.assertEqual(self.state.log_entries(1)[-1]["content"], raw)
+                self.state.finish_run(run, "completed")
+        report.update(verdict="pass", findings=[])
+        text = w.readable_log("agent", json.dumps(report))
+        self.assertIn("Passed", text)
+        self.assertNotIn("Findings:", text)
+        # Ordinary command JSON and incomplete output remain available verbatim.
+        for content in ('{"answer": 42}', '{"summary": "unfinished',
+                        '{"summary":"Invalid report", "verdict":"pass", "findings":42}'):
+            self.assertEqual(w.readable_log("agent", content), content)
 
     def test_logs_default_to_readable_output_with_raw_opt_in(self):
         run = self.run_record(text="Meaningful output")

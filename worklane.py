@@ -206,6 +206,28 @@ def readable_log(stream, content):
             continue
         lines.append(line)
     result = "\n".join(lines)
+    if result.lstrip().startswith("{"):
+        try:
+            report = json.loads(result)
+        except ValueError:
+            pass
+        else:
+            verdicts = {"pass": "Passed", "changes_requested": "Changes requested", "blocked": "Blocked"}
+            if (isinstance(report, dict) and isinstance(report.get("summary"), str)
+                    and isinstance(report.get("verdict"), str) and report["verdict"] in verdicts
+                    and set(report) <= RESULT_SCHEMA["properties"].keys()
+                    and all(isinstance(report.get(key, ""), str) for key in ("pr_url", "head_sha"))
+                    and isinstance(report.get("findings", []), list)
+                    and all(isinstance(finding, str) for finding in report.get("findings", []))):
+                # Lead with useful activity so the overview never shows schema keys.
+                lines = [report["summary"] or "No summary provided.", "", verdicts[report["verdict"]]]
+                if report.get("pr_url"):
+                    lines.append(f"PR: {report['pr_url']}")
+                if report.get("head_sha"):
+                    lines.append(f"Revision: {report['head_sha']}")
+                if report.get("findings"):
+                    lines += ["", "Findings:"] + [f"- {finding}" for finding in report["findings"]]
+                result = "\n".join(lines)
     return result if result.strip() else ""
 
 

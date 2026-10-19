@@ -2,37 +2,24 @@
 
 Run `worklane tui` alongside the controller to view local SQLite state. Use
 `--repo PATH` for another checkout and `--refresh 0.5` to change the refresh period
-(default: one second). Issues are grouped by their current state. Expand an issue to see its worker,
-reviewer and finalizer sessions underneath; each issue appears once. Viewing and quitting leave the controller and
-agents running.
+(default: one second). Issues expand into sessions; viewing and quitting leave agents running.
 
 | Key | Action |
 | --- | --- |
-| Up/Down or `k`/`j` | Select an issue or one of its visible sessions |
-| Enter | Expand/collapse an issue; open the selected session's transcript |
-| Right / Left or `l` / `h` | Expand an issue / collapse to its issue row |
+| Up/Down or `k`/`j` | Select an issue or visible session |
+| Enter | Expand/collapse an issue; open a session transcript |
+| Right / Left or `l` / `h` | Expand / collapse to the issue |
 | Page Up / Page Down / End | Scroll the tail / return to following output |
 | `a` | Resume the selected saved Codex conversation after stopping Worklane |
-| `b`, Esc, Backspace or `q` | Return from session logs to the overview |
+| `b`, Esc, Backspace or `q` | Return from logs to the overview |
 | `q` in the overview or Ctrl-C | Quit the dashboard |
 
-Protocol markers and Codex MCP transport diagnostics are hidden from the dashboard
-and default `worklane logs` output. Use `worklane logs NUMBER --raw` to inspect the
-original records, which remain stored in SQLite. Agent errors and meaningful MCP
-failures remain visible. Structured agent results show the summary, verdict, PR
-and findings as readable text instead of JSON.
-
-Transcripts use coloured speaker labels and gutters, with distinct colours for
-commands, file changes, warnings, errors, verdicts and findings. Timestamps appear
-once per record, and paragraphs wrap to the terminal width.
-
-The log view shows the latest 40 readable entries from the role's latest invocation.
-Use `worklane logs NUMBER` for complete history. The transcript footer shows its saved session ID,
-worktree, phase and blocker or PR link. Unicode log lines wrap by display width.
+The log view shows the latest 40 readable entries from the role's latest invocation; use
+`worklane logs NUMBER` for complete history. The transcript footer shows its saved session ID,
+worktree and blocker. Unicode log lines wrap by display width.
 Use an interactive terminal of at least 50 columns and 12 rows with Python curses;
-colours are enabled by default even when `NO_COLOR` is set. Use
-`worklane tui --no-color` for monochrome. Redirected output should use `status` or
-`logs`.
+use `--no-color` for monochrome. Redirected output should use `status` or `logs`.
+Transcripts colour activity and hide protocol noise; `logs NUMBER --raw` shows original records.
 
 Codex exec cannot accept interactive input while running. To resume a conversation,
 run `worklane stop` and wait for jobs to finish before pressing `a`; pausing alone

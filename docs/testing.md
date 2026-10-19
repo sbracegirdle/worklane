@@ -16,9 +16,7 @@ information present only in the previous turn.
 Dashboard tests exercise SQLite refresh, separate role sessions, log tails,
 Unicode wrapping without lost content, resume guards, navigation and resizing.
 A real curses process in a pseudo-terminal verifies colour output, live refresh,
-log following and quitting without stopping the controller. Regressions cover
-colour with `NO_COLOR` set, state groups across pages, protocol/MCP filtering with
-raw log access, and back navigation after resize, database errors and resume. Interactive resume
+log following and quitting without stopping the controller. Interactive resume
 uses a mocked invocation; no real coding conversation is resumed by these tests.
 
 Metadata tests use a fake app-server subprocess to check naming, project reuse and

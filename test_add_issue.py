@@ -23,6 +23,7 @@ class AddIssueTests(unittest.TestCase):
         self.gh = self.enterContext(patch.object(w, "gh", side_effect=self.run_gh))
         self.graphql = self.enterContext(patch.object(w, "graphql", return_value={
             "repository": {"projectsV2": {"nodes": [self.project]}}}))
+        self.enterContext(patch.object(w.Board, "items", side_effect=lambda: [dict(i, status=self.status) for i in self.items]))
         self.repository = self.enterContext(patch.object(w, "repository", return_value=("owner/repo", Path("/checkout"), None)))
         self.enterContext(patch.object(w.shutil, "which", return_value="/bin/gh"))
         self.enterContext(patch.object(w, "State", side_effect=AssertionError("add must not access controller state")))

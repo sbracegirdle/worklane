@@ -203,20 +203,246 @@ class WorklaneTests(unittest.TestCase):
         with patch.object(w, "gh", side_effect=AssertionError("network used")):
             self.assertEqual(w.repository(repo), ("owner/repo", repo, None))
 
-    def test_board_excludes_other_repos_and_non_issues(self):
+    def board_page(self, nodes=(), *, total=None, cursor=None):
+        return {"node": {"items": {"nodes": list(nodes), "totalCount": len(nodes) if total is None else total,
+                "pageInfo": {"hasNextPage": cursor is not None, "endCursor": cursor}}}}
+
+    def board_node(self, number, repo="owner/repo"):
+        return {"id": f"item-{number}", "fieldValueByName": {"name": w.READY},
+                "links": {"pullRequests": {"nodes": [{"url": "https://github.com/owner/repo/pull/9"}],
+                          "pageInfo": {"hasNextPage": False}}}, "content": {
+            "number": number, "title": "Issue", "body": "Description", "url": "https://example.com/issue",
+            "repository": {"nameWithOwner": repo}}}
+
+    def board(self):
         board = object.__new__(w.Board)
         board.repo, board.owner, board.number = "owner/repo", "owner", 1
-        data = [item(1), item(2, repo="owner/other"), item(3)]
-        data[-1]["content"]["type"] = "PullRequest"
-        with patch.object(w, "gh", return_value={"items": data, "totalCount": 3}):
-            self.assertEqual([i["content"]["number"] for i in board.items()], [1])
+        board.project = {"id": "project-1"}
+        return board
+
+    def test_board_excludes_other_repos_and_non_issues(self):
+        closed = self.board_node(5)
+        closed["content"]["state"] = "CLOSED"
+        data = [self.board_node(1), self.board_node(2, "owner/other"), {"id": "pr", "content": {}},
+                {"id": "draft", "content": None}, closed]
+        with patch.object(w, "graphql", return_value=self.board_page(data)):
+            items = self.board().items()
+        self.assertEqual([i["content"]["number"] for i in items], [1])
+        self.assertEqual(items[0]["linked pull requests"], ["https://github.com/owner/repo/pull/9"])
+        self.assertEqual(items[0]["status"], w.READY)
 
     def test_incomplete_board_fails_closed(self):
-        board = object.__new__(w.Board)
-        board.repo, board.owner, board.number = "owner/repo", "owner", 1
-        with patch.object(w, "gh", return_value={"items": [], "totalCount": 10001}):
-            with self.assertRaises(RuntimeError):
-                board.items()
+        with patch.object(w, "graphql", return_value=self.board_page(total=10001)):
+            with self.assertRaisesRegex(RuntimeError, "10,000"):
+                self.board().items()
+
+    def test_board_paginates_with_project_id_and_retains_all_issues(self):
+        pages = [self.board_page([self.board_node(1)], total=2, cursor="next"),
+                 self.board_page([self.board_node(2)], total=2)]
+        with patch.object(w, "graphql", side_effect=pages) as api:
+            self.assertEqual([i["content"]["number"] for i in self.board().items()], [1, 2])
+        self.assertEqual(api.call_args_list[0].args[1], {"id": "project-1", "cursor": None})
+        self.assertEqual(api.call_args_list[1].args[1]["cursor"], "next")
+
+    def test_board_paginates_linked_pr_field_without_closing_reference(self):
+        node = self.board_node(1)
+        node["links"]["pullRequests"]["pageInfo"] = {"hasNextPage": True, "endCursor": "links-next"}
+        extra = {"node": {"links": {"pullRequests": {"nodes": [{"url": "second"}],
+                    "pageInfo": {"hasNextPage": False}}}}}
+        with patch.object(w, "graphql", side_effect=[self.board_page([node]), extra]) as api:
+            links = self.board().items()[0]["linked pull requests"]
+        self.assertEqual(links, ["https://github.com/owner/repo/pull/9", "second"])
+        self.assertEqual(api.call_args_list[1].args[1], {"id": "item-1", "cursor": "links-next"})
+        self.assertIn('fieldValueByName(name:"Linked pull requests")', api.call_args_list[0].args[0])
+
+    def test_board_rejects_stuck_cursor(self):
+        page = self.board_page(total=2, cursor="stuck")
+        with patch.object(w, "graphql", return_value=page):
+            with self.assertRaisesRegex(RuntimeError, "pagination"):
+                self.board().items()
+
+    def test_rate_limit_backoff_survives_new_runner_and_is_bounded(self):
+        runner = self.runner()
+        with patch.object(w.time, "time", return_value=1000):
+            runner.github_backoff(w.GitHubRateLimit("exhausted"))
+            self.assertEqual(runner.budget.snapshot()["until"], 1060)
+            runner = self.runner()
+            runner.github_backoff(w.GitHubRateLimit("exhausted"))
+            self.assertEqual(runner.budget.snapshot()["delay"], 120)
+            for _ in range(8):
+                runner.github_backoff(w.GitHubRateLimit("exhausted"))
+            self.assertEqual(runner.budget.snapshot()["delay"], 3600)
+
+    def test_exhausted_quota_does_not_poll_every_loop(self):
+        runner = self.runner()
+        runner.board.items = unittest.mock.Mock(side_effect=w.GitHubRateLimit("exhausted"))
+        self.args.once = False
+        clock = [1000]
+        stop = unittest.mock.Mock()
+        stop.is_set.side_effect = lambda: clock[0] >= 1050
+        stop.wait.side_effect = lambda _: clock.__setitem__(0, clock[0] + 10)
+        with patch.object(w.time, "time", side_effect=lambda: clock[0]):
+            runner.run(stop)
+        runner.board.items.assert_called_once_with()
+
+    def test_rate_limit_during_claim_does_not_try_remaining_slots(self):
+        runner = self.runner(FakeBoard([item(1), item(2), item(3)]))
+        runner.pick = unittest.mock.Mock(side_effect=w.GitHubRateLimit("exhausted"))
+        runner.run(threading.Event())
+        runner.pick.assert_called_once()
+        self.assertEqual(self.state.all(), [])
+
+    def test_claim_quota_failure_recovers_before_and_after_status_write(self):
+        for wrote in (False, True):
+            with self.subTest(wrote=wrote):
+                board = FakeBoard([item(1)])
+                runner = self.runner(board)
+                runner.issue = unittest.mock.Mock(return_value={"state": "OPEN", "labels": [], "title": "Issue"})
+                def fail(selected, status, expected):
+                    if wrote:
+                        FakeBoard.move(board, selected, status, expected)
+                    raise w.GitHubRateLimit("claim exhausted")
+                board.move = fail
+                with self.assertRaises(w.GitHubRateLimit):
+                    runner.pick(item(1), "worker-1")
+                self.assertEqual(self.state.load(1)["phase"], "interrupted")
+                board.move = lambda *args: FakeBoard.move(board, *args)
+                recovered = runner.recover(board.items(), "worker-2")
+                self.assertEqual(recovered["phase"], "building")
+                self.assertEqual(board.moves, [(1, w.PROGRESS)])
+                self.state.save({"number": 1, "phase": "rework"})
+
+    def test_claim_failures_increase_backoff_after_successful_board_reads(self):
+        runner = self.runner(FakeBoard([item(1)]))
+        runner.pick = unittest.mock.Mock(side_effect=lambda *_: (_ for _ in ()).throw(w.GitHubRateLimit("exhausted")))
+        for clock, delay in ((1000, 60), (1061, 120), (1182, 240)):
+            with patch.object(w.time, "time", return_value=clock):
+                runner.run(threading.Event())
+            self.assertEqual(runner.budget.snapshot()["delay"], delay)
+
+    def test_concurrent_failure_stops_remaining_claims_and_survives_clear(self):
+        runner = self.runner(FakeBoard([item(1), item(2), item(3)]))
+        def pick(*_):
+            runner.github_backoff(w.GitHubRateLimit("worker failed"))
+        runner.pick = unittest.mock.Mock(side_effect=pick)
+        runner.run(threading.Event())
+        runner.pick.assert_called_once()
+        self.assertEqual(runner.budget.snapshot()["error"], "worker failed")
+        before = runner.budget.snapshot()
+        runner.github_backoff(w.GitHubRateLimit("new worker failure"))
+        runner.budget.clear(before)
+        self.assertEqual(runner.budget.snapshot()["error"], "new worker failure")
+
+    def test_budget_shared_by_repositories_and_blocks_commands(self):
+        one = self.runner()
+        other = w.GitHubBudget(w.State("other/repo", self.root))
+        with patch.object(w.time, "time", return_value=1000):
+            one.github_backoff(w.GitHubRateLimit("quota", retry_at=5000))
+            with patch.object(w.subprocess, "run") as process:
+                with self.assertRaises(w.GitHubRateLimit):
+                    other.call(lambda: w.command(["gh", "pr", "list"]))
+            process.assert_not_called()
+        self.assertEqual(other.snapshot()["until"], 5000)
+
+    def test_budget_serializes_calls_across_repository_instances(self):
+        first = self.runner().budget
+        second = w.GitHubBudget(w.State("other/repo", self.root))
+        entered, release, waiting = threading.Event(), threading.Event(), threading.Event()
+        def request():
+            entered.set()
+            release.wait(2)
+            return "done"
+        with w.ThreadPoolExecutor(max_workers=2) as pool:
+            one = pool.submit(first.call, request)
+            self.assertTrue(entered.wait(2))
+            def another():
+                waiting.set()
+                return second.call(lambda: "later")
+            two = pool.submit(another)
+            self.assertTrue(waiting.wait(2))
+            self.assertFalse(two.done())
+            release.set()
+            self.assertEqual(one.result(timeout=2), "done")
+            self.assertEqual(two.result(timeout=2), "later")
+
+    def test_success_exhausting_last_point_defers_next_request(self):
+        budget = self.runner().budget
+        with patch.object(w.time, "time", return_value=1000):
+            response = budget.call(lambda: "HTTP/2.0 200 OK\nX-RateLimit-Remaining: 0\nX-RateLimit-Reset: 5000\n\n{}")
+            self.assertIn("200 OK", response)
+            with self.assertRaises(w.GitHubRateLimit):
+                budget.call(lambda: self.fail("request escaped cooldown"))
+        self.assertEqual(budget.snapshot()["until"], 5001)
+
+    def test_idle_hour_and_exhausted_hour_have_bounded_request_counts(self):
+        for exhausted, expected in ((False, 60), (True, 6)):
+            runner = self.runner()
+            runner.budget.state.set_meta("github_backoff", {})
+            def items():
+                if exhausted:
+                    raise w.GitHubRateLimit("exhausted")
+                return []
+            runner.board.items = unittest.mock.Mock(side_effect=items)
+            self.args.once, self.args.interval = False, 60
+            clock = [1000]
+            stop = unittest.mock.Mock()
+            stop.is_set.side_effect = lambda: clock[0] >= 4600
+            stop.wait.side_effect = lambda delay: clock.__setitem__(0, clock[0] + delay)
+            with patch.object(w.time, "time", side_effect=lambda: clock[0]):
+                runner.run(stop)
+            self.assertEqual(runner.board.items.call_count, expected)
+
+    def test_completed_build_retries_verification_without_another_agent_turn(self):
+        task = self.task(w.PROGRESS)
+        task.update(phase="building", issue={"title": "Issue"})
+        runner = self.runner(FakeBoard([task["item"]]), [result()])
+        runner.verify_pr.side_effect = [w.GitHubRateLimit("verify exhausted"), {}]
+        runner.execute(task, False)
+        self.assertEqual(self.state.load(1)["phase"], "interrupted")
+        with patch.object(w, "command", side_effect=["a" * 40, ""]):
+            runner.execute(self.state.load(1), False)
+        runner.backend.run.assert_called_once()
+        self.assertEqual(self.state.load(1)["phase"], "awaiting_review")
+
+    def test_completed_review_and_finalizer_survive_quota_failure(self):
+        task = self.task()
+        runner = self.runner(FakeBoard([task["item"]]), [result(), result()])
+        runner.pr.side_effect = [w.GitHubRateLimit("ready exhausted"), {"isDraft": False}]
+        with patch.object(w, "command", return_value="a" * 40) as cmd:
+            cmd.side_effect = ["a" * 40, "", "a" * 40, ""]
+            runner.execute(task, True)
+            self.assertEqual(task["resume_stage"], "finalize")
+            runner.execute(self.state.load(1), True)
+        self.assertEqual([c.args[0] for c in runner.backend.run.call_args_list], ["review", "finalize"])
+        self.assertEqual(self.state.load(1)["phase"], "human_review")
+
+    def test_board_and_link_cursor_cycles_fail_closed(self):
+        for cursors in (("a", "b", "a"),):
+            pages = [self.board_page(cursor=c) for c in cursors]
+            with patch.object(w, "graphql", side_effect=pages):
+                with self.assertRaisesRegex(RuntimeError, "cyclic"):
+                    self.board().items()
+            connection = {"nodes": [], "pageInfo": {"hasNextPage": True, "endCursor": "a"}}
+            more = [{"node": {"links": {"pullRequests": {"nodes": [], "pageInfo": {
+                "hasNextPage": True, "endCursor": c}}}}} for c in ("b", "a")]
+            with patch.object(w, "graphql", side_effect=more):
+                with self.assertRaisesRegex(RuntimeError, "cyclic"):
+                    self.board().linked_prs("item", connection)
+
+    def test_review_thread_and_reply_cursor_cycles_fail_closed(self):
+        runner = self.runner()
+        pages = [{"repository": {"pullRequest": {"reviewThreads": connection([], c)}}}
+                 for c in ("a", "b", "a")]
+        with patch.object(w, "graphql", side_effect=pages):
+            with self.assertRaisesRegex(RuntimeError, "cyclic"):
+                w.Runner.review_threads(runner, self.task()["pr_url"])
+        thread = review_thread()
+        thread["comments"] = connection([], "a")
+        pages = [{"repository": {"pullRequest": {"reviewThreads": connection([thread])}}}]
+        pages += [{"node": {"comments": connection([], c)}} for c in ("b", "a")]
+        with patch.object(w, "graphql", side_effect=pages):
+            with self.assertRaisesRegex(RuntimeError, "cyclic"):
+                w.Runner.review_threads(runner, self.task()["pr_url"])
 
     def test_existing_linked_pr_not_implemented_twice(self):
         selected = item(1)
@@ -276,7 +502,7 @@ class WorklaneTests(unittest.TestCase):
 
     def test_review_thread_api_errors_fail_closed(self):
         runner = self.runner()
-        with patch.object(w, "gh", return_value={"data": {}, "errors": [{"message": "Forbidden"}]}):
+        with patch.object(w, "command", return_value='{"data": {}, "errors": [{"message": "Forbidden"}]}'):
             with self.assertRaisesRegex(RuntimeError, "Forbidden"):
                 w.Runner.review_threads(runner, self.task()["pr_url"])
 
@@ -285,7 +511,7 @@ class WorklaneTests(unittest.TestCase):
         page = {"repository": {"pullRequest": {"reviewThreads": {
             "nodes": [], "pageInfo": {"hasNextPage": True, "endCursor": None}}}}}
         with patch.object(w, "graphql", return_value=page):
-            with self.assertRaisesRegex(RuntimeError, "incomplete review-thread pagination"):
+            with self.assertRaisesRegex(RuntimeError, "incomplete or cyclic pagination"):
                 w.Runner.review_threads(runner, self.task()["pr_url"])
 
     def test_review_thread_lookup_rejects_other_repositories(self):
@@ -527,6 +753,57 @@ class WorklaneTests(unittest.TestCase):
         updated = calls[1]["input"]["singleSelectOptions"]
         self.assertEqual([updated[0], updated[2]], original)
         self.assertEqual(updated[1]["name"], w.REVIEW)
+
+
+class GitHubErrorTests(unittest.TestCase):
+    def test_primary_reset_and_secondary_retry_after_headers(self):
+        with patch.object(w.time, "time", return_value=1000):
+            primary = w.rate_limit_error('X-RateLimit-Remaining: 0\r\nX-RateLimit-Reset: 5000\r\n{"type":"RATE_LIMIT"}')
+            secondary = w.rate_limit_error("Retry-After: 120\nsecondary rate limit exceeded")
+        self.assertEqual(primary.retry_at, 5001)
+        self.assertEqual(secondary.retry_at, 1120)
+
+    def test_graphql_error_body_is_classified_even_with_success_exit(self):
+        response = 'HTTP/2.0 200 OK\r\nX-RateLimit-Remaining: 0\r\nX-RateLimit-Reset: 5000\r\n\r\n{"errors":[{"type":"RATE_LIMIT"}]}'
+        with patch.object(w, "command", return_value=response):
+            with self.assertRaises(w.GitHubRateLimit) as error:
+                w.graphql("query { viewer { login } }")
+        self.assertEqual(error.exception.retry_at, 5001)
+
+    def test_header_reset_avoids_an_extra_probe(self):
+        failure = subprocess.CompletedProcess([], 1, "X-RateLimit-Remaining: 0\nX-RateLimit-Reset: 5000", "API rate limit exceeded")
+        with patch.object(w.subprocess, "run", return_value=failure) as call:
+            with self.assertRaises(w.GitHubRateLimit):
+                w.command(["gh", "pr", "list"])
+        self.assertEqual(call.call_count, 1)
+
+    def test_probe_timeout_keeps_known_quota_failure(self):
+        failure = subprocess.CompletedProcess([], 1, "", "API rate limit exceeded")
+        with patch.object(w.subprocess, "run", side_effect=[failure, subprocess.TimeoutExpired("gh", 120)]):
+            with self.assertRaises(w.GitHubRateLimit):
+                w.command(["gh", "pr", "list"])
+
+    def test_rate_limit_is_distinguished_from_other_errors(self):
+        failed = subprocess.CompletedProcess([], 1, "", "GraphQL: API rate limit exceeded")
+        with patch.object(w.subprocess, "run", return_value=failed):
+            with self.assertRaises(w.GitHubRateLimit):
+                w.command(["gh", "pr", "list"])
+
+    def test_project_owner_error_reports_underlying_rate_limit(self):
+        responses = [subprocess.CompletedProcess([], 1, "", "unknown owner type"),
+                     subprocess.CompletedProcess([], 1, "", "API rate limit exceeded")]
+        with patch.object(w.subprocess, "run", side_effect=responses) as call:
+            with self.assertRaises(w.GitHubRateLimit):
+                w.command(["gh", "project", "view", "1"])
+        self.assertEqual(call.call_count, 2)
+
+    def test_real_owner_error_is_not_misreported_as_rate_limit(self):
+        responses = [subprocess.CompletedProcess([], 1, "", "unknown owner type"),
+                     subprocess.CompletedProcess([], 0, '{"data":{"viewer":{"login":"me"}}}', "")]
+        with patch.object(w.subprocess, "run", side_effect=responses):
+            with self.assertRaisesRegex(RuntimeError, "unknown owner type") as error:
+                w.command(["gh", "project", "view", "1"])
+        self.assertNotIsInstance(error.exception, w.GitHubRateLimit)
 
 
 if __name__ == "__main__":

@@ -43,6 +43,10 @@ class FakeBoard:
     def items(self):
         return copy.deepcopy(self.queue)
 
+    def item_status(self, selected):
+        target = next((i for i in self.queue if i["id"] == selected["id"]), None)
+        return target["status"].casefold() if target else None
+
     def move(self, selected, status, expected):
         target = next(i for i in self.queue if i["id"] == selected["id"])
         if target["status"] != expected:
@@ -404,6 +408,58 @@ class WorklaneTests(unittest.TestCase):
         runner.backend.run.assert_called_once()
         self.assertEqual(self.state.load(1)["phase"], "awaiting_review")
 
+    def test_waiting_review_drift_is_visible_and_preserves_external_status(self):
+        for status in (w.PROGRESS, w.READY, w.HUMAN, "Done", None):
+            with self.subTest(status=status):
+                task = {**self.task(), "phase": "awaiting_review", "build_result": result()}
+                self.state.save(task)
+                board = FakeBoard([item(1, status)] if status else [])
+                runner = self.runner(board)
+                runner.run(threading.Event())
+                saved = self.state.load(1)
+                self.assertEqual(saved["phase"], "blocked")
+                self.assertEqual(saved["blocker"], "board_status_drift")
+                self.assertIn("worklane retry 1", saved["error"])
+                self.assertEqual(board.moves, [])
+                runner.backend.run.assert_not_called()
+
+    def test_waiting_review_uses_direct_status_when_listing_lags(self):
+        task = {**self.task(), "phase": "awaiting_review", "build_result": result()}
+        self.state.save(task)
+        board = FakeBoard([item(1, w.REVIEW)])
+        board.items = unittest.mock.Mock(return_value=[item(1, w.PROGRESS)])
+        runner = self.runner(board)
+        runner.issue = unittest.mock.Mock(return_value={"state": "OPEN", "labels": [], "title": "Issue"})
+        runner.execute = unittest.mock.Mock()
+        runner.run(threading.Event())
+        runner.execute.assert_called_once()
+        self.assertTrue(runner.execute.call_args.args[1])
+        self.assertEqual(board.moves, [])
+
+    def test_waiting_review_reconciliation_skips_active_assignments(self):
+        task = {**self.task(), "phase": "awaiting_review"}
+        self.state.save(task)
+        runner = self.runner(FakeBoard([item(1, w.PROGRESS)]))
+        runner.reconcile_waiting(runner.board.items(), {1})
+        self.assertEqual(self.state.load(1)["phase"], "awaiting_review")
+
+    def test_retry_status_drift_reuses_completed_build(self):
+        task = {**self.task(w.PROGRESS), "phase": "awaiting_review", "build_result": result()}
+        self.state.save(task)
+        runner = self.runner(FakeBoard([task["item"]]))
+        runner.reconcile_waiting(runner.board.items())
+        with patch.object(w, "repository", return_value=("owner/repo", self.root, "main")), \
+                patch.object(w, "State", return_value=self.state):
+            self.assertEqual(w.main(["retry", "1"]), 0)
+        runner.issue = unittest.mock.Mock(return_value={"state": "OPEN"})
+        selected = runner.recover(runner.board.items(), "worker-1")
+        with patch.object(w, "command", side_effect=["a" * 40, ""]):
+            runner.execute(selected, False)
+        runner.backend.run.assert_not_called()
+        runner.verify_pr.assert_called_once()
+        self.assertEqual(self.state.load(1)["phase"], "awaiting_review")
+        self.assertEqual(runner.board.moves, [(1, w.REVIEW)])
+
     def test_completed_review_and_finalizer_survive_quota_failure(self):
         task = self.task()
         runner = self.runner(FakeBoard([task["item"]]), [result(), result()])
@@ -732,6 +788,54 @@ class WorklaneTests(unittest.TestCase):
             runner.review(task)
         self.assertEqual(board.moves, [(1, w.READY)])
         self.assertEqual(task["phase"], "rework")
+
+    def test_merge_conflict_requeues_worker_without_launching_reviewer(self):
+        task = self.task()
+        runner = self.runner(FakeBoard([task["item"]]))
+        runner.verify_pr.return_value = {"mergeable": "CONFLICTING"}
+        runner.execute(task, True)
+        self.assertEqual(task["phase"], "rework")
+        self.assertIn("merge conflicts", task["review_result"]["findings"][0])
+        self.assertEqual(runner.board.moves, [(1, w.READY)])
+        runner.backend.run.assert_not_called()
+        runner.worktree.assert_not_called()
+        runner.post.assert_called_once()
+
+    def test_conflict_during_finalizer_never_advances_to_human(self):
+        task = self.task()
+        runner = self.runner(FakeBoard([task["item"]]), [result(), result()])
+        runner.verify_pr.side_effect = [{"isDraft": False}] * 3 + [{"isDraft": True, "mergeable": "CONFLICTING"}]
+        with patch.object(w, "command", side_effect=["a" * 40, ""]) as command:
+            runner.execute(task, True)
+        self.assertEqual(task["phase"], "rework")
+        self.assertEqual(runner.board.moves, [(1, w.READY)])
+        self.assertFalse(any(c.args[0][:3] == ["gh", "pr", "ready"] for c in command.call_args_list))
+
+    def test_unknown_mergeability_retries_saved_handoff_without_another_turn(self):
+        task = {**self.task(), "active_stage": "finalize"}
+        runner = self.runner(FakeBoard([task["item"]]), [result(), result()])
+        runner.verify_pr.side_effect = ([{"isDraft": False}] * 3
+                                        + [{"isDraft": True, "mergeable": "UNKNOWN"}]
+                                        + [{"isDraft": False, "mergeable": "MERGEABLE"}] * 4)
+        with patch.object(w, "command", side_effect=["a" * 40, "", "a" * 40, ""]):
+            runner.execute(task, True)
+            self.assertEqual(task["phase"], "interrupted")
+            self.assertEqual(task["resume_stage"], "finalize")
+            self.assertEqual(runner.board.moves, [])
+            runner.execute(self.state.load(1), True)
+        self.assertEqual(self.state.load(1)["phase"], "human_review")
+        self.assertEqual([c.args[0] for c in runner.backend.run.call_args_list], ["review", "finalize"])
+
+    def test_conflicts_respect_round_limit_and_human_board_edits(self):
+        for limit, status in ((3, w.REVIEW), (1, w.HUMAN)):
+            with self.subTest(limit=limit, status=status):
+                task = {**self.task(), "round": limit}
+                runner = self.runner(FakeBoard([item(1, status)]))
+                runner.verify_pr.return_value = {"mergeable": "CONFLICTING"}
+                runner.execute(task, True)
+                self.assertEqual(task["phase"], "blocked")
+                self.assertEqual(runner.board.moves, [])
+                runner.backend.run.assert_not_called()
 
     def test_three_failed_reviews_require_inspection(self):
         task = self.task()

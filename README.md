@@ -28,6 +28,7 @@ From a GitHub repository checkout with issues ready on its project board:
 ```sh
 cd /path/to/project
 worklane check       # Read-only: show the inferred board, model and eligible queue
+worklane board       # Open the project board in your web browser
 worklane run         # Foreground; Ctrl-C drains active jobs then exits
 ```
 
@@ -56,8 +57,15 @@ Commands can target another checkout without changing directory:
 worklane start --repo ~/code/another-project
 worklane status --repo ~/code/another-project
 worklane pause --repo ~/code/another-project
+worklane board --repo ~/code/another-project
 ```
 
+`worklane board` uses the same board discovery as `check` and `run`. Use
+`worklane board --project OWNER/NUMBER` to select a board explicitly. It opens the
+board through GitHub CLI (honoring `GH_BROWSER` or `BROWSER`) without starting
+agents, creating local state, or requiring the board's workflow statuses or Codex.
+
+## Board and handoff behavior
 The board uses **Ready for work**, **In Progress**, **Agent review** and
 **Human review** statuses. Worklane creates isolated worktrees and PRs; it does
 not merge, deploy or publish releases. No project configuration files are needed.

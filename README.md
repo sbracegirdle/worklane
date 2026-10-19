@@ -70,12 +70,25 @@ The board uses **Ready for work**, **In Progress**, **Agent review** and
 **Human review** statuses. Worklane creates isolated worktrees and PRs; it does
 not merge, deploy or publish releases. No project configuration files are needed.
 
+## Add issues
+
+Create an issue in **Ready for work** by default, or choose **Draft** or **Shaping** with the corresponding flag.
+See [issue creation](docs/operations.md#add-issues) for requirements, verification and recovery.
+
+```sh
+worklane add --title "Fix the settings page" --description "Save changes when Apply is clicked."
+worklane add -t "Explore offline support" -d "Document caching options." --shaping
+worklane add -t "Early idea" --draft
+worklane add -t "Fix startup" --repo ~/code/another-project --project OWNER/NUMBER
+```
+
 ## Documentation
 
 - [Operations](docs/operations.md): board setup, options, review, recovery and limits.
 - [Dashboard](docs/dashboard.md): controls and session access.
 - [Storage](docs/storage.md): SQLite design, migration and backups.
 - [Testing](docs/testing.md): test coverage and validation limits.
+- [Local installations](docs/installation.md): test unmerged changes and identify the installed revision.
 
 ## Develop
 
@@ -85,6 +98,7 @@ Install the local checkout in editable mode, then run validation:
 cd ~/code/worklane
 uv tool install --editable .
 uv run python -m unittest -v
+WORKLANE_TEST_INSTALL=1 uv run python -m unittest -v test_installation
 uv run worklane --help
 ```
 

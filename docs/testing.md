@@ -20,3 +20,11 @@ log following and quitting without stopping the controller. Regressions cover
 colour with `NO_COLOR` set, state groups across pages, protocol/MCP filtering with
 raw log access, and back navigation after resize, database errors and resume. Interactive resume
 uses a mocked invocation; no real coding conversation is resumed by these tests.
+
+Metadata tests use a fake app-server subprocess to check naming, project reuse and
+creation, pagination, concurrent roles, resumption, and transport failure cleanup.
+
+Issue-creation tests cover literal multiline descriptions, destination validation,
+Draft/Shaping selection, concurrent controller pickup, and recovery guidance after
+partial failure. GitHub writes are mocked; live issue creation and board placement
+require a disposable repository and board for manual validation.

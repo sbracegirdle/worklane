@@ -39,6 +39,14 @@ Runtime settings use typed database values too. The schema version is SQLite's
 `user_version`. Empty process-lock files and Git worktrees remain on disk as
 operational resources; they are not parallel state/log stores.
 
+Human feedback uses nested task values: the acknowledged comment/review snapshot,
+the pending batch, its latest observation time and its handoff generation. New
+and edited feedback resets a five-minute quiet timer. Assignment acknowledges only
+the captured batch, retaining later follow-ups for the next human handoff. These
+values use the existing typed rows and require no schema migration. Requeue intent
+is saved before the GitHub status transition so a restart can reconcile a completed
+remote move without losing the batch.
+
 Each thread opens a short-lived connection. WAL mode permits readers alongside
 writes; writers wait up to 30 seconds. Foreign keys and uniqueness constraints
 protect relationships. `synchronous=FULL` asks SQLite to sync commits for durability.

@@ -125,6 +125,9 @@ slot picks it up. Subsequent review rounds resume that issue's reviewer conversa
 in its stable review worktree. The finalizer has a separate resumable conversation
 so implementation, independent review and local preview actions do not share history.
 
+Codex sessions use names like `owner/repo #123 [worker]: Fix login`.
+Worklane groups them in the checkout's Codex project, creating it if needed.
+
 Worklane saves `thread.started` IDs immediately, before waiting for the turn to
 finish. It uses `codex exec resume <EXACT_ID>` for subsequent turns, never `--last`.
 Starting another process does not create another conversation. Session transcripts

@@ -157,6 +157,22 @@ def process_identity(pid):
         return None
 
 
+def event_text(event):
+    """Readable activity for both logs and the live dashboard."""
+    item = event.get("item") or {}
+    if item.get("text"):
+        return item["text"]
+    if item.get("command"):
+        output = item.get("aggregated_output", "")
+        return f"$ {item['command']}" + (f"\n{output}" if output else "")
+    if item.get("type") == "file_change":
+        return "Files: " + ", ".join(change.get("path", "?") for change in item.get("changes", []))
+    error = event.get("error")
+    if isinstance(error, dict):
+        error = error.get("message")
+    return event.get("message") or error or event.get("type", "unknown")
+
+
 class State:
     """All durable Worklane state, including structured events and logs, is SQLite."""
     VERSION = 2
@@ -420,7 +436,7 @@ class State:
     def _event(cls, db, run_id, event):
         cursor = db.execute("INSERT INTO run_events(run_id,type,created_at) VALUES (?,?,?)", (run_id, event.get("type", "unknown"), now()))
         cls._put(db, f"event:{cursor.lastrowid}", event)
-        text = event.get("item", {}).get("text") or event.get("message") or event.get("type", "unknown")
+        text = event_text(event)
         cls._log(db, run_id, "agent", text if isinstance(text, str) else str(text))
 
     def record_event(self, run_id, event, model):
@@ -1054,7 +1070,7 @@ def repository(path):
 
 def parser():
     p = argparse.ArgumentParser(description="Three workers and one independent reviewer for a GitHub project board.")
-    p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "status", "logs", "pause", "resume", "stop", "retry"])
+    p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "status", "logs", "tui", "pause", "resume", "stop", "retry"])
     p.add_argument("number", nargs="?", type=int, help="Issue number for retry or logs")
     p.add_argument("--repo", default=".", help="Local repository checkout (default: current directory)")
     p.add_argument("--project", help="GitHub board OWNER/NUMBER; auto-detected when unambiguous")
@@ -1062,6 +1078,7 @@ def parser():
     p.add_argument("--interval", type=int, default=60, help="Polling seconds (minimum 10)")
     p.add_argument("--once", action="store_true", help="Dispatch one batch, wait for it, then exit")
     p.add_argument("--now", action="store_true", help="With stop: terminate active agents as well")
+    p.add_argument("--refresh", type=float, default=1, help="TUI refresh seconds (0.1 to 60; default 1)")
     p.add_argument("--background", action="store_true", help=argparse.SUPPRESS)
     return p
 
@@ -1082,6 +1099,10 @@ def main(argv=None):
             sys.stderr = DatabaseLogWriter(state, "controller-error", None if args.background else original_stderr)
             output_redirected = True
         args.base = base
+        if args.action == "tui":
+            from worklane_tui import run_tui
+            run_tui(state, repo, args.refresh)
+            return 0
         if args.action == "logs":
             for entry in state.log_entries(args.number):
                 print(f"{entry['created_at']} [{entry['stream']}] {entry['content']}")

@@ -46,6 +46,7 @@ worklane run         # Foreground; Ctrl-C drains active jobs then exits
 ```sh
 worklane start       # Start a detached controller; returns immediately
 worklane status      # Print state, assignments, sessions and blockers
+worklane tui         # Live agent overview, activity snippets and session log view
 worklane logs        # Read controller/agent logs from SQLite
 worklane logs 123    # Read logs for one issue
 worklane pause       # Stop all new dispatches; active workers/reviewer finish
@@ -66,6 +67,44 @@ worklane start --repo ~/code/another-project
 worklane status --repo ~/code/another-project
 worklane pause --repo ~/code/another-project
 ```
+
+## Live terminal dashboard
+
+Run `worklane tui` alongside a foreground or detached controller. It reads local
+SQLite state without GitHub access, dispatching work or changing board statuses.
+The screen refreshes every second; use `--refresh 0.5` for a faster view and
+`--repo PATH` to watch another checkout. Worker and reviewer activity meters,
+colour-coded states, issue titles and recent agent messages/commands show what
+is happening. Worker, reviewer and finalizer conversations have separate rows;
+active sessions appear first, followed by blockers and saved sessions.
+
+| Key | Action |
+| --- | --- |
+| Up/Down or `k`/`j` | Select a session; the list pages automatically |
+| Enter | Follow the selected invocation's live log tail; press again to return |
+| Page Up / Page Down / End | Scroll the current tail / return to following output |
+| `a` | Open the selected saved conversation with `codex resume EXACT_ID` |
+| Esc | Return from logs, or quit the overview |
+| `q` or Ctrl-C | Quit the dashboard; the controller and agents keep running |
+
+The log view retains the latest 40 log entries from the selected role's latest
+invocation. Use `worklane logs NUMBER` for the complete issue history. The footer
+shows the exact session ID, saved worktree, current phase and blocker or PR link.
+Resizing is supported; use a terminal of at least 50 columns and 12 rows. Set
+`NO_COLOR=1` for monochrome. Redirected input/output is refused with a pointer to
+`status` and `logs`; the TUI needs an interactive terminal and Python curses.
+
+Codex exec processes have no interactive terminal to attach to while running.
+Enter provides a live, read-only view instead. To interact with a saved session,
+run `worklane stop` in another terminal and wait for all jobs to finish, then use
+`a`. Pausing alone is insufficient. Worklane holds its controller lock throughout
+interactive resume, and the Codex child inherits it, preventing a second controller
+or dashboard from resuming the conversation concurrently. Missing sessions,
+missing worktrees and live orphaned agent processes are refused. Resume uses the
+saved role's exact ID and directory, workspace sandboxing and on-request approvals.
+Leaving Codex returns to the dashboard without starting Worklane or changing task
+results/statuses. Inspect any manual changes before restarting the controller;
+use the existing explicit retry workflow if a blocker or changed PR head needs it.
 
 ## Board and handoff behavior
 

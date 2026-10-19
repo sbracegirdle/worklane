@@ -215,6 +215,17 @@ class TuiTests(unittest.TestCase):
         self.assertNotIn("\x1b", tui.plain("\x1b[31mred\x1b[0m"))
         self.assertNotIn("\x07", tui.plain("bell\x07"))
 
+    def test_detail_wraps_by_terminal_cells_without_losing_unicode(self):
+        content = "界" * 60
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
+        dashboard.detail = True
+        screen = Screen(size=(28, 80))
+        data = tui.snapshot(self.state)
+        data["logs"] = [{"created_at": "2026-10-19T12:34:56Z", "content": content}]
+        dashboard.draw(screen, data)
+        body = "".join(screen.lines[y] for y in range(4, 21) if y in screen.lines)
+        self.assertEqual(body, "12:34:56 " + content)
+
     def test_real_curses_terminal_refresh_resize_logs_and_quit(self):
         run = self.run_record(text="Inspecting source")
         master, slave = pty.openpty()

@@ -8,7 +8,6 @@ import shutil
 import sqlite3
 import subprocess
 import sys
-import textwrap
 import unicodedata
 import uuid
 
@@ -101,10 +100,27 @@ def plain(value):
                    if not unicodedata.category(char).startswith("C") or char.isspace())
 
 
+def cell_width(char):
+    return 0 if unicodedata.combining(char) else 2 if unicodedata.east_asian_width(char) in {"W", "F"} else 1
+
+
+def wrapped(value, width):
+    """Split sanitized text into display-cell rows without dropping content."""
+    rows, row, used = [], [], 0
+    for char in plain(value):
+        size = cell_width(char)
+        if row and used + size > width:
+            rows.append("".join(row))
+            row, used = [], 0
+        row.append(char)
+        used += size
+    return rows + ["".join(row)]
+
+
 def clipped(value, width):
     result, used = [], 0
     for char in plain(value):
-        size = 0 if unicodedata.combining(char) else 2 if unicodedata.east_asian_width(char) in {"W", "F"} else 1
+        size = cell_width(char)
         if used + size > width:
             break
         result.append(char)
@@ -169,7 +185,7 @@ class Dashboard:
             lines = []
             for log in data["logs"]:
                 for line in log["content"].splitlines():
-                    lines.extend(textwrap.wrap(f"{log['created_at'][11:19]} {plain(line)}", max(1, width - 2)) or [""])
+                    lines.extend(wrapped(f"{log['created_at'][11:19]} {line}", max(1, width - 2)))
             capacity = body_bottom - 4
             self.offset = min(self.offset, max(0, len(lines) - capacity))
             end = len(lines) - self.offset

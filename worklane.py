@@ -14,6 +14,7 @@ import ctypes
 from email.utils import parsedate_to_datetime
 from datetime import datetime, timezone
 import fcntl
+from importlib import metadata
 import json
 import os
 from pathlib import Path
@@ -29,6 +30,7 @@ import time
 import uuid
 
 MODEL = "gpt-6.1-sol"
+HUMAN_FEEDBACK_QUIET_SECONDS = 300
 WORKERS = ("worker-1", "worker-2", "worker-3")
 REVIEWER = "reviewer"
 READY, PROGRESS, REVIEW, HUMAN = "Ready for work", "In Progress", "Agent review", "Human review"
@@ -119,6 +121,18 @@ Return the requested structured result, including exact test commands/results.
 """
 BUILD_PROMPT = """Implement the issue completely: design, code, appropriate tests and docs.
 For rework, fix the saved review findings and current PR feedback on the same branch.
+Address the supplied human_feedback batch and read the latest discussion for follow-ups.
+
+Read all inline review threads and replies, including outdated threads; paginate
+GitHub connections. The supplied review_threads are a snapshot; refresh before
+finishing. After committing, pushing and verifying a fix against the current PR
+head, reply to each addressed thread with the fix SHA and validation evidence,
+then mark that thread resolved using gh api graphql's resolveReviewThread mutation
+(input: {threadId: THREAD_ID}). Only resolve feedback you verified is addressed;
+leave unaddressed or disputed feedback open and report it as a finding. If you
+cannot resolve an addressed thread, report blocked. Never resolve all threads
+indiscriminately or treat an outdated thread as automatically addressed. On retry,
+check existing replies/resolution before repeating external actions.
 Commit your changes, push the assigned branch without force, and create/update one
 PR against the repository default branch, with a closing reference to the issue.
 Do not request human review yet. Do not alter the primary checkout or shared
@@ -131,6 +145,9 @@ REVIEW_PROMPT = """Independently review the supplied exact revision and issue ac
 Read the complete diff, issue/PR comments, and worker evidence. Inspect actual test
 assertions and run relevant checks yourself. Review correctness, regressions,
 security, documentation and repository-specific content/quality requirements.
+Read all inline review threads and replies, including outdated threads. Verify
+that resolved feedback is addressed at the supplied head; unresolved feedback must
+be reported as findings, even if a code fix exists but its thread remains open.
 Do not implement fixes or change the PR head. Return changes_requested with concrete
 file/line findings when needed, blocked when unable to assess, and pass only when
 all acceptance criteria and applicable checks pass. Echo the supplied head SHA.
@@ -177,13 +194,20 @@ def raw_command(args, *, cwd=None, stdin=None, timeout=120):
                 raw_command(["gh", "api", "-i", "graphql", "-f", "query=query { viewer { login } }"])
             except GitHubRateLimit as probe:
                 raise probe from None
-            except RuntimeError:
+            except (RuntimeError, OSError, subprocess.TimeoutExpired):
                 if not limited:
                     raise
         if limited:
             raise limited
         raise RuntimeError(f"{args[0]} failed: {detail}")
-    return result.stdout.strip()
+    response = result.stdout.strip()
+    if str(args[0]) == "gh" and "graphql" in args:
+        body = json.loads(response.replace("\r\n", "\n").split("\n\n", 1)[-1])
+        if body.get("errors"):
+            limited = rate_limit_error(response)
+            if limited:
+                raise limited
+    return response
 
 
 def gh(*args, cwd=None, stdin=None):
@@ -231,6 +255,7 @@ class State:
     VERSION = 2
 
     def __init__(self, repo, root=None):
+        self.repo = repo
         base = Path(root or os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state"))
         self.path = base / "worklane" / repo.casefold().replace("/", "--")
         self.path.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -608,8 +633,9 @@ class DatabaseLogWriter:
 
 
 class Board:
-    def __init__(self, repo, path, project=None, *, load_fields=True):
+    def __init__(self, repo, path, project=None, *, load_fields=True, required_statuses=(READY, PROGRESS, HUMAN)):
         self.repo, self.path = repo, path
+        self.required_statuses = required_statuses
         owner, name = repo.split("/")
         if project:
             project_owner, number = project.rsplit("/", 1)
@@ -642,9 +668,38 @@ class Board:
         if not self.field:
             raise RuntimeError("The selected project needs a single-select Status field.")
         self.options = {o["name"].casefold(): o["id"] for o in self.field["options"]}
-        for status in (READY, PROGRESS, HUMAN):
+        for status in self.required_statuses:
             if status.casefold() not in self.options:
                 raise RuntimeError(f"The selected board is missing status {status!r}.")
+
+    def add_issue(self, title, description, status=READY):
+        # Resolve the destination before creating anything on GitHub.
+        option = self.options.get(status.casefold())
+        if not option:
+            raise RuntimeError(f"The selected board is missing status {status!r}.")
+        url = command(["gh", "issue", "create", "--repo", self.repo,
+                       "--title", title, "--body-file", "-"], stdin=description)
+        try:
+            item = gh("project", "item-add", str(self.number), "--owner", self.owner,
+                      "--url", url, "--format", "json")
+            command(["gh", "project", "item-edit", "--id", item["id"],
+                     "--project-id", self.project["id"], "--field-id", self.field["id"],
+                     "--single-select-option-id", option])
+            after = next((i for i in self.items() if i["id"] == item["id"]), None)
+            verified_statuses = {status.casefold()}
+            if status.casefold() == READY.casefold():
+                # The successful Ready write can be picked up before this read.
+                # Accept workflow progress without rewinding the controller.
+                verified_statuses.update(s.casefold() for s in (PROGRESS, REVIEW, HUMAN))
+            if not after or after.get("status", "").casefold() not in verified_statuses:
+                raise RuntimeError(f"Could not verify board status {status!r}.")
+        except (RuntimeError, OSError, ValueError, KeyError, subprocess.TimeoutExpired) as error:
+            raise RuntimeError(
+                f"Issue created: {url}, but board placement in {self.owner}/{self.number} "
+                f"with status {status!r} failed: {error}. "
+                "Keep this issue and finish its board placement manually; do not rerun add."
+            ) from error
+        return url
 
     def ensure_review_status(self):
         if REVIEW.casefold() in self.options:
@@ -752,11 +807,118 @@ class Board:
             raise RuntimeError(f"Could not verify board transition to {status}.")
 
 
+class CodexAppServer:
+    """A bounded metadata-only JSON-RPC connection; never starts agent turns."""
+
+    def __init__(self, cwd, timeout=15):
+        self.cwd, self.timeout = cwd, timeout
+        self.process = None
+
+    def __enter__(self):
+        self.deadline = time.monotonic() + self.timeout
+        self.pending, self.request_id = b"", 0
+        self.process = subprocess.Popen(
+            ["codex", "app-server", "--listen", "stdio://"], cwd=self.cwd,
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            start_new_session=True)
+        try:
+            self.request("initialize", {
+                "clientInfo": {"name": "worklane", "version": "0.1.0"},
+                "capabilities": {"experimentalApi": True},
+            })
+            self.send({"method": "initialized", "params": {}})
+            return self
+        except BaseException:
+            self.__exit__(None, None, None)
+            raise
+
+    def send(self, message):
+        self.process.stdin.write((json.dumps(message) + "\n").encode())
+        self.process.stdin.flush()
+
+    def request(self, method, params):
+        self.request_id += 1
+        request_id = self.request_id
+        self.send({"id": request_id, "method": method, "params": params})
+        with selectors.DefaultSelector() as selector:
+            selector.register(self.process.stdout, selectors.EVENT_READ)
+            while True:
+                remaining = self.deadline - time.monotonic()
+                if remaining <= 0:
+                    raise RuntimeError(f"Codex metadata request timed out: {method}")
+                if b"\n" not in self.pending:
+                    if not selector.select(remaining):
+                        continue
+                    chunk = os.read(self.process.stdout.fileno(), 65536)
+                    if not chunk:
+                        raise RuntimeError(f"Codex app-server closed during {method}")
+                    self.pending += chunk
+                    if len(self.pending) > 4 * 1024 * 1024:
+                        raise RuntimeError("Codex metadata response exceeded 4 MiB")
+                    continue
+                line, self.pending = self.pending.split(b"\n", 1)
+                message = json.loads(line)
+                if message.get("id") != request_id:
+                    continue  # Notifications may precede the matching response.
+                if "error" in message:
+                    raise RuntimeError(f"Codex {method}: {message['error'].get('message', message['error'])}")
+                return message["result"]
+
+    def __exit__(self, *_):
+        try:
+            try:
+                self.process.stdin.close()
+            except BrokenPipeError:
+                pass
+            try:
+                self.process.wait(timeout=1)
+            except subprocess.TimeoutExpired:
+                CodexBackend.terminate(self.process)
+        finally:
+            self.process.stdout.close()
+
+
 class CodexBackend:
     """A single CLI invocation; other backends can implement this boundary later."""
     def __init__(self, model, root, state, runner_fd):
         self.model, self.root, self.state, self.runner_fd = model, root, state, runner_fd
         self.timeout = 8 * 3600
+        self.metadata_lock = threading.Lock()
+
+    def name_session(self, run_id, session_id, stage, task):
+        """Use Codex APIs rather than editing its database or transcript files."""
+        role = ROLES[stage]
+        issue = task.get("issue", {})
+        content = task.get("item", {}).get("content", {})
+        title = " ".join((issue.get("title") or content.get("title") or "Issue").split())[:120]
+        name = f"{self.state.repo} #{task['number']} [{role}]: {title}"
+        root = self.root.resolve()
+        try:
+            # One metadata connection at a time per controller. The deterministic
+            # creation key also prevents duplicate projects after a crash/retry.
+            with self.metadata_lock, CodexAppServer(root) as server:
+                server.request("thread/name/set", {"threadId": session_id, "name": name})
+                matches, cursor, seen = [], None, set()
+                while True:
+                    page = server.request("project/list", {"cursor": cursor, "limit": 100})
+                    matches.extend(p for p in page["data"] if any(
+                        Path(r["path"]).resolve() == root for r in p["roots"]))
+                    cursor = page.get("nextCursor")
+                    if not cursor:
+                        break
+                    if cursor in seen:
+                        raise RuntimeError("Codex project/list repeated a pagination cursor")
+                    seen.add(cursor)
+                if len(matches) > 1:
+                    raise RuntimeError(f"Multiple Codex projects have root {root}; inspect project membership")
+                project = matches[0] if matches else server.request("project/create", {
+                    "name": self.state.repo, "roots": [{"path": str(root)}],
+                    "idempotencyKey": str(uuid.uuid5(uuid.NAMESPACE_URL, f"worklane-project:{root}")),
+                })["project"]
+                server.request("thread/metadata/update", {"threadId": session_id, "projectId": project["id"]})
+            self.state.append_log(run_id, "session", f"Named {session_id}: {name}; Codex project {project['id']}")
+        except (RuntimeError, OSError, ValueError, KeyError, TypeError) as error:
+            self.state.append_log(run_id, "warning", f"Codex session metadata could not be updated: {error}. Will retry on the next turn.")
 
     @staticmethod
     def terminate(process):
@@ -829,7 +991,10 @@ class CodexBackend:
                 value = str(uuid.UUID(event["thread_id"]))
                 if observed_id and observed_id != value:
                     raise RuntimeError("Agent emitted conflicting session IDs.")
+                first = observed_id is None
                 observed_id = value
+                if first:
+                    self.name_session(run_id, value, stage, task)
             elif event.get("type") == "turn.completed":
                 turn_completed = True
             elif event.get("type") in {"turn.failed", "error"}:
@@ -912,11 +1077,173 @@ class Runner:
         return gh("issue", "view", str(number), "--repo", self.repo,
                   "--json", "number,title,body,state,labels,comments,url")
 
-    def pr(self, url):
+    def pr_number(self, url):
         if not re.fullmatch(r"https://github\.com/" + re.escape(self.repo) + r"/pull/\d+", url, flags=re.I):
             raise RuntimeError("Agent returned a PR outside the assigned repository.")
+        return int(url.rsplit("/", 1)[1])
+
+    def pr(self, url):
+        self.pr_number(url)
         return gh("pr", "view", url, "--repo", self.repo,
-                  "--json", "url,headRefOid,headRefName,baseRefName,state,isDraft,comments,reviews,body")
+                  "--json", "url,headRefOid,headRefName,baseRefName,state,isDraft")
+
+    def human_feedback(self, task):
+        """Read every page, including inline threads omitted by gh pr view."""
+        sources = [("issue", f"issues/{task['number']}/comments")]
+        if task.get("pr_url"):
+            pr = self.pr(task["pr_url"])
+            if (pr["state"] != "OPEN" or pr["headRefName"] != task["branch"]
+                    or pr["baseRefName"] != task["base"] or pr["headRefOid"] != task["head_sha"]):
+                raise RuntimeError("Human feedback PR was closed, retargeted or changed; inspect before rework.")
+            number = task["pr_url"].rsplit("/", 1)[1]
+            sources += [("pr", f"issues/{number}/comments"),
+                        ("review", f"pulls/{number}/reviews"),
+                        ("inline", f"pulls/{number}/comments")]
+        feedback = {}
+        for source, endpoint in sources:
+            pages = gh("api", f"repos/{self.repo}/{endpoint}?per_page=100", "--paginate", "--slurp")
+            for entry in (entry for page in pages for entry in page):
+                body = entry.get("body") or ""
+                user = entry.get("user") or {}
+                state = entry.get("state", "").upper()
+                if user.get("type") != "User" or user.get("login", "").endswith("[bot]"):
+                    continue
+                if body.lstrip().startswith("<!-- worklane:"):
+                    continue
+                if source == "review" and state not in {"COMMENTED", "CHANGES_REQUESTED"}:
+                    continue
+                if not body.strip() and state != "CHANGES_REQUESTED":
+                    continue
+                feedback[f"{source}:{entry['id']}"] = {
+                    "body": body, "author": user["login"], "state": state,
+                    "updated_at": entry.get("updated_at") or entry.get("submitted_at") or entry["created_at"],
+                    "url": entry.get("html_url", ""),
+                    **({"path": entry["path"], "line": entry.get("line")} if source == "inline" else {}),
+                }
+        return feedback
+
+    def poll_human_feedback(self, items, active_numbers=()):
+        """Debounce owned human-review work; never adopt unrelated Human review items."""
+        self.feedback_unavailable = set()
+        for task in self.state.all():
+            if task["number"] in active_numbers:
+                continue
+            pending_rework = task.get("phase") == "rework" and task.get("human_feedback_pending")
+            if task.get("phase") != "human_review" and not pending_rework:
+                continue
+            current = next((i for i in items if i["id"] == task.get("item", {}).get("id")), None)
+            if (task.get("phase") == "human_review" and task.get("human_feedback_pending")
+                    and current and current.get("status", "").casefold() == READY.casefold()):
+                task.update(phase="rework", round=0)
+                self.state.save(task)
+                pending_rework = True
+            expected = READY if pending_rework else HUMAN
+            if not current or current.get("status", "").casefold() != expected.casefold():
+                continue
+            polled = task.get("human_feedback_polled_at")
+            if not pending_rework and not task.get("human_feedback") and polled:
+                elapsed = datetime.fromisoformat(now()) - datetime.fromisoformat(polled)
+                if elapsed.total_seconds() < 300:
+                    continue
+            try:
+                issue = self.issue(task["number"])
+                if issue["state"] != "OPEN":
+                    continue
+                snapshot = self.human_feedback(task)
+                if "human_feedback_seen" not in task:
+                    # Existing installations have no baseline. Keep feedback newer
+                    # than their saved handoff, rather than replaying old discussion.
+                    cutoff = task["updated_at"]
+                    task["human_feedback_seen"] = {key: value for key, value in snapshot.items()
+                                                    if datetime.fromisoformat(value["updated_at"]) <= datetime.fromisoformat(cutoff)}
+                pending = {key: value for key, value in snapshot.items()
+                           if any(task["human_feedback_seen"].get(key, {}).get(field) != value[field]
+                                  for field in ("body", "author", "state", "updated_at"))}
+                if pending != task.get("human_feedback", {}):
+                    task["human_feedback_observed_at"] = now()
+                task["human_feedback"] = pending
+                task["human_feedback_snapshot"] = snapshot
+                task["issue"] = issue
+                task["human_feedback_polled_at"] = now()
+                if pending and self.feedback_quiet(task) and not pending_rework:
+                    # Save intent before the remote transition, for crash recovery.
+                    if not task.get("human_feedback_pending"):
+                        task["human_feedback_generation"] = task.get("human_feedback_generation", 0) + 1
+                    task["human_feedback_pending"] = True
+                    self.state.save(task)
+                    self.board.move(current, READY, HUMAN)
+                    current["status"] = READY  # Refresh this dispatch snapshot too.
+                    task.update(phase="rework", round=0)
+                self.state.save(task)
+            except GitHubRateLimit:
+                raise
+            except Exception as error:
+                # No partial API snapshot can acknowledge feedback or dispatch work.
+                self.feedback_unavailable.add(task["number"])
+                print(f"#{task['number']} human feedback unavailable: {error}", flush=True)
+
+    @staticmethod
+    def feedback_quiet(task):
+        observed = task.get("human_feedback_observed_at")
+        if not observed:
+            return False
+        elapsed = datetime.fromisoformat(now()) - datetime.fromisoformat(observed)
+        return elapsed.total_seconds() >= HUMAN_FEEDBACK_QUIET_SECONDS
+
+    def review_threads(self, url):
+        """Read every inline thread and reply; gh pr view omits these discussions."""
+        number = self.pr_number(url)
+        owner, name = self.repo.split("/", 1)
+        threads, cursor = [], None
+
+        seen = set()
+
+        while True:
+            data = graphql("""query($owner:String!, $name:String!, $number:Int!, $cursor:String) {
+              repository(owner:$owner, name:$name) { pullRequest(number:$number) {
+                reviewThreads(first:100, after:$cursor) {
+                  nodes { id isResolved isOutdated viewerCanResolve path line
+                    comments(first:100) {
+                      nodes { id body url author { login } }
+                      pageInfo { hasNextPage endCursor }
+                    }
+                  }
+                  pageInfo { hasNextPage endCursor }
+                }
+              } }
+            }""", {"owner": owner, "name": name, "number": number, "cursor": cursor})
+            connection = data["repository"]["pullRequest"]["reviewThreads"]
+            for thread in connection["nodes"]:
+                comments = thread["comments"]
+                replies = list(comments["nodes"])
+                reply_seen = set()
+                reply_cursor = Board.next_cursor(comments["pageInfo"], reply_seen)
+                while reply_cursor:
+                    page = graphql("""query($id:ID!, $cursor:String!) {
+                      node(id:$id) { ... on PullRequestReviewThread {
+                        comments(first:100, after:$cursor) {
+                          nodes { id body url author { login } }
+                          pageInfo { hasNextPage endCursor }
+                        }
+                      } }
+                    }""", {"id": thread["id"], "cursor": reply_cursor})
+                    comments = page["node"]["comments"]
+                    replies.extend(comments["nodes"])
+                    reply_cursor = Board.next_cursor(comments["pageInfo"], reply_seen)
+                thread["comments"] = replies
+                threads.append(thread)
+            cursor = Board.next_cursor(connection["pageInfo"], seen)
+            if cursor is None:
+                return threads
+
+    def refresh_review_threads(self, task, *, require_resolved=False):
+        threads = self.review_threads(task["pr_url"]) if task.get("pr_url") and not task["question"] else []
+        task["review_threads"] = threads
+        self.state.save(task)
+        unresolved = [thread for thread in threads if not thread["isResolved"]]
+        if require_resolved and unresolved:
+            references = [f"{thread['id']} ({thread['path']})" for thread in unresolved]
+            raise RuntimeError("Unresolved PR review threads block completion: " + "; ".join(references))
 
     def verify_pr(self, task, sha):
         pr = self.pr(task["pr_url"])
@@ -928,6 +1255,8 @@ class Runner:
 
     def post(self, task, stage, result):
         marker = f"<!-- worklane:{task['number']}:{stage}:{task.get('head_sha', 'question')}:{task.get('round', 0)} -->"
+        if task.get("human_feedback_generation"):
+            marker = marker.replace(" -->", f":human-{task['human_feedback_generation']} -->")
         body = marker + f"\nWorklane {stage} ({self.backend.model})\n\n" + result["summary"]
         if result.get("findings"):
             body += "\n\n" + "\n".join(f"- {f}" for f in result["findings"])
@@ -983,6 +1312,7 @@ class Runner:
 
     def build(self, task):
         tree = self.worktree(task)
+        self.refresh_review_threads(task)
         # Explicitly supply primary-checkout instructions even when untracked there.
         instructions = self.root / "AGENTS.md"
         extra = "\nPrimary checkout instructions:\n" + instructions.read_text() if instructions.exists() else ""
@@ -1005,6 +1335,7 @@ class Runner:
                 raise RuntimeError("Worker checkout differs from the pushed PR head.")
             if command(["git", "status", "--porcelain"], cwd=tree):
                 raise RuntimeError("Worker left uncommitted changes.")
+            self.refresh_review_threads(task, require_resolved=True)
         self.post(task, "implementation complete", result)
         self.state.save(task)
         self.board.move(task["item"], REVIEW, PROGRESS)
@@ -1017,6 +1348,7 @@ class Runner:
         else:
             self.verify_pr(task, task["head_sha"])
             tree = self.worktree(task, review=True)
+        self.refresh_review_threads(task)
         extra = "\nPrimary checkout instructions:\n" + (self.root / "AGENTS.md").read_text() if (self.root / "AGENTS.md").exists() else ""
         # A stopped finalizer continues the handoff, not a new review round.
         reuse_review = task.get("resume_stage") == "finalize" and task.get("review_result", {}).get("head_sha") == task.get("head_sha")
@@ -1041,6 +1373,7 @@ class Runner:
             return
         if result["findings"]:
             raise RuntimeError("Review passed with unresolved findings; human review is blocked.")
+        self.refresh_review_threads(task, require_resolved=True)
         task["phase"] = "finalizing"
         self.state.save(task)
         if not task["question"]:
@@ -1050,10 +1383,14 @@ class Runner:
             if handoff["verdict"] != "pass" or handoff["head_sha"] != task["head_sha"] or handoff["findings"]:
                 raise RuntimeError("Local human-testing handoff is incomplete: " + handoff["summary"])
             self.verify_pr(task, task["head_sha"])
+            self.refresh_review_threads(task, require_resolved=True)
             self.post(task, "human testing handoff", handoff)
             pr = self.pr(task["pr_url"])
             if pr["isDraft"]:
                 command(["gh", "pr", "ready", task["pr_url"], "--repo", self.repo])
+        if "human_feedback_seen" not in task:
+            task["human_feedback_seen"] = self.human_feedback(task)
+            self.state.save(task)
         self.board.move(task["item"], HUMAN, REVIEW)
         task["phase"] = "human_review"
         self.state.save(task)
@@ -1157,6 +1494,12 @@ class Runner:
         review = slot == REVIEWER
         if previous.get("phase") in {"blocked", "interrupted"} or previous.get("phase") in ACTIVE:
             return None
+        if not review and previous.get("human_feedback_pending"):
+            if (number in getattr(self, "feedback_unavailable", set())
+                    or not previous.get("human_feedback") or not self.feedback_quiet(previous)):
+                return None
+            previous["human_feedback_seen"] = previous["human_feedback_snapshot"]
+            previous.pop("human_feedback_pending", None)
         issue = self.issue(number)
         if issue["state"] != "OPEN":
             return None
@@ -1204,6 +1547,7 @@ class Runner:
     @github_scoped
     def run(self, stop):
         futures = {}
+        assignments = {}
         with ThreadPoolExecutor(max_workers=4) as pool:
             while not stop.is_set():
                 futures = {slot: f for slot, f in futures.items() if not f.done()}
@@ -1211,6 +1555,9 @@ class Runner:
                 if not self.state.paused() and time.time() >= backoff.get("until", 0) and len(futures) < 4:
                     try:
                         items = self.board.items()
+                        with locked(self.state.path / "dispatch.lock"):
+                            if not self.state.paused() and not stop.is_set():
+                                self.poll_human_feedback(items, {assignments[slot] for slot in futures})
                         for slot in (*WORKERS, REVIEWER):
                             if slot in futures or stop.is_set() or self.state.paused():
                                 continue
@@ -1220,6 +1567,7 @@ class Runner:
                                 if task:
                                     print(f"{slot}: resuming #{task['number']} ({task.get('resume_stage', 'build')})", flush=True)
                                     futures[slot] = pool.submit(self.execute, task, slot == REVIEWER)
+                                    assignments[slot] = task["number"]
                                     items = [i for i in items if i["id"] != task["item"]["id"]]
                             if task:
                                 continue
@@ -1238,8 +1586,9 @@ class Runner:
                                         if task:
                                             print(f"{slot}: #{task['number']} {task['issue']['title']}", flush=True)
                                             futures[slot] = pool.submit(self.execute, task, slot == REVIEWER)
+                                            assignments[slot] = task["number"]
                                 except GitHubRateLimit:
-                                    raise  # Do not burn the rest of the slots against an exhausted quota.
+                                    raise  # Stop the remaining slots against an exhausted quota.
                                 except Exception as error:
                                     number = item["content"]["number"]
                                     task = self.state.load(number) or {"number": number, "item": item}
@@ -1274,18 +1623,50 @@ def repository(path):
     return match[1], root, base
 
 
+def installation_info():
+    """Identify the CLI code, independently of the repository being managed."""
+    source = Path(__file__).resolve()
+    info = {"version": "uninstalled", "module": str(source),
+            "revision": None, "branch": None, "dirty": None}
+    try:
+        dist = metadata.distribution("worklane")
+        info["version"] = dist.version
+        direct = json.loads(dist.read_text("direct_url.json") or "{}")
+        info["revision"] = direct.get("vcs_info", {}).get("commit_id")
+    except (metadata.PackageNotFoundError, OSError, ValueError):
+        pass
+    try:
+        # Do not attribute an untracked script to an enclosing checkout.
+        command(["git", "ls-files", "--error-unmatch", "--", source.name], cwd=source.parent, timeout=5)
+        info["revision"] = command(["git", "rev-parse", "HEAD"], cwd=source.parent, timeout=5)
+        info["dirty"] = bool(command(["git", "status", "--porcelain", "--untracked-files=no"], cwd=source.parent, timeout=5))
+        try:
+            info["branch"] = command(["git", "symbolic-ref", "--quiet", "--short", "HEAD"], cwd=source.parent, timeout=5)
+        except RuntimeError:
+            pass  # Detached checkouts still have an exact revision.
+    except (RuntimeError, OSError, subprocess.TimeoutExpired):
+        pass  # Wheels may have VCS metadata but need not have Git installed.
+    return info
+
+
 def parser():
     p = argparse.ArgumentParser(description="Three workers and one independent reviewer for a GitHub project board.")
-    p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "board", "status", "logs", "pause", "resume", "stop", "retry"],
+    p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "board", "status", "logs", "pause", "resume", "stop", "retry", "add"],
                    help="Command to run; board opens the project board in your browser (default: run)")
     p.add_argument("number", nargs="?", type=int, help="Issue number for retry or logs")
     p.add_argument("--repo", default=".", help="Local repository checkout (default: current directory)")
     p.add_argument("--project", help="GitHub board OWNER/NUMBER; auto-detected when unambiguous")
+    p.add_argument("-t", "--title", help="With add: new issue title (required)")
+    p.add_argument("-d", "--description", "--body", help="With add: issue description (default: empty)")
+    destination = p.add_mutually_exclusive_group()
+    destination.add_argument("--draft", action="store_true", help="With add: use the board's Draft status")
+    destination.add_argument("--shaping", action="store_true", help="With add: use the board's Shaping status")
     p.add_argument("--model", default=MODEL, help=f"Codex model (default: {MODEL})")
     p.add_argument("--interval", type=int, default=60, help="Polling seconds (minimum 10)")
     p.add_argument("--once", action="store_true", help="Dispatch one batch, wait for it, then exit")
     p.add_argument("--now", action="store_true", help="With stop: terminate active agents as well")
     p.add_argument("--background", action="store_true", help=argparse.SUPPRESS)
+    p.add_argument("--version", action="store_true", help="Show installed CLI version, source path and revision, then exit")
     return p
 
 
@@ -1295,11 +1676,26 @@ def main(argv=None):
     output_redirected = False
     budget_token = None
     try:
+        if args.version:
+            print(json.dumps(installation_info(), indent=2))
+            return 0
         if args.interval < 10:
             raise RuntimeError("--interval must be at least 10 seconds.")
         if args.now and args.action != "stop":
             raise RuntimeError("--now is only valid with stop.")
+        if args.action != "add" and (args.title is not None or args.description is not None or args.draft or args.shaping):
+            raise RuntimeError("--title, --description/--body, --draft and --shaping are only valid with add.")
+        if args.action == "add" and (not args.title or not args.title.strip() or args.number is not None):
+            raise RuntimeError("Use worklane add --title TITLE [--description DESCRIPTION] [--draft | --shaping].")
         repo, root, base = repository(Path(args.repo).expanduser())
+        if args.action == "add":
+            if not shutil.which("gh"):
+                raise RuntimeError("Required command missing: gh")
+            status = "Draft" if args.draft else "Shaping" if args.shaping else READY
+            board = Board(repo, root, args.project, required_statuses=(status,))
+            url = board.add_issue(args.title, args.description or "", status)
+            print(f"{url}\nAdded to {board.project['url']} with initial status {status}.")
+            return 0
         if args.action == "board":
             if not shutil.which("gh"):
                 raise RuntimeError("Required command missing: gh")
@@ -1372,6 +1768,7 @@ def main(argv=None):
         if args.action == "check":
             items = board.items()
             print(json.dumps({"repository": repo, "board": board.project["url"], "model": args.model,
+                              "cli": installation_info(),
                               "workers": 3, "reviewers": 1,
                               "will_add_agent_review": REVIEW.casefold() not in board.options,
                               "ready": [i["content"]["number"] for i in items if i.get("status", "").casefold() == READY.casefold()],
@@ -1400,7 +1797,8 @@ def main(argv=None):
             board.ensure_review_status()
             command(["codex", "login", "status"])
             state.set_meta("runtime", {"pid": os.getpid(), "identity": process_identity(os.getpid()),
-                       "started_at": now(), "checkout": str(root), "project": f"{board.owner}/{board.number}", "model": args.model})
+                       "started_at": now(), "checkout": str(root), "project": f"{board.owner}/{board.number}", "model": args.model,
+                       "cli": installation_info()})
             state.set_meta("shutdown", {"immediate": False})
             stop = threading.Event()
             def stop_handler(_signum, _frame):

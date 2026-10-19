@@ -12,3 +12,11 @@ Session tests also launch a fake CLI as a real subprocess, interrupt it and rest
 the controller, checking that the exact original session is resumed. A harmless
 live Sol 6.1 two-turn check verified both the unchanged session ID and recall of
 information present only in the previous turn.
+
+Metadata tests use a fake app-server subprocess to check naming, project reuse and
+creation, pagination, concurrent roles, resumption, and transport failure cleanup.
+
+Issue-creation tests cover literal multiline descriptions, destination validation,
+Draft/Shaping selection, concurrent controller pickup, and recovery guidance after
+partial failure. GitHub writes are mocked; live issue creation and board placement
+require a disposable repository and board for manual validation.

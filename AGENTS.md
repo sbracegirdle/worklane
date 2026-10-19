@@ -1,1 +1,1 @@
-Keep documentation concise; avoid lengthy implementation explanations for routine changes.
+Keep README limited to project essentials; document specific behavior in docs/.

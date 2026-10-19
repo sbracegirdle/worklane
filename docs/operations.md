@@ -52,8 +52,10 @@ blocked for inspection instead of looping indefinitely.
 After a pass, the same reviewer slot completes any repository-required local
 preview/integration/playground handoff, then moves the issue to Human review.
 This keeps local integration changes serialized. The tool does not automatically
-merge PRs, publish, deploy, process Human review feedback or mark issues Done.
-Move an issue back to Ready for work to request another implementation pass.
+merge PRs, publish, deploy or mark issues Done. New human feedback on owned Human
+review issues is batched until five quiet minutes, then resumes the original worker
+conversation. New comments during that wait extend the batch. Move an issue back to
+Ready for work to request another implementation pass manually.
 If separate legacy feedback automations are enabled, avoid giving them concurrent
 ownership of an issue Worklane is handling.
 

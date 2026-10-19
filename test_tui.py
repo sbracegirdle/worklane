@@ -440,6 +440,10 @@ class TuiTests(unittest.TestCase):
             command = until(b"Transcript command output")
             self.assertIn(b"COMMAND", command)
             self.assertRegex(command, rb"\x1b\[[0-9;]*36m")
+            os.write(master, b"m/run pwd\n")
+            until(b"queued for the selected session")
+            self.assertTrue(any(log["stream"] == "user" and log["content"].endswith("\npwd")
+                                for log in self.state.log_entries(1)))
             fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 5, 30, 0, 0))
             os.kill(process.pid, signal.SIGWINCH)
             until(b"enlarge terminal")
@@ -467,6 +471,52 @@ class TuiTests(unittest.TestCase):
             self.assertEqual(process.wait(timeout=5), 0)
             self.assertTrue(self.state.running())
             self.assertFalse(self.state.paused())
+
+    def test_message_composer_handles_unicode_commands_and_cancel_without_shortcuts(self):
+        self.run_record()
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        dashboard.control, dashboard.open_page = Mock(), Mock()
+        keys = [ord("j"), 10, ord("m"), *"/help", 10, *"sxiBq 界x", curses.KEY_BACKSPACE, 10,
+                ord("m"), *"/clear", 10, *"cancel me", 27,
+                ord("m"), *"/bad", 10, 21, *"/run pwd", 10,
+                ord("m"), *"//literal", 10, ord("b"), ord("q")]
+        screen = Screen(keys)
+        with w.locked(self.state.path / "runner.lock"), patch.object(curses, "curs_set"), \
+             patch.object(curses, "has_colors", return_value=False):
+            dashboard.run(screen)
+        users = [log["content"] for log in self.state.log_entries(1) if log["stream"] == "user"]
+        self.assertEqual(users, ["sxiBq 界", "Run this command in the assigned session worktree, within existing safeguards:\npwd", "/literal"])
+        self.assertTrue(any("Unknown or incomplete command" in frame for frame in screen.frames))
+        self.assertTrue(any("YOU" in frame for frame in screen.frames))
+        self.assertTrue(any("Input cancelled" in frame for frame in screen.frames))
+        self.assertFalse(dashboard.composing)
+        dashboard.control.assert_not_called()
+        dashboard.open_page.assert_not_called()
+
+    def test_composer_preserves_draft_on_late_submission_and_pins_original_run(self):
+        run = self.run_record()
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        dashboard.composing, dashboard.input_run, dashboard.draft = True, run, "Keep this draft"
+        with w.locked(self.state.path / "runner.lock"):
+            self.state.finish_run(run, "completed")
+            self.run_record(2)
+            dashboard.send_input()
+        self.assertTrue(dashboard.composing)
+        self.assertEqual(dashboard.draft, "Keep this draft")
+        self.assertIn("no longer accepting", dashboard.message)
+        self.assertFalse(any(log["stream"] == "user" for log in self.state.log_entries()))
+
+    def test_composer_refuses_historical_and_stopped_sessions(self):
+        run = self.run_record(text="needle")
+        self.state.finish_run(run, "completed")
+        screen = Screen([ord("j"), 10, ord("m"), ord("b"), ord("/"), *"needle", 10, 10,
+                         ord("m"), ord("b"), ord("q"), ord("q")])
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+            dashboard.run(screen)
+        self.assertTrue(any("Open an active saved session" in frame for frame in screen.frames))
+        self.assertTrue(any("Return to the live transcript" in frame for frame in screen.frames))
+        self.assertFalse(any(log["stream"] == "user" for log in self.state.log_entries()))
 
     def test_protocol_and_mcp_noise_do_not_replace_activity_or_fill_tail(self):
         run = self.run_record(text="Useful agent activity")

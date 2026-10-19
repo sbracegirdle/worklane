@@ -11,6 +11,7 @@ Run `worklane tui` alongside the controller to view local SQLite state. Use
 | Right / Left or `l` / `h` | Expand / collapse to the issue |
 | Page Up / Page Down / End | Scroll the tail / return to following output |
 | `a` | Resume the selected saved Codex conversation after stopping Worklane |
+| `m` in a live transcript | Compose input; Enter queues, Esc cancels, Ctrl-U clears |
 | `/` | Search session details and readable history; Enter searches, then opens a result |
 | `s` / `x` | Start / gracefully stop Worklane from the overview |
 | `i` / `B` | Read the selected issue / browse open repository issues on the board |
@@ -29,7 +30,8 @@ Use an interactive terminal of at least 50 columns and 12 rows with Python curse
 use `--no-color` or `NO_COLOR=1` for monochrome. Redirected output should use `status` or `logs`.
 Transcripts colour activity and hide protocol noise; `logs NUMBER --raw` shows original records.
 
-Codex exec cannot accept interactive input while running. To resume a conversation,
+Input waits for the current turn, then resumes the same session before handoff; interrupted requests retry and may repeat actions.
+`/run COMMAND` requests execution under existing safeguards; `/help` lists commands. To resume a conversation interactively,
 run `worklane stop` and wait for jobs to finish before pressing `a`; pausing alone
 is insufficient. Resume uses the exact role's saved ID and worktree, workspace
 sandboxing and on-request approvals. The controller lock remains held throughout.

@@ -601,6 +601,51 @@ class State:
             if result is not None:
                 self._put(db, "result:" + run_id, result)
 
+    def queue_input(self, run_id, text):
+        """Accept input only for the displayed, still-active saved conversation."""
+        text = text.strip()
+        if not text or len(text) > 8000:
+            raise RuntimeError("Enter between 1 and 8000 characters.")
+        if not self.running():
+            raise RuntimeError("Worklane is stopped; use a to resume the saved conversation.")
+        with self.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            run = db.execute("SELECT * FROM runs WHERE id=?", (run_id,)).fetchone()
+            task = self._get(db, f"task:{run['number']}", {}) if run else {}
+            if (not run or run["status"] not in {"starting", "running"}
+                    or not run["session_id"] or task.get("active_run_id") != run_id):
+                raise RuntimeError("Session is no longer accepting input; refresh or use a after stopping Worklane.")
+            owner = "input:" + run["session_id"]
+            inputs = self._get(db, owner, [])
+            if len(inputs) >= 20:
+                raise RuntimeError("Session input queue is full; wait for the next turn.")
+            inputs.append({"text": text, "status": "pending"})
+            self._put(db, owner, inputs)
+            self._log(db, run_id, "user", text)
+            self._log(db, run_id, "input", "Input queued for the next turn, before workflow handoff.")
+
+    def advance_run(self, run_id, result=None):
+        """Take pending input or finish atomically with respect to new submissions."""
+        with self.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            run = db.execute("SELECT * FROM runs WHERE id=?", (run_id,)).fetchone()
+            owner = "input:" + run["session_id"] if run["session_id"] else None
+            inputs = self._get(db, owner, []) if owner else []
+            if result is not None:
+                if any(value["status"] == "sending" for value in inputs):
+                    self._log(db, run_id, "input", "Queued input turn completed.")
+                inputs = [value for value in inputs if value["status"] != "sending"]
+            if inputs:
+                for value in inputs:
+                    value["status"] = "sending"
+                self._log(db, run_id, "input", f"Delivering {len(inputs)} queued request(s) to the saved session.")
+            elif result is not None:
+                db.execute("UPDATE runs SET status='completed',finished_at=? WHERE id=?", (now(), run_id))
+                self._put(db, "result:" + run_id, result)
+            if owner:
+                self._put(db, owner, inputs)
+            return [value["text"] for value in inputs]
+
     def recover_runs(self):
         for run in self.runs():
             if run["status"] in {"starting", "running"}:
@@ -938,7 +983,7 @@ class CodexAppServer:
 
 
 class CodexBackend:
-    """A single CLI invocation; other backends can implement this boundary later."""
+    """Run assigned work and queued follow-ups in one saved conversation."""
     def __init__(self, model, root, state, runner_fd):
         self.model, self.root, self.state, self.runner_fd = model, root, state, runner_fd
         self.timeout = 8 * 3600
@@ -1022,13 +1067,36 @@ class CodexBackend:
             args += ["--model", self.model, "--json", "--output-schema", f"/proc/self/fd/{schema_fd}",
                      "--output-last-message", f"/proc/self/fd/{result_fd}"]
             args += [session["session_id"], "-"] if session else ["-"]
-            return self._invoke(args, prompt, stage, task, worktree, schema_fd, result_fd)
+            run_id = self.state.begin_run(task, stage, worktree)
+            try:
+                inputs = self.state.advance_run(run_id)
+                while True:
+                    if self.state.get_meta("shutdown", {}).get("immediate"):
+                        raise InterruptedRun("Immediate stop requested before the next agent turn.")
+                    turn_prompt = prompt
+                    if inputs:
+                        turn_prompt += ("\nAdditional user requests from the Worklane TUI (JSON):\n"
+                                        + json.dumps(inputs, ensure_ascii=False)
+                                        + "\nHandle these within the assigned task and existing safeguards. "
+                                        "Inspect prior actions before retrying an interrupted request; return the required structured result.\n")
+                    output = self._invoke(args, turn_prompt, stage, task, worktree, schema_fd, result_fd, run_id)
+                    inputs = self.state.advance_run(run_id, output)
+                    if not inputs:
+                        return output
+                    session_id = self.state.session(task["number"], role)["session_id"]
+                    if "resume" not in args:
+                        args.insert(args.index("--model"), "resume")
+                        args.insert(-1, session_id)
+                    os.ftruncate(result_fd, 0)
+                    os.lseek(result_fd, 0, os.SEEK_SET)
+            except BaseException as error:
+                self.state.finish_run(run_id, "interrupted" if isinstance(error, InterruptedRun) else "failed", str(error))
+                raise
         finally:
             os.close(schema_fd)
             os.close(result_fd)
 
-    def _invoke(self, args, prompt, stage, task, worktree, schema_fd, result_fd):
-        run_id = self.state.begin_run(task, stage, worktree)
+    def _invoke(self, args, prompt, stage, task, worktree, schema_fd, result_fd, run_id):
         process = None
         observed_id, turn_completed, turn_failed = None, False, False
         def received(stream, line):
@@ -1113,12 +1181,10 @@ class CodexBackend:
                 raise RuntimeError("Invalid result field types.")
             if not isinstance(output["findings"], list) or not all(isinstance(value, str) for value in output["findings"]):
                 raise RuntimeError("Invalid review findings.")
-            self.state.finish_run(run_id, "completed", result=output)
             return output
         except BaseException as error:
             if process:
                 self.terminate(process)
-            self.state.finish_run(run_id, "interrupted" if isinstance(error, InterruptedRun) else "failed", str(error))
             raise
         finally:
             if process:

@@ -506,6 +506,41 @@ class TuiTests(unittest.TestCase):
         self.assertIn("no longer accepting", dashboard.message)
         self.assertFalse(any(log["stream"] == "user" for log in self.state.log_entries()))
 
+    def test_issue_editor_and_session_composer_keep_input_separate(self):
+        self.run_record()
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        editor = {"number": None, "title": "", "body": "", "status": "Draft",
+                  "statuses": ["Draft"], "field": 0, "cursor": 0}
+        def keys():
+            yield "n"
+            self.wait_jobs(dashboard)
+            yield from "m/run editor title"
+            yield 9
+            yield from "Session shortcuts m B q stay in the issue body"
+            self.assertFalse(dashboard.composing)
+            yield 27
+            yield "j"
+            yield 10
+            yield "m"
+            yield from "n e stay in the session message"
+            yield 10
+            yield "b"
+            yield "q"
+        screen = Screen(keys())
+        with w.locked(self.state.path / "runner.lock"), patch.object(curses, "curs_set"), \
+             patch.object(curses, "has_colors", return_value=False), \
+             patch.object(tui, "load_editor", return_value=editor) as load:
+            dashboard.run(screen)
+        load.assert_called_once()
+        self.assertEqual(editor["title"], "m/run editor title")
+        self.assertEqual(editor["body"], "Session shortcuts m B q stay in the issue body")
+        self.assertEqual([log["content"] for log in self.state.log_entries(1) if log["stream"] == "user"],
+                         ["n e stay in the session message"])
+        self.assertTrue(any("NEW ISSUE" in frame for frame in screen.frames))
+        self.assertTrue(any("Enter queue" in frame for frame in screen.frames))
+        self.assertIsNone(dashboard.editor)
+        self.assertFalse(dashboard.composing)
+
     def test_composer_refuses_historical_and_stopped_sessions(self):
         run = self.run_record(text="needle")
         self.state.finish_run(run, "completed")

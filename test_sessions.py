@@ -332,6 +332,7 @@ class SessionTests(unittest.TestCase):
             self.assertEqual(w.main(["run", "--once", "--repo", str(self.tree)]), 0)
         self.assertEqual(self.calls()[1]["args"][-2], original)
         self.assertEqual(self.state.load(1)["phase"], "awaiting_review")
+        self.assertEqual(self.state.get_meta("runtime")["cli"]["module"], str(Path(w.__file__).resolve()))
 
     def test_timeout_retains_session(self):
         with w.locked(self.state.path / "runner.lock") as fd:

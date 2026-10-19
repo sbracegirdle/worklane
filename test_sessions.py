@@ -477,7 +477,7 @@ class SessionTests(unittest.TestCase):
         backend.run.return_value = result()
         runner = w.Runner(None, "owner/repo", self.tree, self.state, FakeBoard([task["item"]]), backend)
         runner.worktree = Mock(return_value=self.tree)
-        runner.verify_pr = Mock()
+        runner.verify_pr = Mock(return_value={"isDraft": False})
         runner.post = Mock()
         runner.pr = Mock(return_value={"isDraft": False})
         runner.human_feedback = Mock(return_value={})

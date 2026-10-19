@@ -1444,12 +1444,15 @@ class Runner:
             self.verify_pr(task, task["head_sha"])
             self.refresh_review_threads(task, require_resolved=True)
             self.post(task, "human testing handoff", handoff)
-            pr = self.pr(task["pr_url"])
-            if pr["isDraft"]:
-                command(["gh", "pr", "ready", task["pr_url"], "--repo", self.repo])
         if "human_feedback_seen" not in task:
             task["human_feedback_seen"] = self.human_feedback(task)
             self.state.save(task)
+        if not task["question"]:
+            pr = self.verify_pr(task, task["head_sha"])
+            if pr["isDraft"]:
+                command(["gh", "pr", "ready", task["pr_url"], "--repo", self.repo])
+                if self.verify_pr(task, task["head_sha"])["isDraft"]:
+                    raise RuntimeError("PR is still a draft; human review is blocked.")
         self.board.move(task["item"], HUMAN, REVIEW)
         task["phase"] = "human_review"
         self.state.save(task)

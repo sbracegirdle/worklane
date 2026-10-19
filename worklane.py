@@ -493,7 +493,7 @@ class DatabaseLogWriter:
 
 
 class Board:
-    def __init__(self, repo, path, project=None, *, required_statuses=(READY, PROGRESS, HUMAN)):
+    def __init__(self, repo, path, project=None, *, load_fields=True, required_statuses=(READY, PROGRESS, HUMAN)):
         self.repo, self.path = repo, path
         self.required_statuses = required_statuses
         owner, name = repo.split("/")
@@ -519,7 +519,8 @@ class Board:
             self.project = candidates[0]
             self.owner = self.project.get("owner", {}).get("login", owner)
             self.number = self.project["number"]
-        self.refresh_fields()
+        if load_fields:
+            self.refresh_fields()
 
     def refresh_fields(self):
         fields = gh("project", "field-list", str(self.number), "--owner", self.owner, "--format", "json")["fields"]
@@ -1084,7 +1085,8 @@ def repository(path):
 
 def parser():
     p = argparse.ArgumentParser(description="Three workers and one independent reviewer for a GitHub project board.")
-    p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "status", "logs", "pause", "resume", "stop", "retry", "add"])
+    p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "board", "status", "logs", "pause", "resume", "stop", "retry", "add"],
+                   help="Command to run; board opens the project board in your browser (default: run)")
     p.add_argument("number", nargs="?", type=int, help="Issue number for retry or logs")
     p.add_argument("--repo", default=".", help="Local repository checkout (default: current directory)")
     p.add_argument("--project", help="GitHub board OWNER/NUMBER; auto-detected when unambiguous")
@@ -1122,6 +1124,13 @@ def main(argv=None):
             board = Board(repo, root, args.project, required_statuses=(status,))
             url = board.add_issue(args.title, args.description or "", status)
             print(f"{url}\nAdded to {board.project['url']} with initial status {status}.")
+            return 0
+        if args.action == "board":
+            if not shutil.which("gh"):
+                raise RuntimeError("Required command missing: gh")
+            board = Board(repo, root, args.project, load_fields=False)
+            command(["gh", "project", "view", str(board.number), "--owner", board.owner, "--web"], cwd=root)
+            print(f"Opened project board: {board.project['url']}")
             return 0
         state = State(repo)
         if args.action == "run":

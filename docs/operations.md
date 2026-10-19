@@ -109,7 +109,7 @@ Runtime data lives outside project checkouts:
   worktrees/           # Preserved worker and detached review checkouts
 ```
 
-SQLite is the only durable Worklane data store. Tasks, nested issue/PR data,
+SQLite stores durable runtime data; [checkout configuration](configuration.md) lives in `.worklane.toml`. Tasks, nested issue/PR data,
 events, results, controller output, agent output, controls and session mappings
 are stored in database tables. There are no JSON payload columns or persistent
 JSON, JSONL, result, schema or log files. JSON is only an API/CLI exchange format;
@@ -170,7 +170,7 @@ head needs a fresh review turn in the same reviewer conversation. Worktrees and 
 for recovery; cleanup is manual, using `git worktree remove` once changes are safe.
 Codex runs have an eight-hour timeout. Worklane uses Codex's workspace sandbox and
 automatic approval review (`--approve-for-me`), retaining the installed CLI's
-approval rules. It disables Codex subagents; there are at most three worker CLI
+approval rules. It disables Codex subagents; the default is three worker CLI
 processes and one reviewer CLI process. These agents can write code, run commands
 and create GitHub comments/PRs within the authorized task; inspect your queue before
 starting. Account usage limits can block a run, in which case retry explicitly.

@@ -25,8 +25,10 @@ import signal
 import sqlite3
 import subprocess
 import sys
+import tempfile
 import threading
 import time
+import tomllib
 import uuid
 
 MODEL = "gpt-6.1-sol"
@@ -36,6 +38,59 @@ REVIEWER = "reviewer"
 READY, PROGRESS, REVIEW, HUMAN = "Ready for work", "In Progress", "Agent review", "Human review"
 ACTIVE = {"building", "reviewing", "finalizing", "claiming"}
 ROLES = {"build": "worker", "review": "reviewer", "finalize": "finalizer"}
+CONFIG_FILE = ".worklane.toml"
+CONFIG_DEFAULTS = {"harness": "codex", "workers": 3, "model": MODEL,
+                   "effort": "high", "interval": 60, "project": ""}
+
+
+def validate_config(values):
+    unknown = values.keys() - CONFIG_DEFAULTS.keys()
+    if unknown:
+        raise ValueError(f"Unknown configuration setting: {', '.join(sorted(unknown))}")
+    config = {**CONFIG_DEFAULTS, **values}
+    if config["harness"] != "codex":
+        raise ValueError("harness must be codex; other harnesses are not supported yet.")
+    if type(config["workers"]) is not int or not 1 <= config["workers"] <= 16:
+        raise ValueError("workers must be an integer between 1 and 16.")
+    if not isinstance(config["model"], str) or not config["model"].strip() or any(c.isspace() for c in config["model"]):
+        raise ValueError("model must be a nonempty model name without whitespace.")
+    if config["effort"] not in ("low", "medium", "high", "xhigh"):
+        raise ValueError("effort must be low, medium, high or xhigh.")
+    if type(config["interval"]) is not int or config["interval"] < 10:
+        raise ValueError("interval must be an integer of at least 10 seconds.")
+    if not isinstance(config["project"], str) or (config["project"] and not re.fullmatch(r"[\w-]+/[1-9]\d*", config["project"])):
+        raise ValueError("project must be OWNER/NUMBER, or empty for automatic discovery.")
+    return config
+
+
+def load_config(root):
+    path = Path(root) / CONFIG_FILE
+    try:
+        with path.open("rb") as source:
+            return validate_config(tomllib.load(source))
+    except FileNotFoundError:
+        return dict(CONFIG_DEFAULTS)
+    except ValueError as error:
+        raise ValueError(f"{path}: {error}") from error
+
+
+def save_config(root, values):
+    config = validate_config(values)
+    path = Path(root) / CONFIG_FILE
+    # Replace only after a complete, validated write; cancellation never calls this.
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=root, prefix=".worklane-", delete=False) as target:
+            temporary = Path(target.name)
+            for key, value in config.items():
+                target.write(f"{key} = {json.dumps(value, ensure_ascii=False)}\n")
+            target.flush()
+            os.fsync(target.fileno())
+        temporary.replace(path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+    return config
 
 
 class GitHubRateLimit(RuntimeError):
@@ -939,8 +994,9 @@ class CodexAppServer:
 
 class CodexBackend:
     """A single CLI invocation; other backends can implement this boundary later."""
-    def __init__(self, model, root, state, runner_fd):
+    def __init__(self, model, root, state, runner_fd, effort="high"):
         self.model, self.root, self.state, self.runner_fd = model, root, state, runner_fd
+        self.effort = effort
         self.timeout = 8 * 3600
         self.metadata_lock = threading.Lock()
 
@@ -1014,7 +1070,7 @@ class CodexBackend:
             os.write(schema_fd, json.dumps(RESULT_SCHEMA).encode())
             os.lseek(schema_fd, 0, os.SEEK_SET)
             args = ["codex", "exec", "--approve-for-me", "--cd", str(worktree),
-                    "--config", 'model_reasoning_effort="high"', "--config", "features.multi_agent=false"]
+                    "--config", f'model_reasoning_effort="{self.effort}"', "--config", "features.multi_agent=false"]
             if stage == "finalize":
                 args += ["--add-dir", str(self.root)]
             if session:
@@ -1130,6 +1186,7 @@ class CodexBackend:
 class Runner:
     def __init__(self, args, repo, root, state, board, backend):
         self.args, self.repo, self.root, self.state, self.board, self.backend = args, repo, root, state, board, backend
+        self.workers = tuple(f"worker-{i + 1}" for i in range(getattr(args, "workers", len(WORKERS))))
         self.budget = GitHubBudget(state)
 
     def issue(self, number):
@@ -1691,11 +1748,11 @@ class Runner:
     def run(self, stop):
         futures = {}
         assignments = {}
-        with ThreadPoolExecutor(max_workers=4) as pool:
+        with ThreadPoolExecutor(max_workers=len(self.workers) + 1) as pool:
             while not stop.is_set():
                 futures = {slot: f for slot, f in futures.items() if not f.done()}
                 backoff = self.budget.snapshot()
-                if not self.state.paused() and time.time() >= backoff.get("until", 0) and len(futures) < 4:
+                if not self.state.paused() and time.time() >= backoff.get("until", 0) and len(futures) < len(self.workers) + 1:
                     try:
                         items = self.board.items()
                         with locked(self.state.path / "dispatch.lock"):
@@ -1703,7 +1760,7 @@ class Runner:
                                 self.reconcile_completed(items, {assignments[slot] for slot in futures})
                                 self.reconcile_waiting(items, {assignments[slot] for slot in futures})
                                 self.poll_human_feedback(items, {assignments[slot] for slot in futures})
-                        for slot in (*WORKERS, REVIEWER):
+                        for slot in (*self.workers, REVIEWER):
                             if slot in futures or stop.is_set() or self.state.paused():
                                 continue
                             self.budget.check()
@@ -1795,8 +1852,8 @@ def installation_info():
 
 
 def parser():
-    p = argparse.ArgumentParser(description="Three workers and one independent reviewer for a GitHub project board.")
-    p.add_argument("action", nargs="?", default="tui", choices=["run", "start", "check", "board", "status", "logs", "tui", "pause", "resume", "stop", "retry", "add"],
+    p = argparse.ArgumentParser(description="Configurable workers and one independent reviewer for a GitHub project board.")
+    p.add_argument("action", nargs="?", default="tui", choices=["run", "start", "check", "board", "status", "logs", "tui", "config", "pause", "resume", "stop", "retry", "add"],
                    help="Command to run; board opens the project board in your browser (default: tui)")
     p.add_argument("number", nargs="?", type=int, help="Issue number for retry or logs")
     p.add_argument("--repo", default=".", help="Local repository checkout (default: current directory)")
@@ -1807,6 +1864,9 @@ def parser():
     destination.add_argument("--draft", action="store_true", help="With add: use the board's Draft status")
     destination.add_argument("--shaping", action="store_true", help="With add: use the board's Shaping status")
     p.add_argument("--model", help=f"Codex model (default: {MODEL})")
+    p.add_argument("--harness", choices=["codex"], help="Agent harness (currently codex only)")
+    p.add_argument("--workers", type=int, help="Concurrent coding workers (1 to 16; default 3); one independent reviewer")
+    p.add_argument("--effort", choices=["low", "medium", "high", "xhigh"], help="Reasoning effort (default high)")
     p.add_argument("--interval", type=int, help="Polling seconds (minimum 10; default 60)")
     p.add_argument("--once", action="store_true", help="Dispatch one batch, wait for it, then exit")
     p.add_argument("--now", action="store_true", help="With stop: terminate active agents as well")
@@ -1822,8 +1882,7 @@ def main(argv=None):
     args = parser().parse_args(argv)
     tui_options = {"project": args.project, "model": args.model, "interval": args.interval,
                    "once": True if args.once else None}
-    args.model = args.model if args.model is not None else MODEL
-    args.interval = args.interval if args.interval is not None else 60
+    tui_options.update({key: getattr(args, key) for key in ("harness", "workers", "effort") if getattr(args, key) is not None})
     original_stdout, original_stderr = sys.stdout, sys.stderr
     output_redirected = False
     budget_token = None
@@ -1831,8 +1890,6 @@ def main(argv=None):
         if args.version:
             print(json.dumps(installation_info(), indent=2))
             return 0
-        if args.interval < 10:
-            raise RuntimeError("--interval must be at least 10 seconds.")
         if args.now and args.action != "stop":
             raise RuntimeError("--now is only valid with stop.")
         if args.action != "add" and (args.title is not None or args.description is not None or args.draft or args.shaping):
@@ -1840,6 +1897,16 @@ def main(argv=None):
         if args.action == "add" and (not args.title or not args.title.strip() or args.number is not None):
             raise RuntimeError("Use worklane add --title TITLE [--description DESCRIPTION] [--draft | --shaping].")
         repo, root, base = repository(Path(args.repo).expanduser())
+        if args.action in {"tui", "config", "run", "start", "check", "board", "add"}:
+            settings = validate_config({**load_config(root), **{key: value for key, value in tui_options.items()
+                                                               if key in CONFIG_DEFAULTS and value is not None}})
+            for key, value in settings.items():
+                setattr(args, key, value)
+            args.project = args.project or None
+        if args.action == "config":
+            from worklane_tui import run_config
+            run_config(root, no_color=args.no_color, options=tui_options)
+            return 0
         if args.action == "add":
             if not shutil.which("gh"):
                 raise RuntimeError("Required command missing: gh")
@@ -1930,7 +1997,8 @@ def main(argv=None):
             items = board.items()
             print(json.dumps({"repository": repo, "board": board.project["url"], "model": args.model,
                               "cli": installation_info(),
-                              "workers": 3, "reviewers": 1,
+                              "harness": args.harness, "effort": args.effort,
+                              "workers": args.workers, "reviewers": 1,
                               "will_add_agent_review": REVIEW.casefold() not in board.options,
                               "ready": [i["content"]["number"] for i in items if i.get("status", "").casefold() == READY.casefold()],
                               "agent_review": [i["content"]["number"] for i in items if i.get("status", "").casefold() == REVIEW.casefold()]}, indent=2))
@@ -1941,6 +2009,8 @@ def main(argv=None):
             state.pause(False)
             child_args = [sys.executable, str(Path(__file__).resolve()), "run", "--repo", str(root),
                           "--project", f"{board.owner}/{board.number}", "--model", args.model, "--interval", str(args.interval), "--background"]
+            for name in ("harness", "workers", "effort"):
+                child_args.extend(["--" + name, str(getattr(args, name))])
             if args.once:
                 child_args.append("--once")
             child = subprocess.Popen(child_args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
@@ -1959,7 +2029,8 @@ def main(argv=None):
             command(["codex", "login", "status"])
             state.set_meta("runtime", {"pid": os.getpid(), "identity": process_identity(os.getpid()),
                        "started_at": now(), "checkout": str(root), "project": f"{board.owner}/{board.number}", "model": args.model,
-                       "interval": args.interval, "once": args.once, "cli": installation_info()})
+                       "interval": args.interval, "once": args.once, "cli": installation_info(),
+                       "harness": args.harness, "workers": args.workers, "effort": args.effort})
             state.set_meta("shutdown", {"immediate": False})
             stop = threading.Event()
             def stop_handler(_signum, _frame):
@@ -1967,9 +2038,9 @@ def main(argv=None):
                 stop.set()
             signal.signal(signal.SIGTERM, stop_handler)
             signal.signal(signal.SIGINT, stop_handler)
-            print(f"Worklane: {repo}; 3 workers, 1 reviewer; Codex {args.model}; board {board.project['url']}", flush=True)
+            print(f"Worklane: {repo}; {args.workers} workers, 1 reviewer; Codex {args.model}; board {board.project['url']}", flush=True)
             print(f"State/logs: {state.path}; intake {'paused' if state.paused() else 'running'}", flush=True)
-            backend = CodexBackend(args.model, root, state, runner_fd)
+            backend = CodexBackend(args.model, root, state, runner_fd, effort=args.effort)
             runner = Runner(args, repo, root, state, board, backend)
             runner.recover_tasks()
             runner.run(stop)

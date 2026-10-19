@@ -13,13 +13,14 @@ Run `worklane tui` alongside the controller to view local SQLite state. Use
 | `a` | Resume the selected saved Codex conversation after stopping Worklane |
 | `/` | Search session details and readable history; Enter searches, then opens a result |
 | `s` / `x` | Start / gracefully stop Worklane from the overview |
+| `c` | Reopen the configuration walkthrough |
 | `i` / `B` | Read the selected issue / browse open repository issues on the board |
 | `r` | Refresh an issue or board after its 60-second cache expires |
 | `b`, Esc, Backspace or `q` | Return from logs to the overview |
 | `q` in the overview or Ctrl-C | Quit the dashboard |
 
 Views cache across restarts; failed refreshes retain saved content. Board Enter opens issues; issue arrows scroll descriptions and comments.
-Start reuses saved controller settings; `--project`, `--model`, `--interval` and `--once` override them. Stop drains active jobs.
+Start uses [checkout configuration](configuration.md), then explicit CLI overrides; older runtime settings provide fallback. Stop drains active jobs.
 Search is literal and case-insensitive, including older invocations; results show up to 100 matches with bounded transcript context.
 
 The log view shows the latest 40 readable entries from the role's latest invocation; use

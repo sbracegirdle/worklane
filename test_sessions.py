@@ -110,6 +110,21 @@ class SessionTests(unittest.TestCase):
     def backend(self, fd, state=None):
         return w.CodexBackend(w.MODEL, self.tree, state or self.state, fd)
 
+    def test_configured_model_and_effort_reach_every_role_and_resume_exact_session(self):
+        with w.locked(self.state.path / "runner.lock") as fd:
+            backend = w.CodexBackend("configured-model", self.tree, self.state, fd, effort="medium")
+            for stage in ("build", "review", "finalize"):
+                backend.run(stage, self.task, self.tree)
+            original = self.state.session(1, "worker")["session_id"]
+            backend.run("build", self.task, self.tree)
+        for call in self.calls():
+            args = call["args"]
+            self.assertEqual(args[args.index("--model") + 1], "configured-model")
+            self.assertIn('model_reasoning_effort="medium"', args)
+        self.assertIn("resume", self.calls()[-1]["args"])
+        self.assertEqual(self.calls()[-1]["args"][-2], original)
+        self.assertEqual(self.state.session(1, "worker")["session_id"], original)
+
     def test_session_names_include_repository_issue_role_and_clean_title(self):
         self.task["issue"] = {"title": "  Support\n pleasant\t names 🐍  "}
         with w.locked(self.state.path / "runner.lock") as fd:

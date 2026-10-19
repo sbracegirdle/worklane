@@ -420,7 +420,11 @@ class TuiTests(unittest.TestCase):
                     break
             self.fail(f"Terminal did not show {token!r}: {output!r}")
         with w.locked(self.state.path / "runner.lock"):
+            until(b"WORKLANE SETUP")
+            os.write(master, b"\n" * 7)
             output = until(b"Inspecting source")
+            self.assertEqual(w.load_config(self.tree), w.CONFIG_DEFAULTS)
+            self.assertTrue((self.tree / w.CONFIG_FILE).exists())
             self.assertIn(b"WORKLANE", output)
             self.assertIn(b"[36m", output)  # Cyan activity indicators in a colour terminal.
             os.write(master, b"B")

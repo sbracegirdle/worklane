@@ -358,13 +358,16 @@ class TuiTests(unittest.TestCase):
 
     def test_small_terminal_and_monochrome_and_unicode_clipping(self):
         dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
-        for size in ((1, 1), (5, 30), (12, 50), (28, 110)):
+        for size in ((1, 1), (5, 30), (12, 50), (28, 70), (28, 100), (28, 110)):
             screen = Screen(size=size)
             dashboard.draw(screen, tui.snapshot(self.state))
             self.assertTrue(screen.frames)
             if size[0] >= 12 and size[1] >= 50:
                 for control in ("s start", "x stop", "i issue", "B board", "p PR", "q quit"):
                     self.assertIn(control, screen.frames[-1])
+                if size[1] >= 70:
+                    for control in ("n new", "e edit", "/ search"):
+                        self.assertIn(control, screen.frames[-1])
         self.assertEqual(tui.clipped("你好world", 5), "你好w")
         paragraph = "Inspecting source before running tests"
         self.assertEqual("".join(tui.wrapped(paragraph, 20)), paragraph)
@@ -837,6 +840,28 @@ class TuiTests(unittest.TestCase):
             self.assertEqual(call.kwargs["cwd"], self.tree)
         self.assertTrue(any("Opened PR #12 in browser." in frame for frame in screen.frames))
         self.assertEqual(self.state.all(), before)
+
+    def test_pr_shortcut_is_literal_in_editor_and_resumes_after_cancel(self):
+        self.run_record()
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        editor = {"number": None, "title": "", "body": "", "field": 0, "cursor": 0, "status": "Draft"}
+        dashboard.editor = editor
+        dashboard.open_pr = Mock()
+        dashboard.refresh_prs = Mock()
+        def keys():
+            yield ord("p")
+            yield ord("q")
+            self.assertEqual(editor["title"], "pq")
+            dashboard.open_pr.assert_not_called()
+            dashboard.refresh_prs.assert_not_called()
+            yield 27
+            yield ord("p")
+            yield ord("q")
+        with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+            dashboard.run(Screen(keys()))
+        dashboard.open_pr.assert_called_once()
+        self.assertEqual(dashboard.open_pr.call_args.args[0]["number"], 1)
+        dashboard.refresh_prs.assert_called()
 
     def test_open_pr_handles_absence_offline_saved_pr_and_browser_failure(self):
         dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1, root=self.tree)

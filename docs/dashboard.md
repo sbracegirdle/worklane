@@ -16,6 +16,8 @@ Run `worklane tui` alongside the controller to view local SQLite state. Use
 | `i` / `B` | Read the selected issue / browse open repository issues on the board |
 | `p` | Open the selected issue's PR in your browser |
 | `r` | Refresh an issue or board after its 60-second cache expires |
+| `n` / `e` | Create from overview/board; edit the selected overview/board issue or open issue |
+| Tab / Shift-Tab, F2, Esc | Editor: change fields, save, cancel; arrows select status; Enter adds description lines |
 | `b`, Esc, Backspace or `q` | Return from logs to the overview |
 | `q` in the overview or Ctrl-C | Quit the dashboard |
 

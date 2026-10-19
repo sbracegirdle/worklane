@@ -162,6 +162,7 @@ class State:
     VERSION = 2
 
     def __init__(self, repo, root=None):
+        self.repo = repo
         base = Path(root or os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state"))
         self.path = base / "worklane" / repo.casefold().replace("/", "--")
         self.path.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -565,11 +566,118 @@ class Board:
             raise RuntimeError(f"Could not verify board transition to {status}.")
 
 
+class CodexAppServer:
+    """A bounded metadata-only JSON-RPC connection; never starts agent turns."""
+
+    def __init__(self, cwd, timeout=15):
+        self.cwd, self.timeout = cwd, timeout
+        self.process = None
+
+    def __enter__(self):
+        self.deadline = time.monotonic() + self.timeout
+        self.pending, self.request_id = b"", 0
+        self.process = subprocess.Popen(
+            ["codex", "app-server", "--listen", "stdio://"], cwd=self.cwd,
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            start_new_session=True)
+        try:
+            self.request("initialize", {
+                "clientInfo": {"name": "worklane", "version": "0.1.0"},
+                "capabilities": {"experimentalApi": True},
+            })
+            self.send({"method": "initialized", "params": {}})
+            return self
+        except BaseException:
+            self.__exit__(None, None, None)
+            raise
+
+    def send(self, message):
+        self.process.stdin.write((json.dumps(message) + "\n").encode())
+        self.process.stdin.flush()
+
+    def request(self, method, params):
+        self.request_id += 1
+        request_id = self.request_id
+        self.send({"id": request_id, "method": method, "params": params})
+        with selectors.DefaultSelector() as selector:
+            selector.register(self.process.stdout, selectors.EVENT_READ)
+            while True:
+                remaining = self.deadline - time.monotonic()
+                if remaining <= 0:
+                    raise RuntimeError(f"Codex metadata request timed out: {method}")
+                if b"\n" not in self.pending:
+                    if not selector.select(remaining):
+                        continue
+                    chunk = os.read(self.process.stdout.fileno(), 65536)
+                    if not chunk:
+                        raise RuntimeError(f"Codex app-server closed during {method}")
+                    self.pending += chunk
+                    if len(self.pending) > 4 * 1024 * 1024:
+                        raise RuntimeError("Codex metadata response exceeded 4 MiB")
+                    continue
+                line, self.pending = self.pending.split(b"\n", 1)
+                message = json.loads(line)
+                if message.get("id") != request_id:
+                    continue  # Notifications may precede the matching response.
+                if "error" in message:
+                    raise RuntimeError(f"Codex {method}: {message['error'].get('message', message['error'])}")
+                return message["result"]
+
+    def __exit__(self, *_):
+        try:
+            try:
+                self.process.stdin.close()
+            except BrokenPipeError:
+                pass
+            try:
+                self.process.wait(timeout=1)
+            except subprocess.TimeoutExpired:
+                CodexBackend.terminate(self.process)
+        finally:
+            self.process.stdout.close()
+
+
 class CodexBackend:
     """A single CLI invocation; other backends can implement this boundary later."""
     def __init__(self, model, root, state, runner_fd):
         self.model, self.root, self.state, self.runner_fd = model, root, state, runner_fd
         self.timeout = 8 * 3600
+        self.metadata_lock = threading.Lock()
+
+    def name_session(self, run_id, session_id, stage, task):
+        """Use Codex APIs rather than editing its database or transcript files."""
+        role = ROLES[stage]
+        issue = task.get("issue", {})
+        content = task.get("item", {}).get("content", {})
+        title = " ".join((issue.get("title") or content.get("title") or "Issue").split())[:120]
+        name = f"{self.state.repo} #{task['number']} [{role}]: {title}"
+        root = self.root.resolve()
+        try:
+            # One metadata connection at a time per controller. The deterministic
+            # creation key also prevents duplicate projects after a crash/retry.
+            with self.metadata_lock, CodexAppServer(root) as server:
+                server.request("thread/name/set", {"threadId": session_id, "name": name})
+                matches, cursor, seen = [], None, set()
+                while True:
+                    page = server.request("project/list", {"cursor": cursor, "limit": 100})
+                    matches.extend(p for p in page["data"] if any(
+                        Path(r["path"]).resolve() == root for r in p["roots"]))
+                    cursor = page.get("nextCursor")
+                    if not cursor:
+                        break
+                    if cursor in seen:
+                        raise RuntimeError("Codex project/list repeated a pagination cursor")
+                    seen.add(cursor)
+                if len(matches) > 1:
+                    raise RuntimeError(f"Multiple Codex projects have root {root}; inspect project membership")
+                project = matches[0] if matches else server.request("project/create", {
+                    "name": self.state.repo, "roots": [{"path": str(root)}],
+                    "idempotencyKey": str(uuid.uuid5(uuid.NAMESPACE_URL, f"worklane-project:{root}")),
+                })["project"]
+                server.request("thread/metadata/update", {"threadId": session_id, "projectId": project["id"]})
+            self.state.append_log(run_id, "session", f"Named {session_id}: {name}; Codex project {project['id']}")
+        except (RuntimeError, OSError, ValueError, KeyError, TypeError) as error:
+            self.state.append_log(run_id, "warning", f"Codex session metadata could not be updated: {error}. Will retry on the next turn.")
 
     @staticmethod
     def terminate(process):
@@ -642,7 +750,10 @@ class CodexBackend:
                 value = str(uuid.UUID(event["thread_id"]))
                 if observed_id and observed_id != value:
                     raise RuntimeError("Agent emitted conflicting session IDs.")
+                first = observed_id is None
                 observed_id = value
+                if first:
+                    self.name_session(run_id, value, stage, task)
             elif event.get("type") == "turn.completed":
                 turn_completed = True
             elif event.get("type") in {"turn.failed", "error"}:

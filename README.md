@@ -151,6 +151,27 @@ slot picks it up. Subsequent review rounds resume that issue's reviewer conversa
 in its stable review worktree. The finalizer has a separate resumable conversation
 so implementation, independent review and local preview actions do not share history.
 
+Worklane names Codex conversations using the repository, issue number, role and
+issue title, for example `owner/repo #123 [worker]: Fix login`. Names are refreshed
+on each turn, including resumed conversations and renamed issues. Worker,
+reviewer and finalizer conversations keep distinct names and session IDs.
+
+Conversations are also assigned to a Codex project whose roots include the primary
+checkout. Worklane reuses that project, preserving its name and roots, or creates
+one named `owner/repo` when none exists. Isolated worktrees stay the execution
+directories; project membership does not move a conversation or change its sandbox.
+An unrelated project with the same name is not reused. If multiple projects have
+the same checkout root, Worklane logs a warning instead of choosing one.
+
+This uses Codex's `thread/name/set`, `project/list`, `project/create` and
+`thread/metadata/update` app-server methods, including the experimental project
+API (available in Codex CLI 0.160.0). It never edits Codex's internal storage.
+Metadata updates have a bounded timeout, use an idempotent project creation key,
+and do not start an agent turn. Older CLIs or unavailable metadata methods produce
+warnings in `worklane logs NUMBER`; coding and exact-ID recovery continue, and
+metadata updates are retried on the next turn. Read-only commands such as `check`
+and `status` do not create Codex projects or rename sessions.
+
 Worklane saves `thread.started` IDs immediately, before waiting for the turn to
 finish. It uses `codex exec resume <EXACT_ID>` for subsequent turns, never `--last`.
 Starting another process does not create another conversation. Session transcripts
@@ -223,3 +244,5 @@ Session tests also launch a fake CLI as a real subprocess, interrupt it and rest
 the controller, checking that the exact original session is resumed. A harmless
 live Sol 6.1 two-turn check verified both the unchanged session ID and recall of
 information present only in the previous turn.
+Metadata tests use a fake app-server subprocess to check naming, project reuse and
+creation, pagination, concurrent roles, resumption, and transport failure cleanup.

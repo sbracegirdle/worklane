@@ -12,6 +12,7 @@ from contextlib import contextmanager
 import ctypes
 from datetime import datetime, timezone
 import fcntl
+from importlib import metadata
 import json
 import os
 from pathlib import Path
@@ -1167,6 +1168,32 @@ def repository(path):
     return match[1], root, base
 
 
+def installation_info():
+    """Identify the CLI code, independently of the repository being managed."""
+    source = Path(__file__).resolve()
+    info = {"version": "uninstalled", "module": str(source),
+            "revision": None, "branch": None, "dirty": None}
+    try:
+        dist = metadata.distribution("worklane")
+        info["version"] = dist.version
+        direct = json.loads(dist.read_text("direct_url.json") or "{}")
+        info["revision"] = direct.get("vcs_info", {}).get("commit_id")
+    except (metadata.PackageNotFoundError, OSError, ValueError):
+        pass
+    try:
+        # Do not attribute an untracked script to an enclosing checkout.
+        command(["git", "ls-files", "--error-unmatch", "--", source.name], cwd=source.parent, timeout=5)
+        info["revision"] = command(["git", "rev-parse", "HEAD"], cwd=source.parent, timeout=5)
+        info["dirty"] = bool(command(["git", "status", "--porcelain", "--untracked-files=no"], cwd=source.parent, timeout=5))
+        try:
+            info["branch"] = command(["git", "symbolic-ref", "--quiet", "--short", "HEAD"], cwd=source.parent, timeout=5)
+        except RuntimeError:
+            pass  # Detached checkouts still have an exact revision.
+    except (RuntimeError, OSError, subprocess.TimeoutExpired):
+        pass  # Wheels may have VCS metadata but need not have Git installed.
+    return info
+
+
 def parser():
     p = argparse.ArgumentParser(description="Three workers and one independent reviewer for a GitHub project board.")
     p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "board", "status", "logs", "pause", "resume", "stop", "retry"],
@@ -1179,6 +1206,7 @@ def parser():
     p.add_argument("--once", action="store_true", help="Dispatch one batch, wait for it, then exit")
     p.add_argument("--now", action="store_true", help="With stop: terminate active agents as well")
     p.add_argument("--background", action="store_true", help=argparse.SUPPRESS)
+    p.add_argument("--version", action="store_true", help="Show installed CLI version, source path and revision, then exit")
     return p
 
 
@@ -1187,6 +1215,9 @@ def main(argv=None):
     original_stdout, original_stderr = sys.stdout, sys.stderr
     output_redirected = False
     try:
+        if args.version:
+            print(json.dumps(installation_info(), indent=2))
+            return 0
         if args.interval < 10:
             raise RuntimeError("--interval must be at least 10 seconds.")
         if args.now and args.action != "stop":
@@ -1259,6 +1290,7 @@ def main(argv=None):
         if args.action == "check":
             items = board.items()
             print(json.dumps({"repository": repo, "board": board.project["url"], "model": args.model,
+                              "cli": installation_info(),
                               "workers": 3, "reviewers": 1,
                               "will_add_agent_review": REVIEW.casefold() not in board.options,
                               "ready": [i["content"]["number"] for i in items if i.get("status", "").casefold() == READY.casefold()],
@@ -1287,7 +1319,8 @@ def main(argv=None):
             board.ensure_review_status()
             command(["codex", "login", "status"])
             state.set_meta("runtime", {"pid": os.getpid(), "identity": process_identity(os.getpid()),
-                       "started_at": now(), "checkout": str(root), "project": f"{board.owner}/{board.number}", "model": args.model})
+                       "started_at": now(), "checkout": str(root), "project": f"{board.owner}/{board.number}", "model": args.model,
+                       "cli": installation_info()})
             state.set_meta("shutdown", {"immediate": False})
             stop = threading.Event()
             def stop_handler(_signum, _frame):

@@ -79,8 +79,8 @@ The Status field must already contain these names (case-insensitive):
 
 ```text
 Ready for work -> In Progress -> Agent review -> Human review
-                       ^              |
-                       +-- rework <---+
+      ^                              |              |
+      +------------ rework ----------+--------------+
 ```
 
 Rework goes back to **Ready for work** so workers only ever claim that status.
@@ -108,8 +108,32 @@ blocked for inspection instead of looping indefinitely.
 After a pass, the same reviewer slot completes any repository-required local
 preview/integration/playground handoff, then moves the issue to Human review.
 This keeps local integration changes serialized. The tool does not automatically
-merge PRs, publish, deploy, process Human review feedback or mark issues Done.
-Move an issue back to Ready for work to request another implementation pass.
+merge PRs, publish, deploy or mark issues Done.
+
+For issues Worklane has handed to Human review, new human issue comments, PR
+conversation comments, submitted review feedback (including changes requested),
+and inline review comments automatically request another implementation pass.
+Worklane waits for **five minutes with no new or edited feedback** before returning
+the issue to Ready for work. The next available worker moves it to In Progress,
+resumes the saved worker conversation on the same branch, and receives the complete
+feedback batch. Rework goes through agent review and the local handoff again;
+each human feedback batch starts a fresh allowance of three agent review rounds.
+
+Comments added while a batch waits for a worker extend the quiet period. Comments
+added after a worker starts remain unacknowledged and trigger another batch after
+the next handoff, so follow-ups over several minutes are retained. The baseline,
+pending batch and timer survive controller restarts in SQLite. Polling follows
+`--interval`; paused/stopped controllers do not process feedback. Approval reviews,
+bots, empty comments and Worklane's own marked comments do not trigger rework.
+Comments are treated as feedback without attempting to infer whether their text
+requests a change; use an approval review to approve without requesting rework.
+
+This applies only to saved Worklane assignments still in Human review (or a batch
+already queued in Ready for work), including question issues. Other statuses,
+closed issues and closed/merged PRs are preserved. Changed or retargeted PRs need
+inspection before feedback can restart work. On upgrade, existing Human review
+assignments use their last saved handoff time as the baseline. You can also move
+an owned issue back to Ready for work to request another implementation pass.
 If separate legacy feedback automations are enabled, avoid giving them concurrent
 ownership of an issue Worklane is handling.
 

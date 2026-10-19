@@ -67,6 +67,36 @@ worklane status --repo ~/code/another-project
 worklane pause --repo ~/code/another-project
 ```
 
+## Add issues
+
+Create a repository issue and put it on the selected project board:
+
+```sh
+worklane add --title "Fix the settings page" --description "Save changes when Apply is clicked."
+worklane add -t "Explore offline support" -d "Document caching options." --shaping
+worklane add -t "Early idea" --draft
+worklane add -t "Fix startup" --repo ~/code/another-project --project OWNER/NUMBER
+```
+
+New issues enter **Ready for work** by default, so a running controller may pick
+them up immediately. `--draft` and `--shaping` choose the board's **Draft** and
+**Shaping** statuses instead; these flags cannot be combined. Both still create
+regular repository issues. The title is required; the description is optional
+(empty by default), accepts multiline text, and also supports `--body` as an alias.
+Board selection follows the same rules as `check` and `run`.
+
+`add` requires authenticated `gh` with issue/project write access and the selected
+Status option already on the board (case-insensitive). It validates the destination
+before creating the issue and does not add or rename board fields. It does not
+require Codex, start workers, or change controller state. Adding an issue does not
+require the controller's other workflow statuses.
+
+Issue creation and board placement are separate GitHub operations. If placement
+fails, the command exits unsuccessfully and prints the created issue's URL. Keep
+that issue and finish its placement on the named board manually; rerunning `add`
+would create another issue. If creation itself times out, check GitHub before
+retrying because the request may already have succeeded.
+
 ## Board and handoff behavior
 
 The repository is inferred from the checkout's `origin` remote. Only github.com

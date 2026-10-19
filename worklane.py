@@ -493,8 +493,9 @@ class DatabaseLogWriter:
 
 
 class Board:
-    def __init__(self, repo, path, project=None):
+    def __init__(self, repo, path, project=None, *, required_statuses=(READY, PROGRESS, HUMAN)):
         self.repo, self.path = repo, path
+        self.required_statuses = required_statuses
         owner, name = repo.split("/")
         if project:
             project_owner, number = project.rsplit("/", 1)
@@ -526,9 +527,33 @@ class Board:
         if not self.field:
             raise RuntimeError("The selected project needs a single-select Status field.")
         self.options = {o["name"].casefold(): o["id"] for o in self.field["options"]}
-        for status in (READY, PROGRESS, HUMAN):
+        for status in self.required_statuses:
             if status.casefold() not in self.options:
                 raise RuntimeError(f"The selected board is missing status {status!r}.")
+
+    def add_issue(self, title, description, status=READY):
+        # Resolve the destination before creating anything on GitHub.
+        option = self.options.get(status.casefold())
+        if not option:
+            raise RuntimeError(f"The selected board is missing status {status!r}.")
+        url = command(["gh", "issue", "create", "--repo", self.repo,
+                       "--title", title, "--body-file", "-"], stdin=description)
+        try:
+            item = gh("project", "item-add", str(self.number), "--owner", self.owner,
+                      "--url", url, "--format", "json")
+            command(["gh", "project", "item-edit", "--id", item["id"],
+                     "--project-id", self.project["id"], "--field-id", self.field["id"],
+                     "--single-select-option-id", option])
+            after = next((i for i in self.items() if i["id"] == item["id"]), None)
+            if not after or after.get("status", "").casefold() != status.casefold():
+                raise RuntimeError(f"Could not verify board status {status!r}.")
+        except (RuntimeError, OSError, ValueError, KeyError, subprocess.TimeoutExpired) as error:
+            raise RuntimeError(
+                f"Issue created: {url}, but board placement in {self.owner}/{self.number} "
+                f"with status {status!r} failed: {error}. "
+                "Keep this issue and finish its board placement manually; do not rerun add."
+            ) from error
+        return url
 
     def ensure_review_status(self):
         if REVIEW.casefold() in self.options:
@@ -1054,10 +1079,15 @@ def repository(path):
 
 def parser():
     p = argparse.ArgumentParser(description="Three workers and one independent reviewer for a GitHub project board.")
-    p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "status", "logs", "pause", "resume", "stop", "retry"])
+    p.add_argument("action", nargs="?", default="run", choices=["run", "start", "check", "status", "logs", "pause", "resume", "stop", "retry", "add"])
     p.add_argument("number", nargs="?", type=int, help="Issue number for retry or logs")
     p.add_argument("--repo", default=".", help="Local repository checkout (default: current directory)")
     p.add_argument("--project", help="GitHub board OWNER/NUMBER; auto-detected when unambiguous")
+    p.add_argument("-t", "--title", help="With add: new issue title (required)")
+    p.add_argument("-d", "--description", "--body", help="With add: issue description (default: empty)")
+    destination = p.add_mutually_exclusive_group()
+    destination.add_argument("--draft", action="store_true", help="With add: use the board's Draft status")
+    destination.add_argument("--shaping", action="store_true", help="With add: use the board's Shaping status")
     p.add_argument("--model", default=MODEL, help=f"Codex model (default: {MODEL})")
     p.add_argument("--interval", type=int, default=60, help="Polling seconds (minimum 10)")
     p.add_argument("--once", action="store_true", help="Dispatch one batch, wait for it, then exit")
@@ -1075,7 +1105,19 @@ def main(argv=None):
             raise RuntimeError("--interval must be at least 10 seconds.")
         if args.now and args.action != "stop":
             raise RuntimeError("--now is only valid with stop.")
+        if args.action != "add" and (args.title is not None or args.description is not None or args.draft or args.shaping):
+            raise RuntimeError("--title, --description/--body, --draft and --shaping are only valid with add.")
+        if args.action == "add" and (not args.title or not args.title.strip() or args.number is not None):
+            raise RuntimeError("Use worklane add --title TITLE [--description DESCRIPTION] [--draft | --shaping].")
         repo, root, base = repository(Path(args.repo).expanduser())
+        if args.action == "add":
+            if not shutil.which("gh"):
+                raise RuntimeError("Required command missing: gh")
+            status = "Draft" if args.draft else "Shaping" if args.shaping else READY
+            board = Board(repo, root, args.project, required_statuses=(status,))
+            url = board.add_issue(args.title, args.description or "", status)
+            print(f"{url}\nAdded to {board.project['url']} with status {status}.")
+            return 0
         state = State(repo)
         if args.action == "run":
             sys.stdout = DatabaseLogWriter(state, "controller", None if args.background else original_stdout)

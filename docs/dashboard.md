@@ -11,8 +11,11 @@ Run `worklane tui` alongside the controller to view local SQLite state. Use
 | Right / Left or `l` / `h` | Expand / collapse to the issue |
 | Page Up / Page Down / End | Scroll the tail / return to following output |
 | `a` | Resume the selected saved Codex conversation after stopping Worklane |
+| `/` | Search session details and readable history; Enter searches, then opens a result |
 | `b`, Esc, Backspace or `q` | Return from logs to the overview |
 | `q` in the overview or Ctrl-C | Quit the dashboard |
+
+Search is literal and case-insensitive, including older invocations; results show up to 100 matches with bounded transcript context.
 
 The log view shows the latest 40 readable entries from the role's latest invocation; use
 `worklane logs NUMBER` for complete history. The transcript footer shows its saved session ID,

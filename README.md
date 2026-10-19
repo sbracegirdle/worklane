@@ -32,7 +32,7 @@ worklane board       # Open the project board in your web browser
 worklane run         # Foreground; Ctrl-C drains active jobs then exits
 ```
 
-`worklane` with no arguments is the same as `worklane run`. For background use:
+`worklane` opens the TUI; use `worklane run` for the foreground controller. For background use:
 
 ```sh
 worklane start       # Start a detached controller; returns immediately

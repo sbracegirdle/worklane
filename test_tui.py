@@ -190,6 +190,18 @@ class TuiTests(unittest.TestCase):
         self.assertEqual(before, self.state.all())
         resume.assert_not_called()
 
+    def test_search_input_and_historical_transcript_do_not_control_runner(self):
+        self.run_record(text="sxiB")
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        dashboard.control = Mock()
+        dashboard.open_page = Mock()
+        keys = [ord("/")] + list("sxiB") + [10, 10, ord("s"), ord("x"), ord("q"), ord("q"), ord("q")]
+        with patch.object(curses, "has_colors", return_value=False), patch.object(curses, "curs_set"), patch.object(curses, "set_escdelay"):
+            dashboard.run(Screen(keys))
+        self.assertEqual(dashboard.query, "sxiB")
+        dashboard.control.assert_not_called()
+        dashboard.open_page.assert_not_called()
+
     def test_search_no_matches_edit_cancel_and_restore_transcript(self):
         self.run_record(text="Current output")
         screen = Screen([ord("j"), 10, ord("/"), *"missing", 10, ord("/"), 27,
@@ -337,6 +349,9 @@ class TuiTests(unittest.TestCase):
             screen = Screen(size=size)
             dashboard.draw(screen, tui.snapshot(self.state))
             self.assertTrue(screen.frames)
+            if size[0] >= 12 and size[1] >= 50:
+                for control in ("s start", "x stop", "i issue", "B board", "q quit"):
+                    self.assertIn(control, screen.frames[-1])
         self.assertEqual(tui.clipped("你好world", 5), "你好w")
         paragraph = "Inspecting source before running tests"
         self.assertEqual("".join(tui.wrapped(paragraph, 20)), paragraph)
@@ -360,6 +375,10 @@ class TuiTests(unittest.TestCase):
         old = self.run_record(text="Historical terminal needle")
         self.state.finish_run(old, "completed")
         run = self.run_record(text="Inspecting source")
+        issue = {"number": 1, "title": "Task 1", "body": "Issue details from persistent cache", "comments": []}
+        self.state.set_meta("tui:issue:1", {"value": issue, "retry_at": time.time() + 60})
+        self.state.set_meta("tui:board:auto", {"value": {"url": "board-url", "items": [
+            {"status": "In Progress", "title": "Task 1", "content": issue}]}, "retry_at": time.time() + 60})
         master, slave = pty.openpty()
         self.addCleanup(os.close, master)
         self.addCleanup(os.close, slave)
@@ -391,6 +410,14 @@ class TuiTests(unittest.TestCase):
             output = until(b"Inspecting source")
             self.assertIn(b"WORKLANE", output)
             self.assertIn(b"[36m", output)  # Cyan activity indicators in a colour terminal.
+            os.write(master, b"B")
+            until(b"PROJECT BOARD")
+            os.write(master, b"\n")
+            until(b"Issue details from persistent cache")
+            os.write(master, b"b")
+            until(b"PROJECT BOARD")
+            os.write(master, b"b")
+            until(b"ISSUES & SESSIONS")
             self.state.append_log(run, "agent", "Fresh output from agent")
             until(b"Fresh output")
             os.write(master, b"j\n")
@@ -626,16 +653,177 @@ class TuiTests(unittest.TestCase):
              patch.object(w, "gh", side_effect=AssertionError("network used")), \
              patch.object(tui, "run_tui") as run:
             self.assertEqual(w.main(["tui", "--refresh", "0.5"]), 0)
-            run.assert_called_once_with(self.state, "owner/repo", .5, no_color=False)
+            options = {"project": None, "model": None, "interval": None, "once": None}
+            run.assert_called_once_with(self.state, "owner/repo", .5, no_color=False, root=self.tree, options=options)
+            run.reset_mock()
+            self.assertEqual(w.main([]), 0)
+            run.assert_called_once_with(self.state, "owner/repo", 1, no_color=False, root=self.tree, options=options)
             run.reset_mock()
             self.assertEqual(w.main(["tui", "--no-color"]), 0)
-            run.assert_called_once_with(self.state, "owner/repo", 1, no_color=True)
+            run.assert_called_once_with(self.state, "owner/repo", 1, no_color=True, root=self.tree, options=options)
+            run.reset_mock()
+            self.assertEqual(w.main(["tui", "--project", "owner/2", "--model", w.MODEL, "--interval", "60", "--once"]), 0)
+            run.assert_called_once_with(self.state, "owner/repo", 1, no_color=False, root=self.tree,
+                                        options={"project": "owner/2", "model": w.MODEL, "interval": 60, "once": True})
         with patch.object(tui.sys, "stdin", io.StringIO()), patch.object(tui.sys, "stdout", io.StringIO()):
             with self.assertRaisesRegex(RuntimeError, "interactive terminal"):
                 tui.run_tui(self.state, "owner/repo")
         for value in (0, -.1, 61, float("nan"), float("inf")):
             with self.assertRaisesRegex(RuntimeError, "--refresh"):
                 tui.run_tui(self.state, "owner/repo", value)
+
+    def wait_jobs(self, dashboard):
+        deadline = time.monotonic() + 5
+        while dashboard.jobs and time.monotonic() < deadline:
+            dashboard.poll()
+            time.sleep(.005)
+        self.assertFalse(dashboard.jobs, "background action did not complete")
+
+    def test_view_cache_persists_expires_and_retains_stale_content_on_failure(self):
+        loader = Mock(return_value={"body": "Saved description"})
+        cache = tui.ViewCache(self.state)
+        with patch.object(tui.time, "time", return_value=1000):
+            self.assertEqual(cache.read("issue:1", loader), (loader.return_value, ""))
+        with patch.object(tui.time, "time", return_value=1059):
+            self.assertEqual(tui.ViewCache(self.state).read("issue:1", loader), (loader.return_value, ""))
+        loader.assert_called_once()
+        loader.side_effect = RuntimeError("GitHub offline")
+        with patch.object(tui.time, "time", return_value=1060):
+            self.assertEqual(cache.read("issue:1", loader), ({"body": "Saved description"}, "GitHub offline"))
+        with patch.object(tui.time, "time", return_value=1119):
+            cache.read("issue:1", loader)
+        self.assertEqual(loader.call_count, 2)
+        loader.side_effect = None
+        loader.return_value = {"body": "Updated description"}
+        with patch.object(tui.time, "time", return_value=1120):
+            self.assertEqual(cache.read("issue:1", loader), (loader.return_value, ""))
+        self.assertEqual(loader.call_count, 3)
+
+    def test_views_share_controller_github_cooldown_and_paginate_comments(self):
+        issue = {"number": 7, "body": "Description"}
+        comments = [[{"body": "First"}], [{"body": "Last"}]]
+        with patch.object(w, "gh", side_effect=[issue, comments]) as gh:
+            self.assertEqual(tui.issue_view("owner/repo", 7)["comments"], comments[0] + comments[1])
+        self.assertEqual(gh.call_args_list[1].args,
+                         ("api", "repos/owner/repo/issues/7/comments?per_page=100", "--paginate", "--slurp"))
+        budget = w.GitHubBudget(self.state)
+        budget.record(w.GitHubRateLimit("rate limit exhausted", time.time() + 300))
+        with patch.object(w, "raw_command") as transport:
+            value, error = tui.ViewCache(self.state).read("issue:7", lambda: tui.issue_view("owner/repo", 7))
+        self.assertIsNone(value)
+        self.assertIn("rate limit", error)
+        transport.assert_not_called()
+
+    def test_board_view_is_read_only_and_uses_existing_paginated_intake(self):
+        with patch.object(w, "Board") as board:
+            board.return_value.project = {"url": "https://github.com/users/owner/projects/2"}
+            board.return_value.items.return_value = [{"content": {"number": 2}}]
+            view = tui.board_view("owner/repo", self.tree, "owner/2")
+        board.assert_called_once_with("owner/repo", self.tree, "owner/2", load_fields=False)
+        self.assertEqual(view["items"], [{"content": {"number": 2}}])
+        board.return_value.ensure_review_status.assert_not_called()
+
+    def test_controller_controls_reuse_cli_settings_and_preserve_graceful_stop(self):
+        self.state.set_meta("runtime", {"project": "owner/2", "model": "saved-model", "interval": 25, "once": False})
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1, root=self.tree,
+                                  options={"model": w.MODEL, "interval": 60, "project": None})
+        with patch.object(w, "command", return_value="Started") as command:
+            dashboard.control("start")
+            self.wait_jobs(dashboard)
+        argv = command.call_args.args[0]
+        self.assertEqual(argv[:5], [sys.executable, str(Path(w.__file__).resolve()), "start", "--repo", str(self.tree)])
+        self.assertEqual(argv[5:], ["--project", "owner/2", "--model", w.MODEL, "--interval", "60"])
+        self.assertEqual(dashboard.message, "Started")
+        with w.locked(self.state.path / "runner.lock"), patch.object(w, "command") as command:
+            dashboard.control("start")
+            self.assertIn("already running", dashboard.message)
+            command.assert_not_called()
+        with patch.object(w, "repository", return_value=("owner/repo", self.tree, "main")), \
+             patch.object(w, "State", return_value=self.state), patch.object(w, "gh") as gh, \
+             patch.object(w.os, "killpg") as killpg, patch.object(w.sys, "stdout", io.StringIO()):
+            self.assertEqual(w.main(["stop"]), 0)
+        self.assertTrue(self.state.paused())
+        self.assertTrue(self.state.get_meta("shutdown")["requested"])
+        self.assertFalse(self.state.get_meta("shutdown")["immediate"])
+        killpg.assert_not_called()
+        gh.assert_not_called()
+        with w.locked(self.state.path / "runner.lock"):
+            self.assertTrue(tui.snapshot(self.state)["stopping"])
+
+    def test_background_github_does_not_block_stop_navigation_or_quit(self):
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1, root=self.tree)
+        entered, release = threading.Event(), threading.Event()
+        def slow_board(*_):
+            entered.set()
+            release.wait(5)
+            return {"items": []}
+        with patch.object(tui, "board_view", side_effect=slow_board), \
+             patch.object(tui, "controller_action", return_value="Stopping") as control, \
+             patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+            try:
+                dashboard.open_page("board")
+                self.assertTrue(entered.wait(2))
+                screen = Screen([ord("b"), ord("x"), ord("q")])
+                dashboard.run(screen)
+                self.assertFalse(dashboard.page)
+                self.assertTrue(any("PROJECT BOARD" in frame for frame in screen.frames))
+            finally:
+                release.set()
+                self.wait_jobs(dashboard)
+        control.assert_called_once_with("stop", self.tree, {})
+
+    def test_board_issue_navigation_scrolling_cache_and_offline_fallback(self):
+        item = {"status": "Ready for work", "title": "Unclaimed issue", "content":
+                {"number": 9, "title": "Unclaimed issue", "body": "Cached body", "url": "issue-url"}}
+        self.state.set_meta("tui:board:auto", {"value": {"items": [item], "url": "board-url"},
+                                             "retry_at": time.time() + 60})
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        def keys():
+            yield ord("B")
+            self.wait_jobs(dashboard)
+            yield 10
+            self.wait_jobs(dashboard)
+            yield curses.KEY_END
+            yield curses.KEY_HOME
+            yield ord("b")
+            yield ord("b")
+            yield ord("i")  # Empty overview has no issue selection.
+            yield ord("q")
+        with patch.object(tui, "board_view") as board, patch.object(tui, "issue_view", side_effect=RuntimeError("offline")) as issue, \
+             patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+            screen = Screen(keys())
+            dashboard.run(screen)
+        board.assert_not_called()
+        issue.assert_called_once_with("owner/repo", 9)
+        self.assertTrue(any("ISSUE #9" in frame and "Cached body" in frame for frame in screen.frames))
+        self.assertTrue(any("Showing saved content. offline" in frame for frame in screen.frames))
+        self.assertGreaterEqual(sum("PROJECT BOARD" in frame for frame in screen.frames), 2)
+        self.assertFalse(self.state.all())  # Browsing never claims an unassigned board item.
+
+    def test_start_key_reports_errors_and_issue_view_reads_saved_task_comments(self):
+        self.state.save({"number": 1, "phase": "blocked", "error": "Prior blocker", "issue":
+                         {"title": "Task one", "body": "Description", "comments": [
+                             {"author": {"login": "reader"}, "body": "Human discussion"}]}})
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1, root=self.tree)
+        def keys():
+            yield ord("s")
+            self.wait_jobs(dashboard)
+            yield -1
+            yield ord("i")
+            self.wait_jobs(dashboard)
+            yield curses.KEY_NPAGE
+            yield curses.KEY_HOME
+            yield ord("q")
+            yield ord("q")
+        with patch.object(tui, "controller_action", side_effect=RuntimeError("Controller exited; see worklane logs.")) as control, \
+             patch.object(tui, "issue_view", side_effect=RuntimeError("offline")), \
+             patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+            screen = Screen(keys())
+            dashboard.run(screen)
+        control.assert_called_once_with("start", self.tree, {})
+        self.assertTrue(any("Controller exited" in frame for frame in screen.frames))
+        self.assertTrue(any("ISSUE #1" in frame and "Human discussion" in frame for frame in screen.frames))
+        self.assertEqual(self.state.load(1)["phase"], "blocked")
 
 
 if __name__ == "__main__":

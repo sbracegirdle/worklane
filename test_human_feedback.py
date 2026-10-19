@@ -249,6 +249,7 @@ class HumanFeedbackTests(unittest.TestCase):
         self.runner.backend.run.side_effect = [result(), result()]
         self.runner.verify_pr = Mock()
         self.runner.worktree = Mock(return_value=self.root)
+        self.runner.review_threads = Mock(return_value=[])
         self.runner.post = Mock()
         self.runner.pr.return_value["isDraft"] = False
         with patch.object(w, "command", side_effect=["a" * 40, ""]), \

@@ -8,39 +8,7 @@ dependencies. Linux and Python 3.11+ are currently supported.
 No API key is needed when Codex is already authenticated through your ChatGPT
 account. Worklane never stores access tokens.
 
-## Run in any project
-
-```sh
-cd ~/code/syntaxiser
-worklane check       # Read-only: show the inferred board, model and eligible queue
-worklane run         # Foreground; Ctrl-C drains active jobs then exits
-```
-
-`worklane` with no arguments is the same as `worklane run`. For background use:
-
-```sh
-worklane start       # Start a detached controller; returns immediately
-worklane status      # Print state, assignments, sessions and blockers
-worklane logs        # Read controller/agent logs from SQLite
-worklane logs 123    # Read logs for one issue
-worklane pause       # Stop all new dispatches; active workers/reviewer finish
-worklane resume      # Resume dispatching in the running controller
-worklane stop        # Pause dispatching, drain active jobs, then exit
-worklane stop --now  # Interrupt agents; saved conversations continue on next start
-```
-
-After `stop`, use `start` again; `resume` does not launch a stopped controller.
-Paused work may finish its current review/handoff and update the board. Workers
-that finish while paused wait in Agent review until dispatch resumes. No service
-is installed, and the controller does not start on login or reboot.
-
-Commands can target another checkout without changing directory:
-
-```sh
-worklane start --repo ~/code/another-project
-worklane status --repo ~/code/another-project
-worklane pause --repo ~/code/another-project
-```
+See the [README](../README.md#run) for basic usage and controller commands.
 
 ## Board and handoff behavior
 

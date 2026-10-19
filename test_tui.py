@@ -236,7 +236,7 @@ class TuiTests(unittest.TestCase):
         subprocess.run(["git", "init", "-q", str(self.tree)], check=True)
         subprocess.run(["git", "-C", str(self.tree), "remote", "add", "origin", "https://github.com/owner/repo.git"], check=True)
         env = {**os.environ, "TERM": "xterm-256color", "XDG_STATE_HOME": str(self.root)}
-        env.pop("NO_COLOR", None)
+        env["NO_COLOR"] = "1"  # A coloured dashboard is explicitly requested by default.
         process = subprocess.Popen([sys.executable, str(Path(w.__file__).resolve()), "tui", "--repo", str(self.tree), "--refresh", "0.1"],
                                    stdin=slave, stdout=slave, stderr=slave, env=env)
         def cleanup():
@@ -269,10 +269,119 @@ class TuiTests(unittest.TestCase):
             fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 28, 110, 0, 0))
             os.kill(process.pid, signal.SIGWINCH)
             until(b"LIVE SESSION LOG")
+            # All back keys must leave the session view, including after resize.
+            for key in (b"b", b"\x1b", b"q"):
+                os.write(master, key)
+                until(b"ISSUE / AGENT")
+                self.assertIsNone(process.poll())
+                if key != b"q":
+                    os.write(master, b"\n")
+                    until(b"LIVE SESSION LOG")
             os.write(master, b"q")
             self.assertEqual(process.wait(timeout=5), 0)
             self.assertTrue(self.state.running())
             self.assertFalse(self.state.paused())
+
+    def test_protocol_and_mcp_noise_do_not_replace_activity_or_fill_tail(self):
+        run = self.run_record(text="Useful agent activity")
+        warning = "2026-10-19T10:05:00Z WARN codex_mcp::rmcp_client: MCP server startup failed"
+        transport = "2026-10-19T10:05:00Z ERROR rmcp::transport::worker: worker quit with fatal"
+        for _ in range(60):
+            self.state.append_log(run, "stderr", warning)
+            self.state.append_log(run, "stderr", transport)
+            self.state.append_log(run, "agent", "item.started")
+            self.state.append_log(run, "agent", "item.completed")
+        data = tui.snapshot(self.state)
+        self.assertEqual(data["selected"]["snippet"], "Useful agent activity")
+        self.assertEqual([log["content"] for log in data["logs"]], ["Useful agent activity"])
+        self.state.append_log(run, "stderr", "Agent failed: required MCP tool unavailable")
+        self.assertIn("required MCP tool unavailable", tui.snapshot(self.state)["selected"]["snippet"])
+        self.assertTrue(any(log["content"] == warning for log in self.state.log_entries(1)))
+
+    def test_logs_default_to_readable_output_with_raw_opt_in(self):
+        run = self.run_record(text="Meaningful output")
+        warning = "2026-10-19T10:05:00Z WARN codex_mcp::rmcp_client: startup failed"
+        self.state.append_log(run, "stderr", warning)
+        self.state.append_log(run, "agent", "item.completed")
+        with patch.object(w, "repository", return_value=("owner/repo", self.tree, None)), \
+             patch.object(w, "State", return_value=self.state):
+            out = io.StringIO()
+            with patch.object(w.sys, "stdout", out):
+                self.assertEqual(w.main(["logs", "1"]), 0)
+            self.assertIn("Meaningful output", out.getvalue())
+            self.assertNotIn("item.completed", out.getvalue())
+            self.assertNotIn("codex_mcp", out.getvalue())
+            out = io.StringIO()
+            with patch.object(w.sys, "stdout", out):
+                self.assertEqual(w.main(["logs", "1", "--raw"]), 0)
+            self.assertIn("item.completed", out.getvalue())
+            self.assertIn("codex_mcp", out.getvalue())
+
+    def test_state_groups_and_selection_remain_visible_across_pages(self):
+        self.run_record(1)
+        self.state.save({"number": 2, "phase": "blocked", "issue": {"title": "Blocked task"}})
+        run = self.run_record(3)
+        self.state.finish_run(run, "completed")
+        task = self.state.load(3)
+        task["phase"] = "human_review"
+        self.state.save(task)
+        with w.locked(self.state.path / "runner.lock"):
+            data = tui.snapshot(self.state)
+            self.assertEqual([tui.row_group(r) for r in data["rows"]], ["running", "blocked", "human_review"])
+            dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
+            screen = Screen(size=(28, 110))
+            dashboard.draw(screen, data)
+            frame = screen.frames[-1]
+            self.assertLess(frame.index("RUNNING  (1)"), frame.index("BLOCKED  (1)"))
+            self.assertLess(frame.index("BLOCKED  (1)"), frame.index("HUMAN REVIEW  (1)"))
+            # Small pages repeat the group header and retain the selected row.
+            for row in data["rows"]:
+                for size in ((14, 80), (12, 50)):
+                    data["selected"] = row
+                    screen = Screen(size=size)
+                    dashboard.draw(screen, data)
+                    self.assertIn(f"#{row['number']}", screen.lines[5 if size[0] == 14 else 4])
+                    if size[0] == 14:
+                        self.assertIn(tui.row_group(row).replace("_", " ").upper(), screen.lines[4])
+
+    def test_back_keys_restore_overview_even_during_database_errors(self):
+        self.run_record()
+        for key in (27, 10, 13, curses.KEY_ENTER, ord("b"), ord("q"), 8, 127, curses.KEY_BACKSPACE):
+            with self.subTest(key=key):
+                screen = Screen([10, key, ord("q")])
+                dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
+                with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+                    dashboard.run(screen)
+                self.assertIn("LIVE SESSION LOG", screen.frames[1])
+                self.assertIn("ISSUE / AGENT", screen.frames[2])
+                self.assertFalse(dashboard.detail)
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
+        dashboard.detail = True
+        screen = Screen([ord("b"), ord("q")])
+        with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False), \
+             patch.object(tui, "snapshot", side_effect=tui.sqlite3.OperationalError("busy")):
+            dashboard.run(screen)
+        self.assertFalse(dashboard.detail)
+
+    def test_interactive_resume_returns_to_overview_and_restores_keypad(self):
+        self.run_record()
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
+        screen = Screen([10, ord("a"), ord("q")])
+        with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False), \
+             patch.object(curses, "def_prog_mode"), patch.object(curses, "endwin"), \
+             patch.object(curses, "reset_prog_mode"), patch.object(curses, "flushinp"), \
+             patch.object(tui, "resume_session") as resume:
+            dashboard.run(screen)
+        resume.assert_called_once_with(self.state, 1, "worker")
+        self.assertIn("ISSUE / AGENT", screen.frames[2])
+        self.assertFalse(dashboard.detail)
+
+    def test_explicit_monochrome_does_not_initialize_colours(self):
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1, no_color=True)
+        with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=True), \
+             patch.object(curses, "start_color") as start:
+            dashboard.run(Screen())
+        start.assert_not_called()
 
     def test_event_summaries_include_commands_file_changes_and_errors(self):
         self.assertEqual(w.event_text({"type": "item.completed", "item": {"type": "file_change", "changes": [{"path": "main.py"}]}}), "Files: main.py")
@@ -284,7 +393,10 @@ class TuiTests(unittest.TestCase):
              patch.object(w, "gh", side_effect=AssertionError("network used")), \
              patch.object(tui, "run_tui") as run:
             self.assertEqual(w.main(["tui", "--refresh", "0.5"]), 0)
-            run.assert_called_once_with(self.state, "owner/repo", .5)
+            run.assert_called_once_with(self.state, "owner/repo", .5, no_color=False)
+            run.reset_mock()
+            self.assertEqual(w.main(["tui", "--no-color"]), 0)
+            run.assert_called_once_with(self.state, "owner/repo", 1, no_color=True)
         with patch.object(tui.sys, "stdin", io.StringIO()), patch.object(tui.sys, "stdout", io.StringIO()):
             with self.assertRaisesRegex(RuntimeError, "interactive terminal"):
                 tui.run_tui(self.state, "owner/repo")

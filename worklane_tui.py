@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import math
-import os
 from pathlib import Path
 import shutil
 import sqlite3
@@ -11,16 +10,29 @@ import sys
 import unicodedata
 import uuid
 
-from worklane import ROLES, WORKERS, locked, process_identity
+from worklane import ROLES, WORKERS, locked, process_identity, readable_log
 
 
-PROTOCOL = ("thread.started", "turn.started", "turn.completed", "item.started", "item.completed", "item.updated")
+GROUP_ORDER = ("running", "blocked", "failed", "interrupted", "retry", "awaiting_review", "human_review", "completed", "queued")
+
+
+def row_group(row):
+    if row["active"]:
+        return "running"
+    status = row["status"]
+    return "queued" if status in {"claiming", "building", "reviewing", "finalizing", "ready"} else status
+
+
+def group_rank(row):
+    group = row_group(row)
+    return (GROUP_ORDER.index(group) if group in GROUP_ORDER else len(GROUP_ORDER), group, row["number"], row["role"])
 
 
 def snapshot(state, selected=None):
     """One consistent read, latest invocation per issue/role, bounded log tails."""
     busy = state.running()
     with state.connect() as db:
+        db.create_function("readable_log", 2, readable_log, deterministic=True)
         db.execute("BEGIN")
         control = state._get(db, "meta:control", {})
         tasks = {r[0]: state._get(db, f"task:{r[0]}", {}) for r in db.execute("SELECT number FROM tasks ORDER BY number")}
@@ -46,8 +58,8 @@ def snapshot(state, selected=None):
                 status = "interrupted"
             latest = None
             if run:
-                latest = db.execute("""SELECT content,created_at FROM logs WHERE run_id=?
-                    AND content NOT IN (?,?,?,?,?,?) ORDER BY id DESC LIMIT 1""", (run["id"], *PROTOCOL)).fetchone()
+                latest = db.execute("""SELECT readable_log(stream,content) AS content,created_at FROM logs WHERE run_id=?
+                    AND readable_log(stream,content) != '' ORDER BY id DESC LIMIT 1""", (run["id"],)).fetchone()
             current_role = ROLES.get(task.get("active_stage", task.get("resume_stage", "build")), "worker")
             if current_role == role and task.get("phase") in {"blocked", "interrupted", "retry", "awaiting_review", "human_review"}:
                 status = task["phase"]
@@ -56,14 +68,14 @@ def snapshot(state, selected=None):
                          "run": run, "session": session, "active": active, "status": status,
                          "snippet": latest["content"] if latest else "Waiting for activity…",
                          "activity_at": latest["created_at"] if latest else run.get("started_at", "")})
-        rows.sort(key=lambda row: (not row["active"], row["status"] != "blocked", row["number"], row["role"]))
+        rows.sort(key=group_rank)
         chosen = next((row for row in rows if row["key"] == selected), rows[0] if rows else None)
         if chosen and chosen["run"]:
-            logs = db.execute("SELECT * FROM logs WHERE run_id=? ORDER BY id DESC LIMIT 40", (chosen["run"]["id"],)).fetchall()
+            logs = db.execute("SELECT id,run_id,stream,readable_log(stream,content) AS content,created_at FROM logs WHERE run_id=? AND readable_log(stream,content) != '' ORDER BY id DESC LIMIT 40", (chosen["run"]["id"],)).fetchall()
         elif chosen:
             logs = []  # Never attribute unowned/controller output to a pending role.
         else:
-            logs = db.execute("SELECT * FROM logs WHERE run_id IS NULL ORDER BY id DESC LIMIT 40").fetchall()
+            logs = db.execute("SELECT id,run_id,stream,readable_log(stream,content) AS content,created_at FROM logs WHERE run_id IS NULL AND readable_log(stream,content) != '' ORDER BY id DESC LIMIT 40").fetchall()
         return {"busy": busy, "paused": control.get("paused", False),
                 "rows": rows, "selected": chosen,
                 "logs": [dict(row) for row in reversed(logs)]}
@@ -129,9 +141,10 @@ def clipped(value, width):
 
 
 class Dashboard:
-    def __init__(self, curses, state, repo, refresh):
+    def __init__(self, curses, state, repo, refresh, *, no_color=False):
         self.curses, self.state, self.repo, self.refresh = curses, state, repo, refresh
         self.selected, self.detail, self.offset = None, False, 0
+        self.no_color = no_color
         self.message = "Enter: follow selected session live. a: interactive resume after stopping Worklane."
         self.colors = {}
 
@@ -164,21 +177,39 @@ class Dashboard:
         chosen = data["selected"]
         if self.detail:
             label = "SESSION" if chosen else "CONTROLLER"
-            self.put(screen, 3, f" LIVE {label} LOG  ·  Esc/Enter returns  ·  PgUp/PgDn scroll  ·  End follows", c.A_BOLD)
+            self.put(screen, 3, f" LIVE {label} LOG  ·  b/Esc/Enter/q: back  ·  PgUp/PgDn scroll", c.A_BOLD)
         else:
             self.put(screen, 3, " ISSUE / AGENT         STATE             ACTIVITY", c.A_BOLD)
         body_bottom = max(5, height - 7)
         if not self.detail:
-            capacity = max(1, (body_bottom - 4) // 2)
-            index = next((i for i, r in enumerate(data["rows"]) if chosen and r["key"] == chosen["key"]), 0)
-            start = (index // capacity) * capacity
-            for i, row in enumerate(data["rows"][start:start + capacity]):
+            capacity = max(1, body_bottom - 4)
+            pages, page_keys, group = [[]], [set()], None
+            for row in data["rows"]:
+                current = row_group(row)
+                header = current != group or not pages[-1]
+                needed = 2 + int(header)
+                if pages[-1] and len(pages[-1]) + needed > capacity:
+                    pages.append([])
+                    page_keys.append(set())
+                    header = True
                 selected = chosen and row["key"] == chosen["key"]
-                attr = self.tone(row["status"]) | (c.A_REVERSE if selected else 0)
+                attr = self.tone(current) | (c.A_BOLD if selected else 0)
                 agent = row["task"].get("slot", row["role"]) if row["active"] else row["role"]
                 label = f"{'›' if selected else ' '} #{row['number']} {agent}"
-                self.put(screen, 4 + i * 2, f"{label:<22} {row['status']:<17} {plain(row['snippet'])}", attr)
-                self.put(screen, 5 + i * 2, f"  {row['title']}")
+                if capacity < 3:
+                    pages[-1].append((f"{label} · {current.replace('_', ' ')}", attr))
+                else:
+                    if header:
+                        count = sum(row_group(r) == current for r in data["rows"])
+                        pages[-1].append((f" {current.replace('_', ' ').upper()}  ({count})", c.A_BOLD | self.tone(current)))
+                    pages[-1].append((f"{label:<22} {row['status']:<17} {plain(row['snippet'])}", attr))
+                    pages[-1].append((f"  {row['title']}", self.tone(current)))
+                page_keys[-1].add(row["key"])
+                group = current
+            page = next((i for i, keys in enumerate(page_keys) if chosen and chosen["key"] in keys), 0)
+            self.put(screen, 2, f" State groups · page {page + 1}/{len(pages)} · ↑/↓ selects across groups", self.colors.get("live", 0))
+            for y, (text, style) in enumerate(pages[page], 4):
+                self.put(screen, y, text, style)
             if not data["rows"]:
                 self.put(screen, 4, " No assignments yet. Start Worklane in another terminal to watch agents here.")
         else:
@@ -203,7 +234,7 @@ class Dashboard:
         else:
             self.put(screen, body_bottom + 1, f" Database: {self.state.database}")
         self.put(screen, height - 2, f" {self.message}", self.colors.get("warn", 0))
-        self.put(screen, height - 1, " ↑/↓ j/k select · Enter logs · a resume · q quit · refresh " + f"{self.refresh:g}s")
+        self.put(screen, height - 1, (" b/Esc/Enter/q back · PgUp/PgDn scroll · End follow · refresh " if self.detail else " ↑/↓ j/k select · Enter logs · a resume · q quit · refresh ") + f"{self.refresh:g}s")
         screen.refresh()
 
     def run(self, screen):
@@ -212,7 +243,7 @@ class Dashboard:
             c.curs_set(0)
         except c.error:
             pass
-        if c.has_colors() and "NO_COLOR" not in os.environ:
+        if c.has_colors() and not self.no_color:
             c.start_color()
             background = c.COLOR_BLACK
             try:
@@ -223,30 +254,30 @@ class Dashboard:
             for i, (name, color) in enumerate((("live", c.COLOR_CYAN), ("good", c.COLOR_GREEN), ("warn", c.COLOR_YELLOW), ("bad", c.COLOR_RED)), 1):
                 c.init_pair(i, color, background)
                 self.colors[name] = c.color_pair(i)
+        c.set_escdelay(25)
         screen.keypad(True)
         screen.timeout(max(1, int(self.refresh * 1000)))
         while True:
+            data, chosen = None, None
             try:
                 data = snapshot(self.state, self.selected)
+                chosen = data["selected"]
+                self.selected = chosen["key"] if chosen else None
+                self.draw(screen, data)
             except sqlite3.Error as error:
                 self.message = f"Database temporarily unavailable: {error}"
-                key = screen.getch()
-                if key in (ord("q"), 27):
-                    return
-                continue
-            chosen = data["selected"]
-            self.selected = chosen["key"] if chosen else None
-            self.draw(screen, data)
+                self.put(screen, screen.getmaxyx()[0] - 2, self.message, self.colors.get("bad", 0))
+                screen.refresh()
             key = screen.getch()
-            if key == ord("q"):
-                return
-            if key == 27:
+            if key in (27, ord("b"), ord("q"), 8, 127, c.KEY_BACKSPACE):
                 if self.detail:
                     self.detail, self.offset = False, 0
-                else:
+                elif key == ord("q"):
                     return
+                continue
             if key in (10, 13, c.KEY_ENTER):
                 self.detail, self.offset = not self.detail, 0
+                continue
             if self.detail:
                 if key == c.KEY_PPAGE:
                     self.offset += max(1, screen.getmaxyx()[0] - 12)
@@ -273,10 +304,14 @@ class Dashboard:
                     self.message = str(error)
                 finally:
                     c.reset_prog_mode()
+                    c.flushinp()
+                    self.detail, self.offset = False, 0
+                    screen.keypad(True)
+                    screen.timeout(max(1, int(self.refresh * 1000)))
                     screen.clear()
 
 
-def run_tui(state, repo, refresh=1):
+def run_tui(state, repo, refresh=1, *, no_color=False):
     if not math.isfinite(refresh) or not .1 <= refresh <= 60:
         raise RuntimeError("--refresh must be between 0.1 and 60 seconds.")
     if not sys.stdin.isatty() or not sys.stdout.isatty():
@@ -286,7 +321,7 @@ def run_tui(state, repo, refresh=1):
     except ImportError:
         raise RuntimeError("This Python build has no curses support; use worklane status or worklane logs.") from None
     try:
-        curses.wrapper(Dashboard(curses, state, repo, refresh).run)
+        curses.wrapper(Dashboard(curses, state, repo, refresh, no_color=no_color).run)
     except KeyboardInterrupt:
         pass  # Quitting a view must never stop the controller.
     except curses.error as error:

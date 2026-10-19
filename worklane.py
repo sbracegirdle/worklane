@@ -173,6 +173,25 @@ def event_text(event):
     return event.get("message") or error or event.get("type", "unknown")
 
 
+PROTOCOL = {"thread.started", "turn.started", "turn.completed", "item.started", "item.completed", "item.updated"}
+ANSI_ESCAPE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
+MCP_DIAGNOSTIC = re.compile(r"^\d{4}-\d{2}-\d{2}T\S+\s+(?:WARN|ERROR|INFO|DEBUG|TRACE)\s+(?:codex_mcp|codex_rmcp_client|rmcp)::")
+
+
+def readable_log(stream, content):
+    """Hide transport diagnostics and event markers while retaining raw storage."""
+    lines = []
+    for line in str(content).splitlines():
+        line = ANSI_ESCAPE.sub("", line)
+        if line.strip() in PROTOCOL:
+            continue
+        if stream in {"stderr", "controller-error"} and MCP_DIAGNOSTIC.match(line.strip()):
+            continue
+        lines.append(line)
+    result = "\n".join(lines)
+    return result if result.strip() else ""
+
+
 class State:
     """All durable Worklane state, including structured events and logs, is SQLite."""
     VERSION = 2
@@ -1081,6 +1100,8 @@ def parser():
     p.add_argument("--once", action="store_true", help="Dispatch one batch, wait for it, then exit")
     p.add_argument("--now", action="store_true", help="With stop: terminate active agents as well")
     p.add_argument("--refresh", type=float, default=1, help="TUI refresh seconds (0.1 to 60; default 1)")
+    p.add_argument("--no-color", action="store_true", help="Disable TUI colours")
+    p.add_argument("--raw", action="store_true", help="With logs: include protocol events and MCP diagnostics")
     p.add_argument("--background", action="store_true", help=argparse.SUPPRESS)
     return p
 
@@ -1110,11 +1131,13 @@ def main(argv=None):
         args.base = base
         if args.action == "tui":
             from worklane_tui import run_tui
-            run_tui(state, repo, args.refresh)
+            run_tui(state, repo, args.refresh, no_color=args.no_color)
             return 0
         if args.action == "logs":
             for entry in state.log_entries(args.number):
-                print(f"{entry['created_at']} [{entry['stream']}] {entry['content']}")
+                content = entry["content"] if args.raw else readable_log(entry["stream"], entry["content"])
+                if content:
+                    print(f"{entry['created_at']} [{entry['stream']}] {content}")
             return 0
         if args.action == "status":
             runtime = state.get_meta("runtime", {})

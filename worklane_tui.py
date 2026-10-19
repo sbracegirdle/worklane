@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import math
+import os
 from pathlib import Path
 import shutil
 import sqlite3
@@ -425,10 +426,14 @@ class Dashboard:
                           (speaker, self.colors.get(kind, 0) | c.A_BOLD)])
             position = search_position(plain(content), plain(self.search_query).strip().casefold()) if self.anchor_log is not None and log.get("id") == self.anchor_log else -1
             for raw_line, line in zip(content.splitlines(keepends=True), content.splitlines()):
-                if 0 <= position < len(plain(raw_line)) and anchor is None:
-                    anchor = len(lines) + len(wrapped(plain(line)[:position], width)) - 1
+                part_start = 0
                 for part in wrapped(line, width):
+                    if anchor is None and part_start <= position < part_start + len(part):
+                        anchor = len(lines)
                     lines.append([("  │ ", self.colors.get(kind, 0)), (part, self.transcript_style(line, kind))])
+                    part_start += len(part)
+                if anchor is None and 0 <= position < len(plain(raw_line)):
+                    anchor = len(lines) - 1  # A match starting on a line separator.
                 position -= len(plain(raw_line))
             lines.append([])
         capacity = max(1, bottom - 4)
@@ -507,7 +512,7 @@ class Dashboard:
             c.curs_set(0)
         except c.error:
             pass
-        if c.has_colors() and not self.no_color:
+        if c.has_colors() and not self.no_color and not os.environ.get("NO_COLOR"):
             c.start_color()
             background = c.COLOR_BLACK
             try:

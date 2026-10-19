@@ -79,6 +79,28 @@ class AddIssueTests(unittest.TestCase):
                 self.assertEqual(self.command.call_args_list[-2].args[0][:3], ["gh", "issue", "create"])
                 self.assertEqual(self.command.call_args_list[-2].kwargs["stdin"], "")
 
+    def test_concurrent_pickup_of_ready_issue_succeeds_without_resetting_status(self):
+        for status in (w.PROGRESS, w.REVIEW, w.HUMAN, w.PROGRESS.swapcase()):
+            with self.subTest(status=status):
+                self.command.reset_mock()
+                self.status = status
+                self.assertEqual(w.main(["add", "-t", "Concurrent pickup"]), 0)
+                self.assertEqual(self.errors.getvalue(), "")
+                self.assertIn(self.url, self.output.getvalue())
+                # The initial Ready placement is the only status write; never
+                # rewind a controller that has already picked up the issue.
+                edits = [c.args[0] for c in self.command.call_args_list
+                         if c.args[0][:3] == ["gh", "project", "item-edit"]]
+                self.assertEqual(len(edits), 1)
+                self.assertEqual(edits[0][-1], "ready-id")
+
+    def test_workflow_progress_does_not_verify_draft_or_shaping_placement(self):
+        self.status = w.PROGRESS
+        for modifier in ("--draft", "--shaping"):
+            with self.subTest(modifier=modifier):
+                self.assertEqual(w.main(["add", "-t", "Unverified placement", modifier]), 1)
+                self.assertIn("Could not verify board status", self.errors.getvalue())
+
     def test_repo_and_explicit_project_are_honored(self):
         self.assertEqual(w.main(["add", "-t", "Title", "--repo", "/other-checkout", "--project", "owner/2", "--body", "Body"]), 0)
         self.repository.assert_called_once_with(Path("/other-checkout"))

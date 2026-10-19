@@ -79,9 +79,11 @@ worklane add -t "Fix startup" --repo ~/code/another-project --project OWNER/NUMB
 ```
 
 New issues enter **Ready for work** by default, so a running controller may pick
-them up immediately. `--draft` and `--shaping` choose the board's **Draft** and
-**Shaping** statuses instead; these flags cannot be combined. Both still create
-regular repository issues. The title is required; the description is optional
+them up immediately. If pickup advances the issue to In Progress, Agent review,
+or Human review before verification, `add` still reports successful initial
+placement and preserves the newer status. `--draft` and `--shaping` choose the
+board's **Draft** and **Shaping** statuses instead; these flags cannot be combined.
+Both still create regular repository issues. The title is required; the description is optional
 (empty by default), accepts multiline text, and also supports `--body` as an alias.
 Board selection follows the same rules as `check` and `run`.
 

@@ -545,7 +545,12 @@ class Board:
                      "--project-id", self.project["id"], "--field-id", self.field["id"],
                      "--single-select-option-id", option])
             after = next((i for i in self.items() if i["id"] == item["id"]), None)
-            if not after or after.get("status", "").casefold() != status.casefold():
+            verified_statuses = {status.casefold()}
+            if status.casefold() == READY.casefold():
+                # The successful Ready write can be picked up before this read.
+                # Accept workflow progress without rewinding the controller.
+                verified_statuses.update(s.casefold() for s in (PROGRESS, REVIEW, HUMAN))
+            if not after or after.get("status", "").casefold() not in verified_statuses:
                 raise RuntimeError(f"Could not verify board status {status!r}.")
         except (RuntimeError, OSError, ValueError, KeyError, subprocess.TimeoutExpired) as error:
             raise RuntimeError(
@@ -1116,7 +1121,7 @@ def main(argv=None):
             status = "Draft" if args.draft else "Shaping" if args.shaping else READY
             board = Board(repo, root, args.project, required_statuses=(status,))
             url = board.add_issue(args.title, args.description or "", status)
-            print(f"{url}\nAdded to {board.project['url']} with status {status}.")
+            print(f"{url}\nAdded to {board.project['url']} with initial status {status}.")
             return 0
         state = State(repo)
         if args.action == "run":

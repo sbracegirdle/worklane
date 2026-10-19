@@ -1,5 +1,7 @@
 import argparse
 import copy
+from contextlib import redirect_stderr, redirect_stdout
+import io
 from pathlib import Path
 import subprocess
 import tempfile
@@ -35,6 +37,104 @@ class FakeBoard:
             raise RuntimeError("Human changed the board")
         self.moves.append((target["content"]["number"], status))
         target["status"] = status
+
+
+class BoardCommandTests(unittest.TestCase):
+    def setUp(self):
+        self.root = Path("/checkout")
+        self.project = {"number": 7, "title": "repo", "closed": False,
+                        "owner": {"login": "board-owner"},
+                        "url": "https://github.com/users/board-owner/projects/7"}
+        self.stdout, self.stderr = io.StringIO(), io.StringIO()
+        patches = {
+            "repository": {"return_value": ("owner/repo", self.root, None)},
+            "graphql": {"return_value": {"repository": {"projectsV2": {"nodes": [self.project]}}}},
+            "gh": {"side_effect": AssertionError("unexpected GitHub request")},
+            "command": {"return_value": ""},
+            "State": {"side_effect": AssertionError("board must not touch controller state")},
+        }
+        for name, kwargs in patches.items():
+            patcher = patch.object(w, name, **kwargs)
+            setattr(self, name, patcher.start())
+            self.addCleanup(patcher.stop)
+        patcher = patch.object(w.shutil, "which", side_effect=lambda name: "/bin/gh" if name == "gh" else None)
+        self.which = patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def run_board(self, *args):
+        with redirect_stdout(self.stdout), redirect_stderr(self.stderr):
+            return w.main(["board", *args])
+
+    def assert_opened(self):
+        self.command.assert_called_once_with(
+            ["gh", "project", "view", "7", "--owner", "board-owner", "--web"], cwd=self.root)
+        self.assertIn(self.project["url"], self.stdout.getvalue())
+        self.State.assert_not_called()
+        self.which.assert_called_once_with("gh")
+
+    def test_opens_inferred_board_without_codex_or_workflow_fields(self):
+        self.assertEqual(self.run_board(), 0)
+        self.assert_opened()
+        self.gh.assert_not_called()
+
+    def test_explicit_project_and_checkout(self):
+        self.gh.side_effect = None
+        self.gh.return_value = self.project
+        self.assertEqual(self.run_board("--repo", "/another-checkout", "--project", "board-owner/7"), 0)
+        self.repository.assert_called_once_with(Path("/another-checkout"))
+        self.graphql.assert_not_called()
+        self.gh.assert_called_once_with("project", "view", "7", "--owner", "board-owner", "--format", "json")
+        self.assert_opened()
+
+    def test_prefers_linked_board_matching_repository_name(self):
+        other = dict(self.project, title="Other", number=8)
+        self.graphql.return_value["repository"]["projectsV2"]["nodes"].append(other)
+        self.assertEqual(self.run_board(), 0)
+        self.assert_opened()
+
+    def test_falls_back_to_owner_projects(self):
+        self.graphql.return_value["repository"]["projectsV2"]["nodes"] = []
+        self.gh.side_effect = None
+        self.gh.return_value = {"projects": [self.project]}
+        self.assertEqual(self.run_board(), 0)
+        self.gh.assert_called_once_with("project", "list", "--owner", "owner", "--limit", "100", "--format", "json")
+        self.assert_opened()
+
+    def test_no_board_or_ambiguous_board_does_not_open_browser(self):
+        for projects in ([], [dict(self.project, title="One"), dict(self.project, title="Two", number=8)]):
+            with self.subTest(projects=projects):
+                self.graphql.return_value["repository"]["projectsV2"]["nodes"] = projects
+                self.gh.side_effect = None
+                self.gh.return_value = {"projects": []}
+                self.assertEqual(self.run_board(), 1)
+                self.assertIn("--project OWNER/NUMBER", self.stderr.getvalue())
+                self.command.assert_not_called()
+                self.State.assert_not_called()
+
+    def test_github_lookup_failure_is_reported(self):
+        self.graphql.side_effect = RuntimeError("authentication required")
+        self.assertEqual(self.run_board(), 1)
+        self.assertIn("authentication required", self.stderr.getvalue())
+        self.command.assert_not_called()
+
+    def test_browser_failure_is_reported(self):
+        self.command.side_effect = RuntimeError("gh failed: browser unavailable")
+        self.assertEqual(self.run_board(), 1)
+        self.assertIn("browser unavailable", self.stderr.getvalue())
+        self.assertEqual(self.stdout.getvalue(), "")
+
+    def test_missing_github_cli_is_reported(self):
+        self.which.side_effect = None
+        self.which.return_value = None
+        self.assertEqual(self.run_board(), 1)
+        self.assertIn("Required command missing: gh", self.stderr.getvalue())
+        self.graphql.assert_not_called()
+        self.command.assert_not_called()
+
+    def test_controller_board_still_loads_workflow_fields_by_default(self):
+        with patch.object(w.Board, "refresh_fields") as refresh:
+            w.Board("owner/repo", self.root)
+        refresh.assert_called_once_with()
 
 
 class WorklaneTests(unittest.TestCase):

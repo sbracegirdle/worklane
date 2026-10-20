@@ -53,13 +53,15 @@ def issue_view(repo, number):
     return issue
 
 
-def board_view(repo, root, project):
-    board = worklane.Board(repo, root, project, load_fields=False)
+def board_view(repo, root, project, *, dangerously_allow_public_board=False):
+    board = worklane.Board(repo, root, project, load_fields=False,
+                           dangerously_allow_public_board=dangerously_allow_public_board)
     return {"url": board.project["url"], "project": f"{board.owner}/{board.number}", "items": board.items()}
 
 
-def load_editor(repo, root, project, number=None):
-    board = worklane.Board(repo, root, project, required_statuses=())
+def load_editor(repo, root, project, number=None, *, dangerously_allow_public_board=False):
+    board = worklane.Board(repo, root, project, required_statuses=(),
+                           dangerously_allow_public_board=dangerously_allow_public_board)
     statuses = [option["name"] for option in board.field["options"]]
     if not statuses:
         raise RuntimeError("The board has no Status options.")
@@ -79,6 +81,7 @@ def load_editor(repo, root, project, number=None):
 def save_editor(repo, editor):
     """Preflight stale selections and preserve partial-write recovery information."""
     board, item = editor["board"], editor["item"]
+    board.require_safe()
     title, body, status = editor["title"].strip(), editor["body"], editor["status"]
     if not title:
         raise ValueError("Title is required.")
@@ -125,6 +128,10 @@ def controller_action(action, root, options):
     args = [sys.executable, str(Path(worklane.__file__).resolve()), "stop" if action == "stop-now" else action, "--repo", str(root)]
     if action == "stop-now":
         args.append("--now")
+    if options.get("dangerously_allow_public_board"):
+        args.append("--dangerously-allow-public-board")
+    if action in {"resume", "retry"} and options.get("project"):
+        args.extend(["--project", options["project"]])
     if action == "start":
         for name in ("project", "model", "interval", "workers", "effort", *[key for key in worklane.harness_option_names() if key != "model"]):
             if options.get(name) is not None:
@@ -227,7 +234,7 @@ def snapshot(state, selected=None):
                 "logs": [dict(row) for row in reversed(logs)]}
 
 
-def resume_session(state, number, role, *, invoke=None):
+def resume_session(state, number, role, *, invoke=None, options=None):
     """Hold the controller lock throughout interactive use, including orphan safety."""
     invoke = invoke or subprocess.run
     with locked(state.path / "runner.lock", blocking=False) as fd:
@@ -244,6 +251,10 @@ def resume_session(state, number, role, *, invoke=None):
                 raise RuntimeError("An agent process is still alive. Stop Worklane and wait before resuming.")
         if not shutil.which(harness.name):
             raise RuntimeError(f"Required command missing: {harness.name}")
+        options = options or {}
+        project = options.get("project") or state.get_meta("runtime", {}).get("project") or worklane.load_config(tree)["project"] or None
+        worklane.Board(state.repo, tree, project, load_fields=False,
+                       dangerously_allow_public_board=bool(options.get("dangerously_allow_public_board")))
         environment = harness.environment()
         kwargs = {"env": environment} if environment is not None else {}
         result = invoke(harness.resume_args(session), cwd=tree, pass_fds=(fd,), **kwargs)
@@ -532,7 +543,8 @@ class Dashboard:
                 self.message = "Tab changes fields; F2 saves; Esc cancels."
         def load():
             try:
-                return self.github(lambda: load_editor(self.repo, self.root, project, number))
+                return self.github(lambda: load_editor(self.repo, self.root, project, number,
+                    **({"dangerously_allow_public_board": True} if self.options.get("dangerously_allow_public_board") else {})))
             except (RuntimeError, OSError, ValueError, KeyError, subprocess.TimeoutExpired):
                 editor["loading"] = False
                 editor["failed"] = True
@@ -702,7 +714,8 @@ class Dashboard:
         if page["kind"] == "issue":
             loader = lambda: issue_view(self.repo, page["number"])
         else:
-            loader = lambda: board_view(self.repo, self.root, page["project"])
+            loader = lambda: board_view(self.repo, self.root, page["project"],
+                **({"dangerously_allow_public_board": True} if self.options.get("dangerously_allow_public_board") else {}))
         def done(result):
             value, error = result
             if value is not None:
@@ -1288,7 +1301,8 @@ class Dashboard:
                 c.def_prog_mode()
                 c.endwin()
                 try:
-                    resume_session(self.state, chosen["number"], chosen["role"])
+                    resume_session(self.state, chosen["number"], chosen["role"],
+                                   **({"options": self.options} if self.options else {}))
                     self.message = "Returned from the agent. Worklane was not started; inspect changes before restarting."
                 except (RuntimeError, OSError, ValueError) as error:
                     self.message = str(error)

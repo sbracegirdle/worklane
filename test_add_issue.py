@@ -5,10 +5,12 @@ import unittest
 from unittest.mock import patch
 
 import worklane as w
+from test_worklane import safe_security
 
 
 class AddIssueTests(unittest.TestCase):
     def setUp(self):
+        self.enterContext(patch.object(w.Board, "security_report", side_effect=safe_security))
         self.url = "https://github.com/owner/repo/issues/42"
         self.project = {"id": "project-id", "number": 2, "title": "repo", "closed": False,
                         "url": "https://github.com/users/owner/projects/2", "owner": {"login": "owner"}}

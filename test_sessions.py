@@ -138,6 +138,22 @@ class SessionTests(unittest.TestCase):
         self.assertEqual(len([log for log in logs if log["stream"] == "user"]), 2)
         self.assertTrue(any(log["content"] == "Queued input turn completed." for log in logs))
 
+    def test_queued_followup_rechecks_security_before_resuming_agent(self):
+        with w.locked(self.state.path / "runner.lock") as fd, \
+             patch.dict(os.environ, {"FAKE_DELAY": ".3"}), ThreadPoolExecutor(1) as pool:
+            backend = self.backend(fd)
+            backend.preflight = Mock(side_effect=[None, RuntimeError("Board became public")])
+            future = pool.submit(backend.run, "build", self.task, self.tree)
+            session = self.wait_for_session()
+            run = self.state.runs(1)[0]
+            self.state.queue_input(run["id"], "Follow up after visibility changes")
+            with self.assertRaisesRegex(RuntimeError, "Board became public"):
+                future.result(timeout=5)
+        self.assertEqual(len(self.calls()), 1)
+        self.assertEqual(self.state.session(1, "worker")["session_id"], session["session_id"])
+        self.assertEqual(backend.preflight.call_count, 2)
+        self.assertEqual(self.state.runs(1)[0]["status"], "failed")
+
     def test_input_survives_failed_delivery_and_restarts_only_in_matching_role(self):
         with w.locked(self.state.path / "runner.lock") as fd:
             backend = self.backend(fd)

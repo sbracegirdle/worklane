@@ -1354,6 +1354,9 @@ class Runner:
             current = by_number.get(task["number"])
             if not current:
                 continue
+            last = self.state.get_meta(f"stack_poll:{task['number']}", 0)
+            if not task.get("stack_blocked") and not task.get("restack_pending") and time.time() - last < 300:
+                continue
             try:
                 remaining = []
                 for edge in task["stack"]:
@@ -1371,6 +1374,7 @@ class Runner:
                 if remaining == task["stack"] and not task.get("restack_pending"):
                     task.pop("stack_blocked", None)
                     self.state.save(task)
+                    self.state.set_meta(f"stack_poll:{task['number']}", time.time())
                     continue
                 self.restack(task, remaining, current)
             except GitHubRateLimit:
@@ -1443,6 +1447,7 @@ class Runner:
         # Every changed base/head needs a fresh review in the original role session.
         for key in ("completed_turns", "review_result", "handoff_result", "stack_blocked"):
             task.pop(key, None)
+        if task.get("pr_url"):
             task.update(phase="awaiting_review", round=task.get("round", 0) + 1)
         task.pop("restack_pending", None)
         self.state.save(task)
@@ -2361,12 +2366,19 @@ def main(argv=None):
         if args.action == "check":
             items = board.items()
             ready = [i for i in items if i.get("status", "").casefold() == READY.casefold()]
+            if args.stack_dependencies or args.completion_gates:
+                inspector = Runner(args, repo, root, state, board, None)
+                inspector.stack_items = items
+                for item in ready:
+                    inspector.dependencies_ready(item)
             print(json.dumps({"repository": repo, "board": board.project["url"], "model": args.model or (MODEL if args.harness == "codex" else "harness default"), "harness_options": harness_options,
                               "cli": installation_info(),
                               "harness": args.harness, "effort": args.effort,
                               "workers": args.workers, "reviewers": 1,
                               "will_add_agent_review": REVIEW.casefold() not in board.options,
-                              "ready": [i["content"]["number"] for i in ready if i["blocked_by_count"] == 0],
+                              "ready": [i["content"]["number"] for i in ready if not i.get("dependency_reason") and (i["blocked_by_count"] == 0 or i.get("stack_plan"))],
+                              "stack_ready": {str(i["content"]["number"]): i["stack_plan"] for i in ready if i.get("stack_plan") and not i.get("dependency_reason")},
+                              "dependency_reasons": {str(i["content"]["number"]): i["dependency_reason"] for i in ready if i.get("dependency_reason")},
                               "dependency_blocked": {str(i["content"]["number"]): i["blocked_by_count"]
                                                      for i in items if i["blocked_by_count"]},
                               "agent_review": [i["content"]["number"] for i in items if i.get("status", "").casefold() == REVIEW.casefold() and i["blocked_by_count"] == 0]}, indent=2))

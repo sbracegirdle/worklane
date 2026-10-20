@@ -773,6 +773,9 @@ class Dashboard:
             for i in range(start, min(len(items), start + capacity)):
                 item = items[i]
                 blocked = f" (blocked by {item['blocked_by_count']})" if item.get("blocked_by_count") else ""
+                reason = self.state.get_meta(f"dependency:{item['content']['number']}", {}).get("reason")
+                if reason and i == page['index']:
+                    self.put(screen, bottom, "  " + reason, self.colors.get("warn", 0))
                 self.put(screen, 4 + i - start,
                          f" {'›' if i == page['index'] else ' '} {item['status'] or 'No status'}{blocked}  ·  #{item['content']['number']}  {item['title']}",
                          c.A_REVERSE if i == page["index"] else 0)
@@ -782,6 +785,10 @@ class Dashboard:
             self.put(screen, 2, "  " + value.get("url", "Saved issue content; loading updates…"), c.A_DIM)
             self.put(screen, 3, f"  ISSUE #{page['number']}  {value.get('title', '')}", c.A_BOLD)
             content = [value.get("state", ""), "", value.get("body") or "No description."]
+            task = self.state.load(page["number"])
+            if task.get("stack"):
+                content = ["Stack (oldest first):", *[f"#{edge['number']} {edge['pr_url']} @ {edge['head_sha']}" for edge in task["stack"]],
+                           f"#{page['number']} {task.get('pr_url', '')} (base {task['base']})", "", *content]
             for comment in value.get("comments", []):
                 author = comment.get("author") or comment.get("user") or {}
                 content.extend(["", f"{author.get('login', 'unknown')} · {comment.get('createdAt') or comment.get('created_at', '')}", comment.get("body", "")])
@@ -855,6 +862,12 @@ class Dashboard:
                               (self.pr_status(issue["task"]) + "  ·  ", muted),
                               (issue['title'], c.A_BOLD if selected else 0),
                               (f"  {len(issue['sessions'])} session{'s' if len(issue['sessions']) != 1 else ''}", muted)])
+                task = issue["task"]
+                if task.get("stack"):
+                    chain = " → ".join(f"#{edge['number']}@{edge['head_sha'][:8]}" for edge in task["stack"])
+                    lines.append([("     Stack " + chain + f" → #{issue['number']} (base {task['base']})", muted)])
+                if task.get("stack_blocked"):
+                    lines.append([("     Stack blocked: " + task["stack_blocked"], self.colors.get("warn", 0))])
             else:
                 selected = key == self.focus
                 branch = "└─" if row is issue["sessions"][-1] else "├─"
@@ -1024,7 +1037,7 @@ class Dashboard:
         elif chosen and not self.page and not self.editor:
             self.paint(screen, bottom + 1, [(f"  #{chosen['number']}  ", c.A_BOLD),
                                            (chosen["title"], 0), (f"  /  {chosen['role']}", self.colors.get("agent", 0))])
-        error = chosen["task"].get("error") if chosen and not self.page and not self.jobs else None
+        error = (chosen["task"].get("stack_blocked") or chosen["task"].get("error")) if chosen and not self.page and not self.jobs else None
         self.put(screen, height - 2, "  " + (self.message or error or "Select an issue to see sessions; Enter on a session opens its transcript."),
                  self.colors.get("warn", 0) if error and not self.message else c.A_DIM)
         controls = "m message  b/Esc/q back  PgUp/PgDn scroll  / search  End " + ("context" if self.searching else "follow")

@@ -11,6 +11,8 @@ Enter advances, Ctrl-U clears, Esc cancels; final confirmation atomically saves 
 | `effort` | `"high"` | Codex: `low`, `medium`, `high`, `xhigh`; OpenCode uses its own settings |
 | `interval` | `60` | Integer polling seconds, minimum 10 |
 | `project` | `""` | Automatic discovery, or `OWNER/NUMBER` |
+| `stack_dependencies` | `[]` | Explicit same-repository `"CHILD:PARENT"` edges; all others require completion |
+| `completion_gates` | `[]` | Issue numbers requiring merged, exact reviewed handoffs; cannot be stackable |
 | `worker_*`, `reviewer_*`, `finalizer_*` | `""` | Role `harness` and `model` overrides; empty inherits global settings |
 
 ```toml

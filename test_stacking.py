@@ -125,6 +125,27 @@ class StackTests(unittest.TestCase):
         self.state.save(resumed)
         self.assertIsNone(self.runner.recover([selected], w.WORKERS[0]))
 
+    def test_completion_gate_rejects_unreviewed_merged_head(self):
+        w.save_config(self.root, {'completion_gates':[53]})
+        self.transport([self.dependency(53, 'closed')])
+        self.state.save({'number':53, 'phase':'done', 'completion_source':'merged_pr',
+                         'head_sha':'b'*40, 'merged_head_sha':'b'*40, 'review_result':result(), 'handoff_result':result()})
+        self.assertFalse(self.runner.dependencies_ready(item(40)))
+
+    def test_active_handoff_revalidates_draft_conflict_and_board_withdrawal(self):
+        edge={'number':1,'branch':self.parent['branch'],'base':'main','head_sha':'a'*40}
+        task={'number':2,'stack':[edge]}
+        for update in ({'isDraft':True},{'mergeable':'CONFLICTING'}):
+            before=dict(self.parent_pr)
+            self.parent_pr.update(update)
+            with self.assertRaisesRegex(RuntimeError, 'changed, conflicted or closed'):
+                self.runner.validate_stack(task)
+            self.parent_pr.clear(); self.parent_pr.update(before)
+        self.board.item_status.return_value=w.READY.casefold()
+        with self.assertRaisesRegex(RuntimeError,'Human review'):
+            self.runner.validate_stack(task)
+
+
 
 class RestackTests(unittest.TestCase):
     def setUp(self):
@@ -187,6 +208,7 @@ class RestackTests(unittest.TestCase):
         self.assertEqual(task['base'],'main')
         self.assertEqual(task['stack'],[])
         self.assertEqual(task['phase'],'awaiting_review')
+        self.assertEqual(task['round'],1)
         self.assertEqual(self.git('diff','--name-only','origin/main...HEAD'),'child')
         self.git('merge-base','--is-ancestor',self.child_head,'HEAD')
         self.assertNotIn('review_result',task)
@@ -233,6 +255,44 @@ class RestackTests(unittest.TestCase):
         self.assertEqual(self.git('rev-parse','HEAD'),self.child_head)
         self.assertEqual(self.git('status','--porcelain'),'')
         self.assertEqual((self.repo/'child').read_text(),'child\n')
+
+    def test_pre_pr_interruption_keeps_the_worker_stage_after_parent_merge(self):
+        self.task.update(phase='interrupted', resume_stage='build', pr_url='', head_sha='')
+        self.state.save(self.task)
+        with patch.object(w,'command',side_effect=self.transport):
+            self.runner.reconcile_stacks([self.task['item']])
+        saved=self.state.load(2)
+        self.assertEqual(saved['phase'],'interrupted')
+        self.assertEqual(saved['resume_stage'],'build')
+        self.assertEqual(saved['base'],'main')
+        self.assertEqual(self.board.moves,[])
+
+    def test_child_ancestry_rejects_unrelated_remote_branch(self):
+        self.git('checkout','main')
+        with self.assertRaisesRegex(RuntimeError,'does not contain pinned parent'):
+            self.runner.verify_stack_ancestry(self.task,self.repo)
+        self.git('checkout','child')
+        self.runner.verify_stack_ancestry(self.task,self.repo)
+
+    def test_lost_board_transition_response_recovers_without_duplicate_history(self):
+        original_move=self.board.move
+        lose=[True]
+        def move(*args):
+            original_move(*args)
+            self.board.item_status.return_value=w.REVIEW.casefold()
+            if lose[0]:
+                lose[0]=False
+                raise RuntimeError('board response lost')
+        self.board.move=move
+        with patch.object(w,'command',side_effect=self.transport):
+            self.runner.reconcile_stacks([self.task['item']])
+            self.assertIn('restack_pending',self.state.load(2))
+            self.runner.reconcile_stacks([self.task['item']])
+        saved=self.state.load(2)
+        self.assertEqual(saved['phase'],'awaiting_review')
+        self.assertEqual(len(saved['stack_history']),1)
+        self.assertEqual(saved['round'],1)
+
 
 
 if __name__ == '__main__': unittest.main()

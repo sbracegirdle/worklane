@@ -1,5 +1,5 @@
 {
-  "core_runtime_ready": false,
+  "core_runtime_ready": true,
   "core_release_ready": false,
   "core_scenarios": [
     {
@@ -46,7 +46,7 @@
           "report": "cargo test",
           "id": "typed_state_preserves_empty_null_integer_boolean_and_float",
           "status": "pass",
-          "log_sha256": "84c843c05ffdd21534f31191dbec13ecfeb43c71c2f0fc23e056052bfacf1e63",
+          "log_sha256": "6f4b43246701fe1051f89500b1a96ae4a1e60d0a0036876c4d2b6a96f0bc1f0c",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "758c41bb742238c0c9c278fa6dd30a6ab5093508bb36c272a4f6dd0fd02fa664",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "7da56ee7d78b54f08e83d1406854636d720b5dd6c6d6d98cbdb072a6af0bb3b3",
@@ -60,7 +60,7 @@
           "report": "cargo test",
           "id": "future_schema_refusal_does_not_modify_database",
           "status": "pass",
-          "log_sha256": "84c843c05ffdd21534f31191dbec13ecfeb43c71c2f0fc23e056052bfacf1e63",
+          "log_sha256": "6f4b43246701fe1051f89500b1a96ae4a1e60d0a0036876c4d2b6a96f0bc1f0c",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "758c41bb742238c0c9c278fa6dd30a6ab5093508bb36c272a4f6dd0fd02fa664",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "7da56ee7d78b54f08e83d1406854636d720b5dd6c6d6d98cbdb072a6af0bb3b3",
@@ -74,7 +74,7 @@
           "report": "cargo test",
           "id": "wal_backup_restores_committed_events_and_pending_inputs",
           "status": "pass",
-          "log_sha256": "84c843c05ffdd21534f31191dbec13ecfeb43c71c2f0fc23e056052bfacf1e63",
+          "log_sha256": "6f4b43246701fe1051f89500b1a96ae4a1e60d0a0036876c4d2b6a96f0bc1f0c",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "758c41bb742238c0c9c278fa6dd30a6ab5093508bb36c272a4f6dd0fd02fa664",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "7da56ee7d78b54f08e83d1406854636d720b5dd6c6d6d98cbdb072a6af0bb3b3",
@@ -88,7 +88,7 @@
           "report": "cargo test",
           "id": "uncommitted_crash_is_not_visible_and_committed_event_survives",
           "status": "pass",
-          "log_sha256": "84c843c05ffdd21534f31191dbec13ecfeb43c71c2f0fc23e056052bfacf1e63",
+          "log_sha256": "6f4b43246701fe1051f89500b1a96ae4a1e60d0a0036876c4d2b6a96f0bc1f0c",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "758c41bb742238c0c9c278fa6dd30a6ab5093508bb36c272a4f6dd0fd02fa664",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "7da56ee7d78b54f08e83d1406854636d720b5dd6c6d6d98cbdb072a6af0bb3b3",
@@ -108,7 +108,7 @@
           "report": "cargo test",
           "id": "bounded_workers_independent_reviewer_pause_and_drain_keep_pending_work",
           "status": "pass",
-          "log_sha256": "84c843c05ffdd21534f31191dbec13ecfeb43c71c2f0fc23e056052bfacf1e63",
+          "log_sha256": "6f4b43246701fe1051f89500b1a96ae4a1e60d0a0036876c4d2b6a96f0bc1f0c",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "758c41bb742238c0c9c278fa6dd30a6ab5093508bb36c272a4f6dd0fd02fa664",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "7da56ee7d78b54f08e83d1406854636d720b5dd6c6d6d98cbdb072a6af0bb3b3",
@@ -286,7 +286,7 @@
           "report": "cargo test",
           "id": "bounded_workers_independent_reviewer_pause_and_drain_keep_pending_work",
           "status": "pass",
-          "log_sha256": "84c843c05ffdd21534f31191dbec13ecfeb43c71c2f0fc23e056052bfacf1e63",
+          "log_sha256": "6f4b43246701fe1051f89500b1a96ae4a1e60d0a0036876c4d2b6a96f0bc1f0c",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "758c41bb742238c0c9c278fa6dd30a6ab5093508bb36c272a4f6dd0fd02fa664",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "7da56ee7d78b54f08e83d1406854636d720b5dd6c6d6d98cbdb072a6af0bb3b3",
@@ -300,7 +300,7 @@
           "report": "cargo test",
           "id": "immediate_stop_never_waits_for_dispatch_or_downgrades",
           "status": "pass",
-          "log_sha256": "84c843c05ffdd21534f31191dbec13ecfeb43c71c2f0fc23e056052bfacf1e63",
+          "log_sha256": "6f4b43246701fe1051f89500b1a96ae4a1e60d0a0036876c4d2b6a96f0bc1f0c",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "758c41bb742238c0c9c278fa6dd30a6ab5093508bb36c272a4f6dd0fd02fa664",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "7da56ee7d78b54f08e83d1406854636d720b5dd6c6d6d98cbdb072a6af0bb3b3",
@@ -314,7 +314,7 @@
           "report": "cargo test",
           "id": "old_start_generation_cannot_clear_new_stop",
           "status": "pass",
-          "log_sha256": "84c843c05ffdd21534f31191dbec13ecfeb43c71c2f0fc23e056052bfacf1e63",
+          "log_sha256": "6f4b43246701fe1051f89500b1a96ae4a1e60d0a0036876c4d2b6a96f0bc1f0c",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "758c41bb742238c0c9c278fa6dd30a6ab5093508bb36c272a4f6dd0fd02fa664",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "7da56ee7d78b54f08e83d1406854636d720b5dd6c6d6d98cbdb072a6af0bb3b3",
@@ -407,7 +407,7 @@
           "report": "cargo test",
           "id": "abrupt_process_exit_preserves_committed_session_and_discards_inflight_transaction",
           "status": "pass",
-          "log_sha256": "84c843c05ffdd21534f31191dbec13ecfeb43c71c2f0fc23e056052bfacf1e63",
+          "log_sha256": "6f4b43246701fe1051f89500b1a96ae4a1e60d0a0036876c4d2b6a96f0bc1f0c",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "758c41bb742238c0c9c278fa6dd30a6ab5093508bb36c272a4f6dd0fd02fa664",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "7da56ee7d78b54f08e83d1406854636d720b5dd6c6d6d98cbdb072a6af0bb3b3",
@@ -682,7 +682,7 @@
           "report": "cargo test",
           "id": "quota_probe_failure_keeps_known_quota_and_shared_cooldown",
           "status": "pass",
-          "log_sha256": "84c843c05ffdd21534f31191dbec13ecfeb43c71c2f0fc23e056052bfacf1e63",
+          "log_sha256": "6f4b43246701fe1051f89500b1a96ae4a1e60d0a0036876c4d2b6a96f0bc1f0c",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "758c41bb742238c0c9c278fa6dd30a6ab5093508bb36c272a4f6dd0fd02fa664",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "7da56ee7d78b54f08e83d1406854636d720b5dd6c6d6d98cbdb072a6af0bb3b3",
@@ -725,7 +725,7 @@
     "Exhaustive source/failure/constant audits and unselected legacy parity assertions.",
     "CLI/TUI presentation, installed PTY/lifecycle and cutover remain gated by #51/#52/#53."
   ],
-  "candidate_revision": "bf9751afdb223150fbc7d1818800ecdf32908407",
+  "candidate_revision": "ce6745ed0b3cff7aa0c33a32473c9d9e3d12edf6",
   "candidate_inputs_sha256": "17fa0583c73c86d47f66a1d3da1f305329af71bb0caed491d997c5bf13eab19e",
   "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
   "validation_base": "e4ed0ed7ba7ce4842c4bbab1bf10e1554f49b66d",
@@ -766,8 +766,8 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-1.log",
-      "tail": "   Compiling worklane-runtime v0.1.0 (/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/53/runtime)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.14s",
-      "log_sha256": "f753eea9d46fdd113ac741108eb043af68381f21cf5831e3f4c07f2dcb58db2b"
+      "tail": "   Compiling worklane-runtime v0.1.0 (/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/53/runtime)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.99s",
+      "log_sha256": "dd21436af46a899dd01092b81a518f30014fe53fea22cd05104e931e98ab810e"
     },
     {
       "command": [
@@ -778,8 +778,8 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-2.log",
-      "tail": "test logs_are_keyset_paged_without_losing_history ... ok\n\ntest result: ok. 37 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 9.57s\n\n   Doc-tests worklane_runtime\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n",
-      "log_sha256": "84c843c05ffdd21534f31191dbec13ecfeb43c71c2f0fc23e056052bfacf1e63",
+      "tail": "test logs_are_keyset_paged_without_losing_history ... ok\n\ntest result: ok. 37 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.69s\n\n   Doc-tests worklane_runtime\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n",
+      "log_sha256": "6f4b43246701fe1051f89500b1a96ae4a1e60d0a0036876c4d2b6a96f0bc1f0c",
       "passed_tests": [
         "tui::terminal::tests::fragmented_unicode_and_escape_sequences",
         "workflow::recovery_tests::finalizing_phase_cannot_recover_as_previous_reviewer_role",
@@ -790,34 +790,34 @@
         "config_errors_preserve_file_and_role_overrides",
         "child_inherits_controller_lock_after_parent_guard_closes",
         "failed_migration_rolls_back_and_keeps_original_bytes",
-        "prepared_schema_is_in_memory_and_uses_the_shared_schema_argument",
-        "migration_cleanup_never_follows_replaced_parent_outside_state",
-        "future_schema_refusal_does_not_modify_database",
-        "result_validation_rejects_extra_fields_and_false_findings",
-        "controller_log_writer_flushes_without_persistent_log_files",
         "oversized_integers_cannot_silently_become_floats_or_erase_prior_values",
+        "migration_cleanup_never_follows_replaced_parent_outside_state",
+        "prepared_schema_is_in_memory_and_uses_the_shared_schema_argument",
+        "result_validation_rejects_extra_fields_and_false_findings",
         "old_start_generation_cannot_clear_new_stop",
+        "future_schema_refusal_does_not_modify_database",
         "immediate_stop_never_waits_for_dispatch_or_downgrades",
+        "controller_log_writer_flushes_without_persistent_log_files",
         "event_mapping_and_readable_log_rollback_as_one_unit",
-        "stale_birth_cannot_claim_or_signal_unrelated_process",
         "abrupt_process_exit_preserves_committed_session_and_discards_inflight_transaction",
+        "stale_birth_cannot_claim_or_signal_unrelated_process",
         "saved_model_and_harness_win_new_role_configuration",
         "unicode_wrapping_retains_combining_wide_and_word_spaces",
-        "injected_quota_is_journaled_once_and_stale_success_cannot_clear_new_failure",
         "unicode_decimal_issue_aliases_cannot_evade_cycles_or_completion_gates",
         "fresh_assignment_cannot_reuse_previous_completed_turn_even_with_identical_clock",
+        "injected_quota_is_journaled_once_and_stale_success_cannot_clear_new_failure",
         "quota_probe_failure_keeps_known_quota_and_shared_cooldown",
         "typed_state_preserves_empty_null_integer_boolean_and_float",
         "log_history_stops_at_its_initial_boundary_while_writers_append",
-        "bounded_writer_wait_and_rollback_leave_prior_commit",
         "successful_probe_body_is_not_a_quota_error_or_persisted_diagnostic",
         "python_completed_ledger_requires_exact_assignment_timing_and_session",
+        "bounded_writer_wait_and_rollback_leave_prior_commit",
         "reopen_does_not_erase_normalized_sessions_on_stale_task_save",
         "literal_unicode_search_finds_historical_turn_and_bounds_context",
-        "uncommitted_crash_is_not_visible_and_committed_event_survives",
-        "quota_uses_injected_clock_authoritative_headers_and_blocks_further_processes",
         "interrupted_delivery_survives_recovery_until_turn_commits",
+        "uncommitted_crash_is_not_visible_and_committed_event_survives",
         "uniqueness_across_roles_is_database_enforced",
+        "quota_uses_injected_clock_authoritative_headers_and_blocks_further_processes",
         "successful_issue_body_cannot_publish_a_false_global_quota_cooldown",
         "successful_last_point_preserves_response_without_copying_body_into_cooldown_state",
         "wal_backup_restores_committed_events_and_pending_inputs",
@@ -844,10 +844,10 @@
         "unittest",
         "-q"
       ],
-      "exit": 1,
+      "exit": 0,
       "log": "/tmp/worklane50-validation-3.log",
-      "tail": "                    ~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/53/test_native_tui.py\", line 86, in until\n    self.fail(f'PTY missing {token!r}, exit={self.process.poll()}: {output[-7000:]!r}')\n    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: PTY missing b'No such file', exit=None: b'H\\x1b[2K\\x1b[0m\\x1b[8;1H\\x1b[2K\\x1b[0m\\x1b[9;1H\\x1b[2K\\x1b[0m\\x1b[10;1H\\x1b[2K\\x1b[0m\\x1b[11;1H\\x1b[2K\\x1b[0m\\x1b[12;1H\\x1b[2K\\x1b[0m\\x1b[13;1H\\x1b[2K\\x1b[0m\\x1b[14;1H\\x1b[2K\\x1b[0m\\x1b[15;1H\\x1b[2K\\x1b[0m\\x1b[16;1H\\x1b[2K\\x1b[0m\\x1b[17;1H\\x1b[2K\\x1b[0m\\x1b[18;1H\\x1b[2K\\x1b[0m\\x1b[19;1H\\x1b[2K\\x1b[0m\\x1b[20;1H\\x1b[2K\\x1b[0m\\x1b[21;1H\\x1b[2K\\x1b[0m\\x1b[22;1H\\x1b[2K\\x1b[0m\\x1b[23;1H\\x1b[2K\\x1b[0m\\x1b[24;1H\\x1b[2K\\x1b[0m\\x1b[25;1H\\x1b[2K\\x1b[0m\\x1b[26;1H\\x1b[2KBoard security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \\x1b[0m\\x1b[27;1H\\x1b[2Ks start \\xc2\\xb7 z pause \\xc2\\xb7 u resume \\xc2\\xb7 x drain \\xc2\\xb7 X stop now \\xc2\\xb7 t retry\\x1b[0m\\x1b[28;1H\\x1b[2Kc config \\xc2\\xb7 n/e issue \\xc2\\xb7 p PR \\xc2\\xb7 o browser \\xc2\\xb7 a session \\xc2\\xb7 m input \\xc2\\xb7 q back/quit\\x1b[0m\\x1b[J\\x1b[H\\x1b[1;1H\\x1b[2K\\x1b[1;36mWorklane \\xc2\\xb7 owner/repo \\xc2\\xb7 stopped\\x1b[0m\\x1b[2;1H\\x1b[2KOverview \\xc2\\xb7 Enter expands / opens logs \\xc2\\xb7 i details \\xc2\\xb7 / search\\x1b[0m\\x1b[3;1H\\x1b[2K> #1 Task \\xe7\\x95\\x8c e\\xcc\\x81 \\xc2\\xb7 interrupted\\x1b[0m\\x1b[4;1H\\x1b[2K\\x1b[0m\\x1b[5;1H\\x1b[2K\\x1b[0m\\x1b[6;1H\\x1b[2K\\x1b[0m\\x1b[7;1H\\x1b[2K\\x1b[0m\\x1b[8;1H\\x1b[2K\\x1b[0m\\x1b[9;1H\\x1b[2K\\x1b[0m\\x1b[10;1H\\x1b[2K\\x1b[0m\\x1b[11;1H\\x1b[2K\\x1b[0m\\x1b[12;1H\\x1b[2K\\x1b[0m\\x1b[13;1H\\x1b[2K\\x1b[0m\\x1b[14;1H\\x1b[2K\\x1b[0m\\x1b[15;1H\\x1b[2K\\x1b[0m\\x1b[16;1H\\x1b[2K\\x1b[0m\\x1b[17;1H\\x1b[2K\\x1b[0m\\x1b[18;1H\\x1b[2K\\x1b[0m\\x1b[19;1H\\x1b[2K\\x1b[0m\\x1b[20;1H\\x1b[2K\\x1b[0m\\x1b[21;1H\\x1b[2K\\x1b[0m\\x1b[22;1H\\x1b[2K\\x1b[0m\\x1b[23;1H\\x1b[2K\\x1b[0m\\x1b[24;1H\\x1b[2K\\x1b[0m\\x1b[25;1H\\x1b[2K\\x1b[0m\\x1b[26;1H\\x1b[2KBoard security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \\x1b[0m\\x1b[27;1H\\x1b[2Ks start \\xc2\\xb7 z pause \\xc2\\xb7 u resume \\xc2\\xb7 x drain \\xc2\\xb7 X stop now \\xc2\\xb7 t retry\\x1b[0m\\x1b[28;1H\\x1b[2Kc config \\xc2\\xb7 n/e issue \\xc2\\xb7 p PR \\xc2\\xb7 o browser \\xc2\\xb7 a session \\xc2\\xb7 m input \\xc2\\xb7 q back/quit\\x1b[0m\\x1b[J\\x1b[H\\x1b[1;1H\\x1b[2K\\x1b[1;36mWorklane \\xc2\\xb7 owner/repo \\xc2\\xb7 stopped\\x1b[0m\\x1b[2;1H\\x1b[2KOverview \\xc2\\xb7 Enter expands / opens logs \\xc2\\xb7 i details \\xc2\\xb7 / search\\x1b[0m\\x1b[3;1H\\x1b[2K> #1 Task \\xe7\\x95\\x8c e\\xcc\\x81 \\xc2\\xb7 interrupted\\x1b[0m\\x1b[4;1H\\x1b[2K\\x1b[0m\\x1b[5;1H\\x1b[2K\\x1b[0m\\x1b[6;1H\\x1b[2K\\x1b[0m\\x1b[7;1H\\x1b[2K\\x1b[0m\\x1b[8;1H\\x1b[2K\\x1b[0m\\x1b[9;1H\\x1b[2K\\x1b[0m\\x1b[10;1H\\x1b[2K\\x1b[0m\\x1b[11;1H\\x1b[2K\\x1b[0m\\x1b[12;1H\\x1b[2K\\x1b[0m\\x1b[13;1H\\x1b[2K\\x1b[0m\\x1b[14;1H\\x1b[2K\\x1b[0m\\x1b[15;1H\\x1b[2K\\x1b[0m\\x1b[16;1H\\x1b[2K\\x1b[0m\\x1b[17;1H\\x1b[2K\\x1b[0m\\x1b[18;1H\\x1b[2K\\x1b[0m\\x1b[19;1H\\x1b[2K\\x1b[0m\\x1b[20;1H\\x1b[2K\\x1b[0m\\x1b[21;1H\\x1b[2K\\x1b[0m\\x1b[22;1H\\x1b[2K\\x1b[0m\\x1b[23;1H\\x1b[2K\\x1b[0m\\x1b[24;1H\\x1b[2K\\x1b[0m\\x1b[25;1H\\x1b[2K\\x1b[0m\\x1b[26;1H\\x1b[2KBoard security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \\x1b[0m\\x1b[27;1H\\x1b[2Ks start \\xc2\\xb7 z pause \\xc2\\xb7 u resume \\xc2\\xb7 x drain \\xc2\\xb7 X stop now \\xc2\\xb7 t retry\\x1b[0m\\x1b[28;1H\\x1b[2Kc config \\xc2\\xb7 n/e issue \\xc2\\xb7 p PR \\xc2\\xb7 o browser \\xc2\\xb7 a session \\xc2\\xb7 m input \\xc2\\xb7 q back/quit\\x1b[0m\\x1b[J\\x1b[H\\x1b[1;1H\\x1b[2K\\x1b[1;36mWorklane \\xc2\\xb7 owner/repo \\xc2\\xb7 stopped\\x1b[0m\\x1b[2;1H\\x1b[2KOverview \\xc2\\xb7 Enter expands / opens logs \\xc2\\xb7 i details \\xc2\\xb7 / search\\x1b[0m\\x1b[3;1H\\x1b[2K> #1 Task \\xe7\\x95\\x8c e\\xcc\\x81 \\xc2\\xb7 interrupted\\x1b[0m\\x1b[4;1H\\x1b[2K\\x1b[0m\\x1b[5;1H\\x1b[2K\\x1b[0m\\x1b[6;1H\\x1b[2K\\x1b[0m\\x1b[7;1H\\x1b[2K\\x1b[0m\\x1b[8;1H\\x1b[2K\\x1b[0m\\x1b[9;1H\\x1b[2K\\x1b[0m\\x1b[10;1H\\x1b[2K\\x1b[0m\\x1b[11;1H\\x1b[2K\\x1b[0m\\x1b[12;1H\\x1b[2K\\x1b[0m\\x1b[13;1H\\x1b[2K\\x1b[0m\\x1b[14;1H\\x1b[2K\\x1b[0m\\x1b[15;1H\\x1b[2K\\x1b[0m\\x1b[16;1H\\x1b[2K\\x1b[0m\\x1b[17;1H\\x1b[2K\\x1b[0m\\x1b[18;1H\\x1b[2K\\x1b[0m\\x1b[19;1H\\x1b[2K\\x1b[0m\\x1b[20;1H\\x1b[2K\\x1b[0m\\x1b[21;1H\\x1b[2K\\x1b[0m\\x1b[22;1H\\x1b[2K\\x1b[0m\\x1b[23;1H\\x1b[2K\\x1b[0m\\x1b[24;1H\\x1b[2K\\x1b[0m\\x1b[25;1H\\x1b[2K\\x1b[0m\\x1b[26;1H\\x1b[2KBoard security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \\x1b[0m\\x1b[27;1H\\x1b[2Ks start \\xc2\\xb7 z pause \\xc2\\xb7 u resume \\xc2\\xb7 x drain \\xc2\\xb7 X stop now \\xc2\\xb7 t retry\\x1b[0m\\x1b[28;1H\\x1b[2Kc config \\xc2\\xb7 n/e issue \\xc2\\xb7 p PR \\xc2\\xb7 o browser \\xc2\\xb7 a session \\xc2\\xb7 m input \\xc2\\xb7 q back/quit\\x1b[0m\\x1b[J\\x1b[H\\x1b[1;1H\\x1b[2K\\x1b[1;36mWorklane \\xc2\\xb7 owner/repo \\xc2\\xb7 stopped\\x1b[0m\\x1b[2;1H\\x1b[2KOverview \\xc2\\xb7 Enter expands / opens logs \\xc2\\xb7 i details \\xc2\\xb7 / search\\x1b[0m\\x1b[3;1H\\x1b[2K> #1 Task \\xe7\\x95\\x8c e\\xcc\\x81 \\xc2\\xb7 interrupted\\x1b[0m\\x1b[4;1H\\x1b[2K\\x1b[0m\\x1b[5;1H\\x1b[2K\\x1b[0m\\x1b[6;1H\\x1b[2K\\x1b[0m\\x1b[7;1H\\x1b[2K\\x1b[0m\\x1b[8;1H\\x1b[2K\\x1b[0m\\x1b[9;1H\\x1b[2K\\x1b[0m\\x1b[10;1H\\x1b[2K\\x1b[0m\\x1b[11;1H\\x1b[2K\\x1b[0m\\x1b[12;1H\\x1b[2K\\x1b[0m\\x1b[13;1H\\x1b[2K\\x1b[0m\\x1b[14;1H\\x1b[2K\\x1b[0m\\x1b[15;1H\\x1b[2K\\x1b[0m\\x1b[16;1H\\x1b[2K\\x1b[0m\\x1b[17;1H\\x1b[2K\\x1b[0m\\x1b[18;1H\\x1b[2K\\x1b[0m\\x1b[19;1H\\x1b[2K\\x1b[0m\\x1b[20;1H\\x1b[2K\\x1b[0m\\x1b[21;1H\\x1b[2K\\x1b[0m\\x1b[22;1H\\x1b[2K\\x1b[0m\\x1b[23;1H\\x1b[2K\\x1b[0m\\x1b[24;1H\\x1b[2K\\x1b[0m\\x1b[25;1H\\x1b[2K\\x1b[0m\\x1b[26;1H\\x1b[2KBoard security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \\x1b[0m\\x1b[27;1H\\x1b[2Ks start \\xc2\\xb7 z pause \\xc2\\xb7 u resume \\xc2\\xb7 x drain \\xc2\\xb7 X stop now \\xc2\\xb7 t retry\\x1b[0m\\x1b[28;1H\\x1b[2Kc config \\xc2\\xb7 n/e issue \\xc2\\xb7 p PR \\xc2\\xb7 o browser \\xc2\\xb7 a session \\xc2\\xb7 m input \\xc2\\xb7 q back/quit\\x1b[0m\\x1b[J\\x1b[H\\x1b[1;1H\\x1b[2K\\x1b[1;36mWorklane \\xc2\\xb7 owner/repo \\xc2\\xb7 stopped\\x1b[0m\\x1b[2;1H\\x1b[2KOverview \\xc2\\xb7 Enter expands / opens logs \\xc2\\xb7 i details \\xc2\\xb7 / search\\x1b[0m\\x1b[3;1H\\x1b[2K> #1 Task \\xe7\\x95\\x8c e\\xcc\\x81 \\xc2\\xb7 interrupted\\x1b[0m\\x1b[4;1H\\x1b[2K\\x1b[0m\\x1b[5;1H\\x1b[2K\\x1b[0m\\x1b[6;1H\\x1b[2K\\x1b[0m\\x1b[7;1H\\x1b[2K\\x1b[0m\\x1b[8;1H\\x1b[2K\\x1b[0m\\x1b[9;1H\\x1b[2K\\x1b[0m\\x1b[10;1H\\x1b[2K\\x1b[0m\\x1b[11;1H\\x1b[2K\\x1b[0m\\x1b[12;1H\\x1b[2K\\x1b[0m\\x1b[13;1H\\x1b[2K\\x1b[0m\\x1b[14;1H\\x1b[2K\\x1b[0m\\x1b[15;1H\\x1b[2K\\x1b[0m\\x1b[16;1H\\x1b[2K\\x1b[0m\\x1b[17;1H\\x1b[2K\\x1b[0m\\x1b[18;1H\\x1b[2K\\x1b[0m\\x1b[19;1H\\x1b[2K\\x1b[0m\\x1b[20;1H\\x1b[2K\\x1b[0m\\x1b[21;1H\\x1b[2K\\x1b[0m\\x1b[22;1H\\x1b[2K\\x1b[0m\\x1b[23;1H\\x1b[2K\\x1b[0m\\x1b[24;1H\\x1b[2K\\x1b[0m\\x1b[25;1H\\x1b[2K\\x1b[0m\\x1b[26;1H\\x1b[2KBoard security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \\x1b[0m\\x1b[27;1H\\x1b[2Ks start \\xc2\\xb7 z pause \\xc2\\xb7 u resume \\xc2\\xb7 x drain \\xc2\\xb7 X stop now \\xc2\\xb7 t retry\\x1b[0m\\x1b[28;1H\\x1b[2Kc config \\xc2\\xb7 n/e issue \\xc2\\xb7 p PR \\xc2\\xb7 o browser \\xc2\\xb7 a session \\xc2\\xb7 m input \\xc2\\xb7 q back/quit\\x1b[0m\\x1b[J\\x1b[H\\x1b[1;1H\\x1b[2K\\x1b[1;36mWorklane \\xc2\\xb7 owner/repo \\xc2\\xb7 stopped\\x1b[0m\\x1b[2;1H\\x1b[2KOverview \\xc2\\xb7 Enter expands / opens logs \\xc2\\xb7 i details \\xc2\\xb7 / search\\x1b[0m\\x1b[3;1H\\x1b[2K> #1 Task \\xe7\\x95\\x8c e\\xcc\\x81 \\xc2\\xb7 interrupted\\x1b[0m\\x1b[4;1H\\x1b[2K\\x1b[0m\\x1b[5;1H\\x1b[2K\\x1b[0m\\x1b[6;1H\\x1b[2K\\x1b[0m\\x1b[7;1H\\x1b[2K\\x1b[0m\\x1b[8;1H\\x1b[2K\\x1b[0m\\x1b[9;1H\\x1b[2K\\x1b[0m\\x1b[10;1H\\x1b[2K\\x1b[0m\\x1b[11;1H\\x1b[2K\\x1b[0m\\x1b[12;1H\\x1b[2K\\x1b[0m\\x1b[13;1H\\x1b[2K\\x1b[0m\\x1b[14;1H\\x1b[2K\\x1b[0m\\x1b[15;1H\\x1b[2K\\x1b[0m\\x1b[16;1H\\x1b[2K\\x1b[0m\\x1b[17;1H\\x1b[2K\\x1b[0m\\x1b[18;1H\\x1b[2K\\x1b[0m\\x1b[19;1H\\x1b[2K\\x1b[0m\\x1b[20;1H\\x1b[2K\\x1b[0m\\x1b[21;1H\\x1b[2K\\x1b[0m\\x1b[22;1H\\x1b[2K\\x1b[0m\\x1b[23;1H\\x1b[2K\\x1b[0m\\x1b[24;1H\\x1b[2K\\x1b[0m\\x1b[25;1H\\x1b[2K\\x1b[0m\\x1b[26;1H\\x1b[2KBoard security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \\x1b[0m\\x1b[27;1H\\x1b[2Ks start \\xc2\\xb7 z pause \\xc2\\xb7 u resume \\xc2\\xb7 x drain \\xc2\\xb7 X stop now \\xc2\\xb7 t retry\\x1b[0m\\x1b[28;1H\\x1b[2Kc config \\xc2\\xb7 n/e issue \\xc2\\xb7 p PR \\xc2\\xb7 o browser \\xc2\\xb7 a session \\xc2\\xb7 m input \\xc2\\xb7 q back/quit\\x1b[0m\\x1b[J\\x1b[H\\x1b[1;1H\\x1b[2K\\x1b[1;36mWorklane \\xc2\\xb7 owner/repo \\xc2\\xb7 stopped\\x1b[0m\\x1b[2;1H\\x1b[2KOverview \\xc2\\xb7 Enter expands / opens logs \\xc2\\xb7 i details \\xc2\\xb7 / search\\x1b[0m\\x1b[3;1H\\x1b[2K> #1 Task \\xe7\\x95\\x8c e\\xcc\\x81 \\xc2\\xb7 interrupted\\x1b[0m\\x1b[4;1H\\x1b[2K\\x1b[0m\\x1b[5;1H\\x1b[2K\\x1b[0m\\x1b[6;1H\\x1b[2K\\x1b[0m\\x1b[7;1H\\x1b[2K\\x1b[0m\\x1b[8;1H\\x1b[2K\\x1b[0m\\x1b[9;1H\\x1b[2K\\x1b[0m\\x1b[10;1H\\x1b[2K\\x1b[0m\\x1b[11;1H\\x1b[2K\\x1b[0m\\x1b[12;1H\\x1b[2K\\x1b[0m\\x1b[13;1H\\x1b[2K\\x1b[0m\\x1b[14;1H\\x1b[2K\\x1b[0m\\x1b[15;1H\\x1b[2K\\x1b[0m\\x1b[16;1H\\x1b[2K\\x1b[0m\\x1b[17;1H\\x1b[2K\\x1b[0m\\x1b[18;1H\\x1b[2K\\x1b[0m\\x1b[19;1H\\x1b[2K\\x1b[0m\\x1b[20;1H\\x1b[2K\\x1b[0m\\x1b[21;1H\\x1b[2K\\x1b[0m\\x1b[22;1H\\x1b[2K\\x1b[0m\\x1b[23;1H\\x1b[2K\\x1b[0m\\x1b[24;1H\\x1b[2K\\x1b[0m\\x1b[25;1H\\x1b[2K\\x1b[0m\\x1b[26;1H\\x1b[2KBoard security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \\x1b[0m\\x1b[27;1H\\x1b[2Ks start \\xc2\\xb7 z pause \\xc2\\xb7 u resume \\xc2\\xb7 x drain \\xc2\\xb7 X stop now \\xc2\\xb7 t retry\\x1b[0m\\x1b[28;1H\\x1b[2Kc config \\xc2\\xb7 n/e issue \\xc2\\xb7 p PR \\xc2\\xb7 o browser \\xc2\\xb7 a session \\xc2\\xb7 m input \\xc2\\xb7 q back/quit\\x1b[0m\\x1b[J\\x1b[H\\x1b[1;1H\\x1b[2K\\x1b[1;36mWorklane \\xc2\\xb7 owner/repo \\xc2\\xb7 stopped\\x1b[0m\\x1b[2;1H\\x1b[2KOverview \\xc2\\xb7 Enter expands / opens logs \\xc2\\xb7 i details \\xc2\\xb7 / search\\x1b[0m\\x1b[3;1H\\x1b[2K> #1 Task \\xe7\\x95\\x8c e\\xcc\\x81 \\xc2\\xb7 interrupted\\x1b[0m\\x1b[4;1H\\x1b[2K\\x1b[0m\\x1b[5;1H\\x1b[2K\\x1b[0m\\x1b[6;1H\\x1b[2K\\x1b[0m\\x1b[7;1H\\x1b[2K\\x1b[0m\\x1b[8;1H\\x1b[2K\\x1b[0m\\x1b[9;1H\\x1b[2K\\x1b[0m\\x1b[10;1H\\x1b[2K\\x1b[0m\\x1b[11;1H\\x1b[2K\\x1b[0m\\x1b[12;1H\\x1b[2K\\x1b[0m\\x1b[13;1H\\x1b[2K\\x1b[0m\\x1b[14;1H\\x1b[2K\\x1b[0m\\x1b[15;1H\\x1b[2K\\x1b[0m\\x1b[16;1H\\x1b[2K\\x1b[0m\\x1b[17;1H\\x1b[2K\\x1b[0m\\x1b[18;1H\\x1b[2K\\x1b[0m\\x1b[19;1H\\x1b[2K\\x1b[0m\\x1b[20;1H\\x1b[2K\\x1b[0m\\x1b[21;1H\\x1b[2K\\x1b[0m\\x1b[22;1H\\x1b[2K\\x1b[0m\\x1b[23;1H\\x1b[2K\\x1b[0m\\x1b[24;1H\\x1b[2K\\x1b[0m\\x1b[25;1H\\x1b[2K\\x1b[0m\\x1b[26;1H\\x1b[2KBoard security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \\x1b[0m\\x1b[27;1H\\x1b[2Ks start \\xc2\\xb7 z pause \\xc2\\xb7 u resume \\xc2\\xb7 x drain \\xc2\\xb7 X stop now \\xc2\\xb7 t retry\\x1b[0m\\x1b[28;1H\\x1b[2Kc config \\xc2\\xb7 n/e issue \\xc2\\xb7 p PR \\xc2\\xb7 o browser \\xc2\\xb7 a session \\xc2\\xb7 m input \\xc2\\xb7 q back/quit\\x1b[0m\\x1b[J'\n\n----------------------------------------------------------------------\nRan 559 tests in 235.559s\n\nFAILED (failures=1, skipped=2)",
-      "log_sha256": "7fbe2236c1f72b037ada72e88650137f6007b0f153bfb907ae747bacb2c22e49"
+      "tail": "#1 blocked: Completed implementation expected Agent review; board is done. Check project automations/manual edits, then run worklane retry 1 to revalidate the saved build. Board status was preserved.\n#1 completion unavailable: 'headRefName'\n#1 blocked: Completed implementation expected Agent review; board is missing/closed. Check project automations/manual edits, then run worklane retry 1 to revalidate the saved build. Board status was preserved.\nreviewer: #1 Issue\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n----------------------------------------------------------------------\nRan 559 tests in 215.721s\n\nOK (skipped=2)",
+      "log_sha256": "531d8923a049acc27b363eeed774641bb1afd82e20d35f4e97d664cfe79d5a68"
     },
     {
       "command": [
@@ -920,8 +920,8 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-7.log",
-      "tail": "----------------------------------------------------------------------\nRan 10 tests in 44.170s\n\nOK",
-      "log_sha256": "554664b2b029f6e97c9ef7281f9a610388b6cd3ecb8a312c651597acb243ee9f"
+      "tail": "----------------------------------------------------------------------\nRan 10 tests in 44.437s\n\nOK",
+      "log_sha256": "091ef250bc3ecfcdd2b482033cb81912eb74adf855e7d7be617ddcb582a00078"
     },
     {
       "command": [
@@ -1016,7 +1016,7 @@
     "test_native_security.py": "815e99bc64ce6f67dcfc005730416fbd5e37513c7b748e598c181a2fa7d18f68",
     "test_native_stack_shape.py": "327d777f636709dc0ff63b39c8afc9a8e3d819be0ebcf804580c08b2f80ebfa4",
     "test_native_storage_boundaries.py": "c7a00719e4e90b133d6312d8d8d3898755c18578e17adcab651e462f8a572093",
-    "test_native_tui.py": "416e15de7faeff4a219274b5765c9bd6d850609e433da41e64b0b5dea153e268",
+    "test_native_tui.py": "5fbdb91392919570bdbf40de2fb77746d06a9611bc634c5d4f5e71325d9421a1",
     "test_native_workflow.py": "7acc4d171c9f48538900fdf64a073c6e0e73df785b38423d57ccf1289bec5430",
     "test_port_parity.py": "c6aeae361a480e7aab1a0aca74d04d005940d4353fd1216e12d89fc3e4e093b1",
     "test_security.py": "6ced7b5fd24eaca601ec5b7179a8ed998c184cadf54b288aba6e5b89dc8f0814",
@@ -1049,7 +1049,7 @@
     "worklane_process.py": "5afb22a3b180b9a0565a97ddf2f897cb4975cdd9422e4c927226d6afe67774e3",
     "worklane_tui.py": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843"
   },
-  "checks_current": false,
+  "checks_current": true,
   "targeted_commands": [],
   "targeted_inputs": null,
   "targeted_checks_current": false,
@@ -6431,7 +6431,7 @@
   ],
   "exhaustive_parity_complete": false,
   "exhaustive_inventory_advisory": true,
-  "stage2_complete": false,
+  "stage2_complete": true,
   "limits": [
     "No installation switch or live authenticated provider turns.",
     "Protocol/results: 4 MiB; subprocess capture: 16 MiB; logs/events use bounded pages.",

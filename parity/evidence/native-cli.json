@@ -2,15 +2,15 @@
   "scenario_group": "core.10.native-cli",
   "candidate_runtime": "native",
   "candidate": [
-    "/tmp/worklane-51-rework-install/bin/worklane"
+    "/tmp/worklane-53-install/bin/worklane"
   ],
-  "candidate_revision": "238405db8d4fdaa39fda4d3f9371026e7f356a69",
+  "candidate_revision": "ce6745ed0b3cff7aa0c33a32473c9d9e3d12edf6",
   "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
   "parent_revision": "5cc71a5880dc77727987e4a496c53181f5e5d8f0",
-  "candidate_sha256": "cfac9a1dac6905a3dc65cd798de119c3e15bda8bcb76a096f73d30928e85adf7",
+  "candidate_sha256": "519eb16da3b995f4c534f8f15a7be9b582ab2e23f110d7bb7133ae720182f206",
   "driver": "test_native_cli.py",
   "input_hashes": {
-    "test_native_cli.py": "9e047aa65ca7423a9f03581ddec14b6813b8901b10208beee177d132207609da",
+    "test_native_cli.py": "84cdf480ee00cc58b339b41b93176b1f1080330c96f33fa0d4ef95ca69440245",
     "parity/fixtures/cli.json": "5729e123c74233ebe4dc622210b445041b7a02b8e272414beb2eafdc1be138e9",
     "tools/port_parity.py": "14bd6cc8fe7cfa8b1bacdd8ad8d5f93f9147c13eb787550acca78deda5448e9b",
     "tools/parity_tool.py": "fb60b5f671154ee16f3c1cfd81ca86be6ef294ec05a89d7d42122e7ce6b7479e",
@@ -23,18 +23,21 @@
     "runtime/src/api.rs": "4675f64bd8f3e8f60ecc16e1bec266d4890dad782cb431149576f6fbf2803610",
     "runtime/src/bin/runtime-fixture-adapter/guards.rs": "d5e5963bdec2ee75081c42631aaba565a8f2ae0379eeb8610ccac84be23d7972",
     "runtime/src/bin/runtime-fixture-adapter.rs": "92acb9b5f726390d6f80ead6c8ef4ce84bd5945e81a76d858558561bb9c069ab",
+    "runtime/src/bin/worklane-tui.rs": "17a353b94fc4caf789498a115e86825b4f131809a6f228f2ff5a81eab25405da",
     "runtime/src/bin/worklane.rs": "07a8b2f04d277d5ecdd092741b68c1da11c5c7088baf5d71f5132c7fec6aad86",
     "runtime/src/board.rs": "120e796a042b4bdb0dd9490922e4384ae7bd5eb12451b003e7d04b0ee98ee524",
-    "runtime/src/cli.rs": "8b3e82abc38a6ee11dab38b6d9114477c8ee37ad793c8258001d5fbfd785d24c",
+    "runtime/src/cli.rs": "bbb82a79895c4fda5c8013b6cd30484585e7a3e948a344f37e8243c0193076d5",
     "runtime/src/config.rs": "f8ce6e1c03674c21506a7f1b040d82e73ac2865f912805c835e8070711217bb3",
     "runtime/src/controller.rs": "91e112db2599c258ca44bf2199406a011dc16fd6bf558c9c95e4481eee8d1a2c",
     "runtime/src/harness.rs": "da9e7d7f6abc3dc1c8b7773315a0ca34338973b051ced7eb2dcd7c6ecb05dc28",
-    "runtime/src/lib.rs": "96f6ff3e26e71dbcabf2b41b0e123daf038335143ab6879f75de477d71c40314",
+    "runtime/src/lib.rs": "55d00891e7316ab568e969a14323b0c1e17e68eeb8b6f70df36111b49b2f6465",
     "runtime/src/process.rs": "7a62f5d0f989a7ddd199cb9cc5b2896a7ec7ddbec3221efe782a0ad05c3b7302",
     "runtime/src/queries.rs": "940f625231472bb93b876871cbca4d33a5c971bbd16b3deb66d81a6674f77020",
     "runtime/src/read_model.rs": "406d210329daa8e8a34500a020e739d8823f6a313bc9014f82201ec1281e11e5",
     "runtime/src/state.rs": "abebd7056fd50fe00bcbfa28a05e50a822532eb330272ad2385852558d5f8805",
-    "runtime/src/transport.rs": "2023217f4015c2bf438b4176253a08020f2169e311315a4c8e41a549f1dd44f3",
+    "runtime/src/transport.rs": "dd461b72b94e479a0ed5b9de41d45a021a9008219505effb826b65994b0d758b",
+    "runtime/src/tui/terminal.rs": "34aca0995f8b80af2088777203dc8897cdb07bb4c10ea2fa38631949bd3e2962",
+    "runtime/src/tui.rs": "15af4e8cbc05ae68743e9beda84b62dc4b9ca00ae9c7fee2ccfad3d14f153d42",
     "runtime/src/unicode.rs": "57da5d8f1646d69eae3aa6b4bfef7592cc135cd8ecfd5f1c764b00c32bbc65a8",
     "runtime/src/workflow.rs": "1295aa69ce505ee4753b03588f62a5d6a7b66d10e16c0a8da1f0aeb3b9a070c8"
   },
@@ -132,7 +135,7 @@
             "fixture"
           ],
           "exit": 0,
-          "stdout": "Started owner/repo (PID 122); use worklane logs to inspect SQLite logs.\n",
+          "stdout": "Started owner/repo (PID 1565974); use worklane logs to inspect SQLite logs.\n",
           "stderr": ""
         },
         {
@@ -140,7 +143,7 @@
             "status"
           ],
           "exit": 0,
-          "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": true,\n  \"paused\": false,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"immediate\": false,\n    \"generation\": \"345485898f96489faae30cfefbb8e891\"\n  },\n  \"stop_result\": {},\n  \"runtime\": {\n    \"harness\": \"codex\",\n    \"workers\": 2,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 10,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"opencode\",\n    \"reviewer_model\": \"fixture\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\",\n    \"cli\": {\n      \"version\": \"0.1.0\",\n      \"executable\": \"/tmp/worklane-51-rework-install/bin/worklane\",\n      \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/runtime\",\n      \"revision\": \"238405db8d4fdaa39fda4d3f9371026e7f356a69\",\n      \"branch\": \"codex/51-worklane\",\n      \"dirty\": false,\n      \"runtime\": \"native\"\n    },\n    \"once\": false,\n    \"dangerously_allow_public_board\": false,\n    \"pid\": 122,\n    \"identity\": \"3077651\",\n    \"ownership_token\": \"5c121fa786e24d3ab2cb64a12503d54f\",\n    \"started_at\": \"2026-10-20T11:24:31.480816+00:00\",\n    \"checkout\": \"/tmp/tmpbh22zt95/repo\",\n    \"generation\": \"345485898f96489faae30cfefbb8e891\"\n  },\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo\"\n}\n",
+          "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": true,\n  \"paused\": false,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"immediate\": false,\n    \"generation\": \"d01188cfe4bb40bb979478d6f9c41489\"\n  },\n  \"stop_result\": {},\n  \"runtime\": {\n    \"harness\": \"codex\",\n    \"workers\": 2,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 10,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"opencode\",\n    \"reviewer_model\": \"fixture\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\",\n    \"cli\": {\n      \"version\": \"0.1.0\",\n      \"executable\": \"/tmp/worklane-53-install/bin/worklane\",\n      \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/53/runtime\",\n      \"revision\": \"ce6745ed0b3cff7aa0c33a32473c9d9e3d12edf6\",\n      \"branch\": \"codex/53-worklane\",\n      \"dirty\": false,\n      \"runtime\": \"native\"\n    },\n    \"once\": false,\n    \"dangerously_allow_public_board\": false,\n    \"pid\": 1565974,\n    \"identity\": \"3450556\",\n    \"ownership_token\": \"2d5a1bf7abb14092bb1aea16ba8f9f36\",\n    \"started_at\": \"2026-10-20T12:26:40.384780+00:00\",\n    \"checkout\": \"/tmp/tmpgfdq9wpj/repo\",\n    \"generation\": \"d01188cfe4bb40bb979478d6f9c41489\"\n  },\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"/tmp/tmpgfdq9wpj/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"/tmp/tmpgfdq9wpj/state/worklane/owner--repo\"\n}\n",
           "stderr": ""
         },
         {
@@ -156,7 +159,7 @@
             "status"
           ],
           "exit": 0,
-          "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": true,\n  \"paused\": true,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"immediate\": false,\n    \"generation\": \"345485898f96489faae30cfefbb8e891\"\n  },\n  \"stop_result\": {},\n  \"runtime\": {\n    \"harness\": \"codex\",\n    \"workers\": 2,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 10,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"opencode\",\n    \"reviewer_model\": \"fixture\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\",\n    \"cli\": {\n      \"version\": \"0.1.0\",\n      \"executable\": \"/tmp/worklane-51-rework-install/bin/worklane\",\n      \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/runtime\",\n      \"revision\": \"238405db8d4fdaa39fda4d3f9371026e7f356a69\",\n      \"branch\": \"codex/51-worklane\",\n      \"dirty\": false,\n      \"runtime\": \"native\"\n    },\n    \"once\": false,\n    \"dangerously_allow_public_board\": false,\n    \"pid\": 122,\n    \"identity\": \"3077651\",\n    \"ownership_token\": \"5c121fa786e24d3ab2cb64a12503d54f\",\n    \"started_at\": \"2026-10-20T11:24:31.480816+00:00\",\n    \"checkout\": \"/tmp/tmpbh22zt95/repo\",\n    \"generation\": \"345485898f96489faae30cfefbb8e891\"\n  },\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo\"\n}\n",
+          "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": true,\n  \"paused\": true,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"immediate\": false,\n    \"generation\": \"d01188cfe4bb40bb979478d6f9c41489\"\n  },\n  \"stop_result\": {},\n  \"runtime\": {\n    \"harness\": \"codex\",\n    \"workers\": 2,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 10,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"opencode\",\n    \"reviewer_model\": \"fixture\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\",\n    \"cli\": {\n      \"version\": \"0.1.0\",\n      \"executable\": \"/tmp/worklane-53-install/bin/worklane\",\n      \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/53/runtime\",\n      \"revision\": \"ce6745ed0b3cff7aa0c33a32473c9d9e3d12edf6\",\n      \"branch\": \"codex/53-worklane\",\n      \"dirty\": false,\n      \"runtime\": \"native\"\n    },\n    \"once\": false,\n    \"dangerously_allow_public_board\": false,\n    \"pid\": 1565974,\n    \"identity\": \"3450556\",\n    \"ownership_token\": \"2d5a1bf7abb14092bb1aea16ba8f9f36\",\n    \"started_at\": \"2026-10-20T12:26:40.384780+00:00\",\n    \"checkout\": \"/tmp/tmpgfdq9wpj/repo\",\n    \"generation\": \"d01188cfe4bb40bb979478d6f9c41489\"\n  },\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"/tmp/tmpgfdq9wpj/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"/tmp/tmpgfdq9wpj/state/worklane/owner--repo\"\n}\n",
           "stderr": ""
         },
         {
@@ -174,7 +177,7 @@
             "status"
           ],
           "exit": 0,
-          "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": true,\n  \"paused\": false,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"immediate\": false,\n    \"generation\": \"345485898f96489faae30cfefbb8e891\"\n  },\n  \"stop_result\": {},\n  \"runtime\": {\n    \"harness\": \"codex\",\n    \"workers\": 2,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 10,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"opencode\",\n    \"reviewer_model\": \"fixture\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\",\n    \"cli\": {\n      \"version\": \"0.1.0\",\n      \"executable\": \"/tmp/worklane-51-rework-install/bin/worklane\",\n      \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/runtime\",\n      \"revision\": \"238405db8d4fdaa39fda4d3f9371026e7f356a69\",\n      \"branch\": \"codex/51-worklane\",\n      \"dirty\": false,\n      \"runtime\": \"native\"\n    },\n    \"once\": false,\n    \"dangerously_allow_public_board\": false,\n    \"pid\": 122,\n    \"identity\": \"3077651\",\n    \"ownership_token\": \"5c121fa786e24d3ab2cb64a12503d54f\",\n    \"started_at\": \"2026-10-20T11:24:31.480816+00:00\",\n    \"checkout\": \"/tmp/tmpbh22zt95/repo\",\n    \"generation\": \"345485898f96489faae30cfefbb8e891\"\n  },\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo\"\n}\n",
+          "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": true,\n  \"paused\": false,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"immediate\": false,\n    \"generation\": \"d01188cfe4bb40bb979478d6f9c41489\"\n  },\n  \"stop_result\": {},\n  \"runtime\": {\n    \"harness\": \"codex\",\n    \"workers\": 2,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 10,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"opencode\",\n    \"reviewer_model\": \"fixture\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\",\n    \"cli\": {\n      \"version\": \"0.1.0\",\n      \"executable\": \"/tmp/worklane-53-install/bin/worklane\",\n      \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/53/runtime\",\n      \"revision\": \"ce6745ed0b3cff7aa0c33a32473c9d9e3d12edf6\",\n      \"branch\": \"codex/53-worklane\",\n      \"dirty\": false,\n      \"runtime\": \"native\"\n    },\n    \"once\": false,\n    \"dangerously_allow_public_board\": false,\n    \"pid\": 1565974,\n    \"identity\": \"3450556\",\n    \"ownership_token\": \"2d5a1bf7abb14092bb1aea16ba8f9f36\",\n    \"started_at\": \"2026-10-20T12:26:40.384780+00:00\",\n    \"checkout\": \"/tmp/tmpgfdq9wpj/repo\",\n    \"generation\": \"d01188cfe4bb40bb979478d6f9c41489\"\n  },\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"/tmp/tmpgfdq9wpj/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"/tmp/tmpgfdq9wpj/state/worklane/owner--repo\"\n}\n",
           "stderr": ""
         },
         {
@@ -202,7 +205,7 @@
             "status"
           ],
           "exit": 0,
-          "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": false,\n  \"paused\": true,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"immediate\": true,\n    \"generation\": \"345485898f96489faae30cfefbb8e891\",\n    \"requested\": true,\n    \"requested_at\": \"2026-10-20T11:24:35.177086+00:00\"\n  },\n  \"stop_result\": {\n    \"at\": \"2026-10-20T11:24:35.976682+00:00\",\n    \"remaining_pids\": [],\n    \"running\": false\n  },\n  \"runtime\": {\n    \"harness\": \"codex\",\n    \"workers\": 2,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 10,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"opencode\",\n    \"reviewer_model\": \"fixture\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\",\n    \"cli\": {\n      \"version\": \"0.1.0\",\n      \"executable\": \"/tmp/worklane-51-rework-install/bin/worklane\",\n      \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/runtime\",\n      \"revision\": \"238405db8d4fdaa39fda4d3f9371026e7f356a69\",\n      \"branch\": \"codex/51-worklane\",\n      \"dirty\": false,\n      \"runtime\": \"native\"\n    },\n    \"once\": false,\n    \"dangerously_allow_public_board\": false,\n    \"pid\": 122,\n    \"identity\": \"3077651\",\n    \"ownership_token\": \"5c121fa786e24d3ab2cb64a12503d54f\",\n    \"started_at\": \"2026-10-20T11:24:31.480816+00:00\",\n    \"checkout\": \"/tmp/tmpbh22zt95/repo\",\n    \"generation\": \"345485898f96489faae30cfefbb8e891\"\n  },\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo\"\n}\n",
+          "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": false,\n  \"paused\": true,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"immediate\": true,\n    \"generation\": \"d01188cfe4bb40bb979478d6f9c41489\",\n    \"requested\": true,\n    \"requested_at\": \"2026-10-20T12:26:41.449646+00:00\"\n  },\n  \"stop_result\": {\n    \"at\": \"2026-10-20T12:26:41.521011+00:00\",\n    \"remaining_pids\": [],\n    \"running\": false\n  },\n  \"runtime\": {\n    \"harness\": \"codex\",\n    \"workers\": 2,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 10,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"opencode\",\n    \"reviewer_model\": \"fixture\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\",\n    \"cli\": {\n      \"version\": \"0.1.0\",\n      \"executable\": \"/tmp/worklane-53-install/bin/worklane\",\n      \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/53/runtime\",\n      \"revision\": \"ce6745ed0b3cff7aa0c33a32473c9d9e3d12edf6\",\n      \"branch\": \"codex/53-worklane\",\n      \"dirty\": false,\n      \"runtime\": \"native\"\n    },\n    \"once\": false,\n    \"dangerously_allow_public_board\": false,\n    \"pid\": 1565974,\n    \"identity\": \"3450556\",\n    \"ownership_token\": \"2d5a1bf7abb14092bb1aea16ba8f9f36\",\n    \"started_at\": \"2026-10-20T12:26:40.384780+00:00\",\n    \"checkout\": \"/tmp/tmpgfdq9wpj/repo\",\n    \"generation\": \"d01188cfe4bb40bb979478d6f9c41489\"\n  },\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"/tmp/tmpgfdq9wpj/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"/tmp/tmpgfdq9wpj/state/worklane/owner--repo\"\n}\n",
           "stderr": ""
         }
       ],
@@ -390,12 +393,12 @@
           },
           {
             "exit": 0,
-            "stdout": "2026-10-20T11:24:42.998237+00:00 [controller-error] codex failed: provider unavailable\n",
+            "stdout": "2026-10-20T12:26:42.147175+00:00 [controller-error] codex failed: provider unavailable\n",
             "stderr": ""
           },
           {
             "exit": 0,
-            "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": false,\n  \"paused\": false,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"immediate\": false,\n    \"generation\": \"8dae88bb8dce4e2698610aca78144689\"\n  },\n  \"stop_result\": {},\n  \"runtime\": {\n    \"harness\": \"codex\",\n    \"workers\": 3,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 60,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"\",\n    \"reviewer_model\": \"\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\",\n    \"cli\": {\n      \"version\": \"0.1.0\",\n      \"executable\": \"/tmp/worklane-51-rework-install/bin/worklane\",\n      \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/runtime\",\n      \"revision\": \"238405db8d4fdaa39fda4d3f9371026e7f356a69\",\n      \"branch\": \"codex/51-worklane\",\n      \"dirty\": false,\n      \"runtime\": \"native\"\n    },\n    \"once\": true,\n    \"dangerously_allow_public_board\": false,\n    \"pid\": 195,\n    \"identity\": \"3078392\",\n    \"ownership_token\": \"b003300f91d34686b462ec69a1f419bb\",\n    \"started_at\": \"2026-10-20T11:24:40.711770+00:00\",\n    \"checkout\": \"<SANDBOX>/repo\",\n    \"generation\": \"8dae88bb8dce4e2698610aca78144689\"\n  },\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"<SANDBOX>/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"<SANDBOX>/state/worklane/owner--repo\"\n}\n",
+            "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": false,\n  \"paused\": false,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"immediate\": false,\n    \"generation\": \"08238a20258e43c09062089e96bcf683\"\n  },\n  \"stop_result\": {},\n  \"runtime\": {\n    \"harness\": \"codex\",\n    \"workers\": 3,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 60,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"\",\n    \"reviewer_model\": \"\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\",\n    \"cli\": {\n      \"version\": \"0.1.0\",\n      \"executable\": \"/tmp/worklane-53-install/bin/worklane\",\n      \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/53/runtime\",\n      \"revision\": \"ce6745ed0b3cff7aa0c33a32473c9d9e3d12edf6\",\n      \"branch\": \"codex/53-worklane\",\n      \"dirty\": false,\n      \"runtime\": \"native\"\n    },\n    \"once\": true,\n    \"dangerously_allow_public_board\": false,\n    \"pid\": 1566047,\n    \"identity\": \"3450703\",\n    \"ownership_token\": \"8d6b349e8adc4e4eac14e8e2d2e89bdc\",\n    \"started_at\": \"2026-10-20T12:26:41.906680+00:00\",\n    \"checkout\": \"<SANDBOX>/repo\",\n    \"generation\": \"08238a20258e43c09062089e96bcf683\"\n  },\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"<SANDBOX>/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"<SANDBOX>/state/worklane/owner--repo\"\n}\n",
             "stderr": ""
           }
         ],
@@ -500,7 +503,7 @@
           },
           {
             "exit": 0,
-            "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": false,\n  \"paused\": true,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"requested\": true,\n    \"immediate\": true,\n    \"requested_at\": \"2026-10-20T11:24:44.709630+00:00\"\n  },\n  \"stop_result\": {\n    \"at\": \"2026-10-20T11:24:44.719100+00:00\",\n    \"remaining_pids\": [],\n    \"running\": false\n  },\n  \"runtime\": {},\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"<SANDBOX>/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"<SANDBOX>/state/worklane/owner--repo\"\n}\n",
+            "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": false,\n  \"paused\": true,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"requested\": true,\n    \"immediate\": true,\n    \"requested_at\": \"2026-10-20T12:26:42.833577+00:00\"\n  },\n  \"stop_result\": {\n    \"at\": \"2026-10-20T12:26:42.870396+00:00\",\n    \"remaining_pids\": [],\n    \"running\": false\n  },\n  \"runtime\": {},\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"<SANDBOX>/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"<SANDBOX>/state/worklane/owner--repo\"\n}\n",
             "stderr": ""
           }
         ],
@@ -519,7 +522,7 @@
         "steps": [
           {
             "exit": 0,
-            "stdout": "Worklane: coding workers and one independent reviewer for a GitHub project board.\nUsage: worklane [COMMAND] [NUMBER] [OPTIONS]\nCommands: run start check board status logs config pause resume stop retry add stack tui\nDefault: tui (native dashboard supplied by #52).\n  run / start          Foreground / detached controller\n  check                Read-only board, dependency and stack readiness\n  board                Open project board with gh\n  status / stack       Offline saved state / pinned ancestry JSON\n  logs [NUMBER]        Complete readable history (--raw includes protocol events)\n  config               Offline settings walkthrough (EOF or Esc cancels)\n  config --show        Print effective settings without saving\n  config --save        Atomically save effective settings, including explicit overrides\n  pause / resume       Pause / resume intake; resume does not launch a controller\n  stop [--now]         Drain / interrupt owned processes; retain sessions and worktrees\n  retry NUMBER         Enable exact saved-session retry after inspection\n  add -t TITLE [-d BODY] [--draft | --shaping]\nOptions:\n  --repo PATH          Checkout to manage (default .)\n  --project OWNER/N    Explicit GitHub board; otherwise discover automatically\n  --harness NAME       codex or opencode\n  --model MODEL        Default model (empty inherits provider default)\n  --worker-harness NAME / --worker-model MODEL\n  --reviewer-harness NAME / --reviewer-model MODEL\n  --finalizer-harness NAME / --finalizer-model MODEL\n  --workers N          1..16 (default 3), plus one independent reviewer\n  --effort LEVEL       low, medium, high, xhigh (default high)\n  --interval N         Poll seconds, at least 10 (default 60)\n  --once               Dispatch one batch, wait, then exit\n  --title / -t TITLE   Issue title for add\n  --description / --body / -d BODY   Literal issue body\n  --dangerously-allow-public-board  Invocation-only public-board consent\n  --refresh SECONDS / --no-color    Dashboard presentation options\n  -h, --help / --version\nCLI overrides > checkout .worklane.toml > defaults. GitHub and git authentication use gh.\n",
+            "stdout": "Worklane: coding workers and one independent reviewer for a GitHub project board.\nUsage: worklane [COMMAND] [NUMBER] [OPTIONS]\nCommands: run start check board status logs config pause resume stop retry add stack tui\nDefault: tui (native dashboard).\n  run / start          Foreground / detached controller\n  check                Read-only board, dependency and stack readiness\n  board                Open project board with gh\n  status / stack       Offline saved state / pinned ancestry JSON\n  logs [NUMBER]        Complete readable history (--raw includes protocol events)\n  config               Offline settings walkthrough (EOF or Esc cancels)\n  config --show        Print effective settings without saving\n  config --save        Atomically save effective settings, including explicit overrides\n  pause / resume       Pause / resume intake; resume does not launch a controller\n  stop [--now]         Drain / interrupt owned processes; retain sessions and worktrees\n  retry NUMBER         Enable exact saved-session retry after inspection\n  add -t TITLE [-d BODY] [--draft | --shaping]\nOptions:\n  --repo PATH          Checkout to manage (default .)\n  --project OWNER/N    Explicit GitHub board; otherwise discover automatically\n  --harness NAME       codex or opencode\n  --model MODEL        Default model (empty inherits provider default)\n  --worker-harness NAME / --worker-model MODEL\n  --reviewer-harness NAME / --reviewer-model MODEL\n  --finalizer-harness NAME / --finalizer-model MODEL\n  --workers N          1..16 (default 3), plus one independent reviewer\n  --effort LEVEL       low, medium, high, xhigh (default high)\n  --interval N         Poll seconds, at least 10 (default 60)\n  --once               Dispatch one batch, wait, then exit\n  --title / -t TITLE   Issue title for add\n  --description / --body / -d BODY   Literal issue body\n  --dangerously-allow-public-board  Invocation-only public-board consent\n  --refresh SECONDS / --no-color    Dashboard presentation options\n  -h, --help / --version\nCLI overrides > checkout .worklane.toml > defaults. GitHub and git authentication use gh.\n",
             "stderr": ""
           }
         ],
@@ -1872,7 +1875,7 @@
           },
           {
             "exit": 0,
-            "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": false,\n  \"paused\": false,\n  \"dependency_blocks\": {},\n  \"shutdown\": {},\n  \"stop_result\": {},\n  \"runtime\": {},\n  \"tasks\": [\n    {\n      \"number\": 7,\n      \"phase\": \"retry\",\n      \"failed_phase\": \"building\",\n      \"active_stage\": \"build\",\n      \"worker_worktree\": \"<SANDBOX>/repo\",\n      \"base\": \"main\",\n      \"base_sha\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n      \"stack\": [],\n      \"log\": \"<SANDBOX>/state/worklane/owner--repo/worker.jsonl\",\n      \"pending_input\": \"pending followup\",\n      \"legacy_session_roles\": [\n        \"worker\"\n      ],\n      \"updated_at\": \"2026-10-20T11:24:50.028636+00:00\",\n      \"resume_stage\": \"build\",\n      \"completed_turns\": null,\n      \"sessions\": {\n        \"worker\": {\n          \"role\": \"worker\",\n          \"session_id\": \"2d662454-7b7c-4ba8-8e9f-2a28d0b6764a\",\n          \"backend\": \"codex\",\n          \"worktree\": \"<SANDBOX>/state/worklane/owner--repo/worktrees/7\",\n          \"model\": \"gpt-6.1-sol\"\n        }\n      }\n    }\n  ],\n  \"runs\": [],\n  \"database\": \"<SANDBOX>/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"<SANDBOX>/state/worklane/owner--repo\"\n}\n",
+            "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": false,\n  \"paused\": false,\n  \"dependency_blocks\": {},\n  \"shutdown\": {},\n  \"stop_result\": {},\n  \"runtime\": {},\n  \"tasks\": [\n    {\n      \"number\": 7,\n      \"phase\": \"retry\",\n      \"failed_phase\": \"building\",\n      \"active_stage\": \"build\",\n      \"worker_worktree\": \"<SANDBOX>/repo\",\n      \"base\": \"main\",\n      \"base_sha\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n      \"stack\": [],\n      \"log\": \"<SANDBOX>/state/worklane/owner--repo/worker.jsonl\",\n      \"pending_input\": \"pending followup\",\n      \"legacy_session_roles\": [\n        \"worker\"\n      ],\n      \"updated_at\": \"2026-10-20T12:26:50.124089+00:00\",\n      \"resume_stage\": \"build\",\n      \"completed_turns\": null,\n      \"sessions\": {\n        \"worker\": {\n          \"role\": \"worker\",\n          \"session_id\": \"2d662454-7b7c-4ba8-8e9f-2a28d0b6764a\",\n          \"backend\": \"codex\",\n          \"worktree\": \"<SANDBOX>/state/worklane/owner--repo/worktrees/7\",\n          \"model\": \"gpt-6.1-sol\"\n        }\n      }\n    }\n  ],\n  \"runs\": [],\n  \"database\": \"<SANDBOX>/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"<SANDBOX>/state/worklane/owner--repo\"\n}\n",
             "stderr": ""
           },
           {
@@ -1933,13 +1936,13 @@
         "steps": [
           {
             "exit": 0,
-            "stdout": "{\n  \"version\": \"0.1.0\",\n  \"executable\": \"/tmp/worklane-51-rework-install/bin/worklane\",\n  \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/runtime\",\n  \"revision\": \"238405db8d4fdaa39fda4d3f9371026e7f356a69\",\n  \"branch\": \"codex/51-worklane\",\n  \"dirty\": false,\n  \"runtime\": \"native\"\n}\n",
+            "stdout": "{\n  \"version\": \"0.1.0\",\n  \"executable\": \"/tmp/worklane-53-install/bin/worklane\",\n  \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/53/runtime\",\n  \"revision\": \"ce6745ed0b3cff7aa0c33a32473c9d9e3d12edf6\",\n  \"branch\": \"codex/53-worklane\",\n  \"dirty\": false,\n  \"runtime\": \"native\"\n}\n",
             "stderr": ""
           },
           {
             "exit": 1,
             "stdout": "",
-            "stderr": "worklane: Native TUI is delivered by #52; use status, logs, config or start in this CLI preview.\n"
+            "stderr": "worklane: TUI requires an interactive terminal; use status or logs for redirected output.\n"
           },
           {
             "exit": 2,
@@ -2301,7 +2304,7 @@
         "steps": [
           {
             "exit": 0,
-            "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"board\": \"https://github.com/users/owner/projects/2\",\n  \"security\": {\n    \"visibility\": \"private\",\n    \"project_viewer_can_update\": true,\n    \"repository_permission\": \"ADMIN\",\n    \"safe\": true,\n    \"public_board_override\": false,\n    \"verification_limits\": [\n      \"Repository permissions do not establish project collaborator access.\",\n      \"Project collaborator grants and workflow rule settings require manual review.\",\n      \"Public visibility permits reading; it does not grant anonymous writes.\"\n    ]\n  },\n  \"cli\": {\n    \"version\": \"0.1.0\",\n    \"executable\": \"/tmp/worklane-51-rework-install/bin/worklane\",\n    \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/runtime\",\n    \"revision\": \"238405db8d4fdaa39fda4d3f9371026e7f356a69\",\n    \"branch\": \"codex/51-worklane\",\n    \"dirty\": false,\n    \"runtime\": \"native\"\n  },\n  \"settings\": {\n    \"harness\": \"codex\",\n    \"workers\": 2,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 60,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"\",\n    \"reviewer_model\": \"\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\"\n  },\n  \"harness\": \"codex\",\n  \"model\": \"\",\n  \"workers\": 2,\n  \"effort\": \"high\",\n  \"reviewers\": 1,\n  \"will_add_agent_review\": false,\n  \"ready\": [],\n  \"stack_ready\": {},\n  \"dependency_reasons\": {},\n  \"dependency_blocked\": {\n    \"7\": 1\n  },\n  \"agent_review\": []\n}\n",
+            "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"board\": \"https://github.com/users/owner/projects/2\",\n  \"security\": {\n    \"visibility\": \"private\",\n    \"project_viewer_can_update\": true,\n    \"repository_permission\": \"ADMIN\",\n    \"safe\": true,\n    \"public_board_override\": false,\n    \"verification_limits\": [\n      \"Repository permissions do not establish project collaborator access.\",\n      \"Project collaborator grants and workflow rule settings require manual review.\",\n      \"Public visibility permits reading; it does not grant anonymous writes.\"\n    ]\n  },\n  \"cli\": {\n    \"version\": \"0.1.0\",\n    \"executable\": \"/tmp/worklane-53-install/bin/worklane\",\n    \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/53/runtime\",\n    \"revision\": \"ce6745ed0b3cff7aa0c33a32473c9d9e3d12edf6\",\n    \"branch\": \"codex/53-worklane\",\n    \"dirty\": false,\n    \"runtime\": \"native\"\n  },\n  \"settings\": {\n    \"harness\": \"codex\",\n    \"workers\": 2,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 60,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"\",\n    \"reviewer_model\": \"\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\"\n  },\n  \"harness\": \"codex\",\n  \"model\": \"\",\n  \"workers\": 2,\n  \"effort\": \"high\",\n  \"reviewers\": 1,\n  \"will_add_agent_review\": false,\n  \"ready\": [],\n  \"stack_ready\": {},\n  \"dependency_reasons\": {},\n  \"dependency_blocked\": {\n    \"7\": 1\n  },\n  \"agent_review\": []\n}\n",
             "stderr": ""
           }
         ],
@@ -2502,18 +2505,18 @@
           "shutdown": {
             "requested": true,
             "immediate": true,
-            "requested_at": "2026-10-20T11:24:52.566141+00:00"
+            "requested_at": "2026-10-20T12:26:53.493643+00:00"
           },
           "stop_result": {
-            "at": "2026-10-20T11:24:52.574586+00:00",
+            "at": "2026-10-20T12:26:53.532706+00:00",
             "remaining_pids": [],
             "running": false
           },
           "runtime": {},
           "tasks": [],
           "runs": [],
-          "database": "/tmp/tmpph8cgw7e/state/worklane/owner--repo/state.sqlite3",
-          "state_dir": "/tmp/tmpph8cgw7e/state/worklane/owner--repo"
+          "database": "/tmp/tmp7fe4ahpl/state/worklane/owner--repo/state.sqlite3",
+          "state_dir": "/tmp/tmp7fe4ahpl/state/worklane/owner--repo"
         },
         "after": {
           "repository": "owner/repo",
@@ -2523,18 +2526,18 @@
           "shutdown": {
             "requested": true,
             "immediate": true,
-            "requested_at": "2026-10-20T11:24:52.566141+00:00"
+            "requested_at": "2026-10-20T12:26:53.493643+00:00"
           },
           "stop_result": {
-            "at": "2026-10-20T11:24:52.574586+00:00",
+            "at": "2026-10-20T12:26:53.532706+00:00",
             "remaining_pids": [],
             "running": false
           },
           "runtime": {},
           "tasks": [],
           "runs": [],
-          "database": "/tmp/tmpph8cgw7e/state/worklane/owner--repo/state.sqlite3",
-          "state_dir": "/tmp/tmpph8cgw7e/state/worklane/owner--repo"
+          "database": "/tmp/tmp7fe4ahpl/state/worklane/owner--repo/state.sqlite3",
+          "state_dir": "/tmp/tmp7fe4ahpl/state/worklane/owner--repo"
         },
         "start_exit": 1,
         "stdout": "",
@@ -2553,18 +2556,18 @@
           "shutdown": {
             "requested": true,
             "immediate": true,
-            "requested_at": "2026-10-20T11:24:53.030506+00:00"
+            "requested_at": "2026-10-20T12:26:54.278260+00:00"
           },
           "stop_result": {
-            "at": "2026-10-20T11:24:53.038371+00:00",
+            "at": "2026-10-20T12:26:54.316307+00:00",
             "remaining_pids": [],
             "running": false
           },
           "runtime": {},
           "tasks": [],
           "runs": [],
-          "database": "/tmp/tmplfhk5xpk/state/worklane/owner--repo/state.sqlite3",
-          "state_dir": "/tmp/tmplfhk5xpk/state/worklane/owner--repo"
+          "database": "/tmp/tmpcql_jtef/state/worklane/owner--repo/state.sqlite3",
+          "state_dir": "/tmp/tmpcql_jtef/state/worklane/owner--repo"
         },
         "after": {
           "repository": "owner/repo",
@@ -2574,18 +2577,18 @@
           "shutdown": {
             "requested": true,
             "immediate": true,
-            "requested_at": "2026-10-20T11:24:53.030506+00:00"
+            "requested_at": "2026-10-20T12:26:54.278260+00:00"
           },
           "stop_result": {
-            "at": "2026-10-20T11:24:53.038371+00:00",
+            "at": "2026-10-20T12:26:54.316307+00:00",
             "remaining_pids": [],
             "running": false
           },
           "runtime": {},
           "tasks": [],
           "runs": [],
-          "database": "/tmp/tmplfhk5xpk/state/worklane/owner--repo/state.sqlite3",
-          "state_dir": "/tmp/tmplfhk5xpk/state/worklane/owner--repo"
+          "database": "/tmp/tmpcql_jtef/state/worklane/owner--repo/state.sqlite3",
+          "state_dir": "/tmp/tmpcql_jtef/state/worklane/owner--repo"
         },
         "start_exit": 1,
         "stdout": "",
@@ -2597,7 +2600,7 @@
   "exhaustive_parity_complete": false,
   "limits": [
     "Controlled GitHub/provider responses; no live issue writes or provider turns.",
-    "Native dashboard belongs to #52; installed cutover and end-to-end backlog validation belong to #53.",
+    "Combined native dashboard/lifecycle evidence is recorded by tools/native_release.py; production cutover remains pending.",
     "Line-oriented config replaces the terminal form in this CLI layer; exact help/error presentation parity remains advisory."
   ]
 }

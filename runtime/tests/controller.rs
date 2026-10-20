@@ -175,3 +175,42 @@ fn bounded_workers_independent_reviewer_pause_and_drain_keep_pending_work() {
     }
     assert!(state.runs(None).unwrap().is_empty());
 }
+
+#[test]
+fn shared_start_keeps_shutdown_snapshot_from_before_security_preflight() {
+    use worklane_runtime::actions::Actions;
+    let root = tempfile::tempdir().unwrap();
+    let state = StateStore::open("owner/repo", Some(root.path())).unwrap();
+    let config = ConfigStore::defaults();
+    let concurrent_stop = state.clone();
+    let transport = GitHubTransport::new(&state, root.path()).unwrap().with_executor(Arc::new(move |request| {
+        let output = if request.argv.get(1).map(String::as_str)==Some("project") {
+            concurrent_stop.request_stop(true)?;
+            json!({"id":"project","number":1,"url":"board"})
+        } else {
+            assert!(request.stdin.as_ref().unwrap().contains("viewerCanUpdate"));
+            json!({"data":{"node":{"public":false,"viewerCanUpdate":true},"repository":{"viewerPermission":"ADMIN"}}})
+        };
+        Ok(CommandResult {stdout:output.to_string(),stderr:String::new(),exit:0})
+    }));
+    let actions = Actions {
+        state: state.clone(),
+        root: root.path().into(),
+        agent: AgentHarness::new(root.path(), &state, &config).unwrap(),
+        transport,
+        invocation: Invocation {
+            project: Some("owner/1".into()),
+            dangerously_allow_public_board: false,
+        },
+    };
+    let error = actions.start(&["/bin/false".into()]).unwrap_err();
+    assert_eq!(error.kind, "interrupted");
+    assert!(error.message.contains("concurrent stop"));
+    assert!(state.paused().unwrap());
+    assert!(!state.running().unwrap());
+    assert_eq!(
+        state.get_meta("shutdown", json!({})).unwrap()["immediate"],
+        true
+    );
+    assert_eq!(state.get_meta("runtime", json!({})).unwrap(), json!({}));
+}

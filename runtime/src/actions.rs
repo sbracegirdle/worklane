@@ -71,6 +71,11 @@ impl Actions {
         Controller::stop(&self.state, immediate)
     }
     pub fn start(&self, argv: &[String]) -> Result<i32> {
+        let observed = self.state.get_meta("shutdown", json!({}))?;
+        self.start_observed(argv, &observed)
+    }
+    /// Keep the invocation's original shutdown snapshot across every startup preflight.
+    pub fn start_observed(&self, argv: &[String], observed: &Value) -> Result<i32> {
         self.security_board()?;
         let mut argv = argv
             .iter()
@@ -80,8 +85,7 @@ impl Actions {
         if self.invocation.dangerously_allow_public_board {
             argv.push("--dangerously-allow-public-board".into());
         }
-        let observed = self.state.get_meta("shutdown", json!({}))?;
-        Controller::start(&self.state, &argv, &self.root, &observed)
+        Controller::start(&self.state, &argv, &self.root, observed)
     }
     pub fn retry(&self, n: i64) -> Result<()> {
         self.security_board()?;

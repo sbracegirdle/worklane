@@ -1,0 +1,2603 @@
+{
+  "scenario_group": "core.10.native-cli",
+  "candidate_runtime": "native",
+  "candidate": [
+    "/tmp/worklane-51-rework-install/bin/worklane"
+  ],
+  "candidate_revision": "238405db8d4fdaa39fda4d3f9371026e7f356a69",
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "parent_revision": "5cc71a5880dc77727987e4a496c53181f5e5d8f0",
+  "candidate_sha256": "cfac9a1dac6905a3dc65cd798de119c3e15bda8bcb76a096f73d30928e85adf7",
+  "driver": "test_native_cli.py",
+  "input_hashes": {
+    "test_native_cli.py": "9e047aa65ca7423a9f03581ddec14b6813b8901b10208beee177d132207609da",
+    "parity/fixtures/cli.json": "5729e123c74233ebe4dc622210b445041b7a02b8e272414beb2eafdc1be138e9",
+    "tools/port_parity.py": "14bd6cc8fe7cfa8b1bacdd8ad8d5f93f9147c13eb787550acca78deda5448e9b",
+    "tools/parity_tool.py": "fb60b5f671154ee16f3c1cfd81ca86be6ef294ec05a89d7d42122e7ce6b7479e",
+    "tools/parity_git.py": "5b347550f001ba6660281480c9e6ec1ab458827e46f229ee78b5ba3b37e8491c",
+    "Cargo.toml": "630e2c4d08521765a4da7d6d51786c31224fcf7f0f1764f0205f811f37393496",
+    "Cargo.lock": "2283a444cf375ca62a020cc7b49fb781eb2226500d7bc01cdf1a4cf37aae8d98",
+    "runtime/Cargo.toml": "05ca5a0504a553726570b7572d0ee1d19f63559962134e62bd39ffe653821fd8",
+    "runtime/build.rs": "82d37305953ff3b4eafee52c417649c76699d5ba64d75537d922ddb6feb26331",
+    "runtime/src/actions.rs": "f9b9185ce706a39e4029eb94adbbc9525e55551bdf61fde16ef7b7f34479ad36",
+    "runtime/src/api.rs": "4675f64bd8f3e8f60ecc16e1bec266d4890dad782cb431149576f6fbf2803610",
+    "runtime/src/bin/runtime-fixture-adapter/guards.rs": "d5e5963bdec2ee75081c42631aaba565a8f2ae0379eeb8610ccac84be23d7972",
+    "runtime/src/bin/runtime-fixture-adapter.rs": "92acb9b5f726390d6f80ead6c8ef4ce84bd5945e81a76d858558561bb9c069ab",
+    "runtime/src/bin/worklane.rs": "07a8b2f04d277d5ecdd092741b68c1da11c5c7088baf5d71f5132c7fec6aad86",
+    "runtime/src/board.rs": "120e796a042b4bdb0dd9490922e4384ae7bd5eb12451b003e7d04b0ee98ee524",
+    "runtime/src/cli.rs": "8b3e82abc38a6ee11dab38b6d9114477c8ee37ad793c8258001d5fbfd785d24c",
+    "runtime/src/config.rs": "f8ce6e1c03674c21506a7f1b040d82e73ac2865f912805c835e8070711217bb3",
+    "runtime/src/controller.rs": "91e112db2599c258ca44bf2199406a011dc16fd6bf558c9c95e4481eee8d1a2c",
+    "runtime/src/harness.rs": "da9e7d7f6abc3dc1c8b7773315a0ca34338973b051ced7eb2dcd7c6ecb05dc28",
+    "runtime/src/lib.rs": "96f6ff3e26e71dbcabf2b41b0e123daf038335143ab6879f75de477d71c40314",
+    "runtime/src/process.rs": "7a62f5d0f989a7ddd199cb9cc5b2896a7ec7ddbec3221efe782a0ad05c3b7302",
+    "runtime/src/queries.rs": "940f625231472bb93b876871cbca4d33a5c971bbd16b3deb66d81a6674f77020",
+    "runtime/src/read_model.rs": "406d210329daa8e8a34500a020e739d8823f6a313bc9014f82201ec1281e11e5",
+    "runtime/src/state.rs": "abebd7056fd50fe00bcbfa28a05e50a822532eb330272ad2385852558d5f8805",
+    "runtime/src/transport.rs": "2023217f4015c2bf438b4176253a08020f2169e311315a4c8e41a549f1dd44f3",
+    "runtime/src/unicode.rs": "57da5d8f1646d69eae3aa6b4bfef7592cc135cd8ecfd5f1c764b00c32bbc65a8",
+    "runtime/src/workflow.rs": "1295aa69ce505ee4753b03588f62a5d6a7b66d10e16c0a8da1f0aeb3b9a070c8"
+  },
+  "results": [
+    {
+      "id": "cli.native-config",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\n  \"harness\": \"codex\",\n  \"workers\": 4,\n  \"model\": \"\",\n  \"effort\": \"high\",\n  \"interval\": 60,\n  \"project\": \"\",\n  \"stack_dependencies\": [],\n  \"completion_gates\": [],\n  \"worker_harness\": \"\",\n  \"worker_model\": \"\",\n  \"reviewer_harness\": \"opencode\",\n  \"reviewer_model\": \"\",\n  \"finalizer_harness\": \"\",\n  \"finalizer_model\": \"\"\n}\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "{\n  \"harness\": \"codex\",\n  \"workers\": 2,\n  \"model\": \"\",\n  \"effort\": \"high\",\n  \"interval\": 60,\n  \"project\": \"\",\n  \"stack_dependencies\": [],\n  \"completion_gates\": [],\n  \"worker_harness\": \"\",\n  \"worker_model\": \"\",\n  \"reviewer_harness\": \"opencode\",\n  \"reviewer_model\": \"\",\n  \"finalizer_harness\": \"\",\n  \"finalizer_model\": \"\"\n}\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "Saved <SANDBOX>/repo/.worklane.toml\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "WORKLANE SETUP — Enter keeps a value; use TOML values; Esc or EOF cancels.\nharness [\"codex\"]: Setup cancelled; configuration unchanged.\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "{\n  \"harness\": \"codex\",\n  \"workers\": 2,\n  \"model\": \"\",\n  \"effort\": \"high\",\n  \"interval\": 60,\n  \"project\": \"\",\n  \"stack_dependencies\": [],\n  \"completion_gates\": [],\n  \"worker_harness\": \"\",\n  \"worker_model\": \"custom\",\n  \"reviewer_harness\": \"opencode\",\n  \"reviewer_model\": \"\",\n  \"finalizer_harness\": \"\",\n  \"finalizer_model\": \"\"\n}\n",
+            "stderr": ""
+          },
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: workers must be an integer between 1 and 16.\n"
+          },
+          {
+            "exit": 0,
+            "stdout": "{\n  \"harness\": \"codex\",\n  \"workers\": 2,\n  \"model\": \"\",\n  \"effort\": \"high\",\n  \"interval\": 60,\n  \"project\": \"\",\n  \"stack_dependencies\": [],\n  \"completion_gates\": [],\n  \"worker_harness\": \"\",\n  \"worker_model\": \"custom\",\n  \"reviewer_harness\": \"opencode\",\n  \"reviewer_model\": \"\",\n  \"finalizer_harness\": \"\",\n  \"finalizer_model\": \"\"\n}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {
+          "repo/.worklane.toml": "Y29tcGxldGlvbl9nYXRlcyA9IFtdCmVmZm9ydCA9ICJoaWdoIgpmaW5hbGl6ZXJfaGFybmVzcyA9ICIiCmZpbmFsaXplcl9tb2RlbCA9ICIiCmhhcm5lc3MgPSAiY29kZXgiCmludGVydmFsID0gNjAKbW9kZWwgPSAiIgpwcm9qZWN0ID0gIiIKcmV2aWV3ZXJfaGFybmVzcyA9ICJvcGVuY29kZSIKcmV2aWV3ZXJfbW9kZWwgPSAiIgpzdGFja19kZXBlbmRlbmNpZXMgPSBbXQp3b3JrZXJfaGFybmVzcyA9ICIiCndvcmtlcl9tb2RlbCA9ICJjdXN0b20iCndvcmtlcnMgPSAyCg==",
+          "state/worklane/owner--repo/state.sqlite3": null
+        },
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.native-config-confirm",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "WORKLANE SETUP — Enter keeps a value; use TOML values; Esc or EOF cancels.\nharness [\"codex\"]: workers [3]: model [\"\"]: effort [\"high\"]: interval [60]: project [\"\"]: stack_dependencies [[]]: completion_gates [[]]: worker_harness [\"\"]: worker_model [\"\"]: reviewer_harness [\"\"]: reviewer_model [\"\"]: finalizer_harness [\"\"]: finalizer_model [\"\"]: Save .worklane.toml? [y/N]: Saved <SANDBOX>/repo/.worklane.toml\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "{\n  \"harness\": \"codex\",\n  \"workers\": 3,\n  \"model\": \"\",\n  \"effort\": \"high\",\n  \"interval\": 60,\n  \"project\": \"\",\n  \"stack_dependencies\": [],\n  \"completion_gates\": [],\n  \"worker_harness\": \"\",\n  \"worker_model\": \"\",\n  \"reviewer_harness\": \"\",\n  \"reviewer_model\": \"\",\n  \"finalizer_harness\": \"\",\n  \"finalizer_model\": \"\"\n}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {
+          "repo/.worklane.toml": "Y29tcGxldGlvbl9nYXRlcyA9IFtdCmVmZm9ydCA9ICJoaWdoIgpmaW5hbGl6ZXJfaGFybmVzcyA9ICIiCmZpbmFsaXplcl9tb2RlbCA9ICIiCmhhcm5lc3MgPSAiY29kZXgiCmludGVydmFsID0gNjAKbW9kZWwgPSAiIgpwcm9qZWN0ID0gIiIKcmV2aWV3ZXJfaGFybmVzcyA9ICIiCnJldmlld2VyX21vZGVsID0gIiIKc3RhY2tfZGVwZW5kZW5jaWVzID0gW10Kd29ya2VyX2hhcm5lc3MgPSAiIgp3b3JrZXJfbW9kZWwgPSAiIgp3b3JrZXJzID0gMwo="
+        },
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.native-detached-controller",
+      "status": "pass",
+      "observations": [
+        {
+          "argv": [
+            "start",
+            "--project",
+            "owner/2",
+            "--workers",
+            "2",
+            "--interval",
+            "10",
+            "--reviewer-harness",
+            "opencode",
+            "--reviewer-model",
+            "fixture"
+          ],
+          "exit": 0,
+          "stdout": "Started owner/repo (PID 122); use worklane logs to inspect SQLite logs.\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "status"
+          ],
+          "exit": 0,
+          "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": true,\n  \"paused\": false,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"immediate\": false,\n    \"generation\": \"345485898f96489faae30cfefbb8e891\"\n  },\n  \"stop_result\": {},\n  \"runtime\": {\n    \"harness\": \"codex\",\n    \"workers\": 2,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 10,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"opencode\",\n    \"reviewer_model\": \"fixture\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\",\n    \"cli\": {\n      \"version\": \"0.1.0\",\n      \"executable\": \"/tmp/worklane-51-rework-install/bin/worklane\",\n      \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/runtime\",\n      \"revision\": \"238405db8d4fdaa39fda4d3f9371026e7f356a69\",\n      \"branch\": \"codex/51-worklane\",\n      \"dirty\": false,\n      \"runtime\": \"native\"\n    },\n    \"once\": false,\n    \"dangerously_allow_public_board\": false,\n    \"pid\": 122,\n    \"identity\": \"3077651\",\n    \"ownership_token\": \"5c121fa786e24d3ab2cb64a12503d54f\",\n    \"started_at\": \"2026-10-20T11:24:31.480816+00:00\",\n    \"checkout\": \"/tmp/tmpbh22zt95/repo\",\n    \"generation\": \"345485898f96489faae30cfefbb8e891\"\n  },\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo\"\n}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "pause"
+          ],
+          "exit": 0,
+          "stdout": "Paused: active jobs finish; no new jobs start.\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "status"
+          ],
+          "exit": 0,
+          "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": true,\n  \"paused\": true,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"immediate\": false,\n    \"generation\": \"345485898f96489faae30cfefbb8e891\"\n  },\n  \"stop_result\": {},\n  \"runtime\": {\n    \"harness\": \"codex\",\n    \"workers\": 2,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 10,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"opencode\",\n    \"reviewer_model\": \"fixture\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\",\n    \"cli\": {\n      \"version\": \"0.1.0\",\n      \"executable\": \"/tmp/worklane-51-rework-install/bin/worklane\",\n      \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/runtime\",\n      \"revision\": \"238405db8d4fdaa39fda4d3f9371026e7f356a69\",\n      \"branch\": \"codex/51-worklane\",\n      \"dirty\": false,\n      \"runtime\": \"native\"\n    },\n    \"once\": false,\n    \"dangerously_allow_public_board\": false,\n    \"pid\": 122,\n    \"identity\": \"3077651\",\n    \"ownership_token\": \"5c121fa786e24d3ab2cb64a12503d54f\",\n    \"started_at\": \"2026-10-20T11:24:31.480816+00:00\",\n    \"checkout\": \"/tmp/tmpbh22zt95/repo\",\n    \"generation\": \"345485898f96489faae30cfefbb8e891\"\n  },\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo\"\n}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "resume",
+            "--project",
+            "owner/2"
+          ],
+          "exit": 0,
+          "stdout": "Resumed intake. Run worklane start if the controller is stopped.\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "status"
+          ],
+          "exit": 0,
+          "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": true,\n  \"paused\": false,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"immediate\": false,\n    \"generation\": \"345485898f96489faae30cfefbb8e891\"\n  },\n  \"stop_result\": {},\n  \"runtime\": {\n    \"harness\": \"codex\",\n    \"workers\": 2,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 10,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"opencode\",\n    \"reviewer_model\": \"fixture\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\",\n    \"cli\": {\n      \"version\": \"0.1.0\",\n      \"executable\": \"/tmp/worklane-51-rework-install/bin/worklane\",\n      \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/runtime\",\n      \"revision\": \"238405db8d4fdaa39fda4d3f9371026e7f356a69\",\n      \"branch\": \"codex/51-worklane\",\n      \"dirty\": false,\n      \"runtime\": \"native\"\n    },\n    \"once\": false,\n    \"dangerously_allow_public_board\": false,\n    \"pid\": 122,\n    \"identity\": \"3077651\",\n    \"ownership_token\": \"5c121fa786e24d3ab2cb64a12503d54f\",\n    \"started_at\": \"2026-10-20T11:24:31.480816+00:00\",\n    \"checkout\": \"/tmp/tmpbh22zt95/repo\",\n    \"generation\": \"345485898f96489faae30cfefbb8e891\"\n  },\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo\"\n}\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "run",
+            "--once",
+            "--project",
+            "owner/2"
+          ],
+          "exit": 1,
+          "stdout": "",
+          "stderr": "worklane: Worklane is already running for this repository.\n"
+        },
+        {
+          "argv": [
+            "stop",
+            "--now"
+          ],
+          "exit": 0,
+          "stdout": "Stopped: no owned processes remain; saved sessions and worktrees retained.\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "status"
+          ],
+          "exit": 0,
+          "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": false,\n  \"paused\": true,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"immediate\": true,\n    \"generation\": \"345485898f96489faae30cfefbb8e891\",\n    \"requested\": true,\n    \"requested_at\": \"2026-10-20T11:24:35.177086+00:00\"\n  },\n  \"stop_result\": {\n    \"at\": \"2026-10-20T11:24:35.976682+00:00\",\n    \"remaining_pids\": [],\n    \"running\": false\n  },\n  \"runtime\": {\n    \"harness\": \"codex\",\n    \"workers\": 2,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 10,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"opencode\",\n    \"reviewer_model\": \"fixture\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\",\n    \"cli\": {\n      \"version\": \"0.1.0\",\n      \"executable\": \"/tmp/worklane-51-rework-install/bin/worklane\",\n      \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/runtime\",\n      \"revision\": \"238405db8d4fdaa39fda4d3f9371026e7f356a69\",\n      \"branch\": \"codex/51-worklane\",\n      \"dirty\": false,\n      \"runtime\": \"native\"\n    },\n    \"once\": false,\n    \"dangerously_allow_public_board\": false,\n    \"pid\": 122,\n    \"identity\": \"3077651\",\n    \"ownership_token\": \"5c121fa786e24d3ab2cb64a12503d54f\",\n    \"started_at\": \"2026-10-20T11:24:31.480816+00:00\",\n    \"checkout\": \"/tmp/tmpbh22zt95/repo\",\n    \"generation\": \"345485898f96489faae30cfefbb8e891\"\n  },\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"/tmp/tmpbh22zt95/state/worklane/owner--repo\"\n}\n",
+          "stderr": ""
+        }
+      ],
+      "calls": [
+        {
+          "argv": [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          "query": ""
+        },
+        {
+          "argv": [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          "query": "query($id:ID!, $owner:String!, $name:String!) {\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\n              repository(owner:$owner, name:$name) { viewerPermission }\n            }"
+        },
+        {
+          "argv": [
+            "project",
+            "field-list",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          "query": ""
+        },
+        {
+          "argv": [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          "query": ""
+        },
+        {
+          "argv": [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          "query": "query($id:ID!, $owner:String!, $name:String!) {\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\n              repository(owner:$owner, name:$name) { viewerPermission }\n            }"
+        },
+        {
+          "argv": [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          "query": ""
+        },
+        {
+          "argv": [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          "query": "query($id:ID!, $owner:String!, $name:String!) {\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\n              repository(owner:$owner, name:$name) { viewerPermission }\n            }"
+        },
+        {
+          "argv": [
+            "project",
+            "field-list",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          "query": ""
+        },
+        {
+          "argv": [
+            "auth",
+            "setup-git",
+            "--hostname",
+            "github.com"
+          ],
+          "query": ""
+        },
+        {
+          "argv": [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          "query": "query($id:ID!, $owner:String!, $name:String!) {\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\n              repository(owner:$owner, name:$name) { viewerPermission }\n            }"
+        },
+        {
+          "argv": [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          "query": "query($id:ID!, $owner:String!, $name:String!) {\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\n              repository(owner:$owner, name:$name) { viewerPermission }\n            }"
+        },
+        {
+          "argv": [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          "query": "query($id:ID!, $cursor:String) {\n              node(id:$id) { ... on ProjectV2 { items(first:100, after:$cursor) {\n                totalCount pageInfo { hasNextPage endCursor }\n                nodes { id fieldValueByName(name:\"Status\") {\n                  ... on ProjectV2ItemFieldSingleSelectValue { name }\n                } links: fieldValueByName(name:\"Linked pull requests\") {\n                  ... on ProjectV2ItemFieldPullRequestValue {\n                    pullRequests(first:10) { nodes { url } pageInfo { hasNextPage endCursor } }\n                  }\n                } content { ... on Issue {\n                  number title body url state repository { nameWithOwner }\n                  issueDependenciesSummary { blockedBy }\n                } } }\n              } } }\n            }"
+        },
+        {
+          "argv": [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          "query": "query($id:ID!, $owner:String!, $name:String!) {\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\n              repository(owner:$owner, name:$name) { viewerPermission }\n            }"
+        },
+        {
+          "argv": [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          "query": "query($id:ID!, $owner:String!, $name:String!) {\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\n              repository(owner:$owner, name:$name) { viewerPermission }\n            }"
+        },
+        {
+          "argv": [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          "query": "query($id:ID!, $owner:String!, $name:String!) {\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\n              repository(owner:$owner, name:$name) { viewerPermission }\n            }"
+        },
+        {
+          "argv": [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          "query": "query($id:ID!, $owner:String!, $name:String!) {\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\n              repository(owner:$owner, name:$name) { viewerPermission }\n            }"
+        }
+      ]
+    },
+    {
+      "id": "cli.native-startup-error",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: codex failed: provider unavailable\n"
+          },
+          {
+            "exit": 0,
+            "stdout": "2026-10-20T11:24:42.998237+00:00 [controller-error] codex failed: provider unavailable\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": false,\n  \"paused\": false,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"immediate\": false,\n    \"generation\": \"8dae88bb8dce4e2698610aca78144689\"\n  },\n  \"stop_result\": {},\n  \"runtime\": {\n    \"harness\": \"codex\",\n    \"workers\": 3,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 60,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"\",\n    \"reviewer_model\": \"\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\",\n    \"cli\": {\n      \"version\": \"0.1.0\",\n      \"executable\": \"/tmp/worklane-51-rework-install/bin/worklane\",\n      \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/runtime\",\n      \"revision\": \"238405db8d4fdaa39fda4d3f9371026e7f356a69\",\n      \"branch\": \"codex/51-worklane\",\n      \"dirty\": false,\n      \"runtime\": \"native\"\n    },\n    \"once\": true,\n    \"dangerously_allow_public_board\": false,\n    \"pid\": 195,\n    \"identity\": \"3078392\",\n    \"ownership_token\": \"b003300f91d34686b462ec69a1f419bb\",\n    \"started_at\": \"2026-10-20T11:24:40.711770+00:00\",\n    \"checkout\": \"<SANDBOX>/repo\",\n    \"generation\": \"8dae88bb8dce4e2698610aca78144689\"\n  },\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"<SANDBOX>/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"<SANDBOX>/state/worklane/owner--repo\"\n}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "field-list",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "auth",
+              "setup-git",
+              "--hostname",
+              "github.com"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "codex",
+            "argv": [
+              "login",
+              "status"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.native-emergency-budget-isolation",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "Paused: active jobs finish; no new jobs start.\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "Stop requested: intake paused; active jobs are draining. Use stop --now to interrupt; status shows progress.\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "Stopped: no owned processes remain; saved sessions and worktrees retained.\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": false,\n  \"paused\": true,\n  \"dependency_blocks\": {},\n  \"shutdown\": {\n    \"requested\": true,\n    \"immediate\": true,\n    \"requested_at\": \"2026-10-20T11:24:44.709630+00:00\"\n  },\n  \"stop_result\": {\n    \"at\": \"2026-10-20T11:24:44.719100+00:00\",\n    \"remaining_pids\": [],\n    \"running\": false\n  },\n  \"runtime\": {},\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"<SANDBOX>/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"<SANDBOX>/state/worklane/owner--repo\"\n}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {
+          "state/worklane/_github/state.sqlite3": null
+        },
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.help",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "Worklane: coding workers and one independent reviewer for a GitHub project board.\nUsage: worklane [COMMAND] [NUMBER] [OPTIONS]\nCommands: run start check board status logs config pause resume stop retry add stack tui\nDefault: tui (native dashboard supplied by #52).\n  run / start          Foreground / detached controller\n  check                Read-only board, dependency and stack readiness\n  board                Open project board with gh\n  status / stack       Offline saved state / pinned ancestry JSON\n  logs [NUMBER]        Complete readable history (--raw includes protocol events)\n  config               Offline settings walkthrough (EOF or Esc cancels)\n  config --show        Print effective settings without saving\n  config --save        Atomically save effective settings, including explicit overrides\n  pause / resume       Pause / resume intake; resume does not launch a controller\n  stop [--now]         Drain / interrupt owned processes; retain sessions and worktrees\n  retry NUMBER         Enable exact saved-session retry after inspection\n  add -t TITLE [-d BODY] [--draft | --shaping]\nOptions:\n  --repo PATH          Checkout to manage (default .)\n  --project OWNER/N    Explicit GitHub board; otherwise discover automatically\n  --harness NAME       codex or opencode\n  --model MODEL        Default model (empty inherits provider default)\n  --worker-harness NAME / --worker-model MODEL\n  --reviewer-harness NAME / --reviewer-model MODEL\n  --finalizer-harness NAME / --finalizer-model MODEL\n  --workers N          1..16 (default 3), plus one independent reviewer\n  --effort LEVEL       low, medium, high, xhigh (default high)\n  --interval N         Poll seconds, at least 10 (default 60)\n  --once               Dispatch one batch, wait, then exit\n  --title / -t TITLE   Issue title for add\n  --description / --body / -d BODY   Literal issue body\n  --dangerously-allow-public-board  Invocation-only public-board consent\n  --refresh SECONDS / --no-color    Dashboard presentation options\n  -h, --help / --version\nCLI overrides > checkout .worklane.toml > defaults. GitHub and git authentication use gh.\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.unknown-command",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 2,
+            "stdout": "",
+            "stderr": "worklane: Command: invalid choice: wat\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.unknown-flag",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 2,
+            "stdout": "",
+            "stderr": "worklane: unrecognized arguments: --wat\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.bad-number",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 2,
+            "stdout": "",
+            "stderr": "worklane: Issue number: invalid int value; expected a positive integer.\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.bad-workers-type",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 2,
+            "stdout": "",
+            "stderr": "worklane: --workers: invalid int value: three\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.bad-harness",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 2,
+            "stdout": "",
+            "stderr": "worklane: --harness: invalid choice: other\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.bad-effort",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 2,
+            "stdout": "",
+            "stderr": "worklane: --effort: invalid choice: max\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.bad-destination",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 2,
+            "stdout": "",
+            "stderr": "worklane: --draft is not allowed with --shaping.\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.now-scope",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: --now is only valid with stop.\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.title-scope",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: --title, --description/--body, --draft and --shaping are only valid with add.\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.missing-title",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: Use worklane add --title TITLE [--description DESCRIPTION] [--draft | --shaping].\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.empty-title",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: Use worklane add --title TITLE [--description DESCRIPTION] [--draft | --shaping].\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.add-number",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: Use worklane add --title TITLE [--description DESCRIPTION] [--draft | --shaping].\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.native-retry-number-before-network",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: Use worklane retry ISSUE_NUMBER after fixing the blocker.\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.retry-unknown",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: No saved task for that issue.\n"
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($owner:String!, $name:String!) {\\n              repository(owner:$owner, name:$name) { projectsV2(first:100) {\\n                nodes { id number title closed url owner { ... on User { login } ... on Organization { login } } }\\n              } }\\n            }\", \"variables\": {\"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.workers-range",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: workers must be an integer between 1 and 16.\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.interval-range",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: interval must be an integer of at least 10 seconds.\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.invalid-project",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: project must be OWNER/NUMBER, or empty for automatic discovery.\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.tui-refresh",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: --refresh must be 0.1 to 60 seconds.\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.tui-refresh-low",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: --refresh must be 0.1 to 60 seconds.\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.tui-refresh-high",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: --refresh must be 0.1 to 60 seconds.\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.offline-controls",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": false,\n  \"paused\": false,\n  \"dependency_blocks\": {},\n  \"shutdown\": {},\n  \"stop_result\": {},\n  \"runtime\": {},\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"<SANDBOX>/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"<SANDBOX>/state/worklane/owner--repo\"\n}\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "Paused: active jobs finish; no new jobs start.\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": false,\n  \"paused\": true,\n  \"dependency_blocks\": {},\n  \"shutdown\": {},\n  \"stop_result\": {},\n  \"runtime\": {},\n  \"tasks\": [],\n  \"runs\": [],\n  \"database\": \"<SANDBOX>/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"<SANDBOX>/state/worklane/owner--repo\"\n}\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "Resumed intake. Run worklane start if the controller is stopped.\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "Stop requested: intake paused; active jobs are draining. Use stop --now to interrupt; status shows progress.\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "Stopped: no owned processes remain; saved sessions and worktrees retained.\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "Stopped: no owned processes remain; saved sessions and worktrees retained.\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($owner:String!, $name:String!) {\\n              repository(owner:$owner, name:$name) { projectsV2(first:100) {\\n                nodes { id number title closed url owner { ... on User { login } ... on Organization { login } } }\\n              } }\\n            }\", \"variables\": {\"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": [
+          [
+            [
+              2
+            ]
+          ],
+          [
+            [
+              0
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "cli.stack-policy",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\n  \"policy\": {\n    \"stack_dependencies\": [\n      \"2:1\"\n    ],\n    \"completion_gates\": [\n      53\n    ]\n  },\n  \"stack\": []\n}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.invalid-config",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: <SANDBOX>/repo/.worklane.toml: workers must be an integer between 1 and 16.\n"
+          },
+          {
+            "exit": 0,
+            "stdout": "Paused: active jobs finish; no new jobs start.\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.unknown-config",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: <SANDBOX>/repo/.worklane.toml: Unknown configuration setting: surprise\n"
+          },
+          {
+            "exit": 0,
+            "stdout": "Paused: active jobs finish; no new jobs start.\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.stack-cycle",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: <SANDBOX>/repo/.worklane.toml: stack_dependencies contains a cycle.\n"
+          },
+          {
+            "exit": 0,
+            "stdout": "Paused: active jobs finish; no new jobs start.\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.hard-gate",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: <SANDBOX>/repo/.worklane.toml: Completion gate #53 cannot be stackable.\n"
+          },
+          {
+            "exit": 0,
+            "stdout": "Paused: active jobs finish; no new jobs start.\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.board-browser",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "Opened project board: https://github.com/users/owner/projects/2\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--web"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {
+          "state/worklane/owner--repo/state.sqlite3": null
+        },
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.board-offline",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: gh failed: network unavailable\n"
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.add-ready",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "https://github.com/owner/repo/issues/42\nAdded to https://github.com/users/owner/projects/2 with initial status Ready for work.\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "field-list",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "issue",
+              "create",
+              "--repo",
+              "owner/repo",
+              "--title",
+              "界 `literal` $(no-shell)",
+              "--body-file",
+              "-"
+            ],
+            "stdin": "first\nsecond",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "item-add",
+              "2",
+              "--owner",
+              "owner",
+              "--url",
+              "https://github.com/owner/repo/issues/42",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "item-edit",
+              "--id",
+              "item-id",
+              "--project-id",
+              "project-id",
+              "--field-id",
+              "status-id",
+              "--single-select-option-id",
+              "ready-for-work"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $cursor:String) {\\n              node(id:$id) { ... on ProjectV2 { items(first:100, after:$cursor) {\\n                totalCount pageInfo { hasNextPage endCursor }\\n                nodes { id fieldValueByName(name:\\\"Status\\\") {\\n                  ... on ProjectV2ItemFieldSingleSelectValue { name }\\n                } links: fieldValueByName(name:\\\"Linked pull requests\\\") {\\n                  ... on ProjectV2ItemFieldPullRequestValue {\\n                    pullRequests(first:10) { nodes { url } pageInfo { hasNextPage endCursor } }\\n                  }\\n                } content { ... on Issue {\\n                  number title body url state repository { nameWithOwner }\\n                  issueDependenciesSummary { blockedBy }\\n                } } }\\n              } } }\\n            }\", \"variables\": {\"id\": \"project-id\", \"cursor\": null}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {
+          "state/worklane/owner--repo/state.sqlite3": null
+        },
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.add-draft",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "https://github.com/owner/repo/issues/42\nAdded to https://github.com/users/owner/projects/2 with initial status Draft.\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "field-list",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "issue",
+              "create",
+              "--repo",
+              "owner/repo",
+              "--title",
+              "界 `literal` $(no-shell)",
+              "--body-file",
+              "-"
+            ],
+            "stdin": "first\nsecond",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "item-add",
+              "2",
+              "--owner",
+              "owner",
+              "--url",
+              "https://github.com/owner/repo/issues/42",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "item-edit",
+              "--id",
+              "item-id",
+              "--project-id",
+              "project-id",
+              "--field-id",
+              "status-id",
+              "--single-select-option-id",
+              "draft"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $cursor:String) {\\n              node(id:$id) { ... on ProjectV2 { items(first:100, after:$cursor) {\\n                totalCount pageInfo { hasNextPage endCursor }\\n                nodes { id fieldValueByName(name:\\\"Status\\\") {\\n                  ... on ProjectV2ItemFieldSingleSelectValue { name }\\n                } links: fieldValueByName(name:\\\"Linked pull requests\\\") {\\n                  ... on ProjectV2ItemFieldPullRequestValue {\\n                    pullRequests(first:10) { nodes { url } pageInfo { hasNextPage endCursor } }\\n                  }\\n                } content { ... on Issue {\\n                  number title body url state repository { nameWithOwner }\\n                  issueDependenciesSummary { blockedBy }\\n                } } }\\n              } } }\\n            }\", \"variables\": {\"id\": \"project-id\", \"cursor\": null}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {
+          "state/worklane/owner--repo/state.sqlite3": null
+        },
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.add-shaping",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "https://github.com/owner/repo/issues/42\nAdded to https://github.com/users/owner/projects/2 with initial status Shaping.\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "field-list",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "issue",
+              "create",
+              "--repo",
+              "owner/repo",
+              "--title",
+              "界 `literal` $(no-shell)",
+              "--body-file",
+              "-"
+            ],
+            "stdin": "first\nsecond",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "item-add",
+              "2",
+              "--owner",
+              "owner",
+              "--url",
+              "https://github.com/owner/repo/issues/42",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "item-edit",
+              "--id",
+              "item-id",
+              "--project-id",
+              "project-id",
+              "--field-id",
+              "status-id",
+              "--single-select-option-id",
+              "shaping"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $cursor:String) {\\n              node(id:$id) { ... on ProjectV2 { items(first:100, after:$cursor) {\\n                totalCount pageInfo { hasNextPage endCursor }\\n                nodes { id fieldValueByName(name:\\\"Status\\\") {\\n                  ... on ProjectV2ItemFieldSingleSelectValue { name }\\n                } links: fieldValueByName(name:\\\"Linked pull requests\\\") {\\n                  ... on ProjectV2ItemFieldPullRequestValue {\\n                    pullRequests(first:10) { nodes { url } pageInfo { hasNextPage endCursor } }\\n                  }\\n                } content { ... on Issue {\\n                  number title body url state repository { nameWithOwner }\\n                  issueDependenciesSummary { blockedBy }\\n                } } }\\n              } } }\\n            }\", \"variables\": {\"id\": \"project-id\", \"cursor\": null}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {
+          "state/worklane/owner--repo/state.sqlite3": null
+        },
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.add-partial-failure",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: Issue created: https://github.com/owner/repo/issues/42, but board placement in owner/2 with status 'Ready for work' failed: gh failed: network unavailable. Keep this issue and finish its board placement manually; do not rerun add.\n"
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "field-list",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "issue",
+              "create",
+              "--repo",
+              "owner/repo",
+              "--title",
+              "title",
+              "--body-file",
+              "-"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "item-add",
+              "2",
+              "--owner",
+              "owner",
+              "--url",
+              "https://github.com/owner/repo/issues/42",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.empty-queue-run",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "Worklane: owner/repo; 3 workers, 1 reviewer; codex ; board https://github.com/users/owner/projects/2\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "field-list",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "auth",
+              "setup-git",
+              "--hostname",
+              "github.com"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "codex",
+            "argv": [
+              "login",
+              "status"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $cursor:String) {\\n              node(id:$id) { ... on ProjectV2 { items(first:100, after:$cursor) {\\n                totalCount pageInfo { hasNextPage endCursor }\\n                nodes { id fieldValueByName(name:\\\"Status\\\") {\\n                  ... on ProjectV2ItemFieldSingleSelectValue { name }\\n                } links: fieldValueByName(name:\\\"Linked pull requests\\\") {\\n                  ... on ProjectV2ItemFieldPullRequestValue {\\n                    pullRequests(first:10) { nodes { url } pageInfo { hasNextPage endCursor } }\\n                  }\\n                } content { ... on Issue {\\n                  number title body url state repository { nameWithOwner }\\n                  issueDependenciesSummary { blockedBy }\\n                } } }\\n              } } }\\n            }\", \"variables\": {\"id\": \"project-id\", \"cursor\": null}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": [
+          [
+            [
+              0
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "cli.native-retry-migrated-session",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "Retry enabled using the saved session. Start Worklane; existing In Progress/Agent review assignments can continue without moving tickets.\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"running\": false,\n  \"paused\": false,\n  \"dependency_blocks\": {},\n  \"shutdown\": {},\n  \"stop_result\": {},\n  \"runtime\": {},\n  \"tasks\": [\n    {\n      \"number\": 7,\n      \"phase\": \"retry\",\n      \"failed_phase\": \"building\",\n      \"active_stage\": \"build\",\n      \"worker_worktree\": \"<SANDBOX>/repo\",\n      \"base\": \"main\",\n      \"base_sha\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n      \"stack\": [],\n      \"log\": \"<SANDBOX>/state/worklane/owner--repo/worker.jsonl\",\n      \"pending_input\": \"pending followup\",\n      \"legacy_session_roles\": [\n        \"worker\"\n      ],\n      \"updated_at\": \"2026-10-20T11:24:50.028636+00:00\",\n      \"resume_stage\": \"build\",\n      \"completed_turns\": null,\n      \"sessions\": {\n        \"worker\": {\n          \"role\": \"worker\",\n          \"session_id\": \"2d662454-7b7c-4ba8-8e9f-2a28d0b6764a\",\n          \"backend\": \"codex\",\n          \"worktree\": \"<SANDBOX>/state/worklane/owner--repo/worktrees/7\",\n          \"model\": \"gpt-6.1-sol\"\n        }\n      }\n    }\n  ],\n  \"runs\": [],\n  \"database\": \"<SANDBOX>/state/worklane/owner--repo/state.sqlite3\",\n  \"state_dir\": \"<SANDBOX>/state/worklane/owner--repo\"\n}\n",
+            "stderr": ""
+          },
+          {
+            "exit": 0,
+            "stdout": "{\n  \"policy\": {\n    \"stack_dependencies\": [],\n    \"completion_gates\": []\n  },\n  \"stack\": [\n    {\n      \"number\": 7,\n      \"phase\": \"retry\",\n      \"pr_url\": null,\n      \"branch\": null,\n      \"base\": \"main\",\n      \"base_sha\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\n      \"head_sha\": null,\n      \"stack\": [],\n      \"stack_blocked\": null\n    }\n  ]\n}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": [
+          [
+            [
+              "worker",
+              "2d662454-7b7c-4ba8-8e9f-2a28d0b6764a"
+            ]
+          ],
+          [
+            [
+              1
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "cli.native-identity",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\n  \"version\": \"0.1.0\",\n  \"executable\": \"/tmp/worklane-51-rework-install/bin/worklane\",\n  \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/runtime\",\n  \"revision\": \"238405db8d4fdaa39fda4d3f9371026e7f356a69\",\n  \"branch\": \"codex/51-worklane\",\n  \"dirty\": false,\n  \"runtime\": \"native\"\n}\n",
+            "stderr": ""
+          },
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: Native TUI is delivered by #52; use status, logs, config or start in this CLI preview.\n"
+          },
+          {
+            "exit": 2,
+            "stdout": "",
+            "stderr": "worklane: Issue number: invalid int value; expected a positive integer.\n"
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {
+          "state/worklane/owner--repo/state.sqlite3": null
+        },
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.native-public-board",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: Board security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \"repository_permission\": \"ADMIN\", \"safe\": false, \"public_board_override\": false, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}; public boards require explicit --dangerously-allow-public-board.\n"
+          },
+          {
+            "exit": 0,
+            "stdout": "Opened project board: https://github.com/users/owner/projects/2\n",
+            "stderr": "WARNING: --dangerously-allow-public-board permits operation on a publicly readable board. Review project access and automation rules; feedback still requires trusted permissions.\n"
+          },
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: Board security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \"repository_permission\": \"ADMIN\", \"safe\": false, \"public_board_override\": false, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}; public boards require explicit --dangerously-allow-public-board.\n"
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--web"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.native-private-guard.add",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: Board security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \"repository_permission\": \"ADMIN\", \"safe\": false, \"public_board_override\": false, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}; public boards require explicit --dangerously-allow-public-board.\n"
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.native-private-guard.run",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: Board security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \"repository_permission\": \"ADMIN\", \"safe\": false, \"public_board_override\": false, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}; public boards require explicit --dangerously-allow-public-board.\n"
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.native-private-guard.start",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: Board security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \"repository_permission\": \"ADMIN\", \"safe\": false, \"public_board_override\": false, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}; public boards require explicit --dangerously-allow-public-board.\n"
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.native-private-guard.resume",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: Board security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \"repository_permission\": \"ADMIN\", \"safe\": false, \"public_board_override\": false, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}; public boards require explicit --dangerously-allow-public-board.\n"
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.native-private-guard.retry",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: Board security preflight refused operation: {\"visibility\": \"public\", \"project_viewer_can_update\": true, \"repository_permission\": \"ADMIN\", \"safe\": false, \"public_board_override\": false, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}; public boards require explicit --dangerously-allow-public-board.\n"
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.native-check-live-blocker",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"board\": \"https://github.com/users/owner/projects/2\",\n  \"security\": {\n    \"visibility\": \"private\",\n    \"project_viewer_can_update\": true,\n    \"repository_permission\": \"ADMIN\",\n    \"safe\": true,\n    \"public_board_override\": false,\n    \"verification_limits\": [\n      \"Repository permissions do not establish project collaborator access.\",\n      \"Project collaborator grants and workflow rule settings require manual review.\",\n      \"Public visibility permits reading; it does not grant anonymous writes.\"\n    ]\n  },\n  \"cli\": {\n    \"version\": \"0.1.0\",\n    \"executable\": \"/tmp/worklane-51-rework-install/bin/worklane\",\n    \"source\": \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/runtime\",\n    \"revision\": \"238405db8d4fdaa39fda4d3f9371026e7f356a69\",\n    \"branch\": \"codex/51-worklane\",\n    \"dirty\": false,\n    \"runtime\": \"native\"\n  },\n  \"settings\": {\n    \"harness\": \"codex\",\n    \"workers\": 2,\n    \"model\": \"\",\n    \"effort\": \"high\",\n    \"interval\": 60,\n    \"project\": \"owner/2\",\n    \"stack_dependencies\": [],\n    \"completion_gates\": [],\n    \"worker_harness\": \"\",\n    \"worker_model\": \"\",\n    \"reviewer_harness\": \"\",\n    \"reviewer_model\": \"\",\n    \"finalizer_harness\": \"\",\n    \"finalizer_model\": \"\"\n  },\n  \"harness\": \"codex\",\n  \"model\": \"\",\n  \"workers\": 2,\n  \"effort\": \"high\",\n  \"reviewers\": 1,\n  \"will_add_agent_review\": false,\n  \"ready\": [],\n  \"stack_ready\": {},\n  \"dependency_reasons\": {},\n  \"dependency_blocked\": {\n    \"7\": 1\n  },\n  \"agent_review\": []\n}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "field-list",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $cursor:String) {\\n              node(id:$id) { ... on ProjectV2 { items(first:100, after:$cursor) {\\n                totalCount pageInfo { hasNextPage endCursor }\\n                nodes { id fieldValueByName(name:\\\"Status\\\") {\\n                  ... on ProjectV2ItemFieldSingleSelectValue { name }\\n                } links: fieldValueByName(name:\\\"Linked pull requests\\\") {\\n                  ... on ProjectV2ItemFieldPullRequestValue {\\n                    pullRequests(first:10) { nodes { url } pageInfo { hasNextPage endCursor } }\\n                  }\\n                } content { ... on Issue {\\n                  number title body url state repository { nameWithOwner }\\n                  issueDependenciesSummary { blockedBy }\\n                } } }\\n              } } }\\n            }\", \"variables\": {\"id\": \"project-id\", \"cursor\": null}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($owner:String!, $name:String!, $number:Int!) {\\n          repository(owner:$owner, name:$name) { issue(number:$number) {\\n            issueDependenciesSummary { blockedBy }\\n          } }\\n        }\", \"variables\": {\"owner\": \"owner\", \"name\": \"repo\", \"number\": 7}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.native-check-incomplete-page",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "",
+            "stderr": "worklane: GitHub returned incomplete board pagination.\n"
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "field-list",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $cursor:String) {\\n              node(id:$id) { ... on ProjectV2 { items(first:100, after:$cursor) {\\n                totalCount pageInfo { hasNextPage endCursor }\\n                nodes { id fieldValueByName(name:\\\"Status\\\") {\\n                  ... on ProjectV2ItemFieldSingleSelectValue { name }\\n                } links: fieldValueByName(name:\\\"Linked pull requests\\\") {\\n                  ... on ProjectV2ItemFieldPullRequestValue {\\n                    pullRequests(first:10) { nodes { url } pageInfo { hasNextPage endCursor } }\\n                  }\\n                } content { ... on Issue {\\n                  number title body url state repository { nameWithOwner }\\n                  issueDependenciesSummary { blockedBy }\\n                } } }\\n              } } }\\n            }\", \"variables\": {\"id\": \"project-id\", \"cursor\": null}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.native-check-public",
+      "status": "pass",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\n  \"repository\": \"owner/repo\",\n  \"board\": \"https://github.com/users/owner/projects/2\",\n  \"security\": {\n    \"visibility\": \"public\",\n    \"project_viewer_can_update\": true,\n    \"repository_permission\": \"ADMIN\",\n    \"safe\": false,\n    \"public_board_override\": false,\n    \"verification_limits\": [\n      \"Repository permissions do not establish project collaborator access.\",\n      \"Project collaborator grants and workflow rule settings require manual review.\",\n      \"Public visibility permits reading; it does not grant anonymous writes.\"\n    ]\n  }\n}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "cli.native-start-stop-race.1",
+      "status": "pass",
+      "observations": {
+        "before": {
+          "repository": "owner/repo",
+          "running": false,
+          "paused": true,
+          "dependency_blocks": {},
+          "shutdown": {
+            "requested": true,
+            "immediate": true,
+            "requested_at": "2026-10-20T11:24:52.566141+00:00"
+          },
+          "stop_result": {
+            "at": "2026-10-20T11:24:52.574586+00:00",
+            "remaining_pids": [],
+            "running": false
+          },
+          "runtime": {},
+          "tasks": [],
+          "runs": [],
+          "database": "/tmp/tmpph8cgw7e/state/worklane/owner--repo/state.sqlite3",
+          "state_dir": "/tmp/tmpph8cgw7e/state/worklane/owner--repo"
+        },
+        "after": {
+          "repository": "owner/repo",
+          "running": false,
+          "paused": true,
+          "dependency_blocks": {},
+          "shutdown": {
+            "requested": true,
+            "immediate": true,
+            "requested_at": "2026-10-20T11:24:52.566141+00:00"
+          },
+          "stop_result": {
+            "at": "2026-10-20T11:24:52.574586+00:00",
+            "remaining_pids": [],
+            "running": false
+          },
+          "runtime": {},
+          "tasks": [],
+          "runs": [],
+          "database": "/tmp/tmpph8cgw7e/state/worklane/owner--repo/state.sqlite3",
+          "state_dir": "/tmp/tmpph8cgw7e/state/worklane/owner--repo"
+        },
+        "start_exit": 1,
+        "stdout": "",
+        "stderr": "worklane: Start cancelled by a concurrent stop request.\n"
+      }
+    },
+    {
+      "id": "cli.native-start-stop-race.2",
+      "status": "pass",
+      "observations": {
+        "before": {
+          "repository": "owner/repo",
+          "running": false,
+          "paused": true,
+          "dependency_blocks": {},
+          "shutdown": {
+            "requested": true,
+            "immediate": true,
+            "requested_at": "2026-10-20T11:24:53.030506+00:00"
+          },
+          "stop_result": {
+            "at": "2026-10-20T11:24:53.038371+00:00",
+            "remaining_pids": [],
+            "running": false
+          },
+          "runtime": {},
+          "tasks": [],
+          "runs": [],
+          "database": "/tmp/tmplfhk5xpk/state/worklane/owner--repo/state.sqlite3",
+          "state_dir": "/tmp/tmplfhk5xpk/state/worklane/owner--repo"
+        },
+        "after": {
+          "repository": "owner/repo",
+          "running": false,
+          "paused": true,
+          "dependency_blocks": {},
+          "shutdown": {
+            "requested": true,
+            "immediate": true,
+            "requested_at": "2026-10-20T11:24:53.030506+00:00"
+          },
+          "stop_result": {
+            "at": "2026-10-20T11:24:53.038371+00:00",
+            "remaining_pids": [],
+            "running": false
+          },
+          "runtime": {},
+          "tasks": [],
+          "runs": [],
+          "database": "/tmp/tmplfhk5xpk/state/worklane/owner--repo/state.sqlite3",
+          "state_dir": "/tmp/tmplfhk5xpk/state/worklane/owner--repo"
+        },
+        "start_exit": 1,
+        "stdout": "",
+        "stderr": "worklane: Start cancelled by a concurrent stop request.\n"
+      }
+    }
+  ],
+  "core_release_ready": false,
+  "exhaustive_parity_complete": false,
+  "limits": [
+    "Controlled GitHub/provider responses; no live issue writes or provider turns.",
+    "Native dashboard belongs to #52; installed cutover and end-to-end backlog validation belong to #53.",
+    "Line-oriented config replaces the terminal form in this CLI layer; exact help/error presentation parity remains advisory."
+  ]
+}

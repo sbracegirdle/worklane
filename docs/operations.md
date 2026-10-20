@@ -193,3 +193,5 @@ team; limits are per repository, not shared across all projects.
 
 `worklane stack` lists pinned ancestors and PRs; the TUI shows ordered stacks and blockers.
 Single-parent stacks merge forward after upstream changes; conflicts or dirty worktrees block without rewriting history or auto-merging PRs.
+
+A stop during startup preflight cancels that earlier start; shutdown and paused state remain intact.

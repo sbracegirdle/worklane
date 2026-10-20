@@ -1,0 +1,135 @@
+{
+  "scenario_group": "core.10.native-cli",
+  "candidate_revision": "238405db8d4fdaa39fda4d3f9371026e7f356a69",
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "validation_base": "ecff48ec25f5a606d07822637da72217ca8f80e8",
+  "current_main": "ecff48ec25f5a606d07822637da72217ca8f80e8",
+  "candidate": "/tmp/worklane-51-rework-install/bin/worklane",
+  "candidate_sha256": "cfac9a1dac6905a3dc65cd798de119c3e15bda8bcb76a096f73d30928e85adf7",
+  "driver": "test_native_cli.py",
+  "driver_sha256": "9e047aa65ca7423a9f03581ddec14b6813b8901b10208beee177d132207609da",
+  "core_runtime_ready": true,
+  "core_cli_ready": true,
+  "core_release_ready": false,
+  "exhaustive_parity_complete": false,
+  "independent_review": "pending",
+  "addressed_feedback": [
+    "P1: carry the original shutdown snapshot across CLI and shared-action startup preflights."
+  ],
+  "prior_validation_attempt": {
+    "full_suite_exit": 1,
+    "errors": 3,
+    "test": "test_harness.HarnessTests.test_queued_input_resumes_exact_opencode_conversation_for_every_role",
+    "cause": "Unchanged Python fixture timed out for worker; following roles reached closed-input state. No Rust or Python production behavior changed between attempts.",
+    "log_sha256": "dfe1b6f6908656c562ff59d2435729ac21cd3e292429fdf5c08a86cff477f16c",
+    "isolated_retry_command": "UV_CACHE_DIR=/tmp/worklane-51-uv WORKLANE_TEST_RUST=1 uv run --no-project python -m unittest -v test_harness.HarnessTests.test_queued_input_resumes_exact_opencode_conversation_for_every_role",
+    "isolated_retry_exit": 0,
+    "isolated_retry_tests": 1
+  },
+  "runtime_scenarios": {
+    "core.1.storage-config": "pass",
+    "core.2.dispatch-ownership": "pass",
+    "core.3.exact-provider-sessions": "pass",
+    "core.4.review-handoff": "pass",
+    "core.5.pause-drain-stop": "pass",
+    "core.6.interruption-recovery": "pass",
+    "core.7.dependencies-stacks": "pass",
+    "core.8.privacy-authorization": "pass",
+    "core.9.github-transport": "pass"
+  },
+  "cli_scenarios": {
+    "cli.native-config": "pass",
+    "cli.native-config-confirm": "pass",
+    "cli.native-detached-controller": "pass",
+    "cli.native-startup-error": "pass",
+    "cli.native-emergency-budget-isolation": "pass",
+    "cli.help": "pass",
+    "cli.unknown-command": "pass",
+    "cli.unknown-flag": "pass",
+    "cli.bad-number": "pass",
+    "cli.bad-workers-type": "pass",
+    "cli.bad-harness": "pass",
+    "cli.bad-effort": "pass",
+    "cli.bad-destination": "pass",
+    "cli.now-scope": "pass",
+    "cli.title-scope": "pass",
+    "cli.missing-title": "pass",
+    "cli.empty-title": "pass",
+    "cli.add-number": "pass",
+    "cli.native-retry-number-before-network": "pass",
+    "cli.retry-unknown": "pass",
+    "cli.workers-range": "pass",
+    "cli.interval-range": "pass",
+    "cli.invalid-project": "pass",
+    "cli.tui-refresh": "pass",
+    "cli.tui-refresh-low": "pass",
+    "cli.tui-refresh-high": "pass",
+    "cli.offline-controls": "pass",
+    "cli.stack-policy": "pass",
+    "cli.invalid-config": "pass",
+    "cli.unknown-config": "pass",
+    "cli.stack-cycle": "pass",
+    "cli.hard-gate": "pass",
+    "cli.board-browser": "pass",
+    "cli.board-offline": "pass",
+    "cli.add-ready": "pass",
+    "cli.add-draft": "pass",
+    "cli.add-shaping": "pass",
+    "cli.add-partial-failure": "pass",
+    "cli.empty-queue-run": "pass",
+    "cli.native-retry-migrated-session": "pass",
+    "cli.native-identity": "pass",
+    "cli.native-public-board": "pass",
+    "cli.native-private-guard.add": "pass",
+    "cli.native-private-guard.run": "pass",
+    "cli.native-private-guard.start": "pass",
+    "cli.native-private-guard.resume": "pass",
+    "cli.native-private-guard.retry": "pass",
+    "cli.native-check-live-blocker": "pass",
+    "cli.native-check-incomplete-page": "pass",
+    "cli.native-check-public": "pass",
+    "cli.native-start-stop-race.1": "pass",
+    "cli.native-start-stop-race.2": "pass"
+  },
+  "evidence_sha256": {
+    "parity/evidence/native-validation.json": "cde1da68a439e84f2775a33967caceff221776b5a901ecd7bfa2724db47b4a69",
+    "parity/evidence/native-cli.json": "b5eeaefc88d80b5ae4edc275926b8a5c94b2a474d890e2eb7b66993d271ff2bc"
+  },
+  "commands": [
+    {
+      "command": "cargo install --path runtime --bin worklane --locked --offline --root /tmp/worklane-51-rework-install",
+      "exit": 0
+    },
+    {
+      "command": "/tmp/worklane-51-rework-install/bin/worklane --version",
+      "exit": 0,
+      "revision": "238405db8d4fdaa39fda4d3f9371026e7f356a69",
+      "dirty": false
+    },
+    {
+      "command": "UV_CACHE_DIR=/tmp/worklane-51-uv WORKLANE_TEST_RUST=1 WORKLANE_TEST_CLI_BINARY=/tmp/worklane-51-rework-install/bin/worklane WORKLANE_NATIVE_CLI_EVIDENCE=parity/evidence/native-cli.json uv run --no-project python -m unittest -q test_native_cli",
+      "exit": 0,
+      "tests": 10,
+      "scenarios": 52
+    },
+    {
+      "command": "UV_CACHE_DIR=/tmp/worklane-51-uv WORKLANE_NATIVE_CLI_EVIDENCE=/tmp/worklane-51-rework-debug-cli.json uv run --no-project python tools/native_validate.py --base-revision ecff48ec25f5a606d07822637da72217ca8f80e8",
+      "exit": 0,
+      "subcommands": 11,
+      "rust_tests": 42,
+      "python_tests": 537,
+      "optional_skips": 2
+    }
+  ],
+  "deferred_non_core": [
+    "Exact legacy help/error/JSON presentation parity and exhaustive source/failure/constant audits remain advisory; 553/759 runtime inventory rows remain unverified."
+  ],
+  "later_stage_ownership": {
+    "52": "Native dashboard and terminal configuration form; CLI reports the dashboard boundary explicitly.",
+    "53": "Installed CLI/TUI cutover, real PTY and end-to-end controlled backlog lifecycle at integrated reviewed revisions."
+  },
+  "limits": [
+    "GitHub/provider writes are controlled fixtures; no live issue writes or provider turns.",
+    "Only the /tmp preview installation changed; production installations and controllers were preserved."
+  ]
+}

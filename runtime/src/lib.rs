@@ -1,4 +1,5 @@
 //! Shared Linux runtime for Worklane's native frontends.
+pub mod cli;
 pub mod config;
 pub mod harness;
 pub mod process;

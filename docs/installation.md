@@ -71,3 +71,5 @@ Alternatively, restore your previous editable source with `uv tool install
 state and sessions, but an older CLI can refuse a newer database schema; keep a
 stopped-controller state backup before testing schema changes.
 
+Native CLI preview: `cargo install --path runtime --bin worklane --locked --offline --root /tmp/worklane-cli`.
+Offline `config --show/--save` supports overrides; native dashboard (#52), cutover (#53), and exhaustive presentation parity remain deferred.

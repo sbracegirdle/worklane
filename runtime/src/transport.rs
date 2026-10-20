@@ -289,6 +289,37 @@ pub struct GitHubTransport {
     browser_executor: CommandExecutor,
 }
 impl GitHubTransport {
+    /// Browser and issue commands share the cooldown without creating repository runtime state.
+    pub fn standalone(cwd: &Path) -> Result<Self> {
+        let budget = StateStore::open("_github", None)?;
+        Ok(Self {
+            cwd: cwd.into(),
+            executable: "gh".into(),
+            budget,
+            controller_token: String::new(),
+            executor: Arc::new(execute),
+            browser_executor: Arc::new(execute_browser),
+        })
+    }
+
+    pub fn browse_board(&self, owner: &str, number: i64) -> Result<()> {
+        command_with(
+            &*self.browser_executor,
+            &[
+                "gh",
+                "project",
+                "view",
+                &number.to_string(),
+                "--owner",
+                owner,
+                "--web",
+            ],
+            &self.cwd,
+            None,
+        )?;
+        Ok(())
+    }
+
     pub fn new(state: &StateStore, cwd: &Path) -> Result<Self> {
         Ok(Self {
             cwd: cwd.into(),

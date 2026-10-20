@@ -383,6 +383,24 @@ impl StateStore {
         tx.commit()?;
         Ok(())
     }
+    pub fn dependency_blocks(&self) -> Result<Value> {
+        let mut db = self.connect()?;
+        let tx = db.transaction()?;
+        let owners = query(
+            &tx,
+            "SELECT DISTINCT owner FROM state_values WHERE owner LIKE 'meta:dependency:%' ORDER BY owner",
+            [],
+        )?;
+        let mut blocks = json!({});
+        for row in owners {
+            let owner = string(&row, "owner");
+            let value = Self::get(&tx, &owner, json!({}))?;
+            if value["reason"].as_str().is_some_and(|s| !s.is_empty()) {
+                blocks[owner.trim_start_matches("meta:dependency:")] = value;
+            }
+        }
+        Ok(blocks)
+    }
     pub fn paused(&self) -> Result<bool> {
         Ok(self.get_meta("control", json!({}))?["paused"]
             .as_bool()

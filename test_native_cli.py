@@ -242,6 +242,68 @@ print(json.dumps(result))
                 subprocess.run([str(self.binary),'stop','--now','--repo',str(repo)],env=env,capture_output=True,timeout=15)
                 unrelated.terminate();unrelated.wait(timeout=5)
 
+    def test_stop_during_start_preflight_preserves_shutdown_and_does_not_launch(self):
+        for checkpoint in (1,2):
+            with self.subTest(project_preflight=checkpoint),tempfile.TemporaryDirectory() as directory:
+                root=Path(directory);repo=root/'repo';repo.mkdir();bins=root/'bin';bins.mkdir()
+                env={**os.environ,'HOME':str(root),'XDG_STATE_HOME':str(root/'state'),
+                     'PATH':str(bins)+':/usr/bin:/bin','GIT_CONFIG_GLOBAL':'/dev/null','GIT_CONFIG_NOSYSTEM':'1',
+                     'BLOCK_PREFLIGHT':str(checkpoint)}
+                for args in (['init','-q','-b','main'],['remote','add','origin','https://github.com/owner/repo.git'],
+                             ['symbolic-ref','refs/remotes/origin/HEAD','refs/remotes/origin/main']):
+                    subprocess.run(['git',*args],cwd=repo,env=env,check=True,capture_output=True)
+                script='''import json,os,sys,time
+from pathlib import Path
+root=Path(os.environ['HOME']);args=sys.argv[1:]
+body=json.load(sys.stdin) if '--input' in args else {}
+query=body.get('query','')
+if args[:2]==['project','view']:
+    count=int((root/'count').read_text())+1 if (root/'count').exists() else 1
+    (root/'count').write_text(str(count))
+    if count==int(os.environ['BLOCK_PREFLIGHT']):
+        (root/'blocked').touch()
+        deadline=time.monotonic()+15
+        while not (root/'release').exists() and time.monotonic()<deadline:time.sleep(.01)
+        assert (root/'release').exists(),'preflight barrier timed out'
+    result=PROJECT
+elif args[:2]==['project','field-list']:result=FIELDS
+elif args[:2]==['auth','setup-git']:result={}
+elif 'viewerCanUpdate' in query:result={'data':{'node':{'public':False,'viewerCanUpdate':True},'repository':{'viewerPermission':'ADMIN'}}}
+elif 'items(first:100' in query:result={'data':{'node':{'items':{'nodes':[],'totalCount':0,'pageInfo':{'hasNextPage':False,'endCursor':None}}}}}
+else:raise AssertionError(str(args)+' '+query)
+print(json.dumps(result))
+'''.replace('PROJECT',repr(json.loads(board_prefix()[0]['stdout']))).replace('FIELDS',repr(json.loads(board_prefix(fields=True)[2]['stdout'])))
+                for name,source in [('gh','#!'+__import__('sys').executable+'\n'+script),('codex','#!/bin/sh\nexit 0\n')]:
+                    path=bins/name;path.write_text(source);path.chmod(0o700)
+                def invoke(*args):
+                    result=subprocess.run([str(self.binary),*args,'--repo',str(repo)],env=env,text=True,capture_output=True,timeout=15)
+                    self.assertEqual(result.returncode,0,result.stderr)
+                    return result.stdout
+                start=subprocess.Popen([str(self.binary),'start','--project','owner/2','--repo',str(repo)],
+                                       env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+                try:
+                    deadline=time.monotonic()+10
+                    while not (root/'blocked').exists() and time.monotonic()<deadline:time.sleep(.01)
+                    self.assertTrue((root/'blocked').exists(),'Start did not reach controlled preflight')
+                    self.assertIn('no owned processes remain',invoke('stop','--now'))
+                    before=json.loads(invoke('status'))
+                    self.assertFalse(before['running']);self.assertTrue(before['paused'])
+                    (root/'release').touch()
+                    out,err=start.communicate(timeout=15)
+                    after=json.loads(invoke('status'))
+                    self.assertEqual(start.returncode,1,(out,err))
+                    self.assertIn('Start cancelled by a concurrent stop request',err)
+                    self.assertFalse(after['running']);self.assertTrue(after['paused'])
+                    self.assertEqual(after['shutdown'],before['shutdown'])
+                    self.assertEqual(after['runtime'],before['runtime'])
+                    self.observations.append({'id':'cli.native-start-stop-race.'+str(checkpoint),'status':'pass',
+                        'observations':{'before':before,'after':after,'start_exit':start.returncode,'stdout':out,'stderr':err}})
+                finally:
+                    (root/'release').touch()
+                    if start.poll() is None:start.terminate()
+                    start.communicate(timeout=5)
+                    invoke('stop','--now')
+
     def test_detached_startup_failures_remain_in_database_logs(self):
         run_rules=copy.deepcopy(SCENARIOS['cli.empty-queue-run']['transport']['gh'][:5])
         # Authentication fails after runtime ownership is recorded; the detached process persists its error.

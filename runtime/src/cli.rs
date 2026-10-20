@@ -679,7 +679,8 @@ fn run(options: &Options) -> Result<i32> {
             if options.once {
                 argv.push("--once".into());
             }
-            let pid = actions(&state, root, &settings, invocation.clone())?.start(&argv)?;
+            let pid = actions(&state, root, &settings, invocation.clone())?
+                .start_observed(&argv, &observed)?;
             println!(
                 "Started {} (PID {pid}); use worklane logs to inspect SQLite logs.",
                 repository.repo

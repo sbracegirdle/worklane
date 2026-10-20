@@ -299,7 +299,7 @@ class NativeTuiTests(TuiFixture):
         self.quit()
 
     def test_group12_public_guard_retry_and_signal_restore(self):
-        self.launch(); (self.root/'mode').write_text('public')
+        self.launch('--controller', str(self.root/'missing-native-controller')); (self.root/'mode').write_text('public')
         self.send('e'); self.until('security preflight refused')
         self.send('u'); self.until('security preflight refused')
         self.send('s'); self.until('No such file')  # Missing native CLI never falls back to Python.

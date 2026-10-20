@@ -21,8 +21,14 @@ class EvidenceResult(unittest.TextTestResult):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cases=[]
-    def addSuccess(self, test):
-        super().addSuccess(test)
+    def startTest(self, test):
+        super().startTest(test)
+        original = test.tearDown
+        def capture():
+            test.native_observations = self.observe(test)
+            original()
+        test.tearDown = capture
+    def observe(self, test):
         observations={'saved_worker_session':test.state.session(1,'worker')['session_id'],
             'expected_worker_session':test.session_id, 'saved_phase':test.state.load(1)['phase'],
             'pending_worker_input':test.inputs(), 'gh_commands':[c['args'] for c in test.calls()]}
@@ -33,8 +39,11 @@ class EvidenceResult(unittest.TextTestResult):
                     'Second paginated comment','Input queued','Configuration saved','Cancelled',
                     'security preflight refused','Controller started','Stop requested','Session returned','Retry saved']
                     if token.encode() in test.output])
+        return observations
+    def addSuccess(self, test):
+        super().addSuccess(test)
         self.cases.append({'id':test.id(), 'status':'pass', 'scenario':11 if '.test_group11_' in test.id() else 12,
-                           'observations':observations})
+                           'observations':test.native_observations})
 
 if __name__ == '__main__':
     if len(sys.argv) != 2 or not os.environ.get('WORKLANE_TUI_BIN'):

@@ -20,6 +20,9 @@ class HumanFeedbackTests(unittest.TestCase):
         self.board = FakeBoard([item(1, w.HUMAN)])
         self.args = argparse.Namespace(base="main", once=True, interval=.01)
         self.runner = w.Runner(self.args, "owner/repo", self.root, self.state, self.board, Mock())
+        self.enterContext(patch.object(self.runner, "require_trusted_feedback"))
+        self.enterContext(patch.object(self.runner, "trusted_feedback_user", return_value=True))
+        self.enterContext(patch.object(self.runner, "feedback_editor", return_value=None))
         self.runner.issue = Mock(return_value={"state": "OPEN", "labels": [], "title": "Feedback"})
         self.runner.pr = Mock(return_value={"state": "OPEN", "headRefName": "codex/1-worklane",
                                             "baseRefName": "main", "headRefOid": "a" * 40})

@@ -809,8 +809,10 @@ def dependency_count(issue):
 
 
 class Board:
-    def __init__(self, repo, path, project=None, *, load_fields=True, required_statuses=(READY, PROGRESS, HUMAN)):
+    def __init__(self, repo, path, project=None, *, load_fields=True, required_statuses=(READY, PROGRESS, HUMAN),
+                 dangerously_allow_public_board=False, check_only=False):
         self.repo, self.path = repo, path
+        self.dangerously_allow_public_board = dangerously_allow_public_board
         self.required_statuses = required_statuses
         owner, name = repo.split("/")
         if project:
@@ -835,8 +837,50 @@ class Board:
             self.project = candidates[0]
             self.owner = self.project.get("owner", {}).get("login", owner)
             self.number = self.project["number"]
-        if load_fields:
+        self.security = self.security_report()
+        if not check_only:
+            self.require_safe(self.security)
+        if load_fields and (not check_only or self.security["safe"]):
             self.refresh_fields()
+
+    def security_report(self):
+        report = {"visibility": "unknown", "project_viewer_can_update": None,
+                  "repository_permission": "unknown", "safe": False,
+                  "public_board_override": self.dangerously_allow_public_board,
+                  "verification_limits": [
+                      "Repository permissions do not establish project collaborator access.",
+                      "Project collaborator grants and workflow rule settings require manual review.",
+                      "Public visibility permits reading; it does not grant anonymous writes."]}
+        try:
+            owner, name = self.repo.split("/")
+            data = graphql("""query($id:ID!, $owner:String!, $name:String!) {
+              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }
+              repository(owner:$owner, name:$name) { viewerPermission }
+            }""", {"id": self.project["id"], "owner": owner, "name": name})
+            project = data.get("node") or {}
+            public = project.get("public")
+            report["visibility"] = ("public" if public else "private") if type(public) is bool else "unknown"
+            report["project_viewer_can_update"] = project.get("viewerCanUpdate")
+            report["repository_permission"] = (data.get("repository") or {}).get("viewerPermission", "unknown")
+            report["safe"] = (type(public) is bool and (not public or self.dangerously_allow_public_board)
+                              and project.get("viewerCanUpdate") is True
+                              and report["repository_permission"] in {"WRITE", "MAINTAIN", "ADMIN"})
+        except GitHubRateLimit:
+            raise
+        except (RuntimeError, OSError, ValueError, KeyError, subprocess.TimeoutExpired) as error:
+            report["error"] = str(error)
+        return report
+
+    def require_safe(self, report=None):
+        report = report if report is not None else self.security_report()
+        if not report["safe"]:
+            raise RuntimeError("Board security preflight refused operation: " + json.dumps(report)
+                               + "; public boards require explicit --dangerously-allow-public-board.")
+        if report["visibility"] == "public" and not getattr(self, "public_warning_shown", False):
+            print("WARNING: --dangerously-allow-public-board permits operation on a publicly readable board. "
+                  "Review project access and automation rules; feedback still requires trusted permissions.", file=sys.stderr)
+            self.public_warning_shown = True
+        return report
 
     def refresh_fields(self):
         fields = gh("project", "field-list", str(self.number), "--owner", self.owner, "--format", "json")["fields"]
@@ -849,6 +893,7 @@ class Board:
                 raise RuntimeError(f"The selected board is missing status {status!r}.")
 
     def add_issue(self, title, description, status=READY):
+        self.require_safe()
         # Resolve the destination before creating anything on GitHub.
         option = self.options.get(status.casefold())
         if not option:
@@ -878,6 +923,7 @@ class Board:
         return url
 
     def ensure_review_status(self):
+        self.require_safe()
         if REVIEW.casefold() in self.options:
             return
         data = graphql("""query($id:ID!) { node(id:$id) {
@@ -991,6 +1037,7 @@ class Board:
         return (node.get("fieldValueByName") or {}).get("name", "").casefold()
 
     def move(self, item, status, expected):
+        self.require_safe()
         current = self.item_status(item)
         if current != expected.casefold():
             raise RuntimeError(f"Issue status changed; expected {expected!r}. Leaving it for inspection.")
@@ -1006,6 +1053,7 @@ class AgentBackend:
         self.model, self.root, self.state, self.runner_fd = model, root, state, runner_fd
         self.effort = effort
         self.timeout = 8 * 3600
+        self.preflight = lambda stage, task: None
         self.harness = HARNESSES[harness](model, root, state)
         self.harness.effort = effort
         self.model = self.harness.model
@@ -1048,6 +1096,7 @@ class AgentBackend:
                     for descriptor in (schema_fd, result_fd):
                         os.ftruncate(descriptor, 0)
                         os.lseek(descriptor, 0, os.SEEK_SET)
+                    self.preflight(stage, task)
                     args, turn_prompt, env, turn = self.harness.prepare(
                         stage, task, worktree, session, turn_prompt, RESULT_SCHEMA, schema_fd, result_fd)
                     output = self._invoke(args, turn_prompt, stage, task, worktree, schema_fd, result_fd, env, turn, run_id)
@@ -1168,6 +1217,7 @@ class HarnessBackend:
     """Route roles to harnesses; existing conversations retain their harness and model."""
     def __init__(self, args, root, state, runner_fd):
         self.args, self.root, self.state, self.runner_fd = args, root, state, runner_fd
+        self.preflight = lambda stage, task: None
         self.model = args.model or (MODEL if (args.harness or "codex") == "codex" else "harness default")
         self.backends, self.lock = {}, threading.Lock()
 
@@ -1184,6 +1234,7 @@ class HarnessBackend:
             if (name, model) not in self.backends:
                 self.backends[name, model] = AgentBackend(model, self.root, self.state, self.runner_fd, name, effort=getattr(self.args, "effort", None) or "high")
             backend = self.backends[name, model]
+        backend.preflight = self.preflight
         return backend.run(stage, task, worktree, extra)
 
 
@@ -1192,6 +1243,7 @@ class Runner:
         self.args, self.repo, self.root, self.state, self.board, self.backend = args, repo, root, state, board, backend
         self.workers = tuple(f"worker-{i + 1}" for i in range(getattr(args, "workers", len(WORKERS))))
         self.budget = GitHubBudget(state)
+        backend.preflight = self.before_turn
 
     def issue(self, number):
         return gh("issue", "view", str(number), "--repo", self.repo,
@@ -1207,6 +1259,30 @@ class Runner:
         return gh("pr", "view", url, "--repo", self.repo,
                   "--json", "url,headRefOid,headRefName,baseRefName,state,isDraft,mergeable,mergedAt")
 
+    def trusted_feedback_user(self, login):
+        if not isinstance(login, str) or not re.fullmatch(r"[A-Za-z0-9-]+", login):
+            return False
+        access = gh("api", f"repos/{self.repo}/collaborators/{login}/permission")
+        return access.get("permission") in {"write", "maintain", "admin"}
+
+    def feedback_editor(self, entry):
+        if not entry.get("node_id"):
+            raise RuntimeError("Feedback edit provenance is unavailable; refusing rework.")
+        data = graphql("""query($id:ID!) { node(id:$id) {
+          ... on IssueComment { body lastEditedAt editor { login __typename } }
+          ... on PullRequestReview { body lastEditedAt editor { login __typename } }
+          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }
+        } }""", {"id": entry["node_id"]})
+        node = data.get("node") or {}
+        if "lastEditedAt" not in node or node.get("body") != (entry.get("body") or ""):
+            raise RuntimeError("Feedback edit provenance changed or is unavailable; refusing rework.")
+        if not node["lastEditedAt"]:
+            return None
+        editor = node.get("editor") or {}
+        if editor.get("__typename") != "User" or not editor.get("login"):
+            return False
+        return editor["login"]
+
     def human_feedback(self, task):
         """Read every page, including inline threads omitted by gh pr view."""
         sources = [("issue", f"issues/{task['number']}/comments")]
@@ -1219,7 +1295,11 @@ class Runner:
             sources += [("pr", f"issues/{number}/comments"),
                         ("review", f"pulls/{number}/reviews"),
                         ("inline", f"pulls/{number}/comments")]
-        feedback = {}
+        feedback, permissions = {}, {}
+        def trusted(login):
+            if login not in permissions:
+                permissions[login] = self.trusted_feedback_user(login)
+            return permissions[login]
         for source, endpoint in sources:
             pages = gh("api", f"repos/{self.repo}/{endpoint}?per_page=100", "--paginate", "--slurp")
             for entry in (entry for page in pages for entry in page):
@@ -1234,6 +1314,11 @@ class Runner:
                     continue
                 if not body.strip() and state != "CHANGES_REQUESTED":
                     continue
+                if not trusted(user.get("login")):
+                    continue
+                editor = self.feedback_editor(entry)
+                if editor is False or editor is not None and not trusted(editor):
+                    continue
                 feedback[f"{source}:{entry['id']}"] = {
                     "body": body, "author": user["login"], "state": state,
                     "updated_at": entry.get("updated_at") or entry.get("submitted_at") or entry["created_at"],
@@ -1244,6 +1329,7 @@ class Runner:
 
     def poll_human_feedback(self, items, active_numbers=()):
         """Debounce owned human-review work; never adopt unrelated Human review items."""
+        self.board.require_safe()
         self.feedback_unavailable = set()
         for task in self.state.all():
             if task["number"] in active_numbers:
@@ -1374,6 +1460,7 @@ class Runner:
         return pr
 
     def post(self, task, stage, result):
+        self.board.require_safe()
         marker = f"<!-- worklane:{task['number']}:{stage}:{task.get('head_sha', 'question')}:{task.get('round', 0)} -->"
         if task.get("human_feedback_generation"):
             marker = marker.replace(" -->", f":human-{task['human_feedback_generation']} -->")
@@ -1426,7 +1513,19 @@ class Runner:
         self.state.save(task)
         return path
 
+    def require_trusted_feedback(self, task):
+        if task.get("human_feedback"):
+            snapshot = self.human_feedback(task)
+            if any(snapshot.get(key) != entry for key, entry in task["human_feedback"].items()):
+                raise RuntimeError("Feedback authorization or content changed; inspect before rework.")
+
+    def before_turn(self, stage, task):
+        self.board.require_safe()
+        if stage == "build":
+            self.require_trusted_feedback(task)
+
     def agent_result(self, task, stage, tree, extra):
+        self.before_turn(stage, task)
         completed = task.setdefault("completed_turns", {})
         if stage not in completed:
             completed[stage] = self.backend.run(stage, task, tree, extra)
@@ -1538,6 +1637,7 @@ class Runner:
             if pr.get("mergeable") == "UNKNOWN":
                 raise InterruptedRun("GitHub is calculating PR mergeability; the saved handoff will be retried.")
             if pr["isDraft"]:
+                self.board.require_safe()
                 command(["gh", "pr", "ready", task["pr_url"], "--repo", self.repo])
                 if self.verify_pr(task, task["head_sha"])["isDraft"]:
                     raise RuntimeError("PR is still a draft; human review is blocked.")
@@ -1640,6 +1740,7 @@ class Runner:
             print(f"#{task['number']} blocked: {task['error']}", flush=True)
 
     def recover(self, items, slot):
+        self.board.require_safe()
         for task in self.state.all():
             if task.get("phase") not in {"interrupted", "retry"}:
                 continue
@@ -1697,6 +1798,7 @@ class Runner:
         return None
 
     def pick(self, item, slot):
+        self.board.require_safe()
         number = item["content"]["number"]
         previous = self.state.load(number)
         review = slot == REVIEWER
@@ -1708,6 +1810,7 @@ class Runner:
             if (number in getattr(self, "feedback_unavailable", set())
                     or not previous.get("human_feedback") or not self.feedback_quiet(previous)):
                 return None
+            self.require_trusted_feedback(previous)
             previous["human_feedback_seen"] = previous["human_feedback_snapshot"]
             previous.pop("human_feedback_pending", None)
         issue = self.issue(number)
@@ -1765,6 +1868,7 @@ class Runner:
                 backoff = self.budget.snapshot()
                 if not self.state.paused() and time.time() >= backoff.get("until", 0) and len(futures) < len(self.workers) + 1:
                     try:
+                        self.board.require_safe()
                         items = self.board.items()
                         with locked(self.state.path / "dispatch.lock"):
                             if not self.state.paused() and not stop.is_set():
@@ -1878,6 +1982,8 @@ def parser():
     p.add_argument("number", nargs="?", type=int, help="Issue number for retry or logs")
     p.add_argument("--repo", default=".", help="Local repository checkout (default: current directory)")
     p.add_argument("--project", help="GitHub board OWNER/NUMBER; auto-detected when unambiguous")
+    p.add_argument("--dangerously-allow-public-board", action="store_true",
+                   help="DANGEROUS: explicitly permit publicly readable boards; feedback permissions still apply")
     p.add_argument("-t", "--title", help="With add: new issue title (required)")
     p.add_argument("-d", "--description", "--body", help="With add: issue description (default: empty)")
     destination = p.add_mutually_exclusive_group()
@@ -1905,6 +2011,8 @@ def main(argv=None):
     args = parser().parse_args(argv)
     tui_options = {"project": args.project, "model": args.model, "interval": args.interval,
                    "once": True if args.once else None}
+    if args.dangerously_allow_public_board:
+        tui_options["dangerously_allow_public_board"] = True
     tui_options.update({name: getattr(args, name) for name in (*harness_option_names(), "workers", "effort")
                         if getattr(args, name) is not None})
     original_stdout, original_stderr = sys.stdout, sys.stderr
@@ -1921,7 +2029,7 @@ def main(argv=None):
         if args.action == "add" and (not args.title or not args.title.strip() or args.number is not None):
             raise RuntimeError("Use worklane add --title TITLE [--description DESCRIPTION] [--draft | --shaping].")
         repo, root, base = repository(Path(args.repo).expanduser())
-        if args.action in {"tui", "config", "run", "start", "check", "board", "add"}:
+        if args.action in {"tui", "config", "run", "start", "check", "board", "add", "retry", "resume"}:
             settings = validate_config({**load_config(root), **{key: value for key, value in tui_options.items()
                                                                if key in CONFIG_DEFAULTS and value is not None}})
             for key, value in settings.items():
@@ -1936,14 +2044,16 @@ def main(argv=None):
             if not shutil.which("gh"):
                 raise RuntimeError("Required command missing: gh")
             status = "Draft" if args.draft else "Shaping" if args.shaping else READY
-            board = Board(repo, root, args.project, required_statuses=(status,))
+            board = Board(repo, root, args.project, required_statuses=(status,),
+                          dangerously_allow_public_board=args.dangerously_allow_public_board)
             url = board.add_issue(args.title, args.description or "", status)
             print(f"{url}\nAdded to {board.project['url']} with initial status {status}.")
             return 0
         if args.action == "board":
             if not shutil.which("gh"):
                 raise RuntimeError("Required command missing: gh")
-            board = Board(repo, root, args.project, load_fields=False)
+            board = Board(repo, root, args.project, load_fields=False,
+                          dangerously_allow_public_board=args.dangerously_allow_public_board)
             command(["gh", "project", "view", str(board.number), "--owner", board.owner, "--web"], cwd=root)
             print(f"Opened project board: {board.project['url']}")
             return 0
@@ -1970,6 +2080,9 @@ def main(argv=None):
                               "runtime": runtime, "tasks": state.all(), "runs": state.runs(),
                               "database": str(state.database), "state_dir": str(state.path)}, indent=2))
             return 0
+        if args.action in {"retry", "resume"}:
+            Board(repo, root, args.project, load_fields=False,
+                  dangerously_allow_public_board=args.dangerously_allow_public_board)
         if args.action in {"pause", "resume", "stop"}:
             with locked(state.path / "dispatch.lock"):
                 state.pause(args.action != "resume")
@@ -2019,11 +2132,17 @@ def main(argv=None):
         budget_token = GITHUB_BUDGET.set(GitHubBudget(state))
         if not args.base:
             args.base = gh("repo", "view", repo, "--json", "defaultBranchRef")["defaultBranchRef"]["name"]
-        board = Board(repo, root, args.project)
+        board = Board(repo, root, args.project,
+                      dangerously_allow_public_board=args.dangerously_allow_public_board, check_only=args.action == "check")
         if args.action == "check":
+            if not board.security["safe"]:
+                print(json.dumps({"repository": repo, "board": board.project["url"],
+                                  "security": board.security}, indent=2))
+                return 1
             items = board.items()
             ready = [i for i in items if i.get("status", "").casefold() == READY.casefold()]
             print(json.dumps({"repository": repo, "board": board.project["url"], "model": args.model or (MODEL if args.harness == "codex" else "harness default"), "harness_options": harness_options,
+                              "security": board.security,
                               "cli": installation_info(),
                               "harness": args.harness, "effort": args.effort,
                               "workers": args.workers, "reviewers": 1,
@@ -2032,13 +2151,17 @@ def main(argv=None):
                               "dependency_blocked": {str(i["content"]["number"]): i["blocked_by_count"]
                                                      for i in items if i["blocked_by_count"]},
                               "agent_review": [i["content"]["number"] for i in items if i.get("status", "").casefold() == REVIEW.casefold() and i["blocked_by_count"] == 0]}, indent=2))
-            return 0
+            if board.security["safe"]:
+                board.require_safe(board.security)
+            return 0 if board.security["safe"] else 1
         if args.action == "start":
             with locked(state.path / "runner.lock", blocking=False):
                 pass
             state.pause(False)
             child_args = [sys.executable, str(Path(__file__).resolve()), "run", "--repo", str(root),
                           "--project", f"{board.owner}/{board.number}", "--interval", str(args.interval), "--background"]
+            if args.dangerously_allow_public_board:
+                child_args.append("--dangerously-allow-public-board")
             child_args += harness_flags(harness_options)
             for name in ("workers", "effort"):
                 child_args.extend(["--" + name, str(getattr(args, name))])
@@ -2062,6 +2185,7 @@ def main(argv=None):
             state.set_meta("runtime", {"pid": os.getpid(), "identity": process_identity(os.getpid()),
                        "started_at": now(), "checkout": str(root), "project": f"{board.owner}/{board.number}", "model": args.model or (MODEL if args.harness == "codex" else "harness default"), "harness_options": harness_options,
                        "interval": args.interval, "once": args.once, "cli": installation_info(),
+                       "dangerously_allow_public_board": args.dangerously_allow_public_board,
                        "harness": args.harness, "workers": args.workers, "effort": args.effort})
             state.set_meta("shutdown", {"immediate": False})
             stop = threading.Event()

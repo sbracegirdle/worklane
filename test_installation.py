@@ -150,6 +150,7 @@ class InstallationTests(unittest.TestCase):
 
     def test_check_reports_cli_without_changing_board(self):
         board = Mock(project={"url": "https://github.com/users/owner/projects/1"}, options={})
+        board.security = {"safe": True}
         board.items.return_value = []
         output = io.StringIO()
         with patch.object(w, "repository", return_value=("owner/repo", self.root, "main")), \

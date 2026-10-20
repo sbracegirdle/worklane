@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import contextmanager
+from contextlib import contextmanager, ExitStack
 from contextvars import ContextVar
 import ctypes
 from email.utils import parsedate_to_datetime
@@ -31,6 +31,7 @@ import time
 import tomllib
 import uuid
 
+from worklane_process import OWNER_ENV, owned, signal_owned, terminate_owned
 from worklane_harness import HARNESSES, MODEL, CodexAppServer, terminate, validate_session_id
 HUMAN_FEEDBACK_QUIET_SECONDS = 300
 WORKERS = ("worker-1", "worker-2", "worker-3")
@@ -581,6 +582,16 @@ class State:
     def pause(self, value):
         self.set_meta("control", {"paused": value, "updated_at": now()})
 
+    def request_stop(self, immediate=False):
+        with self.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            previous = self._get(db, "meta:shutdown", {})
+            self._put(db, "meta:control", {"paused": True, "updated_at": now()})
+            value = {**previous, "requested": True,
+                     "immediate": immediate or previous.get("immediate", False), "requested_at": now()}
+            self._put(db, "meta:shutdown", value)
+        return value
+
     def session(self, number, role):
         return self.load(number).get("sessions", {}).get(role)
 
@@ -1096,9 +1107,16 @@ class AgentBackend:
                 elif normalized.get("type") in {"turn.failed", "error"}:
                     turn_failed = True
         try:
-            process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                       cwd=worktree, env=env, pass_fds=(self.runner_fd, schema_fd, result_fd), start_new_session=True)
-            self.state.attach_process(run_id, task, process.pid)
+            env = dict(env or os.environ)
+            env[OWNER_ENV] = uuid.uuid4().hex
+            with locked(self.state.path / "launch.lock"):
+                if self.state.get_meta("shutdown", {}).get("immediate"):
+                    raise InterruptedRun("Immediate stop requested before agent launch.")
+                process = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                           cwd=worktree, env=env, pass_fds=(self.runner_fd, schema_fd, result_fd), start_new_session=True)
+                process.worklane_identity = process_identity(process.pid)
+                task["ownership_token"] = env[OWNER_ENV]
+                self.state.attach_process(run_id, task, process.pid)
             if self.state.get_meta("shutdown", {}).get("immediate"):
                 raise InterruptedRun("Immediate stop requested while the agent was starting.")
             try:
@@ -1113,6 +1131,8 @@ class AgentBackend:
                 selector.register(process.stdout, selectors.EVENT_READ, "stdout")
                 selector.register(process.stderr, selectors.EVENT_READ, "stderr")
                 while selector.get_map():
+                    if self.state.get_meta("shutdown", {}).get("immediate"):
+                        raise InterruptedRun("Immediate stop requested; saved session retained.")
                     remaining = deadline - time.monotonic()
                     if remaining <= 0:
                         raise InterruptedRun(f"{self.harness.name} timed out; saved session can continue. Run ID: {run_id}.")
@@ -1151,10 +1171,12 @@ class AgentBackend:
             return output
         except BaseException as error:
             if process:
+                terminate_owned([(process.pid, task.get("child_identity"))], [env.get(OWNER_ENV)])
                 self.terminate(process)
             raise
         finally:
             if process:
+                terminate_owned(tokens=[env.get(OWNER_ENV)])
                 for pipe in (process.stdin, process.stdout, process.stderr):
                     if pipe:
                         pipe.close()
@@ -1548,6 +1570,8 @@ class Runner:
     @github_scoped
     def execute(self, task, is_review):
         try:
+            if self.state.get_meta("shutdown", {}).get("immediate"):
+                raise InterruptedRun("Immediate stop requested before workflow execution.")
             self.review(task) if is_review else self.build(task)
         except InterruptedRun as error:
             task["resume_stage"] = task.get("active_stage", "review" if is_review else "build")
@@ -1897,6 +1921,7 @@ def parser():
     p.add_argument("--no-color", action="store_true", help="Disable TUI colours")
     p.add_argument("--raw", action="store_true", help="With logs: include protocol events and MCP diagnostics")
     p.add_argument("--background", action="store_true", help=argparse.SUPPRESS)
+    p.add_argument("--generation", help=argparse.SUPPRESS)
     p.add_argument("--version", action="store_true", help="Show installed CLI version, source path and revision, then exit")
     return p
 
@@ -1907,6 +1932,7 @@ def main(argv=None):
                    "once": True if args.once else None}
     tui_options.update({name: getattr(args, name) for name in (*harness_option_names(), "workers", "effort")
                         if getattr(args, name) is not None})
+    lifecycle = ExitStack()
     original_stdout, original_stderr = sys.stdout, sys.stderr
     output_redirected = False
     budget_token = None
@@ -1948,6 +1974,28 @@ def main(argv=None):
             print(f"Opened project board: {board.project['url']}")
             return 0
         state = State(repo)
+        observed_shutdown = state.get_meta("shutdown", {})
+        if args.action == "run":
+            runner_fd = lifecycle.enter_context(locked(state.path / "runner.lock", blocking=False))
+            stop = threading.Event()
+            def stop_handler(_signum, _frame):
+                stop.set()
+            signal.signal(signal.SIGTERM, stop_handler)
+            signal.signal(signal.SIGINT, stop_handler)
+            ownership_token = uuid.uuid4().hex
+            os.environ[OWNER_ENV] = ownership_token
+            with locked(state.path / "launch.lock"), state.connect() as db:
+                db.execute("BEGIN IMMEDIATE")
+                shutdown = state._get(db, "meta:shutdown", {})
+                if (shutdown.get("requested_at") != observed_shutdown.get("requested_at")
+                        or args.generation and (shutdown.get("generation") != args.generation or shutdown.get("requested"))):
+                    raise InterruptedRun("Controller startup cancelled by a stop request.")
+                state._put(db, "meta:shutdown", {"immediate": False, "generation": args.generation or uuid.uuid4().hex})
+                state._put(db, "meta:runtime", {"pid": os.getpid(), "identity": process_identity(os.getpid()),
+                           "ownership_token": ownership_token, "started_at": now(), "checkout": str(root),
+                           "project": args.project, "model": args.model, "harness_options": harness_options,
+                           "interval": args.interval, "once": args.once, "cli": installation_info(),
+                           "harness": args.harness, "workers": args.workers, "effort": args.effort})
         if args.action == "run":
             sys.stdout = DatabaseLogWriter(state, "controller", None if args.background else original_stdout)
             sys.stderr = DatabaseLogWriter(state, "controller-error", None if args.background else original_stderr)
@@ -1967,27 +2015,43 @@ def main(argv=None):
         if args.action == "status":
             runtime = state.get_meta("runtime", {})
             print(json.dumps({"repository": repo, "running": state.running(), "paused": state.paused(),
+                              "shutdown": state.get_meta("shutdown", {}), "stop_result": state.get_meta("stop_result", {}),
                               "runtime": runtime, "tasks": state.all(), "runs": state.runs(),
                               "database": str(state.database), "state_dir": str(state.path)}, indent=2))
             return 0
         if args.action in {"pause", "resume", "stop"}:
-            with locked(state.path / "dispatch.lock"):
-                state.pause(args.action != "resume")
-                if args.action == "stop":
-                    state.set_meta("shutdown", {"immediate": args.now, "requested": True})
-            runtime = state.get_meta("runtime", {})
             if args.action == "stop":
-                pid = runtime.get("pid")
-                if state.running() and pid and process_identity(pid) == runtime.get("identity"):
-                    os.kill(pid, signal.SIGTERM)
-                if args.now:
-                    for task in state.all():
-                        pid = task.get("child_pid")
-                        if pid and process_identity(pid) == task.get("child_identity"):
-                            os.killpg(pid, signal.SIGTERM)
-            print({"pause": "Paused: active jobs finish; no new jobs start.",
-                   "resume": "Resumed intake. Run worklane start if the controller is stopped.",
-                   "stop": "Stopping: active jobs finish." if not args.now else "Stopping active agents; their saved sessions will continue on start."}[args.action])
+                shutdown = state.request_stop(args.now)
+                runtime = state.get_meta("runtime", {})
+                controller = (runtime.get("pid"), runtime.get("identity"))
+                # Publish first; this boundary never waits on GitHub or dispatch.
+                with locked(state.path / "launch.lock"):
+                    tasks = state.all()
+                    roots = [(task.get("child_pid"), task.get("child_identity")) for task in tasks]
+                    tokens = [runtime.get("ownership_token"), *[t.get("ownership_token") for t in tasks]]
+                    processes = owned([controller, *roots], tokens)
+                signal_owned({controller[0]: controller[1]}, signal.SIGTERM)
+                if shutdown["immediate"]:
+                    remaining = terminate_owned(roots, tokens)
+                    deadline = time.monotonic() + 3
+                    while (owned([controller]) or state.running()) and time.monotonic() < deadline:
+                        time.sleep(.05)
+                    remaining += terminate_owned([controller], tokens, grace=0, known=processes)
+                    remaining = sorted(set(remaining) | set(owned(known=processes)))
+                    state.set_meta("stop_result", {"at": now(), "remaining_pids": remaining,
+                                                   "running": state.running()})
+                    if remaining or state.running():
+                        raise RuntimeError(f"Immediate stop incomplete; remaining PIDs: {remaining}. Inspect status before starting.")
+                    print("Stopped: no owned processes remain; saved sessions and worktrees retained.")
+                else:
+                    print("Stop requested: intake paused; active jobs are draining. Use stop --now to interrupt; status shows progress.")
+            else:
+                with locked(state.path / "dispatch.lock"):
+                    if args.action == "resume" and state.running() and state.get_meta("shutdown", {}).get("requested"):
+                        raise RuntimeError("Controller is stopping; wait for stopped status, then start.")
+                    state.pause(args.action != "resume")
+                print("Paused: active jobs finish; no new jobs start." if args.action == "pause" else
+                      "Resumed intake. Run worklane start if the controller is stopped.")
             return 0
         if args.action == "retry":
             if not args.number:
@@ -2036,7 +2100,6 @@ def main(argv=None):
         if args.action == "start":
             with locked(state.path / "runner.lock", blocking=False):
                 pass
-            state.pause(False)
             child_args = [sys.executable, str(Path(__file__).resolve()), "run", "--repo", str(root),
                           "--project", f"{board.owner}/{board.number}", "--interval", str(args.interval), "--background"]
             child_args += harness_flags(harness_options)
@@ -2044,7 +2107,17 @@ def main(argv=None):
                 child_args.extend(["--" + name, str(getattr(args, name))])
             if args.once:
                 child_args.append("--once")
-            child = subprocess.Popen(child_args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+            with locked(state.path / "launch.lock"):
+                with state.connect() as db:
+                    db.execute("BEGIN IMMEDIATE")
+                    shutdown = state._get(db, "meta:shutdown", {})
+                    if shutdown.get("requested_at") != observed_shutdown.get("requested_at"):
+                        raise InterruptedRun("Start cancelled by a concurrent stop request.")
+                    generation = uuid.uuid4().hex
+                    state._put(db, "meta:shutdown", {"immediate": False, "generation": generation})
+                    state._put(db, "meta:control", {"paused": False, "updated_at": now()})
+                child_args.extend(["--generation", generation])
+                child = subprocess.Popen(child_args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
             for _ in range(100):
                 if child.poll() is not None:
                     raise RuntimeError("Controller exited; see worklane logs.")
@@ -2054,22 +2127,13 @@ def main(argv=None):
                     return 0
                 time.sleep(0.1)
             raise RuntimeError("Controller is still starting; check worklane logs before starting again.")
-        with locked(state.path / "runner.lock", blocking=False) as runner_fd:
+        if args.action == "run":
             command(["gh", "auth", "setup-git", "--hostname", "github.com"], cwd=root)
             board.ensure_review_status()
             for name in sorted(harnesses):
                 command(HARNESSES[name].auth_command)
-            state.set_meta("runtime", {"pid": os.getpid(), "identity": process_identity(os.getpid()),
-                       "started_at": now(), "checkout": str(root), "project": f"{board.owner}/{board.number}", "model": args.model or (MODEL if args.harness == "codex" else "harness default"), "harness_options": harness_options,
-                       "interval": args.interval, "once": args.once, "cli": installation_info(),
-                       "harness": args.harness, "workers": args.workers, "effort": args.effort})
-            state.set_meta("shutdown", {"immediate": False})
-            stop = threading.Event()
-            def stop_handler(_signum, _frame):
-                state.pause(True)
-                stop.set()
-            signal.signal(signal.SIGTERM, stop_handler)
-            signal.signal(signal.SIGINT, stop_handler)
+            if state.get_meta("shutdown", {}).get("requested") or stop.is_set():
+                return 0
             print(f"Worklane: {repo}; {args.workers} workers, 1 reviewer; {args.harness} {args.model or 'default model'}; board {board.project['url']}", flush=True)
             print(f"State/logs: {state.path}; intake {'paused' if state.paused() else 'running'}", flush=True)
             backend = HarnessBackend(args, root, state, runner_fd)
@@ -2081,6 +2145,7 @@ def main(argv=None):
         print(f"worklane: {error}", file=sys.stderr)
         return 1
     finally:
+        lifecycle.close()
         if budget_token is not None:
             GITHUB_BUDGET.reset(budget_token)
         if output_redirected:

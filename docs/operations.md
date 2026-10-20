@@ -142,7 +142,7 @@ Starting another process does not create another conversation. Session transcrip
 remain managed by Codex in its own local storage; keep that storage, the Worklane
 database and worktrees when moving or backing up an installation.
 
-`stop` lets active work finish. `stop --now`, agent timeout, or a controller crash
+`stop` drains active jobs; TUI `X` interrupts immediately. Status records shutdown requests and remaining processes. `stop --now`, agent timeout, or a controller crash
 leaves an interrupted assignment. On the next `start`, Worklane continues the saved
 session and stage, including owned tickets already In Progress. This is continuation
 of assigned work, not new ticket intake. A stopped finalizer resumes the handoff

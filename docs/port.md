@@ -20,7 +20,8 @@ Choose **Rust** for the complete port. Python remains operational until stage 5 
 - [Matrix](../parity/matrix.md): individual executable behavioral checks and owning stages; the JSON also indexes implementation branches.
 - Each check names its pinned test method; its setup, responses, inputs and assertions are executable fixture definitions.
 - `suite:MODULE` expands through `inventory.suites`; source/failure rows require every check in their owning suites.
-- These broad rows prevent inventory omissions; they do **not** prove unasserted branches correct merely because tests pass.
+- Every explicit failure/exit row has a specific check proven to detect deletion of its `raise`; no failure uses blanket suites.
+- [Failure proof](../parity/failure-checks.json) binds those checks to the pinned source, fixture inputs and execution helpers.
 - Before each stage and cutover: fetch main, review its complete diff, update fixtures/inventory, and rerun both executables.
 - The inventory audit fails on reference drift; local unmerged edits never enter the archived Python oracle.
 
@@ -114,6 +115,7 @@ Types use UTF-8 strings, repository-qualified identifiers, UTC timestamps and ex
 ## Differential harness
 
 ```sh
+uv run --no-project python tools/port_failure_audit.py --revision origin/main --output parity/failure-checks.json
 uv run --no-project python tools/port_inventory.py
 uv run --no-project python tools/port_checks.py --evidence /tmp/reference-checks.json
 uv run --no-project python tools/port_parity.py --evidence /tmp/reference-cli.json
@@ -136,7 +138,7 @@ uv run --no-project python tools/port_parity.py --fixtures parity/fixtures/runti
 - **100% functionality means every matrix row passes on both executables with evidence, with zero missing/deferred/stubbed cases.**
 - Require exact reference SHA, candidate binary hash, fixture hash, command/environment and individual check observations for each row.
 - Expand every suite reference; skipped, failed, missing, manual-unverified or Python-only checks block cutover.
-- Source/doc rows require explicit review of unasserted behavior and additional executable fixtures before approving candidate coverage.
+- Source/doc rows require explicit review of unasserted behavior; failure rows additionally require their deletion-detecting executable checks.
 - Test counts and line coverage alone never establish parity; published stage-1 evidence establishes the Python baseline only.
 - Installation/OpenCode opt-in checks and live authenticated full-workflow validation remain mandatory before cutover; no provider turn is authorized here.
 - Preserve database/worktrees/agent history and Python rollback command; switch installations only in stage 5 after all checks pass.
@@ -150,3 +152,6 @@ uv run --no-project python tools/port_gate.py /tmp/differential-cli.json /tmp/di
 - Gate reports also require one `release_sha256`; use harness `--release PATH` when testing a separate runtime adapter.
 - Source audits identify row, validation commands, artifact SHA-256 and an empty `unasserted_behaviors` list; missing audits block cutover.
 - Fixture Git fetch/push uses a disposable local upstream; GitHub origin discovery remains unchanged. This harness is not an OS sandbox.
+
+- Fixture reports require a registered path, matching hash and case membership; CLI evidence cannot attest to runtime cases.
+- [Failure fixtures](../parity/fixtures/failures.json) inject controlled runtime faults and assert diagnostics, exits, persistence and side effects.

@@ -564,6 +564,42 @@
       "observe_files": [
         "state/worklane/owner--repo/worktrees/42/README.fixture"
       ]
+    },
+    {
+      "id": "runtime.terminal-initialization-error",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"terminal.initialize\", \"fault\": \"initialization-error\", \"message\": \"setupterm: terminal unavailable\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Could not initialize terminal UI: setupterm: terminal unavailable; check TERM or use worklane status."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.terminal-missing-backend",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"terminal.initialize\", \"fault\": \"missing-backend\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "This Python build has no curses support; use worklane status or worklane logs."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.terminal-interrupt",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"terminal.initialize\", \"fault\": \"interrupt\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"callback_called\": false"
+          ]
+        }
+      ]
     }
   ]
 }

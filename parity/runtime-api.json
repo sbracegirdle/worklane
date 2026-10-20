@@ -77,6 +77,7 @@
   "fixtures": {
     "cli": "fixtures/cli.json: real argv and terminal interactions",
     "runtime": "fixtures/runtime.json: test-only JSON operations mapped by port_reference_driver.py",
+    "failure_guards": "fixtures/failures.json: guard.invoke injects a named fault; compare diagnostics, type, exit and effects",
     "oracle_cases": "inventory.checks: pinned test setup, controlled responses and all assertions; each remains mandatory",
     "dependencies": "clock, monotonic clock, ID source, transport, filesystem, terminal and process supervisor are injectable",
     "independence": "CLI and TUI consume the same runtime library and frozen fixtures; neither needs the other's implementation"

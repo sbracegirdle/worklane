@@ -25,6 +25,24 @@ def main():
     try:
         if op == 'config.validate':
             output = w.validate_config(request['values'])
+        elif op == 'guard.invoke':
+            from port_failure_cases import invoke
+            outcome, code = invoke(request)
+            print(json.dumps(outcome,ensure_ascii=False))
+            return code
+        elif op == 'terminal.initialize':
+            from unittest.mock import patch
+            called = []
+            with patch.object(sys.stdin, 'isatty', return_value=True), patch.object(sys.stdout, 'isatty', return_value=True):
+                if request['fault'] == 'missing-backend':
+                    with patch.dict(sys.modules, {'curses':None}):
+                        tui.terminal_ui(lambda *_: called.append(True))
+                else:
+                    import curses
+                    error = KeyboardInterrupt() if request['fault'] == 'interrupt' else curses.error(request['message'])
+                    with patch.object(curses, 'wrapper', side_effect=error):
+                        tui.terminal_ui(lambda *_: called.append(True))
+            output = {'callback_called':bool(called)}
         elif op == 'text.wrap':
             output = {'wrapped':tui.wrapped(request['value'], request['width']),
                       'clipped':tui.clipped(request['value'], request['width'])}

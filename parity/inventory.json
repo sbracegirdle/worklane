@@ -3,9 +3,173 @@
   "revision": "5122d0abc1b60fa0110d9c90937c6ffa1ab73d3c",
   "planning_revision": "ed9b43bdb6ce25ce9339271ffa986446105f75dd",
   "language": "Rust",
+  "failure_proof_sha256": "12008c5d83ade881469c2f2f060a98e26c65303afb5a25e452e3251d5ea63ae8",
+  "fixture_cases": {
+    "parity/fixtures/cli.json": [
+      "fixture:cli.help",
+      "fixture:cli.unknown-command",
+      "fixture:cli.unknown-flag",
+      "fixture:cli.bad-number",
+      "fixture:cli.bad-workers-type",
+      "fixture:cli.bad-harness",
+      "fixture:cli.bad-effort",
+      "fixture:cli.bad-destination",
+      "fixture:cli.now-scope",
+      "fixture:cli.title-scope",
+      "fixture:cli.missing-title",
+      "fixture:cli.empty-title",
+      "fixture:cli.add-number",
+      "fixture:cli.retry-number",
+      "fixture:cli.retry-unknown",
+      "fixture:cli.workers-range",
+      "fixture:cli.interval-range",
+      "fixture:cli.invalid-project",
+      "fixture:cli.tui-redirect",
+      "fixture:cli.config-redirect",
+      "fixture:cli.tui-refresh",
+      "fixture:cli.tui-refresh-low",
+      "fixture:cli.tui-refresh-high",
+      "fixture:cli.offline-controls",
+      "fixture:cli.stack-policy",
+      "fixture:cli.invalid-config",
+      "fixture:cli.unknown-config",
+      "fixture:cli.stack-cycle",
+      "fixture:cli.hard-gate",
+      "fixture:cli.board-browser",
+      "fixture:cli.board-offline",
+      "fixture:cli.add-ready",
+      "fixture:cli.add-draft",
+      "fixture:cli.add-shaping",
+      "fixture:cli.add-partial-failure",
+      "fixture:tui.default-quit",
+      "fixture:tui.first-run-cancel",
+      "fixture:cli.empty-queue-run",
+      "fixture:tui.uppercase-stop-now"
+    ],
+    "parity/fixtures/failures.json": [
+      "fixture:runtime.guard.build.blocked-result",
+      "fixture:runtime.guard.build.pass-with-findings",
+      "fixture:runtime.guard.build.question-created-pr",
+      "fixture:runtime.guard.build.invalid-sha",
+      "fixture:runtime.guard.build.wrong-head",
+      "fixture:runtime.guard.build.dirty-worktree",
+      "fixture:runtime.guard.review.blocked-result",
+      "fixture:runtime.guard.review.modified-worktree",
+      "fixture:runtime.guard.stack.pending-restack",
+      "fixture:runtime.guard.stack.changed-prerequisite",
+      "fixture:runtime.guard.stack.unpushed-head",
+      "fixture:runtime.guard.worktree.missing-saved",
+      "fixture:runtime.guard.worktree.wrong-worker-branch",
+      "fixture:runtime.guard.worktree.dirty-reviewer",
+      "fixture:runtime.guard.worktree.existing-local-branch",
+      "fixture:runtime.guard.worktree.moved-parent",
+      "fixture:runtime.guard.pick.missing-linked-pr",
+      "fixture:runtime.guard.pick.closed-retry-pr",
+      "fixture:runtime.guard.memory.unavailable",
+      "fixture:runtime.guard.memory.syscall-error",
+      "fixture:runtime.guard.state.newer-schema",
+      "fixture:runtime.guard.state.unsupported-value",
+      "fixture:runtime.guard.state.foreign-key-migration",
+      "fixture:runtime.guard.state.changed-legacy-file",
+      "fixture:runtime.guard.editor.empty-title",
+      "fixture:runtime.guard.resume.missing-command",
+      "fixture:runtime.guard.invalid-worker_harness",
+      "fixture:runtime.guard.invalid-stack_dependencies",
+      "fixture:runtime.guard.invalid-effort",
+      "fixture:runtime.guard.workflow.immediate-stop",
+      "fixture:runtime.guard.restack.moved-target",
+      "fixture:runtime.guard.restack.missing-worktree",
+      "fixture:runtime.guard.restack.wrong-branch",
+      "fixture:runtime.guard.restack.changed-child-head",
+      "fixture:runtime.guard.restack.changed-intent",
+      "fixture:runtime.guard.restack.changed-local-head",
+      "fixture:runtime.guard.restack.changed-pr",
+      "fixture:runtime.guard.restack.unverified-retarget",
+      "fixture:runtime.guard.restack.wrong-board-status",
+      "fixture:runtime.guard.cli.start-exited",
+      "fixture:runtime.guard.cli.start-timeout",
+      "fixture:runtime.guard.cli.start-cancelled",
+      "fixture:runtime.guard.cli.run-cancelled",
+      "fixture:runtime.guard.cli.missing-binary",
+      "fixture:runtime.guard.cli.retry-invalid-phase",
+      "fixture:runtime.guard.cli.resume-during-stop",
+      "fixture:runtime.guard.cli.stop-incomplete",
+      "fixture:runtime.guard.repository.unsupported-origin",
+      "fixture:runtime.guard.github.successful-quota-error",
+      "fixture:runtime.guard.board.missing-status",
+      "fixture:runtime.guard.board.missing-field",
+      "fixture:runtime.guard.board.failed-review-status",
+      "fixture:runtime.guard.board.status-drift",
+      "fixture:runtime.guard.board.unverified-transition",
+      "fixture:runtime.guard.board.incomplete-items",
+      "fixture:runtime.guard.review.wrong-result-head",
+      "fixture:runtime.guard.review.pass-with-findings",
+      "fixture:runtime.guard.stack.parent-missing-handoff",
+      "fixture:runtime.guard.stack.closed-parent",
+      "fixture:runtime.guard.feedback.changed-pr",
+      "fixture:runtime.guard.completion.retargeted-pr",
+      "fixture:runtime.guard.agent.missing-history",
+      "fixture:runtime.guard.agent.before-turn",
+      "fixture:runtime.guard.agent.next-turn",
+      "fixture:runtime.guard.agent.before-launch",
+      "fixture:runtime.guard.agent.after-launch",
+      "fixture:runtime.guard.agent.during-turn",
+      "fixture:runtime.guard.agent.exit-timeout",
+      "fixture:runtime.guard.agent.invalid-event-shape",
+      "fixture:runtime.guard.agent.conflicting-session-ids",
+      "fixture:runtime.guard.agent.invalid-result-shape",
+      "fixture:runtime.guard.agent.invalid-verdict",
+      "fixture:runtime.guard.agent.invalid-result-types",
+      "fixture:runtime.guard.agent.invalid-findings",
+      "fixture:runtime.guard.board.repeated-cursor",
+      "fixture:runtime.guard.metadata.oversized-response",
+      "fixture:runtime.guard.metadata.repeated-project-cursor",
+      "fixture:runtime.guard.board.add-missing-destination",
+      "fixture:runtime.guard.stack.parent-quota",
+      "fixture:runtime.guard.stack.restack-quota",
+      "fixture:runtime.guard.budget.propagates-quota",
+      "fixture:runtime.guard.github.failed-owner-probe",
+      "fixture:runtime.guard.editor.existing-save-error"
+    ],
+    "parity/fixtures/runtime.json": [
+      "fixture:runtime.config-defaults",
+      "fixture:runtime.config-roles",
+      "fixture:runtime.invalid-workers-True",
+      "fixture:runtime.invalid-workers-17",
+      "fixture:runtime.invalid-interval-9",
+      "fixture:runtime.invalid-model-with space",
+      "fixture:runtime.invalid-harness-bad",
+      "fixture:runtime.invalid-completion_gates-[0]",
+      "fixture:runtime.invalid-stack_dependencies-['2:2']",
+      "fixture:runtime.unicode-1",
+      "fixture:runtime.unicode-2",
+      "fixture:runtime.unicode-5",
+      "fixture:runtime.unicode-20",
+      "fixture:runtime.session-codex",
+      "fixture:runtime.session-opencode",
+      "fixture:runtime.session-bad-codex",
+      "fixture:runtime.session-bad-opencode",
+      "fixture:runtime.log-noise",
+      "fixture:runtime.log-protocol",
+      "fixture:runtime.log-verdict",
+      "fixture:runtime.queued-input-restart",
+      "fixture:runtime.interrupted-session",
+      "fixture:runtime.mismatched-session",
+      "fixture:runtime.agent-opencode-build",
+      "fixture:runtime.agent-opencode-review",
+      "fixture:runtime.agent-opencode-finalize",
+      "fixture:runtime.agent-opencode-incomplete",
+      "fixture:runtime.pinned-stack-reopen",
+      "fixture:runtime.controller-question-build",
+      "fixture:runtime.terminal-initialization-error",
+      "fixture:runtime.terminal-missing-backend",
+      "fixture:runtime.terminal-interrupt"
+    ]
+  },
   "fixture_sources": {
     "parity/fixtures/cli.json": "ba69b245e3b2f3f50ea89e43abbc6570b596fe71cb568b4950844bf1a34ef35b",
-    "parity/fixtures/runtime.json": "38fea5290e093b71220ec2c5493d8dc9bc39205737633b5730632c83a95a39c2"
+    "parity/fixtures/failures.json": "8f20769c54ee449ad28ee779db727dcfd2b9673869a9bdbf014014f6d23ebf22",
+    "parity/fixtures/runtime.json": "2c6223e5a9bc0354fe73ea3e9f6ff870269698766e065b26b4891772e12d2515"
   },
   "suites": {
     "test_add_issue": [
@@ -8607,7 +8771,7 @@
       "id": "source.worklane.py.parser",
       "surface": "parser: preserve full pinned source semantics",
       "source": "worklane.py:2171",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
         "suite:test_worklane",
         "suite:test_sessions",
@@ -8625,7 +8789,7 @@
       "id": "source.worklane.py.main",
       "surface": "main: preserve full pinned source semantics",
       "source": "worklane.py:2202",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
         "suite:test_worklane",
         "suite:test_sessions",
@@ -11338,19 +11502,12 @@
       "id": "failure.worklane.py.2446",
       "surface": "raise SystemExit(main())",
       "source": "worklane.py:2446",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:cli.help"
+      ],
+      "context": "module entry",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2446"
     },
     {
       "id": "failure.worklane.py.51",
@@ -11358,17 +11515,10 @@
       "source": "worklane.py:51",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:cli.unknown-config"
+      ],
+      "context": "validate_config",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.51"
     },
     {
       "id": "failure.worklane.py.54",
@@ -11376,17 +11526,10 @@
       "source": "worklane.py:54",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.invalid-harness-bad"
+      ],
+      "context": "validate_config",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.54"
     },
     {
       "id": "failure.worklane.py.59",
@@ -11394,17 +11537,10 @@
       "source": "worklane.py:59",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:cli.workers-range"
+      ],
+      "context": "validate_config",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.59"
     },
     {
       "id": "failure.worklane.py.64",
@@ -11412,17 +11548,10 @@
       "source": "worklane.py:64",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.invalid-effort"
+      ],
+      "context": "validate_config",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.64"
     },
     {
       "id": "failure.worklane.py.66",
@@ -11430,17 +11559,10 @@
       "source": "worklane.py:66",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:cli.interval-range"
+      ],
+      "context": "validate_config",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.66"
     },
     {
       "id": "failure.worklane.py.68",
@@ -11448,17 +11570,10 @@
       "source": "worklane.py:68",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:cli.invalid-project"
+      ],
+      "context": "validate_config",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.68"
     },
     {
       "id": "failure.worklane.py.72",
@@ -11466,17 +11581,10 @@
       "source": "worklane.py:72",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.invalid-stack_dependencies"
+      ],
+      "context": "validate_config",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.72"
     },
     {
       "id": "failure.worklane.py.74",
@@ -11484,17 +11592,10 @@
       "source": "worklane.py:74",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.invalid-completion_gates-[0]"
+      ],
+      "context": "validate_config",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.74"
     },
     {
       "id": "failure.worklane.py.176",
@@ -11502,17 +11603,10 @@
       "source": "worklane.py:176",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.memory.unavailable"
+      ],
+      "context": "memory_fd",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.176"
     },
     {
       "id": "failure.worklane.py.181",
@@ -11520,17 +11614,10 @@
       "source": "worklane.py:181",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.memory.syscall-error"
+      ],
+      "context": "memory_fd",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.181"
     },
     {
       "id": "failure.worklane.py.285",
@@ -11538,17 +11625,10 @@
       "source": "worklane.py:285",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:cli.board-offline"
+      ],
+      "context": "raw_command",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.285"
     },
     {
       "id": "failure.worklane.py.308",
@@ -11556,17 +11636,11 @@
       "source": "worklane.py:308",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_worklane.GitHubErrorTests.test_graphql_error_body_is_classified_even_with_success_exit",
+        "test_worklane.WorklaneTests.test_review_thread_api_errors_fail_closed"
+      ],
+      "context": "graphql",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.308"
     },
     {
       "id": "failure.worklane.py.845",
@@ -11574,17 +11648,11 @@
       "source": "worklane.py:845",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_dependencies.DependencyTests.test_dependency_api_failure_or_hidden_issue_cannot_claim",
+        "test_dependencies.DependencyTests.test_missing_or_malformed_summary_fails_closed"
+      ],
+      "context": "dependency_count",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.845"
     },
     {
       "id": "failure.worklane.py.2130",
@@ -11592,17 +11660,10 @@
       "source": "worklane.py:2130",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.repository.unsupported-origin"
+      ],
+      "context": "repository",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2130"
     },
     {
       "id": "failure.worklane.py.57",
@@ -11610,17 +11671,10 @@
       "source": "worklane.py:57",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.invalid-worker_harness"
+      ],
+      "context": "validate_config",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.57"
     },
     {
       "id": "failure.worklane.py.62",
@@ -11628,17 +11682,10 @@
       "source": "worklane.py:62",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.invalid-model-with space"
+      ],
+      "context": "validate_config",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.62"
     },
     {
       "id": "failure.worklane.py.79",
@@ -11646,17 +11693,10 @@
       "source": "worklane.py:79",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:cli.hard-gate"
+      ],
+      "context": "validate_config",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.79"
     },
     {
       "id": "failure.worklane.py.83",
@@ -11664,17 +11704,10 @@
       "source": "worklane.py:83",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:cli.stack-cycle"
+      ],
+      "context": "visit",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.83"
     },
     {
       "id": "failure.worklane.py.99",
@@ -11682,17 +11715,10 @@
       "source": "worklane.py:99",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:cli.invalid-config"
+      ],
+      "context": "load_config",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.99"
     },
     {
       "id": "failure.worklane.py.284",
@@ -11700,17 +11726,13 @@
       "source": "worklane.py:284",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_worklane.GitHubErrorTests.test_header_reset_avoids_an_extra_probe",
+        "test_worklane.GitHubErrorTests.test_probe_timeout_keeps_known_quota_failure",
+        "test_worklane.GitHubErrorTests.test_project_owner_error_reports_underlying_rate_limit",
+        "test_worklane.GitHubErrorTests.test_rate_limit_is_distinguished_from_other_errors"
+      ],
+      "context": "raw_command",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.284"
     },
     {
       "id": "failure.worklane.py.406",
@@ -11718,17 +11740,10 @@
       "source": "worklane.py:406",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.state.newer-schema"
+      ],
+      "context": "__init__",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.406"
     },
     {
       "id": "failure.worklane.py.655",
@@ -11736,17 +11751,10 @@
       "source": "worklane.py:655",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.mismatched-session"
+      ],
+      "context": "_attach_session",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.655"
     },
     {
       "id": "failure.worklane.py.713",
@@ -11754,17 +11762,10 @@
       "source": "worklane.py:713",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_sessions.SessionTests.test_input_completion_serializes_with_new_submissions_and_bounds_queue"
+      ],
+      "context": "queue_input",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.713"
     },
     {
       "id": "failure.worklane.py.715",
@@ -11772,17 +11773,10 @@
       "source": "worklane.py:715",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_sessions.SessionTests.test_input_completion_serializes_with_new_submissions_and_bounds_queue"
+      ],
+      "context": "queue_input",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.715"
     },
     {
       "id": "failure.worklane.py.778",
@@ -11790,17 +11784,15 @@
       "source": "worklane.py:778",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_tui.TuiTests.test_pr_refresh_failure_marks_saved_data_stale_and_respects_shared_cooldown",
+        "test_tui.TuiTests.test_views_share_controller_github_cooldown_and_paginate_comments",
+        "test_tui_editing.IssueEditorTests.test_load_failure_and_budget_cooldown_do_not_write",
+        "test_worklane.WorklaneTests.test_budget_shared_by_repositories_and_blocks_commands",
+        "test_worklane.WorklaneTests.test_concurrent_failure_stops_remaining_claims_and_survives_clear",
+        "test_worklane.WorklaneTests.test_success_exhausting_last_point_defers_next_request"
+      ],
+      "context": "check",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.778"
     },
     {
       "id": "failure.worklane.py.883",
@@ -11808,17 +11800,10 @@
       "source": "worklane.py:883",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.board.missing-field"
+      ],
+      "context": "refresh_fields",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.883"
     },
     {
       "id": "failure.worklane.py.893",
@@ -11826,17 +11811,10 @@
       "source": "worklane.py:893",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.board.add-missing-destination"
+      ],
+      "context": "add_issue",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.893"
     },
     {
       "id": "failure.worklane.py.932",
@@ -11844,17 +11822,10 @@
       "source": "worklane.py:932",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.board.failed-review-status"
+      ],
+      "context": "ensure_review_status",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.932"
     },
     {
       "id": "failure.worklane.py.940",
@@ -11862,17 +11833,10 @@
       "source": "worklane.py:940",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.board.repeated-cursor"
+      ],
+      "context": "next_cursor",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.940"
     },
     {
       "id": "failure.worklane.py.1034",
@@ -11880,17 +11844,10 @@
       "source": "worklane.py:1034",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.board.status-drift"
+      ],
+      "context": "move",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1034"
     },
     {
       "id": "failure.worklane.py.1038",
@@ -11898,17 +11855,10 @@
       "source": "worklane.py:1038",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.board.unverified-transition"
+      ],
+      "context": "move",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1038"
     },
     {
       "id": "failure.worklane.py.1055",
@@ -11916,17 +11866,10 @@
       "source": "worklane.py:1055",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.agent.before-turn"
+      ],
+      "context": "run",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1055"
     },
     {
       "id": "failure.worklane.py.1061",
@@ -11934,17 +11877,10 @@
       "source": "worklane.py:1061",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.agent.missing-history"
+      ],
+      "context": "run",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1061"
     },
     {
       "id": "failure.worklane.py.1063",
@@ -11952,17 +11888,10 @@
       "source": "worklane.py:1063",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_harness.HarnessTests.test_rejects_wrong_worktree_and_harness"
+      ],
+      "context": "run",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1063"
     },
     {
       "id": "failure.worklane.py.1065",
@@ -11970,17 +11899,11 @@
       "source": "worklane.py:1065",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_harness.HarnessTests.test_rejects_wrong_worktree_and_harness",
+        "test_sessions.SessionTests.test_deleted_worktree_never_creates_replacement_session"
+      ],
+      "context": "run",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1065"
     },
     {
       "id": "failure.worklane.py.1325",
@@ -11988,17 +11911,11 @@
       "source": "worklane.py:1325",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_stacking.StackTests.test_active_handoff_revalidates_draft_conflict_and_board_withdrawal",
+        "test_stacking.StackTests.test_changed_heads_feedback_drafts_and_missing_review_block"
+      ],
+      "context": "reviewed_parent",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1325"
     },
     {
       "id": "failure.worklane.py.1330",
@@ -12006,17 +11923,10 @@
       "source": "worklane.py:1330",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.stack.parent-missing-handoff"
+      ],
+      "context": "reviewed_parent",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1330"
     },
     {
       "id": "failure.worklane.py.1334",
@@ -12024,17 +11934,11 @@
       "source": "worklane.py:1334",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_stacking.StackTests.test_active_handoff_revalidates_draft_conflict_and_board_withdrawal",
+        "test_stacking.StackTests.test_changed_heads_feedback_drafts_and_missing_review_block"
+      ],
+      "context": "reviewed_parent",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1334"
     },
     {
       "id": "failure.worklane.py.1337",
@@ -12042,17 +11946,10 @@
       "source": "worklane.py:1337",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_stacking.StackTests.test_changed_heads_feedback_drafts_and_missing_review_block"
+      ],
+      "context": "reviewed_parent",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1337"
     },
     {
       "id": "failure.worklane.py.1342",
@@ -12060,17 +11957,10 @@
       "source": "worklane.py:1342",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.stack.pending-restack"
+      ],
+      "context": "validate_stack",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1342"
     },
     {
       "id": "failure.worklane.py.1393",
@@ -12078,17 +11968,10 @@
       "source": "worklane.py:1393",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.restack.moved-target"
+      ],
+      "context": "restack",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1393"
     },
     {
       "id": "failure.worklane.py.1396",
@@ -12096,17 +11979,10 @@
       "source": "worklane.py:1396",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.restack.missing-worktree"
+      ],
+      "context": "restack",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1396"
     },
     {
       "id": "failure.worklane.py.1398",
@@ -12114,17 +11990,10 @@
       "source": "worklane.py:1398",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_stacking.RestackTests.test_dirty_worktree_or_changed_merged_revision_preserves_child"
+      ],
+      "context": "restack",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1398"
     },
     {
       "id": "failure.worklane.py.1400",
@@ -12132,17 +12001,10 @@
       "source": "worklane.py:1400",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.restack.wrong-branch"
+      ],
+      "context": "restack",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1400"
     },
     {
       "id": "failure.worklane.py.1411",
@@ -12150,17 +12012,10 @@
       "source": "worklane.py:1411",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.restack.changed-intent"
+      ],
+      "context": "restack",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1411"
     },
     {
       "id": "failure.worklane.py.1461",
@@ -12168,17 +12023,10 @@
       "source": "worklane.py:1461",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_worklane.WorklaneTests.test_review_thread_lookup_rejects_other_repositories"
+      ],
+      "context": "pr_number",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1461"
     },
     {
       "id": "failure.worklane.py.1625",
@@ -12186,17 +12034,12 @@
       "source": "worklane.py:1625",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_worklane.WorklaneTests.test_open_threads_block_passing_review_even_when_outdated",
+        "test_worklane.WorklaneTests.test_thread_opened_during_handoff_blocks_human_review",
+        "test_worklane.WorklaneTests.test_worker_pass_with_open_thread_does_not_advance"
+      ],
+      "context": "refresh_review_threads",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1625"
     },
     {
       "id": "failure.worklane.py.1638",
@@ -12204,17 +12047,12 @@
       "source": "worklane.py:1638",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_worklane.WorklaneTests.test_changed_pr_before_promotion_blocks_human_review",
+        "test_worklane.WorklaneTests.test_failed_or_unverified_draft_promotion_blocks_human_review",
+        "test_worklane.WorklaneTests.test_pr_head_changes_require_fresh_review"
+      ],
+      "context": "verify_pr",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1638"
     },
     {
       "id": "failure.worklane.py.1640",
@@ -12222,17 +12060,10 @@
       "source": "worklane.py:1640",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_worklane.WorklaneTests.test_failed_or_unverified_draft_promotion_blocks_human_review"
+      ],
+      "context": "verify_pr",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1640"
     },
     {
       "id": "failure.worklane.py.1678",
@@ -12240,17 +12071,10 @@
       "source": "worklane.py:1678",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.worktree.missing-saved"
+      ],
+      "context": "worktree",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1678"
     },
     {
       "id": "failure.worklane.py.1730",
@@ -12258,17 +12082,10 @@
       "source": "worklane.py:1730",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.build.blocked-result"
+      ],
+      "context": "build",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1730"
     },
     {
       "id": "failure.worklane.py.1732",
@@ -12276,17 +12093,10 @@
       "source": "worklane.py:1732",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.build.pass-with-findings"
+      ],
+      "context": "build",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1732"
     },
     {
       "id": "failure.worklane.py.1754",
@@ -12294,17 +12104,11 @@
       "source": "worklane.py:1754",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_worklane.WorklaneTests.test_conflicts_respect_round_limit_and_human_board_edits",
+        "test_worklane.WorklaneTests.test_three_failed_reviews_require_inspection"
+      ],
+      "context": "request_rework",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1754"
     },
     {
       "id": "failure.worklane.py.1794",
@@ -12312,17 +12116,10 @@
       "source": "worklane.py:1794",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.review.blocked-result"
+      ],
+      "context": "review",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1794"
     },
     {
       "id": "failure.worklane.py.1799",
@@ -12330,89 +12127,54 @@
       "source": "worklane.py:1799",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.review.pass-with-findings"
+      ],
+      "context": "review",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1799"
     },
     {
       "id": "failure.worklane.py.2217",
       "surface": "raise RuntimeError(\"--now is only valid with stop.\")",
       "source": "worklane.py:2217",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:cli.now-scope"
+      ],
+      "context": "main",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2217"
     },
     {
       "id": "failure.worklane.py.2219",
       "surface": "raise RuntimeError(\"--title, --description/--body, --draft and --shaping are only valid with add.\")",
       "source": "worklane.py:2219",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:cli.title-scope"
+      ],
+      "context": "main",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2219"
     },
     {
       "id": "failure.worklane.py.2221",
       "surface": "raise RuntimeError(\"Use worklane add --title TITLE [--description DESCRIPTION] [--draft | --shaping].\")",
       "source": "worklane.py:2221",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:cli.missing-title"
+      ],
+      "context": "main",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2221"
     },
     {
       "id": "failure.worklane.py.2415",
       "surface": "raise RuntimeError(\"Controller is still starting; check worklane logs before starting again.\")",
       "source": "worklane.py:2415",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.cli.start-timeout"
+      ],
+      "context": "main",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2415"
     },
     {
       "id": "failure.worklane.py.292",
@@ -12420,17 +12182,10 @@
       "source": "worklane.py:292",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.github.successful-quota-error"
+      ],
+      "context": "raw_command",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.292"
     },
     {
       "id": "failure.worklane.py.323",
@@ -12438,17 +12193,10 @@
       "source": "worklane.py:323",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.queued-input-restart"
+      ],
+      "context": "locked",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.323"
     },
     {
       "id": "failure.worklane.py.433",
@@ -12456,17 +12204,10 @@
       "source": "worklane.py:433",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.state.unsupported-value"
+      ],
+      "context": "visit",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.433"
     },
     {
       "id": "failure.worklane.py.539",
@@ -12474,17 +12215,10 @@
       "source": "worklane.py:539",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.state.foreign-key-migration"
+      ],
+      "context": "_upgrade",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.539"
     },
     {
       "id": "failure.worklane.py.722",
@@ -12492,17 +12226,12 @@
       "source": "worklane.py:722",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_sessions.SessionTests.test_input_completion_serializes_with_new_submissions_and_bounds_queue",
+        "test_sessions.SessionTests.test_live_input_runs_followup_in_exact_session_before_returning_result",
+        "test_tui.TuiTests.test_composer_preserves_draft_on_late_submission_and_pins_original_run"
+      ],
+      "context": "queue_input",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.722"
     },
     {
       "id": "failure.worklane.py.726",
@@ -12510,17 +12239,10 @@
       "source": "worklane.py:726",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_sessions.SessionTests.test_input_completion_serializes_with_new_submissions_and_bounds_queue"
+      ],
+      "context": "queue_input",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.726"
     },
     {
       "id": "failure.worklane.py.872",
@@ -12528,17 +12250,11 @@
       "source": "worklane.py:872",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_add_issue.AddIssueTests.test_ambiguous_board_never_creates_issue",
+        "test_worklane.BoardCommandTests.test_no_board_or_ambiguous_board_does_not_open_browser"
+      ],
+      "context": "__init__",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.872"
     },
     {
       "id": "failure.worklane.py.887",
@@ -12546,17 +12262,10 @@
       "source": "worklane.py:887",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.board.missing-status"
+      ],
+      "context": "refresh_fields",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.887"
     },
     {
       "id": "failure.worklane.py.909",
@@ -12564,17 +12273,12 @@
       "source": "worklane.py:909",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_add_issue.AddIssueTests.test_missing_item_cannot_report_success",
+        "test_add_issue.AddIssueTests.test_partial_failures_retain_issue_url_and_warn_against_duplicate_creation",
+        "test_add_issue.AddIssueTests.test_workflow_progress_does_not_verify_draft_or_shaping_placement"
+      ],
+      "context": "add_issue",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.909"
     },
     {
       "id": "failure.worklane.py.911",
@@ -12582,17 +12286,10 @@
       "source": "worklane.py:911",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:cli.add-partial-failure"
+      ],
+      "context": "add_issue",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.911"
     },
     {
       "id": "failure.worklane.py.987",
@@ -12600,17 +12297,10 @@
       "source": "worklane.py:987",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_worklane.WorklaneTests.test_incomplete_board_fails_closed"
+      ],
+      "context": "items",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.987"
     },
     {
       "id": "failure.worklane.py.1117",
@@ -12618,17 +12308,10 @@
       "source": "worklane.py:1117",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.agent.invalid-event-shape"
+      ],
+      "context": "received",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1117"
     },
     {
       "id": "failure.worklane.py.1148",
@@ -12636,17 +12319,10 @@
       "source": "worklane.py:1148",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.agent.after-launch"
+      ],
+      "context": "_invoke",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1148"
     },
     {
       "id": "failure.worklane.py.1184",
@@ -12654,17 +12330,11 @@
       "source": "worklane.py:1184",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_harness.HarnessTests.test_signal_interruption_and_controller_restart_resume_exact_id",
+        "test_sessions.SessionTests.test_signal_interruption_and_restart_keep_same_conversation"
+      ],
+      "context": "_invoke",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1184"
     },
     {
       "id": "failure.worklane.py.1186",
@@ -12672,17 +12342,13 @@
       "source": "worklane.py:1186",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_harness.HarnessTests.test_failed_opencode_queued_input_is_retried_with_saved_session",
+        "test_harness.HarnessTests.test_resume_after_failure_preserves_session_and_feedback",
+        "test_sessions.SessionTests.test_input_survives_failed_delivery_and_restarts_only_in_matching_role",
+        "test_sessions.SessionTests.test_provider_failure_keeps_session_for_explicit_retry"
+      ],
+      "context": "_invoke",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1186"
     },
     {
       "id": "failure.worklane.py.1188",
@@ -12690,17 +12356,10 @@
       "source": "worklane.py:1188",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.agent-opencode-incomplete"
+      ],
+      "context": "_invoke",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1188"
     },
     {
       "id": "failure.worklane.py.1191",
@@ -12708,17 +12367,10 @@
       "source": "worklane.py:1191",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.agent.invalid-result-shape"
+      ],
+      "context": "_invoke",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1191"
     },
     {
       "id": "failure.worklane.py.1193",
@@ -12726,17 +12378,10 @@
       "source": "worklane.py:1193",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.agent.invalid-verdict"
+      ],
+      "context": "_invoke",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1193"
     },
     {
       "id": "failure.worklane.py.1195",
@@ -12744,17 +12389,10 @@
       "source": "worklane.py:1195",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.agent.invalid-result-types"
+      ],
+      "context": "_invoke",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1195"
     },
     {
       "id": "failure.worklane.py.1197",
@@ -12762,17 +12400,21 @@
       "source": "worklane.py:1197",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.agent.invalid-findings"
+      ],
+      "context": "_invoke",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1197"
+    },
+    {
+      "id": "failure.worklane.py.1203",
+      "surface": "Re-raise BaseException after handling",
+      "source": "worklane.py:1203",
+      "stage": "runtime",
+      "checks": [
+        "fixture:runtime.guard.agent.before-launch"
+      ],
+      "context": "_invoke",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1203"
     },
     {
       "id": "failure.worklane.py.1346",
@@ -12780,17 +12422,10 @@
       "source": "worklane.py:1346",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.stack.changed-prerequisite"
+      ],
+      "context": "validate_stack",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1346"
     },
     {
       "id": "failure.worklane.py.1405",
@@ -12798,17 +12433,10 @@
       "source": "worklane.py:1405",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.restack.changed-child-head"
+      ],
+      "context": "restack",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1405"
     },
     {
       "id": "failure.worklane.py.1417",
@@ -12816,17 +12444,10 @@
       "source": "worklane.py:1417",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.restack.changed-local-head"
+      ],
+      "context": "restack",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1417"
     },
     {
       "id": "failure.worklane.py.1431",
@@ -12834,17 +12455,10 @@
       "source": "worklane.py:1431",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.restack.changed-pr"
+      ],
+      "context": "restack",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1431"
     },
     {
       "id": "failure.worklane.py.1436",
@@ -12852,17 +12466,10 @@
       "source": "worklane.py:1436",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.restack.unverified-retarget"
+      ],
+      "context": "restack",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1436"
     },
     {
       "id": "failure.worklane.py.1476",
@@ -12870,17 +12477,10 @@
       "source": "worklane.py:1476",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.feedback.changed-pr"
+      ],
+      "context": "human_feedback",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1476"
     },
     {
       "id": "failure.worklane.py.1645",
@@ -12888,17 +12488,10 @@
       "source": "worklane.py:1645",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.stack.unpushed-head"
+      ],
+      "context": "verify_pr",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1645"
     },
     {
       "id": "failure.worklane.py.1690",
@@ -12906,17 +12499,10 @@
       "source": "worklane.py:1690",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.worktree.wrong-worker-branch"
+      ],
+      "context": "worktree",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1690"
     },
     {
       "id": "failure.worklane.py.1700",
@@ -12924,17 +12510,10 @@
       "source": "worklane.py:1700",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.worktree.existing-local-branch"
+      ],
+      "context": "worktree",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1700"
     },
     {
       "id": "failure.worklane.py.1735",
@@ -12942,17 +12521,10 @@
       "source": "worklane.py:1735",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.build.question-created-pr"
+      ],
+      "context": "build",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1735"
     },
     {
       "id": "failure.worklane.py.1739",
@@ -12960,17 +12532,10 @@
       "source": "worklane.py:1739",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.build.invalid-sha"
+      ],
+      "context": "build",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1739"
     },
     {
       "id": "failure.worklane.py.1742",
@@ -12978,17 +12543,10 @@
       "source": "worklane.py:1742",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.build.wrong-head"
+      ],
+      "context": "build",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1742"
     },
     {
       "id": "failure.worklane.py.1744",
@@ -12996,17 +12554,10 @@
       "source": "worklane.py:1744",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.build.dirty-worktree"
+      ],
+      "context": "build",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1744"
     },
     {
       "id": "failure.worklane.py.1789",
@@ -13014,17 +12565,10 @@
       "source": "worklane.py:1789",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.review.wrong-result-head"
+      ],
+      "context": "review",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1789"
     },
     {
       "id": "failure.worklane.py.1791",
@@ -13032,17 +12576,10 @@
       "source": "worklane.py:1791",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.review.modified-worktree"
+      ],
+      "context": "review",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1791"
     },
     {
       "id": "failure.worklane.py.1808",
@@ -13050,17 +12587,10 @@
       "source": "worklane.py:1808",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_worklane.WorklaneTests.test_failed_handoff_does_not_move_to_human"
+      ],
+      "context": "review",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1808"
     },
     {
       "id": "failure.worklane.py.1823",
@@ -13068,17 +12598,10 @@
       "source": "worklane.py:1823",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_worklane.WorklaneTests.test_unknown_mergeability_retries_saved_handoff_without_another_turn"
+      ],
+      "context": "review",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1823"
     },
     {
       "id": "failure.worklane.py.1836",
@@ -13086,17 +12609,10 @@
       "source": "worklane.py:1836",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.workflow.immediate-stop"
+      ],
+      "context": "execute",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1836"
     },
     {
       "id": "failure.worklane.py.2025",
@@ -13104,89 +12620,54 @@
       "source": "worklane.py:2025",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_worklane.WorklaneTests.test_existing_linked_pr_not_implemented_twice"
+      ],
+      "context": "pick",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2025"
     },
     {
       "id": "failure.worklane.py.2236",
       "surface": "raise RuntimeError(\"Required command missing: gh\")",
       "source": "worklane.py:2236",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_add_issue.AddIssueTests.test_missing_gh_does_not_create_issue"
+      ],
+      "context": "main",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2236"
     },
     {
       "id": "failure.worklane.py.2244",
       "surface": "raise RuntimeError(\"Required command missing: gh\")",
       "source": "worklane.py:2244",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_worklane.BoardCommandTests.test_missing_github_cli_is_reported"
+      ],
+      "context": "main",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2244"
     },
     {
       "id": "failure.worklane.py.2337",
       "surface": "raise RuntimeError(\"Use worklane retry ISSUE_NUMBER after fixing the blocker.\")",
       "source": "worklane.py:2337",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:cli.retry-number"
+      ],
+      "context": "main",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2337"
     },
     {
       "id": "failure.worklane.py.2361",
       "surface": "raise RuntimeError(f\"Required command missing: {binary}\")",
       "source": "worklane.py:2361",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.cli.missing-binary"
+      ],
+      "context": "main",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2361"
     },
     {
       "id": "failure.worklane.py.279",
@@ -13194,17 +12675,10 @@
       "source": "worklane.py:279",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_worklane.GitHubErrorTests.test_project_owner_error_reports_underlying_rate_limit"
+      ],
+      "context": "raw_command",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.279"
     },
     {
       "id": "failure.worklane.py.550",
@@ -13212,17 +12686,21 @@
       "source": "worklane.py:550",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.state.changed-legacy-file"
+      ],
+      "context": "_remove_archived_files",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.550"
+    },
+    {
+      "id": "failure.worklane.py.810",
+      "surface": "Re-raise GitHubRateLimit after handling",
+      "source": "worklane.py:810",
+      "stage": "runtime",
+      "checks": [
+        "fixture:runtime.guard.budget.propagates-quota"
+      ],
+      "context": "call",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.810"
     },
     {
       "id": "failure.worklane.py.1004",
@@ -13230,17 +12708,21 @@
       "source": "worklane.py:1004",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.board.incomplete-items"
+      ],
+      "context": "items",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1004"
+    },
+    {
+      "id": "failure.worklane.py.1098",
+      "surface": "Re-raise BaseException after handling",
+      "source": "worklane.py:1098",
+      "stage": "runtime",
+      "checks": [
+        "fixture:runtime.guard.agent.next-turn"
+      ],
+      "context": "run",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1098"
     },
     {
       "id": "failure.worklane.py.1141",
@@ -13248,17 +12730,10 @@
       "source": "worklane.py:1141",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.agent.before-launch"
+      ],
+      "context": "_invoke",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1141"
     },
     {
       "id": "failure.worklane.py.1182",
@@ -13266,17 +12741,32 @@
       "source": "worklane.py:1182",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.agent.exit-timeout"
+      ],
+      "context": "_invoke",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1182"
+    },
+    {
+      "id": "failure.worklane.py.1298",
+      "surface": "Re-raise GitHubRateLimit after handling",
+      "source": "worklane.py:1298",
+      "stage": "runtime",
+      "checks": [
+        "fixture:runtime.guard.stack.parent-quota"
+      ],
+      "context": "dependencies_ready",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1298"
+    },
+    {
+      "id": "failure.worklane.py.1381",
+      "surface": "Re-raise GitHubRateLimit after handling",
+      "source": "worklane.py:1381",
+      "stage": "runtime",
+      "checks": [
+        "fixture:runtime.guard.stack.restack-quota"
+      ],
+      "context": "reconcile_stacks",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1381"
     },
     {
       "id": "failure.worklane.py.1423",
@@ -13284,17 +12774,10 @@
       "source": "worklane.py:1423",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_stacking.RestackTests.test_conflicting_restack_aborts_without_losing_original_work"
+      ],
+      "context": "restack",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1423"
     },
     {
       "id": "failure.worklane.py.1443",
@@ -13302,17 +12785,21 @@
       "source": "worklane.py:1443",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.restack.wrong-board-status"
+      ],
+      "context": "restack",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1443"
+    },
+    {
+      "id": "failure.worklane.py.1558",
+      "surface": "Re-raise GitHubRateLimit after handling",
+      "source": "worklane.py:1558",
+      "stage": "runtime",
+      "checks": [
+        "test_human_feedback.HumanFeedbackTests.test_feedback_quota_failure_stops_before_other_tasks"
+      ],
+      "context": "poll_human_feedback",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1558"
     },
     {
       "id": "failure.worklane.py.1632",
@@ -13320,17 +12807,10 @@
       "source": "worklane.py:1632",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_stacking.RestackTests.test_child_ancestry_rejects_unrelated_remote_branch"
+      ],
+      "context": "verify_stack_ancestry",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1632"
     },
     {
       "id": "failure.worklane.py.1705",
@@ -13338,17 +12818,10 @@
       "source": "worklane.py:1705",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.worktree.moved-parent"
+      ],
+      "context": "worktree",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1705"
     },
     {
       "id": "failure.worklane.py.1827",
@@ -13356,17 +12829,10 @@
       "source": "worklane.py:1827",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_worklane.WorklaneTests.test_failed_or_unverified_draft_promotion_blocks_human_review"
+      ],
+      "context": "review",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1827"
     },
     {
       "id": "failure.worklane.py.1892",
@@ -13374,17 +12840,21 @@
       "source": "worklane.py:1892",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.completion.retargeted-pr"
+      ],
+      "context": "reconcile_completed",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1892"
+    },
+    {
+      "id": "failure.worklane.py.1903",
+      "surface": "Re-raise GitHubRateLimit after handling",
+      "source": "worklane.py:1903",
+      "stage": "runtime",
+      "checks": [
+        "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit"
+      ],
+      "context": "reconcile_completed",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1903"
     },
     {
       "id": "failure.worklane.py.2011",
@@ -13392,89 +12862,76 @@
       "source": "worklane.py:2011",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.pick.missing-linked-pr"
+      ],
+      "context": "pick",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2011"
+    },
+    {
+      "id": "failure.worklane.py.2044",
+      "surface": "Re-raise GitHubRateLimit after handling",
+      "source": "worklane.py:2044",
+      "stage": "runtime",
+      "checks": [
+        "test_worklane.WorklaneTests.test_claim_quota_failure_recovers_before_and_after_status_write"
+      ],
+      "context": "pick",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2044"
     },
     {
       "id": "failure.worklane.py.2265",
       "surface": "raise InterruptedRun(\"Controller startup cancelled by a stop request.\")",
       "source": "worklane.py:2265",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.cli.run-cancelled"
+      ],
+      "context": "main",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2265"
     },
     {
       "id": "failure.worklane.py.2341",
       "surface": "raise RuntimeError(\"No saved task for that issue.\")",
       "source": "worklane.py:2341",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:cli.retry-unknown"
+      ],
+      "context": "main",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2341"
     },
     {
       "id": "failure.worklane.py.2343",
       "surface": "raise RuntimeError(\"Only blocked/interrupted tasks need retry.\")",
       "source": "worklane.py:2343",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.cli.retry-invalid-phase"
+      ],
+      "context": "main",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2343"
     },
     {
       "id": "failure.worklane.py.2409",
       "surface": "raise RuntimeError(\"Controller exited; see worklane logs.\")",
       "source": "worklane.py:2409",
+      "stage": "cli",
+      "checks": [
+        "fixture:runtime.guard.cli.start-exited"
+      ],
+      "context": "main",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2409"
+    },
+    {
+      "id": "failure.worklane.py.282",
+      "surface": "Re-raise (RuntimeError, OSError, subprocess.TimeoutExpired) after handling",
+      "source": "worklane.py:282",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.github.failed-owner-probe"
+      ],
+      "context": "raw_command",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.282"
     },
     {
       "id": "failure.worklane.py.1079",
@@ -13482,17 +12939,10 @@
       "source": "worklane.py:1079",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.agent.next-turn"
+      ],
+      "context": "run",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1079"
     },
     {
       "id": "failure.worklane.py.1125",
@@ -13500,17 +12950,10 @@
       "source": "worklane.py:1125",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.agent.conflicting-session-ids"
+      ],
+      "context": "received",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1125"
     },
     {
       "id": "failure.worklane.py.1162",
@@ -13518,17 +12961,10 @@
       "source": "worklane.py:1162",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.agent.during-turn"
+      ],
+      "context": "_invoke",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1162"
     },
     {
       "id": "failure.worklane.py.1165",
@@ -13536,17 +12972,11 @@
       "source": "worklane.py:1165",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_harness.HarnessTests.test_timeout_retains_session_and_immediate_stop_starts_no_process",
+        "test_sessions.SessionTests.test_timeout_retains_session"
+      ],
+      "context": "_invoke",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1165"
     },
     {
       "id": "failure.worklane.py.1370",
@@ -13554,17 +12984,10 @@
       "source": "worklane.py:1370",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.stack.closed-parent"
+      ],
+      "context": "reconcile_stacks",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1370"
     },
     {
       "id": "failure.worklane.py.1684",
@@ -13572,17 +12995,10 @@
       "source": "worklane.py:1684",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.worktree.dirty-reviewer"
+      ],
+      "context": "worktree",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1684"
     },
     {
       "id": "failure.worklane.py.2020",
@@ -13590,71 +13006,43 @@
       "source": "worklane.py:2020",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.pick.closed-retry-pr"
+      ],
+      "context": "pick",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2020"
     },
     {
       "id": "failure.worklane.py.2323",
       "surface": "raise RuntimeError(f\"Immediate stop incomplete; remaining PIDs: {remaining}. Inspect status before starting.\")",
       "source": "worklane.py:2323",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.cli.stop-incomplete"
+      ],
+      "context": "main",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2323"
     },
     {
       "id": "failure.worklane.py.2330",
       "surface": "raise RuntimeError(\"Controller is stopping; wait for stopped status, then start.\")",
       "source": "worklane.py:2330",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.cli.resume-during-stop"
+      ],
+      "context": "main",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2330"
     },
     {
       "id": "failure.worklane.py.2401",
       "surface": "raise InterruptedRun(\"Start cancelled by a concurrent stop request.\")",
       "source": "worklane.py:2401",
-      "stage": "runtime",
+      "stage": "cli",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "fixture:runtime.guard.cli.start-cancelled"
+      ],
+      "context": "main",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2401"
     },
     {
       "id": "failure.worklane.py.1367",
@@ -13662,17 +13050,22 @@
       "source": "worklane.py:1367",
       "stage": "runtime",
       "checks": [
-        "suite:test_worklane",
-        "suite:test_sessions",
-        "suite:test_human_feedback",
-        "suite:test_dependencies",
-        "suite:test_api_budget",
-        "suite:test_stacking",
-        "suite:test_stop",
-        "suite:test_config",
-        "suite:test_add_issue",
-        "suite:test_installation"
-      ]
+        "test_stacking.RestackTests.test_dirty_worktree_or_changed_merged_revision_preserves_child"
+      ],
+      "context": "reconcile_stacks",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.1367"
+    },
+    {
+      "id": "failure.worklane.py.2101",
+      "surface": "Re-raise GitHubRateLimit after handling",
+      "source": "worklane.py:2101",
+      "stage": "runtime",
+      "checks": [
+        "test_worklane.WorklaneTests.test_claim_failures_increase_backoff_after_successful_board_reads",
+        "test_worklane.WorklaneTests.test_rate_limit_during_claim_does_not_try_remaining_slots"
+      ],
+      "context": "run",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane.py.2101"
     },
     {
       "id": "constant.worklane.py.HUMAN_FEEDBACK_QUIET_SECONDS",
@@ -14058,10 +13451,10 @@
       "source": "worklane_tui.py:65",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "test_tui_editing.IssueEditorTests.test_load_failure_and_budget_cooldown_do_not_write"
+      ],
+      "context": "load_editor",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.65"
     },
     {
       "id": "failure.worklane_tui.py.84",
@@ -14069,10 +13462,10 @@
       "source": "worklane_tui.py:84",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "fixture:runtime.guard.editor.empty-title"
+      ],
+      "context": "save_editor",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.84"
     },
     {
       "id": "failure.worklane_tui.py.90",
@@ -14080,10 +13473,10 @@
       "source": "worklane_tui.py:90",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "test_tui_editing.IssueEditorTests.test_stale_text_closed_issue_status_drift_or_removed_item_never_write"
+      ],
+      "context": "save_editor",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.90"
     },
     {
       "id": "failure.worklane_tui.py.92",
@@ -14091,10 +13484,10 @@
       "source": "worklane_tui.py:92",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "test_tui_editing.IssueEditorTests.test_stale_text_closed_issue_status_drift_or_removed_item_never_write"
+      ],
+      "context": "save_editor",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.92"
     },
     {
       "id": "failure.worklane_tui.py.1306",
@@ -14102,10 +13495,10 @@
       "source": "worklane_tui.py:1306",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "fixture:cli.tui-refresh"
+      ],
+      "context": "run_tui",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.1306"
     },
     {
       "id": "failure.worklane_tui.py.1322",
@@ -14113,10 +13506,10 @@
       "source": "worklane_tui.py:1322",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "fixture:cli.tui-redirect"
+      ],
+      "context": "terminal_ui",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.1322"
     },
     {
       "id": "failure.worklane_tui.py.70",
@@ -14124,10 +13517,10 @@
       "source": "worklane_tui.py:70",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "test_tui_editing.IssueEditorTests.test_stale_text_closed_issue_status_drift_or_removed_item_never_write"
+      ],
+      "context": "load_editor",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.70"
     },
     {
       "id": "failure.worklane_tui.py.103",
@@ -14135,10 +13528,10 @@
       "source": "worklane_tui.py:103",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "test_tui_editing.IssueEditorTests.test_partial_edit_failure_preserves_saved_text_and_draft_for_safe_retry"
+      ],
+      "context": "save_editor",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.103"
     },
     {
       "id": "failure.worklane_tui.py.237",
@@ -14146,10 +13539,10 @@
       "source": "worklane_tui.py:237",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "test_tui.TuiTests.test_resume_missing_session_missing_worktree_and_failed_cli"
+      ],
+      "context": "resume_session",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.237"
     },
     {
       "id": "failure.worklane_tui.py.241",
@@ -14157,10 +13550,10 @@
       "source": "worklane_tui.py:241",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "test_tui.TuiTests.test_resume_missing_session_missing_worktree_and_failed_cli"
+      ],
+      "context": "resume_session",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.241"
     },
     {
       "id": "failure.worklane_tui.py.246",
@@ -14168,10 +13561,10 @@
       "source": "worklane_tui.py:246",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "fixture:runtime.guard.resume.missing-command"
+      ],
+      "context": "resume_session",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.246"
     },
     {
       "id": "failure.worklane_tui.py.251",
@@ -14179,10 +13572,10 @@
       "source": "worklane_tui.py:251",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "test_tui.TuiTests.test_resume_missing_session_missing_worktree_and_failed_cli"
+      ],
+      "context": "resume_session",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.251"
     },
     {
       "id": "failure.worklane_tui.py.1326",
@@ -14190,10 +13583,10 @@
       "source": "worklane_tui.py:1326",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "fixture:runtime.terminal-missing-backend"
+      ],
+      "context": "terminal_ui",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.1326"
     },
     {
       "id": "failure.worklane_tui.py.1332",
@@ -14201,10 +13594,10 @@
       "source": "worklane_tui.py:1332",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "fixture:runtime.terminal-initialization-error"
+      ],
+      "context": "terminal_ui",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.1332"
     },
     {
       "id": "failure.worklane_tui.py.244",
@@ -14212,10 +13605,33 @@
       "source": "worklane_tui.py:244",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "test_tui.TuiTests.test_resume_refuses_controller_race_or_orphan_process"
+      ],
+      "context": "resume_session",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.244"
+    },
+    {
+      "id": "failure.worklane_tui.py.539",
+      "surface": "Re-raise (RuntimeError, OSError, ValueError, KeyError, subprocess.TimeoutExpired) after handling",
+      "source": "worklane_tui.py:539",
+      "stage": "tui",
+      "checks": [
+        "test_tui_editing.IssueEditorTests.test_cancel_loading_and_error_retain_responsive_terminal",
+        "test_tui_editing.IssueEditorTests.test_load_failure_and_budget_cooldown_do_not_write"
+      ],
+      "context": "load",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.539"
+    },
+    {
+      "id": "failure.worklane_tui.py.557",
+      "surface": "Re-raise (RuntimeError, OSError, ValueError, KeyError, subprocess.TimeoutExpired) after handling",
+      "source": "worklane_tui.py:557",
+      "stage": "tui",
+      "checks": [
+        "fixture:runtime.guard.editor.existing-save-error"
+      ],
+      "context": "write",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.557"
     },
     {
       "id": "failure.worklane_tui.py.757",
@@ -14223,10 +13639,10 @@
       "source": "worklane_tui.py:757",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "test_tui.TuiTests.test_open_pr_handles_absence_offline_saved_pr_and_browser_failure"
+      ],
+      "context": "launch",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.757"
     },
     {
       "id": "failure.worklane_tui.py.556",
@@ -14234,10 +13650,10 @@
       "source": "worklane_tui.py:556",
       "stage": "tui",
       "checks": [
-        "suite:test_tui",
-        "suite:test_tui_editing",
-        "suite:test_config"
-      ]
+        "test_tui_editing.IssueEditorTests.test_failed_creation_keeps_draft_and_blocks_duplicate_save"
+      ],
+      "context": "write",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_tui.py.556"
     },
     {
       "id": "constant.worklane_tui.py.GROUP_ORDER",
@@ -14267,9 +13683,10 @@
       "source": "worklane_harness.py:23",
       "stage": "runtime",
       "checks": [
-        "suite:test_harness",
-        "suite:test_sessions"
-      ]
+        "fixture:runtime.session-bad-opencode"
+      ],
+      "context": "validate_session_id",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_harness.py.23"
     },
     {
       "id": "failure.worklane_harness.py.211",
@@ -14277,9 +13694,22 @@
       "source": "worklane_harness.py:211",
       "stage": "runtime",
       "checks": [
-        "suite:test_harness",
-        "suite:test_sessions"
-      ]
+        "test_harness.HarnessTests.test_deleted_session_blocks_before_starting_new_turn",
+        "test_harness.HarnessTests.test_interactive_resume_uses_saved_harness_with_lock_and_checks_missing_history"
+      ],
+      "context": "check_session",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_harness.py.211"
+    },
+    {
+      "id": "failure.worklane_harness.py.68",
+      "surface": "Re-raise BaseException after handling",
+      "source": "worklane_harness.py:68",
+      "stage": "runtime",
+      "checks": [
+        "test_sessions.SessionTests.test_app_server_transport_timeout_eof_and_initialize_error"
+      ],
+      "context": "__enter__",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_harness.py.68"
     },
     {
       "id": "failure.worklane_harness.py.83",
@@ -14287,9 +13717,10 @@
       "source": "worklane_harness.py:83",
       "stage": "runtime",
       "checks": [
-        "suite:test_harness",
-        "suite:test_sessions"
-      ]
+        "test_sessions.SessionTests.test_app_server_transport_timeout_eof_and_initialize_error"
+      ],
+      "context": "request",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_harness.py.83"
     },
     {
       "id": "failure.worklane_harness.py.99",
@@ -14297,9 +13728,11 @@
       "source": "worklane_harness.py:99",
       "stage": "runtime",
       "checks": [
-        "suite:test_harness",
-        "suite:test_sessions"
-      ]
+        "test_sessions.SessionTests.test_app_server_transport_timeout_eof_and_initialize_error",
+        "test_sessions.SessionTests.test_metadata_failure_is_logged_and_resume_retries_same_session"
+      ],
+      "context": "request",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_harness.py.99"
     },
     {
       "id": "failure.worklane_harness.py.147",
@@ -14307,9 +13740,10 @@
       "source": "worklane_harness.py:147",
       "stage": "runtime",
       "checks": [
-        "suite:test_harness",
-        "suite:test_sessions"
-      ]
+        "test_sessions.SessionTests.test_ambiguous_projects_do_not_create_or_assign_an_arbitrary_project"
+      ],
+      "context": "name_session",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_harness.py.147"
     },
     {
       "id": "failure.worklane_harness.py.89",
@@ -14317,9 +13751,10 @@
       "source": "worklane_harness.py:89",
       "stage": "runtime",
       "checks": [
-        "suite:test_harness",
-        "suite:test_sessions"
-      ]
+        "test_sessions.SessionTests.test_app_server_transport_timeout_eof_and_initialize_error"
+      ],
+      "context": "request",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_harness.py.89"
     },
     {
       "id": "failure.worklane_harness.py.92",
@@ -14327,9 +13762,10 @@
       "source": "worklane_harness.py:92",
       "stage": "runtime",
       "checks": [
-        "suite:test_harness",
-        "suite:test_sessions"
-      ]
+        "fixture:runtime.guard.metadata.oversized-response"
+      ],
+      "context": "request",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_harness.py.92"
     },
     {
       "id": "failure.worklane_harness.py.144",
@@ -14337,9 +13773,10 @@
       "source": "worklane_harness.py:144",
       "stage": "runtime",
       "checks": [
-        "suite:test_harness",
-        "suite:test_sessions"
-      ]
+        "fixture:runtime.guard.metadata.repeated-project-cursor"
+      ],
+      "context": "name_session",
+      "deletion_proof": "parity/failure-checks.json#failure.worklane_harness.py.144"
     },
     {
       "id": "constant.worklane_harness.py.MODEL",
@@ -14992,6 +14429,753 @@
       ]
     },
     {
+      "id": "fixture.runtime.guard.build.blocked-result",
+      "surface": "runtime.guard.build.blocked-result",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.build.blocked-result"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.build.pass-with-findings",
+      "surface": "runtime.guard.build.pass-with-findings",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.build.pass-with-findings"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.build.question-created-pr",
+      "surface": "runtime.guard.build.question-created-pr",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.build.question-created-pr"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.build.invalid-sha",
+      "surface": "runtime.guard.build.invalid-sha",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.build.invalid-sha"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.build.wrong-head",
+      "surface": "runtime.guard.build.wrong-head",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.build.wrong-head"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.build.dirty-worktree",
+      "surface": "runtime.guard.build.dirty-worktree",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.build.dirty-worktree"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.review.blocked-result",
+      "surface": "runtime.guard.review.blocked-result",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.review.blocked-result"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.review.modified-worktree",
+      "surface": "runtime.guard.review.modified-worktree",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.review.modified-worktree"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.stack.pending-restack",
+      "surface": "runtime.guard.stack.pending-restack",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.stack.pending-restack"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.stack.changed-prerequisite",
+      "surface": "runtime.guard.stack.changed-prerequisite",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.stack.changed-prerequisite"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.stack.unpushed-head",
+      "surface": "runtime.guard.stack.unpushed-head",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.stack.unpushed-head"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.worktree.missing-saved",
+      "surface": "runtime.guard.worktree.missing-saved",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.worktree.missing-saved"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.worktree.wrong-worker-branch",
+      "surface": "runtime.guard.worktree.wrong-worker-branch",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.worktree.wrong-worker-branch"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.worktree.dirty-reviewer",
+      "surface": "runtime.guard.worktree.dirty-reviewer",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.worktree.dirty-reviewer"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.worktree.existing-local-branch",
+      "surface": "runtime.guard.worktree.existing-local-branch",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.worktree.existing-local-branch"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.worktree.moved-parent",
+      "surface": "runtime.guard.worktree.moved-parent",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.worktree.moved-parent"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.pick.missing-linked-pr",
+      "surface": "runtime.guard.pick.missing-linked-pr",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.pick.missing-linked-pr"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.pick.closed-retry-pr",
+      "surface": "runtime.guard.pick.closed-retry-pr",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.pick.closed-retry-pr"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.memory.unavailable",
+      "surface": "runtime.guard.memory.unavailable",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.memory.unavailable"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.memory.syscall-error",
+      "surface": "runtime.guard.memory.syscall-error",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.memory.syscall-error"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.state.newer-schema",
+      "surface": "runtime.guard.state.newer-schema",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.state.newer-schema"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.state.unsupported-value",
+      "surface": "runtime.guard.state.unsupported-value",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.state.unsupported-value"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.state.foreign-key-migration",
+      "surface": "runtime.guard.state.foreign-key-migration",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.state.foreign-key-migration"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.state.changed-legacy-file",
+      "surface": "runtime.guard.state.changed-legacy-file",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.state.changed-legacy-file"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.editor.empty-title",
+      "surface": "runtime.guard.editor.empty-title",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.editor.empty-title"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.resume.missing-command",
+      "surface": "runtime.guard.resume.missing-command",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.resume.missing-command"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.invalid-worker_harness",
+      "surface": "runtime.guard.invalid-worker_harness",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.invalid-worker_harness"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.invalid-stack_dependencies",
+      "surface": "runtime.guard.invalid-stack_dependencies",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.invalid-stack_dependencies"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.invalid-effort",
+      "surface": "runtime.guard.invalid-effort",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.invalid-effort"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.workflow.immediate-stop",
+      "surface": "runtime.guard.workflow.immediate-stop",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.workflow.immediate-stop"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.restack.moved-target",
+      "surface": "runtime.guard.restack.moved-target",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.restack.moved-target"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.restack.missing-worktree",
+      "surface": "runtime.guard.restack.missing-worktree",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.restack.missing-worktree"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.restack.wrong-branch",
+      "surface": "runtime.guard.restack.wrong-branch",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.restack.wrong-branch"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.restack.changed-child-head",
+      "surface": "runtime.guard.restack.changed-child-head",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.restack.changed-child-head"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.restack.changed-intent",
+      "surface": "runtime.guard.restack.changed-intent",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.restack.changed-intent"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.restack.changed-local-head",
+      "surface": "runtime.guard.restack.changed-local-head",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.restack.changed-local-head"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.restack.changed-pr",
+      "surface": "runtime.guard.restack.changed-pr",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.restack.changed-pr"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.restack.unverified-retarget",
+      "surface": "runtime.guard.restack.unverified-retarget",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.restack.unverified-retarget"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.restack.wrong-board-status",
+      "surface": "runtime.guard.restack.wrong-board-status",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.restack.wrong-board-status"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.cli.start-exited",
+      "surface": "runtime.guard.cli.start-exited",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.cli.start-exited"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.cli.start-timeout",
+      "surface": "runtime.guard.cli.start-timeout",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.cli.start-timeout"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.cli.start-cancelled",
+      "surface": "runtime.guard.cli.start-cancelled",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.cli.start-cancelled"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.cli.run-cancelled",
+      "surface": "runtime.guard.cli.run-cancelled",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.cli.run-cancelled"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.cli.missing-binary",
+      "surface": "runtime.guard.cli.missing-binary",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.cli.missing-binary"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.cli.retry-invalid-phase",
+      "surface": "runtime.guard.cli.retry-invalid-phase",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.cli.retry-invalid-phase"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.cli.resume-during-stop",
+      "surface": "runtime.guard.cli.resume-during-stop",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.cli.resume-during-stop"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.cli.stop-incomplete",
+      "surface": "runtime.guard.cli.stop-incomplete",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.cli.stop-incomplete"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.repository.unsupported-origin",
+      "surface": "runtime.guard.repository.unsupported-origin",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.repository.unsupported-origin"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.github.successful-quota-error",
+      "surface": "runtime.guard.github.successful-quota-error",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.github.successful-quota-error"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.board.missing-status",
+      "surface": "runtime.guard.board.missing-status",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.board.missing-status"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.board.missing-field",
+      "surface": "runtime.guard.board.missing-field",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.board.missing-field"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.board.failed-review-status",
+      "surface": "runtime.guard.board.failed-review-status",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.board.failed-review-status"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.board.status-drift",
+      "surface": "runtime.guard.board.status-drift",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.board.status-drift"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.board.unverified-transition",
+      "surface": "runtime.guard.board.unverified-transition",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.board.unverified-transition"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.board.incomplete-items",
+      "surface": "runtime.guard.board.incomplete-items",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.board.incomplete-items"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.review.wrong-result-head",
+      "surface": "runtime.guard.review.wrong-result-head",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.review.wrong-result-head"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.review.pass-with-findings",
+      "surface": "runtime.guard.review.pass-with-findings",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.review.pass-with-findings"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.stack.parent-missing-handoff",
+      "surface": "runtime.guard.stack.parent-missing-handoff",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.stack.parent-missing-handoff"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.stack.closed-parent",
+      "surface": "runtime.guard.stack.closed-parent",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.stack.closed-parent"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.feedback.changed-pr",
+      "surface": "runtime.guard.feedback.changed-pr",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.feedback.changed-pr"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.completion.retargeted-pr",
+      "surface": "runtime.guard.completion.retargeted-pr",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.completion.retargeted-pr"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.agent.missing-history",
+      "surface": "runtime.guard.agent.missing-history",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.agent.missing-history"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.agent.before-turn",
+      "surface": "runtime.guard.agent.before-turn",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.agent.before-turn"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.agent.next-turn",
+      "surface": "runtime.guard.agent.next-turn",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.agent.next-turn"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.agent.before-launch",
+      "surface": "runtime.guard.agent.before-launch",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.agent.before-launch"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.agent.after-launch",
+      "surface": "runtime.guard.agent.after-launch",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.agent.after-launch"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.agent.during-turn",
+      "surface": "runtime.guard.agent.during-turn",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.agent.during-turn"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.agent.exit-timeout",
+      "surface": "runtime.guard.agent.exit-timeout",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.agent.exit-timeout"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.agent.invalid-event-shape",
+      "surface": "runtime.guard.agent.invalid-event-shape",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.agent.invalid-event-shape"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.agent.conflicting-session-ids",
+      "surface": "runtime.guard.agent.conflicting-session-ids",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.agent.conflicting-session-ids"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.agent.invalid-result-shape",
+      "surface": "runtime.guard.agent.invalid-result-shape",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.agent.invalid-result-shape"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.agent.invalid-verdict",
+      "surface": "runtime.guard.agent.invalid-verdict",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.agent.invalid-verdict"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.agent.invalid-result-types",
+      "surface": "runtime.guard.agent.invalid-result-types",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.agent.invalid-result-types"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.agent.invalid-findings",
+      "surface": "runtime.guard.agent.invalid-findings",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.agent.invalid-findings"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.board.repeated-cursor",
+      "surface": "runtime.guard.board.repeated-cursor",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.board.repeated-cursor"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.metadata.oversized-response",
+      "surface": "runtime.guard.metadata.oversized-response",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.metadata.oversized-response"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.metadata.repeated-project-cursor",
+      "surface": "runtime.guard.metadata.repeated-project-cursor",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.metadata.repeated-project-cursor"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.board.add-missing-destination",
+      "surface": "runtime.guard.board.add-missing-destination",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.board.add-missing-destination"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.stack.parent-quota",
+      "surface": "runtime.guard.stack.parent-quota",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.stack.parent-quota"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.stack.restack-quota",
+      "surface": "runtime.guard.stack.restack-quota",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.stack.restack-quota"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.budget.propagates-quota",
+      "surface": "runtime.guard.budget.propagates-quota",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.budget.propagates-quota"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.github.failed-owner-probe",
+      "surface": "runtime.guard.github.failed-owner-probe",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.github.failed-owner-probe"
+      ]
+    },
+    {
+      "id": "fixture.runtime.guard.editor.existing-save-error",
+      "surface": "runtime.guard.editor.existing-save-error",
+      "stage": "runtime",
+      "source": "parity/fixtures/failures.json",
+      "checks": [
+        "fixture:runtime.guard.editor.existing-save-error"
+      ]
+    },
+    {
       "id": "fixture.runtime.config-defaults",
       "surface": "runtime.config-defaults",
       "stage": "runtime",
@@ -15250,6 +15434,33 @@
       "source": "parity/fixtures/runtime.json",
       "checks": [
         "fixture:runtime.controller-question-build"
+      ]
+    },
+    {
+      "id": "fixture.runtime.terminal-initialization-error",
+      "surface": "runtime.terminal-initialization-error",
+      "stage": "runtime",
+      "source": "parity/fixtures/runtime.json",
+      "checks": [
+        "fixture:runtime.terminal-initialization-error"
+      ]
+    },
+    {
+      "id": "fixture.runtime.terminal-missing-backend",
+      "surface": "runtime.terminal-missing-backend",
+      "stage": "runtime",
+      "source": "parity/fixtures/runtime.json",
+      "checks": [
+        "fixture:runtime.terminal-missing-backend"
+      ]
+    },
+    {
+      "id": "fixture.runtime.terminal-interrupt",
+      "surface": "runtime.terminal-interrupt",
+      "stage": "runtime",
+      "source": "parity/fixtures/runtime.json",
+      "checks": [
+        "fixture:runtime.terminal-interrupt"
       ]
     }
   ]

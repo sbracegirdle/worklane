@@ -1,0 +1,1002 @@
+{
+  "schema": 1,
+  "reference_kind": "runtime",
+  "scenarios": [
+    {
+      "id": "runtime.guard.build.blocked-result",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"build.blocked-result\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Implementation blocked:"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.build.pass-with-findings",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"build.pass-with-findings\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Worker reported unresolved findings"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.build.question-created-pr",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"build.question-created-pr\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Question-only work unexpectedly created a PR"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.build.invalid-sha",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"build.invalid-sha\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Worker did not provide an exact commit SHA"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.build.wrong-head",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"build.wrong-head\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Worker checkout differs from the pushed PR head"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.build.dirty-worktree",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"build.dirty-worktree\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Worker left uncommitted changes"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.review.blocked-result",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"review.blocked-result\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Review blocked:"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.review.modified-worktree",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"review.modified-worktree\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Reviewer modified the revision under review"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.stack.pending-restack",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"stack.pending-restack\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Restack is incomplete"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.stack.changed-prerequisite",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"stack.changed-prerequisite\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Stack prerequisite #2 changed"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.stack.unpushed-head",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"stack.unpushed-head\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "PR head is not the exact pushed child branch revision"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.worktree.missing-saved",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"worktree.missing-saved\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Session worktree is missing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.worktree.wrong-worker-branch",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"worktree.wrong-worker-branch\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Saved worktree is on an unexpected branch"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.worktree.dirty-reviewer",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"worktree.dirty-reviewer\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Reviewer worktree has tracked changes"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.worktree.existing-local-branch",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"worktree.existing-local-branch\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "already exists without a saved worktree"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.worktree.moved-parent",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"worktree.moved-parent\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Stack parent branch changed before worktree creation"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.pick.missing-linked-pr",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"pick.missing-linked-pr\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "needs exactly one linked PR"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.pick.closed-retry-pr",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"pick.closed-retry-pr\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Cannot retry a closed or retargeted PR"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.memory.unavailable",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"memory.unavailable\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "does not support memory-backed protocol files"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.memory.syscall-error",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"memory.syscall-error\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Function not implemented"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.state.newer-schema",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"state.newer-schema\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "This state database needs a newer Worklane version"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.state.unsupported-value",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"state.unsupported-value\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Unsupported state value: set"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.state.foreign-key-migration",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"state.foreign-key-migration\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "State migration failed its foreign key check"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.state.changed-legacy-file",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"state.changed-legacy-file\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Legacy file changed after migration"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.editor.empty-title",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"editor.empty-title\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Title is required"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.resume.missing-command",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"resume.missing-command\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Required command missing: codex"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.invalid-worker_harness",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"config.validate\", \"values\": {\"worker_harness\": \"invalid\"}}",
+          "exit": 1,
+          "stdout_contains": [
+            "worker_harness must"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.invalid-stack_dependencies",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"config.validate\", \"values\": {\"stack_dependencies\": [\"bad\"]}}",
+          "exit": 1,
+          "stdout_contains": [
+            "stack_dependencies must"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.invalid-effort",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"config.validate\", \"values\": {\"effort\": \"invalid\"}}",
+          "exit": 1,
+          "stdout_contains": [
+            "effort must"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.workflow.immediate-stop",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"workflow.immediate-stop\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "Immediate stop requested before workflow execution"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.restack.moved-target",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"restack.moved-target\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Restack target moved before fetch"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.restack.missing-worktree",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"restack.missing-worktree\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Restore the saved worker worktree"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.restack.wrong-branch",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"restack.wrong-branch\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Worker worktree branch changed"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.restack.changed-child-head",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"restack.changed-child-head\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Child head changed outside Worklane"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.restack.changed-intent",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"restack.changed-intent\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Upstream changed during an interrupted restack"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.restack.changed-local-head",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"restack.changed-local-head\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Local head changed during restack"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.restack.changed-pr",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"restack.changed-pr\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Child PR changed during restack"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.restack.unverified-retarget",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"restack.unverified-retarget\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Restack push/retarget is not yet verified"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.restack.wrong-board-status",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"restack.wrong-board-status\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Restacked PR needs Agent review"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.cli.start-exited",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"cli.start-exited\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "Controller exited; see worklane logs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.cli.start-timeout",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"cli.start-timeout\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "Controller is still starting"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.cli.start-cancelled",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"cli.start-cancelled\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "Start cancelled by a concurrent stop request"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.cli.run-cancelled",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"cli.run-cancelled\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "Controller startup cancelled by a stop request"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.cli.missing-binary",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"cli.missing-binary\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "Required command missing: gh"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.cli.retry-invalid-phase",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"cli.retry-invalid-phase\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "Only blocked/interrupted tasks need retry"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.cli.resume-during-stop",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"cli.resume-during-stop\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "Controller is stopping; wait for stopped status"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.cli.stop-incomplete",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"cli.stop-incomplete\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "Immediate stop incomplete; remaining PIDs: [123]"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.repository.unsupported-origin",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"repository.unsupported-origin\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "origin must point to a github.com repository"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.github.successful-quota-error",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"github.successful-quota-error\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "API rate limit exceeded"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.board.missing-status",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"board.missing-status\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "The selected board is missing status"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.board.missing-field",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"board.missing-field\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "The selected project needs a single-select Status field"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.board.failed-review-status",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"board.failed-review-status\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Could not create Agent review status"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.board.status-drift",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"board.status-drift\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Issue status changed; expected"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.board.unverified-transition",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"board.unverified-transition\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Could not verify board transition"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.board.incomplete-items",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"board.incomplete-items\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "GitHub returned incomplete board pagination"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.review.wrong-result-head",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"review.wrong-result-head\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Review verdict does not identify the current PR head"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.review.pass-with-findings",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"review.pass-with-findings\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Review passed with unresolved findings"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.stack.parent-missing-handoff",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"stack.parent-missing-handoff\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "lacks independent review and handoff at its exact head"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.stack.closed-parent",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"stack.closed-parent\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "closed without merging"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.feedback.changed-pr",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"feedback.changed-pr\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Human feedback PR was closed, retargeted or changed"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.completion.retargeted-pr",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"completion.retargeted-pr\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "Assigned PR was retargeted; completion needs inspection"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.agent.missing-history",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"agent.missing-history\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "No saved worker session ID"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.agent.before-turn",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"agent.before-turn\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Immediate stop requested before the next agent turn"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.agent.next-turn",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"agent.next-turn\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Immediate stop requested before the next agent turn"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.agent.before-launch",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"agent.before-launch\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Immediate stop requested before agent launch"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.agent.after-launch",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"agent.after-launch\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Immediate stop requested while the agent was starting"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.agent.during-turn",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"agent.during-turn\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Immediate stop requested; saved session retained"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.agent.exit-timeout",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"agent.exit-timeout\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "timed out while exiting; resume the saved session"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.agent.invalid-event-shape",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"agent.invalid-event-shape\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "emitted an unexpected event shape"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.agent.conflicting-session-ids",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"agent.conflicting-session-ids\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Agent emitted conflicting session IDs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.agent.invalid-result-shape",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"agent.invalid-result-shape\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Missing or invalid structured result"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.agent.invalid-verdict",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"agent.invalid-verdict\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Unknown agent verdict"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.agent.invalid-result-types",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"agent.invalid-result-types\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Invalid result field types"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.agent.invalid-findings",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"agent.invalid-findings\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Invalid review findings"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.board.repeated-cursor",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"board.repeated-cursor\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "GitHub returned incomplete or cyclic pagination"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.metadata.oversized-response",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"metadata.oversized-response\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "Codex metadata response exceeded 4 MiB"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.metadata.repeated-project-cursor",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"metadata.repeated-project-cursor\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "Codex project/list repeated a pagination cursor"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.board.add-missing-destination",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"board.add-missing-destination\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "The selected board is missing status"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.stack.parent-quota",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"stack.parent-quota\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "fixture parent quota"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.stack.restack-quota",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"stack.restack-quota\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "fixture restack quota"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.budget.propagates-quota",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"budget.propagates-quota\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "fixture transport quota"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.github.failed-owner-probe",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"github.failed-owner-probe\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "fixture-probe"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.guard.editor.existing-save-error",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"guard.invoke\", \"case\": \"editor.existing-save-error\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "fixture edit denied"
+          ]
+        }
+      ]
+    }
+  ]
+}

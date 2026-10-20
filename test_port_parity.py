@@ -83,9 +83,42 @@ class DifferentialTests(unittest.TestCase):
             self.assertEqual([c.args[0] for c in control.call_args_list], ['stop-now','stop'])
 
 
+class FailureContractTests(unittest.TestCase):
+    def test_every_failure_has_a_specific_deletion_detecting_acceptance_check(self):
+        inventory=json.loads((ROOT/'parity/inventory.json').read_text())
+        proof=json.loads((ROOT/'parity/failure-checks.json').read_text())
+        for row in inventory['matrix']:
+            if not row['id'].startswith('failure.'):
+                continue
+            with self.subTest(row=row['id']):
+                evidence=proof['failures'][row['id']]
+                self.assertEqual(evidence['status'],'detected')
+                self.assertEqual(row['checks'],evidence['checks'])
+                self.assertTrue(row['checks'])
+                self.assertFalse(any(check.startswith('suite:') for check in row['checks']))
+
+    def test_terminal_initialization_fixture_rejects_suppressed_failure(self):
+        from tools.port_failure_audit import suppress
+        from tools.port_parity import reference
+        fixture=next(f for f in json.loads((ROOT/'parity/fixtures/runtime.json').read_text())['scenarios']
+                     if f['id']=='runtime.terminal-initialization-error')
+        with tempfile.TemporaryDirectory() as directory:
+            source=Path(directory)
+            reference(source,json.loads((ROOT/'parity/inventory.json').read_text())['revision'])
+            command=[sys.executable,str(ROOT/'tools/port_reference_driver.py'),'--source',str(source)]
+            self.assertEqual(execute(command,fixture)['steps'][0]['exit'],1)
+            import ast
+            failure=next(node for node in ast.walk(ast.parse((source/'worklane_tui.py').read_text()))
+                         if isinstance(node,ast.Raise) and any(isinstance(part,ast.Constant) and isinstance(part.value,str)
+                         and part.value.startswith('Could not initialize terminal UI:') for part in ast.walk(node)))
+            suppress(source,('worklane_tui.py',failure.lineno,failure.end_lineno))
+            with self.assertRaisesRegex(AssertionError,'exit 0'):
+                execute(command,fixture)
+
+
 class EvidenceGateTests(unittest.TestCase):
     def inventory(self):
-        return {'revision':'pinned','suites':{'runtime':['case']},'matrix':[{'id':'source.runtime','checks':['suite:runtime']}]}
+        return {'revision':'pinned','checks':{'case':{}},'suites':{'runtime':['case']},'matrix':[{'id':'source.runtime','checks':['suite:runtime']}]}
 
     def report(self):
         from tools.port_gate import contract_hash
@@ -118,6 +151,46 @@ class EvidenceGateTests(unittest.TestCase):
         other = self.report()
         other['results'][0]['status'] = 'fail'
         self.assertTrue(assess(self.inventory(), [good,other]))
+
+    def test_fixture_identity_hash_and_case_membership_are_mandatory(self):
+        import copy
+        from tools.port_gate import assess, contract_hash
+        inventory = {'revision':'pinned','checks':{},'suites':{},
+                     'fixture_sources':{'cli.json':'cli-hash','runtime.json':'runtime-hash'},
+                     'fixture_cases':{'cli.json':['fixture:cli.help'],'runtime.json':['fixture:runtime.config']},
+                     'matrix':[{'id':'fixture.cli.help','checks':['fixture:cli.help']},
+                               {'id':'fixture.runtime.config','checks':['fixture:runtime.config']}]}
+        report = self.report()
+        report.update(inventory_sha256=contract_hash(inventory),fixtures_path='cli.json',fixtures_sha256='cli-hash',
+                      results=[{'id':'cli.help','status':'pass','comparison':'equal','observations':{'exit':0}}])
+        self.assertEqual([f['row'] for f in assess(inventory,[report])], ['fixture.runtime.config'])
+        for change in ('missing-path','missing-hash','missing-both','unknown-path','wrong-hash'):
+            with self.subTest(change=change):
+                forged = copy.deepcopy(report)
+                if change == 'missing-path':
+                    forged.pop('fixtures_path'); forged['fixtures_sha256'] = 'incorrect'
+                if change == 'missing-hash': forged.pop('fixtures_sha256')
+                if change == 'missing-both': forged.pop('fixtures_path'); forged.pop('fixtures_sha256')
+                if change == 'unknown-path': forged['fixtures_path'] = 'other.json'
+                if change == 'wrong-hash': forged['fixtures_sha256'] = 'incorrect'
+                self.assertEqual(len(assess(inventory,[forged])),2)
+        # A correctly hashed CLI report cannot attest to runtime fixture results.
+        report['results'].append({'id':'runtime.config','status':'pass','comparison':'equal','observations':{'exit':0}})
+        self.assertEqual([f['row'] for f in assess(inventory,[report])], ['fixture.runtime.config'])
+        report['results'][1]['id'] = 'fixture:runtime.config'
+        self.assertEqual([f['row'] for f in assess(inventory,[report])], ['fixture.runtime.config'])
+
+    def test_real_cli_report_cannot_cover_cases_without_fixture_identity(self):
+        import copy
+        from tools.port_gate import assess
+        inventory=json.loads((ROOT/'parity/inventory.json').read_text())
+        report=json.loads((ROOT/'parity/evidence/cli-self-comparison.json').read_text())
+        rows={row['id'] for row in inventory['matrix'] if row.get('source') == 'parity/fixtures/cli.json'}
+        self.assertFalse(rows & {failure['row'] for failure in assess(inventory,[report])})
+        forged=copy.deepcopy(report)
+        forged.pop('fixtures_path')
+        forged['fixtures_sha256']='incorrect'
+        self.assertEqual(rows & {failure['row'] for failure in assess(inventory,[forged])},rows)
 
     def test_unknown_fixture_fields_and_bad_command_arrays_fail_closed(self):
         from tools.port_parity import command_array

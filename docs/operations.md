@@ -12,6 +12,8 @@ HTTPS/SSH remotes are supported. Worklane looks for a linked project, preferring
 project whose title matches the repository. If none is linked it considers the
 repository owner's projects. When there is more than one candidate, choose with
 `--project OWNER/NUMBER`; Worklane does not silently choose an ambiguous board.
+Public boards require `--dangerously-allow-public-board`; `check` reports safety and project access/automation verification limits.
+Feedback requires current repository Write/Maintain/Admin authors and editors; dispatch and writes revalidate security and fail closed.
 
 The Status field must already contain these names (case-insensitive):
 
@@ -92,9 +94,7 @@ across controllers using the same state root; agent subprocesses and other
 machines are outside that coordination. Quota failures honor reset/retry headers,
 otherwise backing off from one minute to one hour, and resume saved work without
 repeating completed agent turns. Unchanged Human review feedback is checked every
-five minutes; pending feedback retains the controller interval. Tests measure 60
-board reads per idle hour, six attempts per exhausted-quota hour, and 55 logical
-GitHub operations for three builds plus review, excluding startup and agent calls.
+five minutes; pending feedback retains the controller interval. Security preflights add live reads before dispatch, mutations, and agent turns.
 Live GraphQL costs and the conflicting REST/GraphQL quota reports remain unverified.
 
 Runtime data lives outside project checkouts:

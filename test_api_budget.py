@@ -21,6 +21,7 @@ class ApiBudgetTests(unittest.TestCase):
             board = object.__new__(w.Board)
             board.project, board.field = {"id": "project"}, {"id": "status"}
             board.repo = "owner/repo"
+            board.dangerously_allow_public_board = False
             board.options = {s.casefold(): s for s in (w.READY, w.PROGRESS, w.REVIEW, w.HUMAN)}
             backend = Mock(model=w.MODEL)
             def agent(stage, task, *_):
@@ -40,7 +41,11 @@ class ApiBudgetTests(unittest.TestCase):
                 if "graphql" in args:
                     query = json.loads(stdin)["query"]
                     variables = json.loads(stdin)["variables"]
-                    if "items(first:100" in query:
+                    if "viewerCanUpdate" in query:
+                        calls["security preflight"] += 1
+                        data = {"node": {"public": False, "viewerCanUpdate": True},
+                                "repository": {"viewerPermission": "ADMIN"}}
+                    elif "items(first:100" in query:
                         calls["board page"] += 1
                         nodes = []
                         for n, status in statuses.items():
@@ -90,8 +95,8 @@ class ApiBudgetTests(unittest.TestCase):
                              ["awaiting_review"] * 3 + ["human_review"])
             self.assertEqual(calls, Counter({"board page": 1, "dependency check": 4, "item status": 14,
                 "status mutation": 7, "issue": 4, "PR identity": 9, "comment read": 5,
-                "comment write": 5, "review threads": 6, "feedback REST page": 4}))
-            self.assertEqual(sum(calls.values()), 59)
+                "comment write": 5, "review threads": 6, "feedback REST page": 4, "security preflight": 27}))
+            self.assertEqual(sum(calls.values()), 86)
 
 
 if __name__ == "__main__":

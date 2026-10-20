@@ -60,6 +60,10 @@ class Screen:
 
 
 class TuiTests(unittest.TestCase):
+    def safe_resume(self, *args, **kwargs):
+        with patch.object(w, "Board"):
+            return tui.resume_session(*args, **kwargs)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -308,7 +312,7 @@ class TuiTests(unittest.TestCase):
                     pass
             return subprocess.CompletedProcess(args, 0)
         with patch.object(tui.shutil, "which", return_value="/fake/codex"):
-            tui.resume_session(self.state, 1, "reviewer", invoke=invoke)
+            self.safe_resume(self.state, 1, "reviewer", invoke=invoke)
         self.assertFalse(self.state.running())
         self.assertEqual(before, self.state.load(1))
 
@@ -317,24 +321,24 @@ class TuiTests(unittest.TestCase):
         invoke = Mock()
         with w.locked(self.state.path / "runner.lock"):
             with self.assertRaisesRegex(RuntimeError, "already running"):
-                tui.resume_session(self.state, 1, "worker", invoke=invoke)
+                self.safe_resume(self.state, 1, "worker", invoke=invoke)
         task = self.state.load(1)
         self.state.attach_process(run, task, os.getpid())
         with self.assertRaisesRegex(RuntimeError, "still alive"):
-            tui.resume_session(self.state, 1, "worker", invoke=invoke)
+            self.safe_resume(self.state, 1, "worker", invoke=invoke)
         invoke.assert_not_called()
 
     def test_resume_missing_session_missing_worktree_and_failed_cli(self):
         with self.assertRaisesRegex(RuntimeError, "No saved session"):
-            tui.resume_session(self.state, 1, "worker")
+            self.safe_resume(self.state, 1, "worker")
         self.run_record()
         self.tree.rmdir()
         with self.assertRaisesRegex(RuntimeError, "worktree is missing"):
-            tui.resume_session(self.state, 1, "worker")
+            self.safe_resume(self.state, 1, "worker")
         self.tree.mkdir()
         with patch.object(tui.shutil, "which", return_value="/fake/codex"):
             with self.assertRaisesRegex(RuntimeError, "exited 2"):
-                tui.resume_session(self.state, 1, "worker", invoke=Mock(return_value=subprocess.CompletedProcess([], 2)))
+                self.safe_resume(self.state, 1, "worker", invoke=Mock(return_value=subprocess.CompletedProcess([], 2)))
         self.assertFalse(self.state.running())
 
     def test_terminal_rendering_navigation_and_quitting_do_not_control_runner(self):
@@ -1047,7 +1051,8 @@ class TuiTests(unittest.TestCase):
             board.return_value.project = {"url": "https://github.com/users/owner/projects/2"}
             board.return_value.items.return_value = [{"content": {"number": 2}}]
             view = tui.board_view("owner/repo", self.tree, "owner/2")
-        board.assert_called_once_with("owner/repo", self.tree, "owner/2", load_fields=False)
+        board.assert_called_once_with("owner/repo", self.tree, "owner/2", load_fields=False,
+                                      dangerously_allow_public_board=False)
         self.assertEqual(view["items"], [{"content": {"number": 2}}])
         board.return_value.ensure_review_status.assert_not_called()
 

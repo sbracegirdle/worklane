@@ -216,6 +216,28 @@ class RestackTests(unittest.TestCase):
         self.assertFalse(any('--force' in arg for call in self.calls for arg in call))
         self.assertEqual(self.board.moves,[(2,w.REVIEW)])
 
+    def test_security_change_before_push_preserves_remote_branch_and_pending_intent(self):
+        self.board.require_safe = Mock(side_effect=[None, RuntimeError('Board became public')])
+        with patch.object(w, 'command', side_effect=self.transport):
+            self.runner.reconcile_stacks([self.task['item']])
+        self.assertFalse(any(call[:2] == ['git', 'push'] for call in self.calls))
+        self.assertFalse(any(call[0] == 'gh' for call in self.calls))
+        self.assertEqual(self.git('rev-parse', 'origin/child'), self.child_head)
+        self.assertIn('restack_pending', self.state.load(2))
+        self.assertIn('Board became public', self.state.load(2)['stack_blocked'])
+        self.assertEqual(self.board.moves, [])
+
+    def test_security_change_after_push_prevents_pr_retarget_and_board_transition(self):
+        self.board.require_safe = Mock(side_effect=[None, None, RuntimeError('Board became public')])
+        with patch.object(w, 'command', side_effect=self.transport):
+            self.runner.reconcile_stacks([self.task['item']])
+        self.assertTrue(any(call[:2] == ['git', 'push'] for call in self.calls))
+        self.assertFalse(any(call[0] == 'gh' for call in self.calls))
+        self.assertEqual(self.child_pr['baseRefName'], 'parent')
+        self.assertIn('restack_pending', self.state.load(2))
+        self.assertIn('Board became public', self.state.load(2)['stack_blocked'])
+        self.assertEqual(self.board.moves, [])
+
     def test_interrupted_retarget_reuses_recorded_merge_and_push(self):
         lose_response=[True]
         def transport(args,**kwargs):

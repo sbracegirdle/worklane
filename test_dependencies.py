@@ -30,6 +30,7 @@ class DependencyTests(unittest.TestCase):
     def real_board(self):
         board = object.__new__(w.Board)
         board.repo = 'owner/repo'
+        board.require_safe = Mock()
         return board
 
     def response(self, count):

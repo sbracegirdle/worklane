@@ -73,6 +73,10 @@ if not os.environ.get('FAKE_NO_FINISH'):
 
 
 class HarnessTests(unittest.TestCase):
+    def safe_resume(self, *args, **kwargs):
+        with patch.object(w, "Board"):
+            return tui.resume_session(*args, **kwargs)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -147,7 +151,7 @@ class HarnessTests(unittest.TestCase):
                 with w.locked(self.state.path / 'runner.lock') as fd:
                     self.backend(fd).run(stage, self.task, tree)
                     self.backend(fd).run(stage, self.task, tree)
-                tui.resume_session(self.state, 1, role)
+                self.safe_resume(self.state, 1, role)
                 invocations = [json.loads(line) for line in
                                (self.root / 'opencode-invocations.jsonl').read_text().splitlines()][-5:]
                 self.assertEqual([call['args'][0] for call in invocations],
@@ -356,14 +360,14 @@ if pid == 0:
         with w.locked(self.state.path / 'runner.lock') as fd:
             self.backend(fd).run('build', self.task, self.tree)
         invoke = Mock(return_value=subprocess.CompletedProcess([], 0))
-        tui.resume_session(self.state, 1, 'worker', invoke=invoke)
+        self.safe_resume(self.state, 1, 'worker', invoke=invoke)
         self.assertEqual(invoke.call_args.args[0], ['opencode', str(self.tree), '--session', self.state.session(1, 'worker')['session_id']])
         self.assertEqual(invoke.call_args.kwargs['cwd'], self.tree)
         self.assertEqual(len(invoke.call_args.kwargs['pass_fds']), 1)
         self.assertEqual(json.loads(invoke.call_args.kwargs['env']['OPENCODE_CONFIG_CONTENT'])['permission']['task'], 'deny')
         with patch.dict(os.environ, FAKE_DELETED='1'):
             with self.assertRaisesRegex(RuntimeError, 'replacement conversation'):
-                tui.resume_session(self.state, 1, 'worker', invoke=invoke)
+                self.safe_resume(self.state, 1, 'worker', invoke=invoke)
         self.assertEqual(invoke.call_count, 1)
 
     def test_tui_restart_preserves_all_harness_options_and_explicit_overrides(self):
@@ -382,6 +386,7 @@ if pid == 0:
     def test_check_requires_only_selected_binaries_and_reports_configuration(self):
         output = io.StringIO()
         board = Mock(project={'url': 'board'}, options={})
+        board.security = {"safe": True}
         board.items.return_value = []
         with patch.object(w, 'repository', return_value=('owner/repo', self.tree, 'main')), \
              patch.object(w, 'State', return_value=self.state), patch.object(w, 'Board', return_value=board), \

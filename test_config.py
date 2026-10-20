@@ -81,18 +81,21 @@ class ConfigTests(unittest.TestCase):
         with patch.object(w, "Board") as board:
             board.return_value.project = {"url": "board-url"}
             board.return_value.options = {}
+            board.return_value.security = {"safe": True}
             board.return_value.items.return_value = []
             code, output, errors = self.cli(["check"])
             self.assertEqual((code, errors), (0, ""))
             data = json.loads(output)
             self.assertEqual((data["workers"], data["model"], data["effort"]), (2, "saved-model", "medium"))
-            board.assert_called_with("owner/repo", self.root, "owner/7")
+            board.assert_called_with("owner/repo", self.root, "owner/7",
+                                     dangerously_allow_public_board=False, check_only=True)
             code, output, errors = self.cli(["check", "--workers", "5", "--model", "override",
                                             "--effort", "low", "--project", "another/8"])
             self.assertEqual((code, errors), (0, ""))
             data = json.loads(output)
             self.assertEqual((data["workers"], data["model"], data["effort"]), (5, "override", "low"))
-            board.assert_called_with("owner/repo", self.root, "another/8")
+            board.assert_called_with("owner/repo", self.root, "another/8",
+                                     dangerously_allow_public_board=False, check_only=True)
         self.assertEqual(self.path.read_bytes(), before)
 
     def test_invalid_settings_fail_before_board_access_but_controls_still_work(self):

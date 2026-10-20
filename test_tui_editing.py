@@ -111,7 +111,8 @@ class IssueEditorTests(unittest.TestCase):
                      patch.object(tui, "board_view", return_value={"items": [self.item]}):
                     screen = Screen(keys())
                     self.dashboard.run(screen)
-                w.Board.assert_any_call("owner/repo", self.root, "owner/7", required_statuses=())
+                w.Board.assert_any_call("owner/repo", self.root, "owner/7", required_statuses=(),
+                                        dangerously_allow_public_board=False)
                 command.assert_called_once_with(["gh", "issue", "edit", "42", "--repo", "owner/repo",
                                                 "--title", "Old title!", "--body-file", "-"], stdin="Original\n界body")
                 self.board.move.assert_called_with(self.item, w.READY, "Draft")
@@ -306,6 +307,7 @@ from pathlib import Path
 import worklane as w
 import worklane_tui as tui
 class Board:
+    def require_safe(self): pass
     field = {{"options": [{{"name": "Draft"}}, {{"name": w.READY}}]}}
     def __init__(self, *args, **kwargs):
         pass

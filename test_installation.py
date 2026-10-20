@@ -21,7 +21,7 @@ class PreviewInstallTests(unittest.TestCase):
             checkout = root / "integration checkout"
             checkout.mkdir()
             project = Path(w.__file__).resolve().parent
-            for name in ("worklane.py", "worklane_harness.py", "worklane_tui.py", "pyproject.toml"):
+            for name in ("worklane.py", "worklane_harness.py", "worklane_tui.py", "worklane_process.py", "pyproject.toml"):
                 shutil.copyfile(project / name, checkout / name)
             env = dict(os.environ, UV_TOOL_DIR=str(root / "tools"),
                        UV_TOOL_BIN_DIR=str(root / "bin"), XDG_STATE_HOME=str(root / "state"))
@@ -150,6 +150,7 @@ class InstallationTests(unittest.TestCase):
 
     def test_check_reports_cli_without_changing_board(self):
         board = Mock(project={"url": "https://github.com/users/owner/projects/1"}, options={})
+        board.security = {"safe": True}
         board.items.return_value = []
         output = io.StringIO()
         with patch.object(w, "repository", return_value=("owner/repo", self.root, "main")), \

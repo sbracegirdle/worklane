@@ -35,10 +35,20 @@ def connection(nodes, cursor=None):
     return {"nodes": nodes, "pageInfo": {"hasNextPage": cursor is not None, "endCursor": cursor}}
 
 
+def safe_security():
+    return {"visibility": "private", "project_viewer_can_update": True,
+            "repository_permission": "ADMIN", "safe": True, "public_board_override": False,
+            "verification_limits": []}
+
+
 class FakeBoard:
     def __init__(self, items=()):
         self.queue = list(items)
+        self.security = safe_security()
         self.moves = []
+
+    def require_safe(self, report=None):
+        return safe_security()
 
     def items(self):
         return copy.deepcopy(self.queue)
@@ -60,6 +70,7 @@ class FakeBoard:
 
 class BoardCommandTests(unittest.TestCase):
     def setUp(self):
+        self.enterContext(patch.object(w.Board, "security_report", side_effect=safe_security))
         self.root = Path("/checkout")
         self.project = {"number": 7, "title": "repo", "closed": False,
                         "owner": {"login": "board-owner"},
@@ -224,6 +235,7 @@ class WorklaneTests(unittest.TestCase):
 
     def board(self):
         board = object.__new__(w.Board)
+        board.require_safe = unittest.mock.Mock()
         board.repo, board.owner, board.number = "owner/repo", "owner", 1
         board.project = {"id": "project-1"}
         return board
@@ -547,7 +559,7 @@ class WorklaneTests(unittest.TestCase):
         self.state.save(task)
         runner = self.runner(FakeBoard([task["item"]]))
         runner.reconcile_waiting(runner.board.items())
-        with patch.object(w, "repository", return_value=("owner/repo", self.root, "main")), \
+        with patch.object(w, "Board"), patch.object(w, "repository", return_value=("owner/repo", self.root, "main")), \
                 patch.object(w, "State", return_value=self.state):
             self.assertEqual(w.main(["retry", "1"]), 0)
         runner.issue = unittest.mock.Mock(return_value={"state": "OPEN"})
@@ -1019,6 +1031,7 @@ class WorklaneTests(unittest.TestCase):
 
     def test_board_status_ids_are_preserved_when_review_is_added(self):
         board = object.__new__(w.Board)
+        board.require_safe = unittest.mock.Mock()
         board.options, board.field = {}, {"id": "status-field"}
         original = [{"id": "ready-id", "name": w.READY, "color": "YELLOW", "description": "Keep"},
                     {"id": "human-id", "name": w.HUMAN, "color": "BLUE", "description": "Keep"}]

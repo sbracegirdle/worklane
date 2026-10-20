@@ -617,10 +617,18 @@ fn boundary_fixture(request: &Value) -> Result<Value> {
         .map(PathBuf::from)
         .unwrap_or(std::env::current_dir()?);
     let call = callback(request)?;
-    let transport = transport::GitHubTransport::new(&state,&root)?.with_executor(Arc::new(move |r| {
-        let v = call(json!({"argv":r.argv,"cwd":r.cwd,"stdin":r.stdin,"timeout":r.timeout.as_secs_f64()}))?;
-        Ok(transport::CommandResult { stdout:string(&v,"stdout"),stderr:string(&v,"stderr"),exit:v["exit"].as_i64().unwrap_or(0) as i32 })
-    }));
+    let command_executor: transport::CommandExecutor = Arc::new(move |r| {
+        let v = call(
+            json!({"argv":r.argv,"cwd":r.cwd,"stdin":r.stdin,"timeout":r.timeout.as_secs_f64()}),
+        )?;
+        Ok(transport::CommandResult {
+            stdout: string(&v, "stdout"),
+            stderr: string(&v, "stderr"),
+            exit: v["exit"].as_i64().unwrap_or(0) as i32,
+        })
+    });
+    let transport =
+        transport::GitHubTransport::new(&state, &root)?.with_executor(command_executor.clone());
     let method = string(request, "method");
     if request["op"] == "budget.call" {
         let mut error = Error::quota(
@@ -765,6 +773,9 @@ fn boundary_fixture(request: &Value) -> Result<Value> {
     }
     let agent = AgentHarness::new(&root, &state, &json!({}))?;
     let mut flow = workflow::Workflow::new(state, board, agent, root, "main".into());
+    if request["local_commands"] == true {
+        flow = flow.with_commands(command_executor);
+    }
     flow.stack_items = request["stack_items"]
         .as_array()
         .cloned()
@@ -778,7 +789,14 @@ fn boundary_fixture(request: &Value) -> Result<Value> {
         .collect();
     if matches!(
         method.as_str(),
-        "build" | "review" | "execute" | "worktree" | "verify_pr" | "validate_stack" | "restack"
+        "build"
+            | "review"
+            | "execute"
+            | "worktree"
+            | "verify_pr"
+            | "validate_stack"
+            | "restack"
+            | "verify_stack_ancestry"
     ) {
         let mut task = request["task"].clone();
         let lock = flow.state.controller_lock(true)?;
@@ -795,6 +813,9 @@ fn boundary_fixture(request: &Value) -> Result<Value> {
                 .map(|p| json!(p)),
             "verify_pr" => flow.verify_pr(&task, &string(request, "head")),
             "validate_stack" => flow.validate_stack(&task).map(|_| Value::Null),
+            "verify_stack_ancestry" => flow
+                .verify_stack_ancestry(&task, Path::new(&string(request, "tree")))
+                .map(|_| Value::Null),
             "restack" => {
                 let mut item = request["item"].clone();
                 let remaining = request["remaining"].as_array().cloned().unwrap_or_default();
@@ -820,6 +841,7 @@ fn boundary_fixture(request: &Value) -> Result<Value> {
             | "dependencies_ready"
             | "reconcile_completed"
             | "reconcile_waiting"
+            | "reconcile_stacks"
     ) {
         let mut items = request["items"].as_array().cloned().unwrap_or_default();
         let mut item = request["item"].clone();
@@ -848,6 +870,9 @@ fn boundary_fixture(request: &Value) -> Result<Value> {
                 .map(|_| Value::Null),
             "reconcile_waiting" => flow
                 .reconcile_waiting(&mut items, &active)
+                .map(|_| Value::Null),
+            "reconcile_stacks" => flow
+                .reconcile_stacks(&mut items, &active)
                 .map(|_| Value::Null),
             _ => unreachable!(),
         };

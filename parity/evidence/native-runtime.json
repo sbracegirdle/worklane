@@ -10,9 +10,9 @@
     "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter"
   ],
   "candidate_hashes": {
-    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "a737f6c64617813fe31a6d03eb06607c3bf6fb1b404ba0539ac52b2e0dfde6ed"
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "0d71911560c6059b4f1ef652893ac9995b14312f96d728485b6d2050d15d5eee"
   },
-  "release_sha256": "a737f6c64617813fe31a6d03eb06607c3bf6fb1b404ba0539ac52b2e0dfde6ed",
+  "release_sha256": "0d71911560c6059b4f1ef652893ac9995b14312f96d728485b6d2050d15d5eee",
   "results": [
     {
       "id": "runtime.config-defaults",

@@ -328,6 +328,67 @@ def native_dependencies_ready(runner, selected, task=None):
 def native_validate_stack(runner, task):return native_assignment(runner,'validate_stack',task=task)
 
 
+def native_restack_boundary(runner, method, *, items=None, active=(), task=None, tree=None):
+    """Real native restack/ancestry code with the frozen tests' Git and GH boundaries."""
+    import worklane as w
+    board=runner.board
+    statuses={s.casefold():s for s in (w.READY,w.PROGRESS,w.REVIEW,w.HUMAN)}
+    before, moved = {}, set()
+    def find(identifier):
+        return next(i for i in [*(items or []),*board.queue] if i['id']==identifier)
+    def command(event):
+        argv=event['argv'];args=argv[1:]
+        if argv[0]=='git':
+            text=w.command(argv,cwd=Path(event['cwd']),stdin=event['stdin'])
+        elif 'graphql' in args:
+            body=json.loads(event['stdin']);query,values=body['query'],body['variables']
+            if 'viewerCanUpdate' in query:
+                board.require_safe()
+                value={'node':{'public':False,'viewerCanUpdate':True},'repository':{'viewerPermission':'ADMIN'}}
+            elif 'ProjectV2Item' in query:
+                identifier=values['id'];selected=find(identifier)
+                status=board.item_status(selected)
+                if identifier in moved and status==before[identifier]:
+                    status=next(i['status'].casefold() for i in board.queue if i['id']==identifier)
+                before[identifier]=status
+                value={'node':{'project':{'id':'project'},'fieldValueByName':{'name':status}}}
+            else:raise AssertionError('Unexpected restack query: '+query)
+            text=json.dumps({'data':value})
+        elif args[:2]==['pr','view']:
+            saved=runner.state.all()
+            known=[*saved,*(edge for row in saved for edge in row.get('stack',[]))]
+            entry=next((row for row in known if row.get('pr_url')==args[2]),{})
+            text=json.dumps({'url':args[2],'headRefName':entry.get('branch','child'),
+                'baseRefName':entry.get('base','main'),'headRefOid':entry.get('head_sha','a'*40),
+                'isDraft':False,'isCrossRepository':False,'mergeable':'MERGEABLE',**runner.pr(args[2])})
+        elif args[:2]==['pr','edit']:
+            text=w.command(argv)
+        elif args[:2]==['project','item-edit']:
+            identifier=args[args.index('--id')+1]
+            board.move(find(identifier),args[-1],statuses[before[identifier]])
+            moved.add(identifier)
+            text=''
+        else:raise AssertionError('Unexpected restack command: '+repr(argv))
+        return {'stdout':text,'stderr':'','exit':0}
+    output=invoke_rpc({'op':'workflow.call','method':method,'repo':runner.repo,'root':str(runner.root),
+        'state_root':str(runner.state.path.parent.parent),'clock':w.now(),
+        'board':{'options':statuses},'items':items or [],'active':list(active),'task':task or {},
+        'tree':str(tree or runner.root),'local_commands':True},command)
+    if items is not None:items[:]=output['items']
+    if 'error' in output:
+        if output['kind']=='quota':raise w.GitHubRateLimit(output['error'])
+        raise RuntimeError(output['error'])
+    return output['value']
+
+
+def native_reconcile_stacks(runner, items, active_numbers=()):
+    return native_restack_boundary(runner,'reconcile_stacks',items=items,active=active_numbers)
+
+
+def native_verify_stack_ancestry(runner, task, tree):
+    return native_restack_boundary(runner,'verify_stack_ancestry',task=task,tree=tree)
+
+
 def native_owned(roots=(),tokens=(),known=None):
     output=invoke({'op':'process.owned','roots':[{'pid':pid,'birth':birth} for pid,birth in roots],
                    'tokens':list(tokens),'known':known or {}})

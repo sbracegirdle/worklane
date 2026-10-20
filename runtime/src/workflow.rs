@@ -8,7 +8,7 @@ use crate::{
     queries::*,
     state::StateStore,
     string,
-    transport::{command, next_cursor},
+    transport::{CommandExecutor, command_with, execute, next_cursor},
 };
 use serde_json::{Value, json};
 use std::{
@@ -67,6 +67,7 @@ pub struct Workflow {
     pub base: String,
     pub stack_items: Vec<Value>,
     pub feedback_unavailable: BTreeSet<i64>,
+    local_commands: CommandExecutor,
 }
 impl Workflow {
     pub fn new(
@@ -84,12 +85,20 @@ impl Workflow {
             base,
             stack_items: Vec::new(),
             feedback_unavailable: BTreeSet::new(),
+            local_commands: std::sync::Arc::new(execute),
         };
         let guard = workflow.clone();
         workflow.agent.preflight = Some(std::sync::Arc::new(move |stage, task| {
             guard.before_turn(stage, task)
         }));
         workflow
+    }
+    pub fn with_commands(mut self, executor: CommandExecutor) -> Self {
+        self.local_commands = executor;
+        self
+    }
+    fn command(&self, argv: &[&str], cwd: &Path, stdin: Option<&str>) -> Result<String> {
+        command_with(self.local_commands.as_ref(), argv, cwd, stdin)
     }
     pub fn issue(&self, number: i64) -> Result<Value> {
         self.board.transport.json(&[
@@ -700,8 +709,8 @@ impl Workflow {
             return fail("PR does not target the assigned branch/base.");
         }
         if nonempty(&task["stack"]) {
-            command(&["git", "fetch", "origin"], &self.root, None)?;
-            if command(
+            self.command(&["git", "fetch", "origin"], &self.root, None)?;
+            if self.command(
                 &[
                     "git",
                     "rev-parse",
@@ -714,7 +723,7 @@ impl Workflow {
                 return fail("PR head is not the exact pushed child branch revision.");
             }
             for edge in list(&task["stack"]) {
-                command(
+                self.command(
                     &[
                         "git",
                         "merge-base",
@@ -759,15 +768,19 @@ impl Workflow {
         }
         if path.exists() {
             if review {
-                if command(&["git", "rev-parse", "HEAD"], &path, None)? != string(task, "head_sha")
+                if self.command(&["git", "rev-parse", "HEAD"], &path, None)?
+                    != string(task, "head_sha")
                 {
-                    if !command(&["git", "diff", "HEAD", "--"], &path, None)?.is_empty() {
+                    if !self
+                        .command(&["git", "diff", "HEAD", "--"], &path, None)?
+                        .is_empty()
+                    {
                         return fail(
                             "Reviewer worktree has tracked changes; inspect before switching revisions.",
                         );
                     }
-                    command(&["git", "fetch", "origin"], &self.root, None)?;
-                    command(
+                    self.command(&["git", "fetch", "origin"], &self.root, None)?;
+                    self.command(
                         &["git", "checkout", "--detach", &string(task, "head_sha")],
                         &path,
                         None,
@@ -775,16 +788,17 @@ impl Workflow {
                 }
                 return Ok(path);
             }
-            if command(&["git", "branch", "--show-current"], &path, None)? != string(task, "branch")
+            if self.command(&["git", "branch", "--show-current"], &path, None)?
+                != string(task, "branch")
             {
                 return fail("Saved worktree is on an unexpected branch.");
             }
             return Ok(path);
         }
-        command(&["git", "fetch", "origin"], &self.root, None)?;
+        self.command(&["git", "fetch", "origin"], &self.root, None)?;
         std::fs::create_dir_all(path.parent().unwrap())?;
         if review {
-            command(
+            self.command(
                 &[
                     "git",
                     "worktree",
@@ -798,30 +812,32 @@ impl Workflow {
             )?;
         } else {
             let branch = string(task, "branch");
-            let remote = command(
-                &[
-                    "git",
-                    "show-ref",
-                    "--verify",
-                    "--quiet",
-                    &format!("refs/remotes/origin/{branch}"),
-                ],
-                &self.root,
-                None,
-            )
-            .is_ok();
-            if command(
-                &[
-                    "git",
-                    "show-ref",
-                    "--verify",
-                    "--quiet",
-                    &format!("refs/heads/{branch}"),
-                ],
-                &self.root,
-                None,
-            )
-            .is_ok()
+            let remote = self
+                .command(
+                    &[
+                        "git",
+                        "show-ref",
+                        "--verify",
+                        "--quiet",
+                        &format!("refs/remotes/origin/{branch}"),
+                    ],
+                    &self.root,
+                    None,
+                )
+                .is_ok();
+            if self
+                .command(
+                    &[
+                        "git",
+                        "show-ref",
+                        "--verify",
+                        "--quiet",
+                        &format!("refs/heads/{branch}"),
+                    ],
+                    &self.root,
+                    None,
+                )
+                .is_ok()
             {
                 return fail(format!(
                     "Branch {branch} already exists without a saved worktree; inspect before retrying."
@@ -837,7 +853,7 @@ impl Workflow {
             };
             if nonempty(&task["stack"])
                 && !remote
-                && command(
+                && self.command(
                     &[
                         "git",
                         "rev-parse",
@@ -849,7 +865,7 @@ impl Workflow {
             {
                 return fail("Stack parent branch changed before worktree creation.");
             }
-            command(
+            self.command(
                 &[
                     "git",
                     "worktree",
@@ -867,20 +883,21 @@ impl Workflow {
         self.state.save(task)?;
         Ok(path)
     }
-    fn verify_stack_ancestry(&self, task: &Value, tree: &Path) -> Result<()> {
+    pub fn verify_stack_ancestry(&self, task: &Value, tree: &Path) -> Result<()> {
         for e in list(&task["stack"]) {
-            if command(
-                &[
-                    "git",
-                    "merge-base",
-                    "--is-ancestor",
-                    &string(&e, "head_sha"),
-                    "HEAD",
-                ],
-                tree,
-                None,
-            )
-            .is_err()
+            if self
+                .command(
+                    &[
+                        "git",
+                        "merge-base",
+                        "--is-ancestor",
+                        &string(&e, "head_sha"),
+                        "HEAD",
+                    ],
+                    tree,
+                    None,
+                )
+                .is_err()
             {
                 return fail(format!(
                     "Child branch does not contain pinned parent #{}; inspect before continuing.",
@@ -1062,10 +1079,14 @@ impl Workflow {
                 return fail("Worker did not provide an exact commit SHA.");
             }
             self.verify_pr(task, &string(task, "head_sha"))?;
-            if command(&["git", "rev-parse", "HEAD"], &tree, None)? != string(task, "head_sha") {
+            if self.command(&["git", "rev-parse", "HEAD"], &tree, None)? != string(task, "head_sha")
+            {
                 return fail("Worker checkout differs from the pushed PR head.");
             }
-            if !command(&["git", "status", "--porcelain"], &tree, None)?.is_empty() {
+            if !self
+                .command(&["git", "status", "--porcelain"], &tree, None)?
+                .is_empty()
+            {
                 return fail("Worker left uncommitted changes.");
             }
             self.refresh_review_threads(task, true)?;
@@ -1126,8 +1147,10 @@ impl Workflow {
             if result["head_sha"] != task["head_sha"] {
                 return fail("Review verdict does not identify the current PR head.");
             }
-            if command(&["git", "rev-parse", "HEAD"], &tree, None)? != string(task, "head_sha")
-                || !command(&["git", "diff", "HEAD", "--"], &tree, None)?.is_empty()
+            if self.command(&["git", "rev-parse", "HEAD"], &tree, None)? != string(task, "head_sha")
+                || !self
+                    .command(&["git", "diff", "HEAD", "--"], &tree, None)?
+                    .is_empty()
             {
                 return fail("Reviewer modified the revision under review.");
             }
@@ -1648,8 +1671,8 @@ impl Workflow {
             .last()
             .map(|e| string(e, "branch"))
             .unwrap_or_else(|| task["default_base"].as_str().unwrap_or(&self.base).into());
-        command(&["git", "fetch", "origin"], &self.root, None)?;
-        let remote = command(
+        self.command(&["git", "fetch", "origin"], &self.root, None)?;
+        let remote = self.command(
             &["git", "rev-parse", &format!("origin/{target}")],
             &self.root,
             None,
@@ -1665,15 +1688,20 @@ impl Workflow {
         if !tree.is_dir() {
             return fail("Restore the saved worker worktree before restacking.");
         }
-        if !command(&["git", "status", "--porcelain"], &tree, None)?.is_empty() {
+        if !self
+            .command(&["git", "status", "--porcelain"], &tree, None)?
+            .is_empty()
+        {
             return fail(
                 "Worker worktree has changes; preserving them until restacking can proceed cleanly.",
             );
         }
-        if command(&["git", "branch", "--show-current"], &tree, None)? != string(task, "branch") {
+        if self.command(&["git", "branch", "--show-current"], &tree, None)?
+            != string(task, "branch")
+        {
             return fail("Worker worktree branch changed; inspect before restacking.");
         }
-        let head = command(&["git", "rev-parse", "HEAD"], &tree, None)?;
+        let head = self.command(&["git", "rev-parse", "HEAD"], &tree, None)?;
         if !nonempty(&task["restack_pending"]) {
             if nonempty(&task["head_sha"]) && task["head_sha"] != head {
                 return fail("Child head changed outside Worklane; inspect before restacking.");
@@ -1695,7 +1723,8 @@ impl Workflow {
                 .as_str()
                 .unwrap_or(pending["old_head"].as_str().unwrap_or_default())
         {
-            let parents = command(&["git", "show", "-s", "--format=%P", "HEAD"], &tree, None)?;
+            let parents =
+                self.command(&["git", "show", "-s", "--format=%P", "HEAD"], &tree, None)?;
             if parents.split_whitespace().collect::<Vec<_>>()
                 != vec![
                     pending["old_head"].as_str().unwrap_or_default(),
@@ -1706,20 +1735,21 @@ impl Workflow {
             }
         }
         if pending.get("result_head").is_none() {
-            if command(
-                &["git", "merge", "--no-ff", "--no-edit", &target_sha],
-                &tree,
-                None,
-            )
-            .is_err()
+            if self
+                .command(
+                    &["git", "merge", "--no-ff", "--no-edit", &target_sha],
+                    &tree,
+                    None,
+                )
+                .is_err()
             {
-                command(&["git", "merge", "--abort"], &tree, None)?;
+                self.command(&["git", "merge", "--abort"], &tree, None)?;
                 return fail(
                     "Restack conflicts; merge aborted and original work preserved. Resolve in the saved worker session.",
                 );
             }
             task["restack_pending"]["result_head"] =
-                json!(command(&["git", "rev-parse", "HEAD"], &tree, None)?);
+                json!(self.command(&["git", "rev-parse", "HEAD"], &tree, None)?);
             self.state.save(task)?;
         }
         let pending = task["restack_pending"].clone();
@@ -1733,7 +1763,7 @@ impl Workflow {
                 return fail("Child PR changed during restack; inspect before pushing.");
             }
             self.board.require_safe()?;
-            command(
+            self.command(
                 &[
                     "git",
                     "push",

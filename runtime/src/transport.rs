@@ -177,6 +177,14 @@ fn capture(request: &CommandRequest, managed: bool) -> Result<CommandResult> {
     })
 }
 pub fn command(argv: &[&str], cwd: &Path, stdin: Option<&str>) -> Result<String> {
+    command_with(&execute, argv, cwd, stdin)
+}
+pub fn command_with(
+    executor: &dyn Fn(&CommandRequest) -> Result<CommandResult>,
+    argv: &[&str],
+    cwd: &Path,
+    stdin: Option<&str>,
+) -> Result<String> {
     let request = CommandRequest {
         argv: argv.iter().map(|s| s.to_string()).collect(),
         cwd: cwd.into(),
@@ -184,7 +192,7 @@ pub fn command(argv: &[&str], cwd: &Path, stdin: Option<&str>) -> Result<String>
         timeout: Duration::from_secs(120),
         environment: BTreeMap::new(),
     };
-    let r = execute(&request)?;
+    let r = executor(&request)?;
     if r.exit != 0 {
         return Err(Error::new(
             "io",

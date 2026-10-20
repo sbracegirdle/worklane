@@ -2046,6 +2046,8 @@ class Runner:
                 continue
             if not self.dependencies_ready(current, task):
                 continue
+            if stage == "build":
+                self.require_trusted_feedback(task)
             status = current.get("status", "").casefold()
             expected = PROGRESS if stage == "build" else REVIEW
             if stage == "build" and status == READY.casefold():

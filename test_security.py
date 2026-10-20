@@ -285,6 +285,64 @@ class FeedbackAuthorizationTests(unittest.TestCase):
         self.assertEqual(self.board.moves, [])
         self.assertEqual(self.state.load(1)["human_feedback"], {})
 
+    def saved_feedback_recovery(self, phase, status):
+        self.entries[0]["user"]["login"] = "trusted"
+        self.permissions.update(trusted="write", maintainer="maintain")
+        self.api.side_effect = self.gh
+        snapshot = self.runner.human_feedback(self.task)
+        self.board.queue = [item(1, status)]
+        self.board.moves.clear()
+        self.task.update(phase=phase, resume_stage="build", human_feedback=snapshot)
+        self.state.save(self.task)
+        self.api.reset_mock()
+        return self.state.load(1)
+
+    def test_recovery_reauthorizes_revoked_authors_and_editors_before_status_changes(self):
+        for phase in ("interrupted", "retry"):
+            for status in (w.READY, w.PROGRESS):
+                for revoked in ("trusted", "maintainer"):
+                    with self.subTest(phase=phase, status=status, revoked=revoked):
+                        self.provenance["node"].update(lastEditedAt=self.clock.isoformat(),
+                            editor={"login": "maintainer", "__typename": "User"})
+                        before = self.saved_feedback_recovery(phase, status)
+                        self.permissions[revoked] = "read"
+                        with self.assertRaisesRegex(RuntimeError, "authorization"):
+                            self.runner.recover(self.board.items(), "worker-1")
+                        self.api.assert_any_call("api", f"repos/owner/repo/collaborators/{revoked}/permission")
+                        self.assertEqual(self.board.moves, [])
+                        self.assertEqual(self.board.queue[0]["status"], status)
+                        self.assertEqual(self.state.load(1), before)
+        self.runner.backend.run.assert_not_called()
+
+    def test_recovery_permission_lookup_failures_preserve_saved_work_and_board_status(self):
+        for phase in ("interrupted", "retry"):
+            for error in (RuntimeError("permission lookup failed"), w.GitHubRateLimit("quota")):
+                with self.subTest(phase=phase, error=error):
+                    before = self.saved_feedback_recovery(phase, w.READY)
+                    def unavailable(*args):
+                        if args[-1].endswith("/permission"):
+                            raise error
+                        return self.gh(*args)
+                    self.api.side_effect = unavailable
+                    with self.assertRaises(type(error)):
+                        self.runner.recover(self.board.items(), "worker-1")
+                    self.api.assert_any_call("api", "repos/owner/repo/collaborators/trusted/permission")
+                    self.assertEqual(self.board.moves, [])
+                    self.assertEqual(self.board.queue[0]["status"], w.READY)
+                    self.assertEqual(self.state.load(1), before)
+        self.runner.backend.run.assert_not_called()
+
+    def test_recovery_still_resumes_currently_trusted_feedback(self):
+        for phase in ("interrupted", "retry"):
+            for status in (w.READY, w.PROGRESS):
+                with self.subTest(phase=phase, status=status):
+                    self.saved_feedback_recovery(phase, status)
+                    recovered = self.runner.recover(self.board.items(), "worker-1")
+                    self.assertEqual(recovered["phase"], "building")
+                    self.api.assert_any_call("api", "repos/owner/repo/collaborators/trusted/permission")
+                    self.assertEqual(self.board.moves, [(1, w.PROGRESS)] if status == w.READY else [])
+                    self.assertEqual(self.board.queue[0]["status"], w.PROGRESS)
+
     def test_saved_feedback_is_reauthorized_before_agent_and_status_claim(self):
         self.entries[0]["user"]["login"] = "trusted"
         snapshot = self.runner.human_feedback(self.task)

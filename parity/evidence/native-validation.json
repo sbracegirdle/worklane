@@ -1,4 +1,712 @@
 {
+  "core_runtime_ready": true,
+  "core_release_ready": false,
+  "core_scenarios": [
+    {
+      "id": "core.1.storage-config",
+      "status": "pass",
+      "assertions": [
+        {
+          "report": "parity/evidence/native-acceptance.json",
+          "id": "test_sessions.SessionTests.test_migration_from_sqlite_v1_imports_files_and_normalizes_payloads",
+          "status": "pass",
+          "observation_ids": [
+            "test_sessions.SessionTests.test_migration_from_sqlite_v1_imports_files_and_normalizes_payloads"
+          ],
+          "report_sha256": "3655043832f7355d16bca24a57666e96fcbe6adffc1540d9846121ed179066ec"
+        },
+        {
+          "report": "parity/evidence/native-acceptance.json",
+          "id": "test_sessions.SessionTests.test_json_migration_is_atomic_idempotent_and_archives_originals_in_sqlite",
+          "status": "pass",
+          "observation_ids": [
+            "test_sessions.SessionTests.test_json_migration_is_atomic_idempotent_and_archives_originals_in_sqlite"
+          ],
+          "report_sha256": "3655043832f7355d16bca24a57666e96fcbe6adffc1540d9846121ed179066ec"
+        },
+        {
+          "report": "parity/evidence/native-acceptance.json",
+          "id": "test_sessions.SessionTests.test_input_survives_failed_delivery_and_restarts_only_in_matching_role",
+          "status": "pass",
+          "observation_ids": [
+            "test_sessions.SessionTests.test_input_survives_failed_delivery_and_restarts_only_in_matching_role"
+          ],
+          "report_sha256": "3655043832f7355d16bca24a57666e96fcbe6adffc1540d9846121ed179066ec"
+        },
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_config.ConfigTests.test_invalid_config_has_path_and_never_silently_uses_defaults",
+          "status": "pass",
+          "observation_ids": [
+            "test_config.ConfigTests.test_invalid_config_has_path_and_never_silently_uses_defaults"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        },
+        {
+          "report": "cargo test",
+          "id": "typed_state_preserves_empty_null_integer_boolean_and_float",
+          "status": "pass",
+          "log_sha256": "b259e6251a1856946f18993f1efab44a1a783c0b9bb62c1a5969c0eac1a21737",
+          "test_binary_hashes": {
+            "target/debug/deps/worklane_runtime-223dad30aa09b979": "2d47c55573a86be44418e34302d760ca40b4efc9258e8870265640b15ba823cf",
+            "target/debug/deps/runtime_fixture_adapter-86f2331766231998": "39289abd05e856ff38f32eb714ce6ad011b4a3022d5d645f5fc7567b79b96302",
+            "target/debug/deps/controller-ca70331165cb3ab7": "9229d2d5268dea4ff6bd2651880951ab324e2baafa4882769bceee687798aea6",
+            "target/debug/deps/durability-e3261e36e4d3b20d": "779b15c347bffbd4840b813b3a78c9e53615cf7611259c3bddef5f7c86cb36be"
+          }
+        },
+        {
+          "report": "cargo test",
+          "id": "future_schema_refusal_does_not_modify_database",
+          "status": "pass",
+          "log_sha256": "b259e6251a1856946f18993f1efab44a1a783c0b9bb62c1a5969c0eac1a21737",
+          "test_binary_hashes": {
+            "target/debug/deps/worklane_runtime-223dad30aa09b979": "2d47c55573a86be44418e34302d760ca40b4efc9258e8870265640b15ba823cf",
+            "target/debug/deps/runtime_fixture_adapter-86f2331766231998": "39289abd05e856ff38f32eb714ce6ad011b4a3022d5d645f5fc7567b79b96302",
+            "target/debug/deps/controller-ca70331165cb3ab7": "9229d2d5268dea4ff6bd2651880951ab324e2baafa4882769bceee687798aea6",
+            "target/debug/deps/durability-e3261e36e4d3b20d": "779b15c347bffbd4840b813b3a78c9e53615cf7611259c3bddef5f7c86cb36be"
+          }
+        },
+        {
+          "report": "cargo test",
+          "id": "wal_backup_restores_committed_events_and_pending_inputs",
+          "status": "pass",
+          "log_sha256": "b259e6251a1856946f18993f1efab44a1a783c0b9bb62c1a5969c0eac1a21737",
+          "test_binary_hashes": {
+            "target/debug/deps/worklane_runtime-223dad30aa09b979": "2d47c55573a86be44418e34302d760ca40b4efc9258e8870265640b15ba823cf",
+            "target/debug/deps/runtime_fixture_adapter-86f2331766231998": "39289abd05e856ff38f32eb714ce6ad011b4a3022d5d645f5fc7567b79b96302",
+            "target/debug/deps/controller-ca70331165cb3ab7": "9229d2d5268dea4ff6bd2651880951ab324e2baafa4882769bceee687798aea6",
+            "target/debug/deps/durability-e3261e36e4d3b20d": "779b15c347bffbd4840b813b3a78c9e53615cf7611259c3bddef5f7c86cb36be"
+          }
+        },
+        {
+          "report": "cargo test",
+          "id": "uncommitted_crash_is_not_visible_and_committed_event_survives",
+          "status": "pass",
+          "log_sha256": "b259e6251a1856946f18993f1efab44a1a783c0b9bb62c1a5969c0eac1a21737",
+          "test_binary_hashes": {
+            "target/debug/deps/worklane_runtime-223dad30aa09b979": "2d47c55573a86be44418e34302d760ca40b4efc9258e8870265640b15ba823cf",
+            "target/debug/deps/runtime_fixture_adapter-86f2331766231998": "39289abd05e856ff38f32eb714ce6ad011b4a3022d5d645f5fc7567b79b96302",
+            "target/debug/deps/controller-ca70331165cb3ab7": "9229d2d5268dea4ff6bd2651880951ab324e2baafa4882769bceee687798aea6",
+            "target/debug/deps/durability-e3261e36e4d3b20d": "779b15c347bffbd4840b813b3a78c9e53615cf7611259c3bddef5f7c86cb36be"
+          }
+        }
+      ]
+    },
+    {
+      "id": "core.2.dispatch-ownership",
+      "status": "pass",
+      "assertions": [
+        {
+          "report": "cargo test",
+          "id": "bounded_workers_independent_reviewer_pause_and_drain_keep_pending_work",
+          "status": "pass",
+          "log_sha256": "b259e6251a1856946f18993f1efab44a1a783c0b9bb62c1a5969c0eac1a21737",
+          "test_binary_hashes": {
+            "target/debug/deps/worklane_runtime-223dad30aa09b979": "2d47c55573a86be44418e34302d760ca40b4efc9258e8870265640b15ba823cf",
+            "target/debug/deps/runtime_fixture_adapter-86f2331766231998": "39289abd05e856ff38f32eb714ce6ad011b4a3022d5d645f5fc7567b79b96302",
+            "target/debug/deps/controller-ca70331165cb3ab7": "9229d2d5268dea4ff6bd2651880951ab324e2baafa4882769bceee687798aea6",
+            "target/debug/deps/durability-e3261e36e4d3b20d": "779b15c347bffbd4840b813b3a78c9e53615cf7611259c3bddef5f7c86cb36be"
+          }
+        },
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_worklane.WorklaneTests.test_existing_linked_pr_not_implemented_twice",
+          "status": "pass",
+          "observation_ids": [
+            "test_worklane.WorklaneTests.test_existing_linked_pr_not_implemented_twice"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        },
+        {
+          "report": "parity/evidence/native-storage.json",
+          "id": "test_worklane.WorklaneTests.test_duplicate_controller_is_locked",
+          "status": "pass",
+          "observation_ids": [
+            "test_worklane.WorklaneTests.test_duplicate_controller_is_locked"
+          ],
+          "report_sha256": "f77bb4e811ca0414df194a5358134d44b0a9a2c841d910f30729014a34d8beff"
+        }
+      ]
+    },
+    {
+      "id": "core.3.exact-provider-sessions",
+      "status": "pass",
+      "assertions": [
+        {
+          "report": "parity/evidence/native-acceptance.json",
+          "id": "test_harness.HarnessTests.test_each_role_has_separate_named_session_and_persistent_wire_events",
+          "status": "pass",
+          "observation_ids": [
+            "test_harness.HarnessTests.test_each_role_has_separate_named_session_and_persistent_wire_events"
+          ],
+          "report_sha256": "3655043832f7355d16bca24a57666e96fcbe6adffc1540d9846121ed179066ec"
+        },
+        {
+          "report": "parity/evidence/native-acceptance.json",
+          "id": "test_harness.HarnessTests.test_queued_input_resumes_exact_opencode_conversation_for_every_role",
+          "status": "pass",
+          "observation_ids": [
+            "test_harness.HarnessTests.test_queued_input_resumes_exact_opencode_conversation_for_every_role"
+          ],
+          "report_sha256": "3655043832f7355d16bca24a57666e96fcbe6adffc1540d9846121ed179066ec"
+        },
+        {
+          "report": "parity/evidence/native-acceptance.json",
+          "id": "test_sessions.SessionTests.test_live_input_runs_followup_in_exact_session_before_returning_result",
+          "status": "pass",
+          "observation_ids": [
+            "test_sessions.SessionTests.test_live_input_runs_followup_in_exact_session_before_returning_result"
+          ],
+          "report_sha256": "3655043832f7355d16bca24a57666e96fcbe6adffc1540d9846121ed179066ec"
+        },
+        {
+          "report": "parity/evidence/native-acceptance.json",
+          "id": "test_harness.HarnessTests.test_missing_session_does_not_fall_back_to_new_conversation",
+          "status": "pass",
+          "observation_ids": [
+            "test_harness.HarnessTests.test_missing_session_does_not_fall_back_to_new_conversation"
+          ],
+          "report_sha256": "3655043832f7355d16bca24a57666e96fcbe6adffc1540d9846121ed179066ec"
+        },
+        {
+          "report": "parity/evidence/native-acceptance.json",
+          "id": "test_sessions.SessionTests.test_deleted_worktree_never_creates_replacement_session",
+          "status": "pass",
+          "observation_ids": [
+            "test_sessions.SessionTests.test_deleted_worktree_never_creates_replacement_session"
+          ],
+          "report_sha256": "3655043832f7355d16bca24a57666e96fcbe6adffc1540d9846121ed179066ec"
+        },
+        {
+          "report": "parity/evidence/native-acceptance.json",
+          "id": "test_sessions.SessionTests.test_database_prevents_cross_role_session_reuse",
+          "status": "pass",
+          "observation_ids": [
+            "test_sessions.SessionTests.test_database_prevents_cross_role_session_reuse"
+          ],
+          "report_sha256": "3655043832f7355d16bca24a57666e96fcbe6adffc1540d9846121ed179066ec"
+        },
+        {
+          "report": "parity/evidence/native-runtime.json",
+          "id": "runtime.session-codex",
+          "status": "pass",
+          "observation_ids": [
+            "runtime.session-codex"
+          ],
+          "report_sha256": "3113d9ab8779214378a3bb70c466cddbb297d07e0d309ef996ed9b38110683eb"
+        },
+        {
+          "report": "parity/evidence/native-runtime.json",
+          "id": "runtime.session-opencode",
+          "status": "pass",
+          "observation_ids": [
+            "runtime.session-opencode"
+          ],
+          "report_sha256": "3113d9ab8779214378a3bb70c466cddbb297d07e0d309ef996ed9b38110683eb"
+        }
+      ]
+    },
+    {
+      "id": "core.4.review-handoff",
+      "status": "pass",
+      "assertions": [
+        {
+          "report": "parity/evidence/native-lifecycle.json",
+          "id": "test_native_lifecycle.NativeLifecycleTests.test_complete_build_review_and_handoff_promotes_only_drafts",
+          "status": "pass",
+          "observation_ids": [
+            "test_native_lifecycle.NativeLifecycleTests.test_complete_build_review_and_handoff_promotes_only_drafts test_complete_build_review_and_handoff_promotes_only_drafts (test_native_lifecycle.NativeLifecycleTests.test_complete_build_review_and_handoff_promotes_only_drafts) (draft=False)",
+            "test_native_lifecycle.NativeLifecycleTests.test_complete_build_review_and_handoff_promotes_only_drafts test_complete_build_review_and_handoff_promotes_only_drafts (test_native_lifecycle.NativeLifecycleTests.test_complete_build_review_and_handoff_promotes_only_drafts) (draft=True)"
+          ],
+          "report_sha256": "b58e79634131b45136230c7daf3a0b796d54d043ee727bf018015cc5570e2485"
+        },
+        {
+          "report": "parity/evidence/native-lifecycle.json",
+          "id": "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff",
+          "status": "pass",
+          "observation_ids": [
+            "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='blocked')",
+            "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='changes')",
+            "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='findings')",
+            "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='wrong-result-head')",
+            "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='dirty-reviewer')",
+            "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='handoff-blocked')",
+            "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='handoff-findings')",
+            "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='handoff-head')",
+            "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='stale-pr')",
+            "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='open-thread')",
+            "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='outdated-thread')",
+            "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='late-thread')",
+            "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='promotion-failed')",
+            "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='promotion-still-draft')",
+            "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='changed-before-promotion')"
+          ],
+          "report_sha256": "b58e79634131b45136230c7daf3a0b796d54d043ee727bf018015cc5570e2485"
+        },
+        {
+          "report": "parity/evidence/native-lifecycle.json",
+          "id": "test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override",
+          "status": "pass",
+          "observation_ids": [
+            "test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override test_conflicts_requeue_and_respect_round_limit_and_status_override (test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override) (late=False, change='none')",
+            "test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override test_conflicts_requeue_and_respect_round_limit_and_status_override (test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override) (late=False, change='limit')",
+            "test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override test_conflicts_requeue_and_respect_round_limit_and_status_override (test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override) (late=False, change='human')",
+            "test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override test_conflicts_requeue_and_respect_round_limit_and_status_override (test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override) (late=True, change='none')",
+            "test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override test_conflicts_requeue_and_respect_round_limit_and_status_override (test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override) (late=True, change='limit')",
+            "test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override test_conflicts_requeue_and_respect_round_limit_and_status_override (test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override) (late=True, change='human')"
+          ],
+          "report_sha256": "b58e79634131b45136230c7daf3a0b796d54d043ee727bf018015cc5570e2485"
+        },
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_worklane.WorklaneTests.test_explicit_retry_reviews_current_head",
+          "status": "pass",
+          "observation_ids": [
+            "test_worklane.WorklaneTests.test_explicit_retry_reviews_current_head"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        }
+      ]
+    },
+    {
+      "id": "core.5.pause-drain-stop",
+      "status": "pass",
+      "assertions": [
+        {
+          "report": "cargo test",
+          "id": "bounded_workers_independent_reviewer_pause_and_drain_keep_pending_work",
+          "status": "pass",
+          "log_sha256": "b259e6251a1856946f18993f1efab44a1a783c0b9bb62c1a5969c0eac1a21737",
+          "test_binary_hashes": {
+            "target/debug/deps/worklane_runtime-223dad30aa09b979": "2d47c55573a86be44418e34302d760ca40b4efc9258e8870265640b15ba823cf",
+            "target/debug/deps/runtime_fixture_adapter-86f2331766231998": "39289abd05e856ff38f32eb714ce6ad011b4a3022d5d645f5fc7567b79b96302",
+            "target/debug/deps/controller-ca70331165cb3ab7": "9229d2d5268dea4ff6bd2651880951ab324e2baafa4882769bceee687798aea6",
+            "target/debug/deps/durability-e3261e36e4d3b20d": "779b15c347bffbd4840b813b3a78c9e53615cf7611259c3bddef5f7c86cb36be"
+          }
+        },
+        {
+          "report": "cargo test",
+          "id": "immediate_stop_never_waits_for_dispatch_or_downgrades",
+          "status": "pass",
+          "log_sha256": "b259e6251a1856946f18993f1efab44a1a783c0b9bb62c1a5969c0eac1a21737",
+          "test_binary_hashes": {
+            "target/debug/deps/worklane_runtime-223dad30aa09b979": "2d47c55573a86be44418e34302d760ca40b4efc9258e8870265640b15ba823cf",
+            "target/debug/deps/runtime_fixture_adapter-86f2331766231998": "39289abd05e856ff38f32eb714ce6ad011b4a3022d5d645f5fc7567b79b96302",
+            "target/debug/deps/controller-ca70331165cb3ab7": "9229d2d5268dea4ff6bd2651880951ab324e2baafa4882769bceee687798aea6",
+            "target/debug/deps/durability-e3261e36e4d3b20d": "779b15c347bffbd4840b813b3a78c9e53615cf7611259c3bddef5f7c86cb36be"
+          }
+        },
+        {
+          "report": "cargo test",
+          "id": "old_start_generation_cannot_clear_new_stop",
+          "status": "pass",
+          "log_sha256": "b259e6251a1856946f18993f1efab44a1a783c0b9bb62c1a5969c0eac1a21737",
+          "test_binary_hashes": {
+            "target/debug/deps/worklane_runtime-223dad30aa09b979": "2d47c55573a86be44418e34302d760ca40b4efc9258e8870265640b15ba823cf",
+            "target/debug/deps/runtime_fixture_adapter-86f2331766231998": "39289abd05e856ff38f32eb714ce6ad011b4a3022d5d645f5fc7567b79b96302",
+            "target/debug/deps/controller-ca70331165cb3ab7": "9229d2d5268dea4ff6bd2651880951ab324e2baafa4882769bceee687798aea6",
+            "target/debug/deps/durability-e3261e36e4d3b20d": "779b15c347bffbd4840b813b3a78c9e53615cf7611259c3bddef5f7c86cb36be"
+          }
+        },
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_stop.StopTests.test_detached_orphan_and_ignoring_descendant_die_without_touching_unrelated",
+          "status": "pass",
+          "observation_ids": [
+            "test_stop.StopTests.test_detached_orphan_and_ignoring_descendant_die_without_touching_unrelated"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        },
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_stop.StopTests.test_stale_pid_cannot_own_unrelated_process",
+          "status": "pass",
+          "observation_ids": [
+            "test_stop.StopTests.test_stale_pid_cannot_own_unrelated_process"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        },
+        {
+          "report": "parity/evidence/native-acceptance.json",
+          "id": "test_harness.HarnessTests.test_stop_request_interrupts_every_role_and_resumes_exact_session",
+          "status": "pass",
+          "observation_ids": [
+            "test_harness.HarnessTests.test_stop_request_interrupts_every_role_and_resumes_exact_session"
+          ],
+          "report_sha256": "3655043832f7355d16bca24a57666e96fcbe6adffc1540d9846121ed179066ec"
+        }
+      ]
+    },
+    {
+      "id": "core.6.interruption-recovery",
+      "status": "pass",
+      "assertions": [
+        {
+          "report": "parity/evidence/native-workflow.json",
+          "id": "test_native_workflow.NativeWorkflowTests.test_remote_move_crash_recovers_saved_intent_and_does_not_duplicate_claim",
+          "status": "pass",
+          "observation_ids": [
+            "test_native_workflow.NativeWorkflowTests.test_remote_move_crash_recovers_saved_intent_and_does_not_duplicate_claim"
+          ],
+          "report_sha256": "e918f5b7a0beaed662eff4a9fd1abba29718883420f66e30d2578aa4696dbeec"
+        },
+        {
+          "report": "parity/evidence/native-lifecycle.json",
+          "id": "test_native_lifecycle.NativeLifecycleTests.test_saved_handoff_retries_without_duplicate_turns_or_comments",
+          "status": "pass",
+          "observation_ids": [
+            "test_native_lifecycle.NativeLifecycleTests.test_saved_handoff_retries_without_duplicate_turns_or_comments"
+          ],
+          "report_sha256": "b58e79634131b45136230c7daf3a0b796d54d043ee727bf018015cc5570e2485"
+        },
+        {
+          "report": "parity/evidence/native-lifecycle.json",
+          "id": "test_native_lifecycle.NativeLifecycleTests.test_quota_retry_reuses_saved_turn_and_records_each_failure_once",
+          "status": "pass",
+          "observation_ids": [
+            "test_native_lifecycle.NativeLifecycleTests.test_quota_retry_reuses_saved_turn_and_records_each_failure_once test_quota_retry_reuses_saved_turn_and_records_each_failure_once (test_native_lifecycle.NativeLifecycleTests.test_quota_retry_reuses_saved_turn_and_records_each_failure_once) (stage='build')",
+            "test_native_lifecycle.NativeLifecycleTests.test_quota_retry_reuses_saved_turn_and_records_each_failure_once test_quota_retry_reuses_saved_turn_and_records_each_failure_once (test_native_lifecycle.NativeLifecycleTests.test_quota_retry_reuses_saved_turn_and_records_each_failure_once) (stage='review')"
+          ],
+          "report_sha256": "b58e79634131b45136230c7daf3a0b796d54d043ee727bf018015cc5570e2485"
+        },
+        {
+          "report": "parity/evidence/native-acceptance.json",
+          "id": "test_harness.HarnessTests.test_signal_interruption_and_controller_restart_resume_exact_id",
+          "status": "pass",
+          "observation_ids": [
+            "test_harness.HarnessTests.test_signal_interruption_and_controller_restart_resume_exact_id"
+          ],
+          "report_sha256": "3655043832f7355d16bca24a57666e96fcbe6adffc1540d9846121ed179066ec"
+        },
+        {
+          "report": "parity/evidence/native-acceptance.json",
+          "id": "test_sessions.SessionTests.test_input_survives_failed_delivery_and_restarts_only_in_matching_role",
+          "status": "pass",
+          "observation_ids": [
+            "test_sessions.SessionTests.test_input_survives_failed_delivery_and_restarts_only_in_matching_role"
+          ],
+          "report_sha256": "3655043832f7355d16bca24a57666e96fcbe6adffc1540d9846121ed179066ec"
+        },
+        {
+          "report": "cargo test",
+          "id": "abrupt_process_exit_preserves_committed_session_and_discards_inflight_transaction",
+          "status": "pass",
+          "log_sha256": "b259e6251a1856946f18993f1efab44a1a783c0b9bb62c1a5969c0eac1a21737",
+          "test_binary_hashes": {
+            "target/debug/deps/worklane_runtime-223dad30aa09b979": "2d47c55573a86be44418e34302d760ca40b4efc9258e8870265640b15ba823cf",
+            "target/debug/deps/runtime_fixture_adapter-86f2331766231998": "39289abd05e856ff38f32eb714ce6ad011b4a3022d5d645f5fc7567b79b96302",
+            "target/debug/deps/controller-ca70331165cb3ab7": "9229d2d5268dea4ff6bd2651880951ab324e2baafa4882769bceee687798aea6",
+            "target/debug/deps/durability-e3261e36e4d3b20d": "779b15c347bffbd4840b813b3a78c9e53615cf7611259c3bddef5f7c86cb36be"
+          }
+        }
+      ]
+    },
+    {
+      "id": "core.7.dependencies-stacks",
+      "status": "pass",
+      "assertions": [
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_dependencies.DependencyTests.test_dependency_api_failure_or_hidden_issue_cannot_claim",
+          "status": "pass",
+          "observation_ids": [
+            "test_dependencies.DependencyTests.test_dependency_api_failure_or_hidden_issue_cannot_claim"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        },
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_stacking.StackTests.test_exact_reviewed_parent_pins_child_base_and_provenance",
+          "status": "pass",
+          "observation_ids": [
+            "test_stacking.StackTests.test_exact_reviewed_parent_pins_child_base_and_provenance"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        },
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_stacking.StackTests.test_all_desktop_edges_remain_hard_completion_dependencies",
+          "status": "pass",
+          "observation_ids": [
+            "test_stacking.StackTests.test_all_desktop_edges_remain_hard_completion_dependencies"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        },
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_stacking.StackTests.test_completion_gate_rejects_unreviewed_merged_head",
+          "status": "pass",
+          "observation_ids": [
+            "test_stacking.StackTests.test_completion_gate_rejects_unreviewed_merged_head"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        },
+        {
+          "report": "parity/evidence/native-lifecycle.json",
+          "id": "test_native_lifecycle.NativeLifecycleTests.test_restack_merge_forward_recovery_preserves_history_and_fresh_review",
+          "status": "pass",
+          "observation_ids": [
+            "test_native_lifecycle.NativeLifecycleTests.test_restack_merge_forward_recovery_preserves_history_and_fresh_review test_restack_merge_forward_recovery_preserves_history_and_fresh_review (test_native_lifecycle.NativeLifecycleTests.test_restack_merge_forward_recovery_preserves_history_and_fresh_review) (interruption='none')",
+            "test_native_lifecycle.NativeLifecycleTests.test_restack_merge_forward_recovery_preserves_history_and_fresh_review test_restack_merge_forward_recovery_preserves_history_and_fresh_review (test_native_lifecycle.NativeLifecycleTests.test_restack_merge_forward_recovery_preserves_history_and_fresh_review) (interruption='retarget')",
+            "test_native_lifecycle.NativeLifecycleTests.test_restack_merge_forward_recovery_preserves_history_and_fresh_review test_restack_merge_forward_recovery_preserves_history_and_fresh_review (test_native_lifecycle.NativeLifecycleTests.test_restack_merge_forward_recovery_preserves_history_and_fresh_review) (interruption='board')",
+            "test_native_lifecycle.NativeLifecycleTests.test_restack_merge_forward_recovery_preserves_history_and_fresh_review test_restack_merge_forward_recovery_preserves_history_and_fresh_review (test_native_lifecycle.NativeLifecycleTests.test_restack_merge_forward_recovery_preserves_history_and_fresh_review) (interruption='merge-record')"
+          ],
+          "report_sha256": "b58e79634131b45136230c7daf3a0b796d54d043ee727bf018015cc5570e2485"
+        },
+        {
+          "report": "parity/evidence/native-lifecycle.json",
+          "id": "test_native_lifecycle.NativeLifecycleTests.test_restack_dirty_conflicting_or_unrelated_changes_are_preserved",
+          "status": "pass",
+          "observation_ids": [
+            "test_native_lifecycle.NativeLifecycleTests.test_restack_dirty_conflicting_or_unrelated_changes_are_preserved test_restack_dirty_conflicting_or_unrelated_changes_are_preserved (test_native_lifecycle.NativeLifecycleTests.test_restack_dirty_conflicting_or_unrelated_changes_are_preserved) (case='dirty')",
+            "test_native_lifecycle.NativeLifecycleTests.test_restack_dirty_conflicting_or_unrelated_changes_are_preserved test_restack_dirty_conflicting_or_unrelated_changes_are_preserved (test_native_lifecycle.NativeLifecycleTests.test_restack_dirty_conflicting_or_unrelated_changes_are_preserved) (case='conflict')",
+            "test_native_lifecycle.NativeLifecycleTests.test_restack_dirty_conflicting_or_unrelated_changes_are_preserved test_restack_dirty_conflicting_or_unrelated_changes_are_preserved (test_native_lifecycle.NativeLifecycleTests.test_restack_dirty_conflicting_or_unrelated_changes_are_preserved) (case='changed-local')",
+            "test_native_lifecycle.NativeLifecycleTests.test_restack_dirty_conflicting_or_unrelated_changes_are_preserved test_restack_dirty_conflicting_or_unrelated_changes_are_preserved (test_native_lifecycle.NativeLifecycleTests.test_restack_dirty_conflicting_or_unrelated_changes_are_preserved) (case='wrong-branch')"
+          ],
+          "report_sha256": "b58e79634131b45136230c7daf3a0b796d54d043ee727bf018015cc5570e2485"
+        }
+      ]
+    },
+    {
+      "id": "core.8.privacy-authorization",
+      "status": "pass",
+      "assertions": [
+        {
+          "report": "parity/evidence/native-security.json",
+          "id": "runtime.security-safe-private",
+          "status": "pass",
+          "observation_ids": [
+            "runtime.security-safe-private"
+          ],
+          "report_sha256": "9fdfc80a0c67c78877711f0f6de60d5db56254648c26472be74ca7309c9a1e18"
+        },
+        {
+          "report": "parity/evidence/native-security.json",
+          "id": "runtime.security-safe-public",
+          "status": "pass",
+          "observation_ids": [
+            "runtime.security-safe-public"
+          ],
+          "report_sha256": "9fdfc80a0c67c78877711f0f6de60d5db56254648c26472be74ca7309c9a1e18"
+        },
+        {
+          "report": "parity/evidence/native-security.json",
+          "id": "runtime.security-safe-explicit-public",
+          "status": "pass",
+          "observation_ids": [
+            "runtime.security-safe-explicit-public"
+          ],
+          "report_sha256": "9fdfc80a0c67c78877711f0f6de60d5db56254648c26472be74ca7309c9a1e18"
+        },
+        {
+          "report": "parity/evidence/native-security.json",
+          "id": "runtime.security-safe-project-denied",
+          "status": "pass",
+          "observation_ids": [
+            "runtime.security-safe-project-denied"
+          ],
+          "report_sha256": "9fdfc80a0c67c78877711f0f6de60d5db56254648c26472be74ca7309c9a1e18"
+        },
+        {
+          "report": "parity/evidence/native-security.json",
+          "id": "runtime.security-safe-read-only",
+          "status": "pass",
+          "observation_ids": [
+            "runtime.security-safe-read-only"
+          ],
+          "report_sha256": "9fdfc80a0c67c78877711f0f6de60d5db56254648c26472be74ca7309c9a1e18"
+        },
+        {
+          "report": "parity/evidence/native-security.json",
+          "id": "runtime.security-safe-unknown",
+          "status": "pass",
+          "observation_ids": [
+            "runtime.security-safe-unknown"
+          ],
+          "report_sha256": "9fdfc80a0c67c78877711f0f6de60d5db56254648c26472be74ca7309c9a1e18"
+        },
+        {
+          "report": "parity/evidence/native-security.json",
+          "id": "runtime.security-feedback-trusted-editor",
+          "status": "pass",
+          "observation_ids": [
+            "runtime.security-feedback-trusted-editor"
+          ],
+          "report_sha256": "9fdfc80a0c67c78877711f0f6de60d5db56254648c26472be74ca7309c9a1e18"
+        },
+        {
+          "report": "parity/evidence/native-security.json",
+          "id": "runtime.security-feedback-revoked-editor",
+          "status": "pass",
+          "observation_ids": [
+            "runtime.security-feedback-revoked-editor"
+          ],
+          "report_sha256": "9fdfc80a0c67c78877711f0f6de60d5db56254648c26472be74ca7309c9a1e18"
+        },
+        {
+          "report": "parity/evidence/native-security.json",
+          "id": "runtime.security-feedback-missing-provenance",
+          "status": "pass",
+          "observation_ids": [
+            "runtime.security-feedback-missing-provenance"
+          ],
+          "report_sha256": "9fdfc80a0c67c78877711f0f6de60d5db56254648c26472be74ca7309c9a1e18"
+        },
+        {
+          "report": "parity/evidence/native-security.json",
+          "id": "runtime.security-deny-restack",
+          "status": "pass",
+          "observation_ids": [
+            "runtime.security-deny-restack"
+          ],
+          "report_sha256": "9fdfc80a0c67c78877711f0f6de60d5db56254648c26472be74ca7309c9a1e18"
+        },
+        {
+          "report": "parity/evidence/native-workflow.json",
+          "id": "test_native_workflow.NativeWorkflowTests.test_live_revocation_blocks_dispatch_until_author_and_editor_restored",
+          "status": "pass",
+          "observation_ids": [
+            "test_native_workflow.NativeWorkflowTests.test_live_revocation_blocks_dispatch_until_author_and_editor_restored"
+          ],
+          "report_sha256": "e918f5b7a0beaed662eff4a9fd1abba29718883420f66e30d2578aa4696dbeec"
+        },
+        {
+          "report": "parity/evidence/native-acceptance.json",
+          "id": "test_sessions.SessionTests.test_queued_followup_rechecks_security_before_resuming_agent",
+          "status": "pass",
+          "observation_ids": [
+            "test_sessions.SessionTests.test_queued_followup_rechecks_security_before_resuming_agent"
+          ],
+          "report_sha256": "3655043832f7355d16bca24a57666e96fcbe6adffc1540d9846121ed179066ec"
+        },
+        {
+          "report": "parity/evidence/native-lifecycle.json",
+          "id": "test_native_lifecycle.NativeLifecycleTests.test_saved_turn_rechecks_privacy_and_handoff_write_permissions",
+          "status": "pass",
+          "observation_ids": [
+            "test_native_lifecycle.NativeLifecycleTests.test_saved_turn_rechecks_privacy_and_handoff_write_permissions test_saved_turn_rechecks_privacy_and_handoff_write_permissions (test_native_lifecycle.NativeLifecycleTests.test_saved_turn_rechecks_privacy_and_handoff_write_permissions) (stage='build', timing='before')",
+            "test_native_lifecycle.NativeLifecycleTests.test_saved_turn_rechecks_privacy_and_handoff_write_permissions test_saved_turn_rechecks_privacy_and_handoff_write_permissions (test_native_lifecycle.NativeLifecycleTests.test_saved_turn_rechecks_privacy_and_handoff_write_permissions) (stage='build', timing='after-post')",
+            "test_native_lifecycle.NativeLifecycleTests.test_saved_turn_rechecks_privacy_and_handoff_write_permissions test_saved_turn_rechecks_privacy_and_handoff_write_permissions (test_native_lifecycle.NativeLifecycleTests.test_saved_turn_rechecks_privacy_and_handoff_write_permissions) (stage='review', timing='before')",
+            "test_native_lifecycle.NativeLifecycleTests.test_saved_turn_rechecks_privacy_and_handoff_write_permissions test_saved_turn_rechecks_privacy_and_handoff_write_permissions (test_native_lifecycle.NativeLifecycleTests.test_saved_turn_rechecks_privacy_and_handoff_write_permissions) (stage='review', timing='after-post')"
+          ],
+          "report_sha256": "b58e79634131b45136230c7daf3a0b796d54d043ee727bf018015cc5570e2485"
+        }
+      ]
+    },
+    {
+      "id": "core.9.github-transport",
+      "status": "pass",
+      "assertions": [
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_worklane.WorklaneTests.test_board_paginates_with_project_id_and_retains_all_issues",
+          "status": "pass",
+          "observation_ids": [
+            "test_worklane.WorklaneTests.test_board_paginates_with_project_id_and_retains_all_issues"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        },
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_worklane.WorklaneTests.test_review_threads_include_all_pages_and_replies",
+          "status": "pass",
+          "observation_ids": [
+            "test_worklane.WorklaneTests.test_review_threads_include_all_pages_and_replies"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        },
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_worklane.WorklaneTests.test_incomplete_board_fails_closed",
+          "status": "pass",
+          "observation_ids": [
+            "test_worklane.WorklaneTests.test_incomplete_board_fails_closed"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        },
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_worklane.WorklaneTests.test_review_thread_api_errors_fail_closed",
+          "status": "pass",
+          "observation_ids": [
+            "test_worklane.WorklaneTests.test_review_thread_api_errors_fail_closed"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        },
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_worklane.WorklaneTests.test_budget_shared_by_repositories_and_blocks_commands",
+          "status": "pass",
+          "observation_ids": [
+            "test_worklane.WorklaneTests.test_budget_shared_by_repositories_and_blocks_commands"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        },
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_worklane.WorklaneTests.test_rate_limit_backoff_survives_new_runner_and_is_bounded",
+          "status": "pass",
+          "observation_ids": [
+            "test_worklane.WorklaneTests.test_rate_limit_backoff_survives_new_runner_and_is_bounded"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        },
+        {
+          "report": "parity/evidence/native-boundaries.json",
+          "id": "test_worklane.GitHubErrorTests.test_header_reset_avoids_an_extra_probe",
+          "status": "pass",
+          "observation_ids": [
+            "test_worklane.GitHubErrorTests.test_header_reset_avoids_an_extra_probe"
+          ],
+          "report_sha256": "b1ddbdeef9b3652df5daf101064379b4c733ad524792f43bb0281bee094ac2c8"
+        },
+        {
+          "report": "cargo test",
+          "id": "quota_probe_failure_keeps_known_quota_and_shared_cooldown",
+          "status": "pass",
+          "log_sha256": "b259e6251a1856946f18993f1efab44a1a783c0b9bb62c1a5969c0eac1a21737",
+          "test_binary_hashes": {
+            "target/debug/deps/worklane_runtime-223dad30aa09b979": "2d47c55573a86be44418e34302d760ca40b4efc9258e8870265640b15ba823cf",
+            "target/debug/deps/runtime_fixture_adapter-86f2331766231998": "39289abd05e856ff38f32eb714ce6ad011b4a3022d5d645f5fc7567b79b96302",
+            "target/debug/deps/controller-ca70331165cb3ab7": "9229d2d5268dea4ff6bd2651880951ab324e2baafa4882769bceee687798aea6",
+            "target/debug/deps/durability-e3261e36e4d3b20d": "779b15c347bffbd4840b813b3a78c9e53615cf7611259c3bddef5f7c86cb36be"
+          }
+        }
+      ]
+    }
+  ],
+  "later_stage_ownership": {
+    "51": [
+      10
+    ],
+    "52": [
+      11,
+      12
+    ],
+    "53": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ]
+  },
+  "independent_review": "pending; required before Human review handoff",
+  "deferred_non_core": [
+    "Exhaustive source/failure/constant audits and unselected legacy parity assertions.",
+    "CLI/TUI presentation, installed PTY/lifecycle and cutover remain gated by #51/#52/#53."
+  ],
+  "candidate_revision": "d06d53dbdc45bfa42b4c3aac95cb360e9158f201",
+  "candidate_inputs_sha256": "f55e63cfea0ac6f8efa943b5a60f3a6afdf004befb78135227943806f453cfc2",
   "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
   "current_main": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
   "upstream_drift": [],
@@ -21,7 +729,8 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-0.log",
-      "tail": ""
+      "tail": "",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
       "command": [
@@ -36,7 +745,8 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-1.log",
-      "tail": "    Checking worklane-runtime v0.1.0 (/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/runtime)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.02s"
+      "tail": "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.02s",
+      "log_sha256": "a13905646e2aed93ec6ea9ed6ac91490a4e01f91af0215c3965279a910612149"
     },
     {
       "command": [
@@ -47,7 +757,57 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-2.log",
-      "tail": "test logs_are_keyset_paged_without_losing_history ... ok\n\ntest result: ok. 37 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.75s\n\n   Doc-tests worklane_runtime\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n"
+      "tail": "test logs_are_keyset_paged_without_losing_history ... ok\n\ntest result: ok. 37 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.55s\n\n   Doc-tests worklane_runtime\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n",
+      "log_sha256": "b259e6251a1856946f18993f1efab44a1a783c0b9bb62c1a5969c0eac1a21737",
+      "passed_tests": [
+        "workflow::recovery_tests::finalizing_phase_cannot_recover_as_previous_reviewer_role",
+        "workflow::recovery_tests::committed_turn_survives_crash_before_workflow_task_commit_without_another_agent_turn",
+        "workflow::recovery_tests::malformed_saved_stack_cannot_skip_ancestry_or_launch_a_turn",
+        "bounded_workers_independent_reviewer_pause_and_drain_keep_pending_work",
+        "config_errors_preserve_file_and_role_overrides",
+        "child_inherits_controller_lock_after_parent_guard_closes",
+        "migration_cleanup_never_follows_replaced_parent_outside_state",
+        "prepared_schema_is_in_memory_and_uses_the_shared_schema_argument",
+        "failed_migration_rolls_back_and_keeps_original_bytes",
+        "controller_log_writer_flushes_without_persistent_log_files",
+        "result_validation_rejects_extra_fields_and_false_findings",
+        "oversized_integers_cannot_silently_become_floats_or_erase_prior_values",
+        "old_start_generation_cannot_clear_new_stop",
+        "stale_birth_cannot_claim_or_signal_unrelated_process",
+        "event_mapping_and_readable_log_rollback_as_one_unit",
+        "abrupt_process_exit_preserves_committed_session_and_discards_inflight_transaction",
+        "immediate_stop_never_waits_for_dispatch_or_downgrades",
+        "future_schema_refusal_does_not_modify_database",
+        "unicode_decimal_issue_aliases_cannot_evade_cycles_or_completion_gates",
+        "unicode_wrapping_retains_combining_wide_and_word_spaces",
+        "saved_model_and_harness_win_new_role_configuration",
+        "injected_quota_is_journaled_once_and_stale_success_cannot_clear_new_failure",
+        "fresh_assignment_cannot_reuse_previous_completed_turn_even_with_identical_clock",
+        "typed_state_preserves_empty_null_integer_boolean_and_float",
+        "bounded_writer_wait_and_rollback_leave_prior_commit",
+        "quota_probe_failure_keeps_known_quota_and_shared_cooldown",
+        "log_history_stops_at_its_initial_boundary_while_writers_append",
+        "python_completed_ledger_requires_exact_assignment_timing_and_session",
+        "cached_browser_launch_survives_helper_exit_without_controller_ownership_or_cooldown_changes",
+        "successful_probe_body_is_not_a_quota_error_or_persisted_diagnostic",
+        "quota_uses_injected_clock_authoritative_headers_and_blocks_further_processes",
+        "successful_issue_body_cannot_publish_a_false_global_quota_cooldown",
+        "reopen_does_not_erase_normalized_sessions_on_stale_task_save",
+        "successful_last_point_preserves_response_without_copying_body_into_cooldown_state",
+        "literal_unicode_search_finds_historical_turn_and_bounds_context",
+        "uncommitted_crash_is_not_visible_and_committed_event_survives",
+        "interrupted_delivery_survives_recovery_until_turn_commits",
+        "uniqueness_across_roles_is_database_enforced",
+        "wal_backup_restores_committed_events_and_pending_inputs",
+        "input_completion_and_submission_serialize",
+        "logs_are_keyset_paged_without_losing_history"
+      ],
+      "test_binary_hashes": {
+        "target/debug/deps/worklane_runtime-223dad30aa09b979": "2d47c55573a86be44418e34302d760ca40b4efc9258e8870265640b15ba823cf",
+        "target/debug/deps/runtime_fixture_adapter-86f2331766231998": "39289abd05e856ff38f32eb714ce6ad011b4a3022d5d645f5fc7567b79b96302",
+        "target/debug/deps/controller-ca70331165cb3ab7": "9229d2d5268dea4ff6bd2651880951ab324e2baafa4882769bceee687798aea6",
+        "target/debug/deps/durability-e3261e36e4d3b20d": "779b15c347bffbd4840b813b3a78c9e53615cf7611259c3bddef5f7c86cb36be"
+      }
     },
     {
       "command": [
@@ -61,7 +821,8 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-3.log",
-      "tail": "#1 blocked: Completed implementation expected Agent review; board is done. Check project automations/manual edits, then run worklane retry 1 to revalidate the saved build. Board status was preserved.\n#1 completion unavailable: 'headRefName'\n#1 blocked: Completed implementation expected Agent review; board is missing/closed. Check project automations/manual edits, then run worklane retry 1 to revalidate the saved build. Board status was preserved.\nreviewer: #1 Issue\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n----------------------------------------------------------------------\nRan 524 tests in 166.488s\n\nOK (skipped=2)"
+      "tail": "#1 blocked: Completed implementation expected Agent review; board is done. Check project automations/manual edits, then run worklane retry 1 to revalidate the saved build. Board status was preserved.\n#1 completion unavailable: 'headRefName'\n#1 blocked: Completed implementation expected Agent review; board is missing/closed. Check project automations/manual edits, then run worklane retry 1 to revalidate the saved build. Board status was preserved.\nreviewer: #1 Issue\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n----------------------------------------------------------------------\nRan 526 tests in 160.819s\n\nOK (skipped=2)",
+      "log_sha256": "92001b26a49df09cafaee9a1aad5acfc93edaa7f6c45aaf69c01c613541c1768"
     },
     {
       "command": [
@@ -74,7 +835,8 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-4.log",
-      "tail": "{\"passed\": 29, \"total\": 29, \"failures\": []}"
+      "tail": "{\"passed\": 29, \"total\": 29, \"failures\": []}",
+      "log_sha256": "3396b38f138b162308cc11823c93d0657cded36f734de70b79c75252a6e5fbd4"
     },
     {
       "command": [
@@ -89,7 +851,8 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-5.log",
-      "tail": "{\"passed\": 51, \"total\": 51, \"failures\": []}"
+      "tail": "{\"passed\": 51, \"total\": 51, \"failures\": []}",
+      "log_sha256": "9999bcb37d2f3a69e851e9044f0f49296a035f84a4125d208ecfcbf99d6c358e"
     },
     {
       "command": [
@@ -116,7 +879,8 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-6.log",
-      "tail": "{\"passed\": 6, \"total\": 6, \"failures\": []}"
+      "tail": "{\"passed\": 6, \"total\": 6, \"failures\": []}",
+      "log_sha256": "6facb9db645a797c91920e7235bba76c68c8a1b19294a5bc47e10ce810fb6e92"
     },
     {
       "command": [
@@ -131,7 +895,8 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-7.log",
-      "tail": "----------------------------------------------------------------------\nRan 10 tests in 33.721s\n\nOK"
+      "tail": "----------------------------------------------------------------------\nRan 10 tests in 33.430s\n\nOK",
+      "log_sha256": "a225fe0c93ca5b92240f482325824dd27d060fb00373062807323f8baf1617b3"
     },
     {
       "command": [
@@ -145,7 +910,8 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-8.log",
-      "tail": "{\"revision\": \"8dff6c1c1a2b31e174b2a192032b004f8a5f898e\", \"files\": 39, \"checks\": 348, \"rows\": 1104}"
+      "tail": "{\"revision\": \"8dff6c1c1a2b31e174b2a192032b004f8a5f898e\", \"files\": 39, \"checks\": 348, \"rows\": 1104}",
+      "log_sha256": "7d76d53f31bf72e7bfa419f25305e87478e5744482f0a6dac5c21359edffa75c"
     },
     {
       "command": [
@@ -155,7 +921,8 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-9.log",
-      "tail": ""
+      "tail": "",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     },
     {
       "command": [
@@ -166,13 +933,15 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-10.log",
-      "tail": ""
+      "tail": "",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     }
   ],
   "acceptance_checks": 48,
   "checked_inputs": {
     "Cargo.lock": "2283a444cf375ca62a020cc7b49fb781eb2226500d7bc01cdf1a4cf37aae8d98",
     "Cargo.toml": "630e2c4d08521765a4da7d6d51786c31224fcf7f0f1764f0205f811f37393496",
+    "docs/port.md": "6a4e1f32869da8b5b97ba22bf222d369304f29eee54f481494152ac61b685db6",
     "parity/inventory.json": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
     "runtime/Cargo.toml": "05ca5a0504a553726570b7572d0ee1d19f63559962134e62bd39ffe653821fd8",
     "runtime/src/actions.rs": "91f734d2a5f59c392e29e2292b640ac3ac158e94154f0b223266c4f780ba89b8",
@@ -191,6 +960,7 @@
     "runtime/src/transport.rs": "a5d0c0d7f45a76e62256e408776bc234696a21c9547990a0709969c3adad0457",
     "runtime/src/unicode.rs": "57da5d8f1646d69eae3aa6b4bfef7592cc135cd8ecfd5f1c764b00c32bbc65a8",
     "runtime/src/workflow.rs": "1295aa69ce505ee4753b03588f62a5d6a7b66d10e16c0a8da1f0aeb3b9a070c8",
+    "runtime/tests/controller.rs": "cfbc5bf8b4fb9d2ef595e6483a7394ac8e09f3acc88fe56e2bc7b1eefad64b06",
     "runtime/tests/durability.rs": "6649ea0f4380757bd3a198b4c1c353a263f8f5de268b802130e7ff014d60be57",
     "test_add_issue.py": "71c37e00775f8098b95c826cd5ec8e1bcf8e362f8760db96d286875dc4f5cac2",
     "test_api_budget.py": "3eae8acec5bc5c36391902cf78dc651c98e11b3051df152e776ac3d05ef7c0a6",
@@ -201,9 +971,10 @@
     "test_installation.py": "d5bb96bd5e53c01d6b8536100e6fdde1068b97404be675bda9c7bc1af48b7cd4",
     "test_native_actions.py": "662d432848e7d8509803d21d3c0d424a32a1e46c9675625a11142e15469ba77d",
     "test_native_boundaries.py": "7f3cce639cbebdbe970645f6b9f6e239682f26157efeba928ed3361c7aa41f8c",
+    "test_native_core.py": "80d68e68f4878565a14b3dd1ceeb2bebe68eea3977731df849c72659e28deb5e",
     "test_native_gate.py": "304177b68b9930350d061814abbf8d7b8bd4e05f4e274843dd673051aef504eb",
     "test_native_lifecycle.py": "27941cfbf890ece9611e4c06e74d2135a48217ba67c06cb507b74149d7098d12",
-    "test_native_plan.py": "21bfba05a0e92d52c79685e2c4ccab2b8644395a0ca4e73e18ff0163afb63b62",
+    "test_native_plan.py": "1cb8a41573ca5b6a629c0ff3e092611d96f04260834a6a2ec8d3d9a7beaa9f9a",
     "test_native_reconciliation.py": "23dd266a25ffa6879f656536f65806bbc2f13e3680567f85ceed3f374576ce89",
     "test_native_restack.py": "bb532ed312e96f951333205ac22108c0d72d27e17cd8185b4bfd98125592090e",
     "test_native_runtime.py": "75e018c662fa0627760835d7a1e78e19edf4bd5fcbec35921dc396ac6d78a40a",
@@ -219,10 +990,11 @@
     "test_tui.py": "e835f3ccf0b956c858303a157a5faf6c8bb054ddd848c821eea35c62f15c1d6c",
     "test_tui_editing.py": "44bc51fc303577de3748d196eff4823d5611070f3195c63a41c3399e3f159c17",
     "test_worklane.py": "ef6853ac7432cb0fec14e67b89cf1703ffcdcb721951324690cd99c7b46e6986",
+    "tools/native_core.py": "a94d80861e84662fe0cc0a77a93df70cc5111dd1c336d2927680bbd99ceba26c",
     "tools/native_parity.py": "b9096a3280a32ff6d369ad1ef38028dfb9c2c0ff58a3a2c723d9e1988edee296",
     "tools/native_plan.py": "96bf6846c4f805ee4bae48e9cf658ea9a76039603259adba935b56dab4d36b3d",
     "tools/native_test_bridge.py": "8d52eb86f5007cca43ec32710939276ecc7d102ae167a8e4c1b06620cd3607cd",
-    "tools/native_validate.py": "730fa8db2f0fc7aaf5e3f4ac11453e4f9eefa11043fa5852a2b45d5b00c5ec87",
+    "tools/native_validate.py": "d6270ebf95517bd336d98eeefececaa6693a380f44a2ae8b69b1e5075f0990e6",
     "tools/parity_git.py": "5b347550f001ba6660281480c9e6ec1ab458827e46f229ee78b5ba3b37e8491c",
     "tools/parity_tool.py": "fb60b5f671154ee16f3c1cfd81ca86be6ef294ec05a89d7d42122e7ce6b7479e",
     "tools/port_checks.py": "477d6e390762a315a259c0963b2e1d0dc7a30b3439a708035cb4e3e1abc88f36",
@@ -242,7 +1014,7 @@
   "targeted_commands": [],
   "targeted_inputs": null,
   "targeted_checks_current": false,
-  "assessment_only": false,
+  "assessment_only": true,
   "report_admission": {
     "native-acceptance": {
       "admitted": true,
@@ -5618,7 +6390,9 @@
     "fixture.runtime.terminal-missing-backend",
     "fixture.runtime.terminal-interrupt"
   ],
-  "stage2_complete": false,
+  "exhaustive_parity_complete": false,
+  "exhaustive_inventory_advisory": true,
+  "stage2_complete": true,
   "limits": [
     "No installation switch or live authenticated provider turns.",
     "Protocol/results: 4 MiB; subprocess capture: 16 MiB; logs/events use bounded pages.",

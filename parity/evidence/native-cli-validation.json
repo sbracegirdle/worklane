@@ -1,0 +1,120 @@
+{
+  "scenario_group": "core.10.native-cli",
+  "candidate_revision": "4f567469eeb2413b19ea1689c1d067d282697501",
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "validation_base": "5cc71a5880dc77727987e4a496c53181f5e5d8f0",
+  "current_main": "ecff48ec25f5a606d07822637da72217ca8f80e8",
+  "candidate": "/tmp/worklane-51-install/bin/worklane",
+  "candidate_sha256": "6bb952081bc5ff828ddfdecf3446a4801090c3a47e9170b2d3b4d3961160c7c1",
+  "driver": "test_native_cli.py",
+  "driver_sha256": "de6ba703e3804b147d6c28dd0522f46028108024171f7c425c6d4e14cc31e62f",
+  "core_runtime_ready": true,
+  "core_cli_ready": true,
+  "core_release_ready": false,
+  "exhaustive_parity_complete": false,
+  "independent_review": "pending",
+  "runtime_scenarios": {
+    "core.1.storage-config": "pass",
+    "core.2.dispatch-ownership": "pass",
+    "core.3.exact-provider-sessions": "pass",
+    "core.4.review-handoff": "pass",
+    "core.5.pause-drain-stop": "pass",
+    "core.6.interruption-recovery": "pass",
+    "core.7.dependencies-stacks": "pass",
+    "core.8.privacy-authorization": "pass",
+    "core.9.github-transport": "pass"
+  },
+  "cli_scenarios": {
+    "cli.native-config": "pass",
+    "cli.native-config-confirm": "pass",
+    "cli.native-detached-controller": "pass",
+    "cli.native-startup-error": "pass",
+    "cli.native-emergency-budget-isolation": "pass",
+    "cli.help": "pass",
+    "cli.unknown-command": "pass",
+    "cli.unknown-flag": "pass",
+    "cli.bad-number": "pass",
+    "cli.bad-workers-type": "pass",
+    "cli.bad-harness": "pass",
+    "cli.bad-effort": "pass",
+    "cli.bad-destination": "pass",
+    "cli.now-scope": "pass",
+    "cli.title-scope": "pass",
+    "cli.missing-title": "pass",
+    "cli.empty-title": "pass",
+    "cli.add-number": "pass",
+    "cli.native-retry-number-before-network": "pass",
+    "cli.retry-unknown": "pass",
+    "cli.workers-range": "pass",
+    "cli.interval-range": "pass",
+    "cli.invalid-project": "pass",
+    "cli.tui-refresh": "pass",
+    "cli.tui-refresh-low": "pass",
+    "cli.tui-refresh-high": "pass",
+    "cli.offline-controls": "pass",
+    "cli.stack-policy": "pass",
+    "cli.invalid-config": "pass",
+    "cli.unknown-config": "pass",
+    "cli.stack-cycle": "pass",
+    "cli.hard-gate": "pass",
+    "cli.board-browser": "pass",
+    "cli.board-offline": "pass",
+    "cli.add-ready": "pass",
+    "cli.add-draft": "pass",
+    "cli.add-shaping": "pass",
+    "cli.add-partial-failure": "pass",
+    "cli.empty-queue-run": "pass",
+    "cli.native-retry-migrated-session": "pass",
+    "cli.native-identity": "pass",
+    "cli.native-public-board": "pass",
+    "cli.native-private-guard.add": "pass",
+    "cli.native-private-guard.run": "pass",
+    "cli.native-private-guard.start": "pass",
+    "cli.native-private-guard.resume": "pass",
+    "cli.native-private-guard.retry": "pass",
+    "cli.native-check-live-blocker": "pass",
+    "cli.native-check-incomplete-page": "pass",
+    "cli.native-check-public": "pass"
+  },
+  "evidence_sha256": {
+    "parity/evidence/native-validation.json": "d7e12459a3a7896c37b76cffe7238b2ea0f600fd9949ba28370c26d471a9a9b2",
+    "parity/evidence/native-cli.json": "365c56eaaba5366d779cf89dbca605bc4185155affaf17961b9b3c9bf0299177"
+  },
+  "commands": [
+    {
+      "command": "cargo install --path runtime --bin worklane --locked --offline --root /tmp/worklane-51-install",
+      "exit": 0
+    },
+    {
+      "command": "/tmp/worklane-51-install/bin/worklane --version",
+      "exit": 0,
+      "revision": "4f567469eeb2413b19ea1689c1d067d282697501",
+      "dirty": false
+    },
+    {
+      "command": "UV_CACHE_DIR=/tmp/worklane-51-uv WORKLANE_TEST_RUST=1 WORKLANE_TEST_CLI_BINARY=/tmp/worklane-51-install/bin/worklane WORKLANE_NATIVE_CLI_EVIDENCE=parity/evidence/native-cli.json uv run --no-project python -m unittest -q test_native_cli",
+      "exit": 0,
+      "tests": 9,
+      "scenarios": 50
+    },
+    {
+      "command": "UV_CACHE_DIR=/tmp/worklane-51-uv WORKLANE_NATIVE_CLI_EVIDENCE=/tmp/worklane-51-debug-cli.json uv run --no-project python tools/native_validate.py --base-revision 5cc71a5880dc77727987e4a496c53181f5e5d8f0",
+      "exit": 0,
+      "subcommands": 11,
+      "rust_tests": 41,
+      "python_tests": 536,
+      "optional_skips": 2
+    }
+  ],
+  "deferred_non_core": [
+    "Exact legacy help/error/JSON presentation parity and exhaustive source/failure/constant audits remain advisory; 553/759 runtime inventory rows remain unverified."
+  ],
+  "later_stage_ownership": {
+    "52": "Native dashboard and terminal configuration form; CLI reports the dashboard boundary explicitly.",
+    "53": "Installed CLI/TUI cutover, real PTY and end-to-end controlled backlog lifecycle at integrated reviewed revisions."
+  },
+  "limits": [
+    "GitHub/provider writes are controlled fixtures; no live issue writes or provider turns.",
+    "Only the /tmp preview installation changed; production installations and controllers were preserved."
+  ]
+}

@@ -358,6 +358,11 @@
       "registered_checks": 5,
       "reason": null
     },
+    "native-reconciliation": {
+      "admitted": true,
+      "registered_checks": 5,
+      "reason": null
+    },
     "native-runtime": {
       "admitted": true,
       "reason": null
@@ -565,6 +570,10 @@
     "test_worklane.WorklaneTests.test_budget_shared_by_repositories_and_blocks_commands",
     "test_worklane.WorklaneTests.test_claim_quota_failure_recovers_before_and_after_status_write",
     "test_worklane.WorklaneTests.test_closed_issues_are_never_claimed",
+    "test_worklane.WorklaneTests.test_closed_unmerged_or_retargeted_pr_does_not_complete_task",
+    "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit",
+    "test_worklane.WorklaneTests.test_completion_checks_are_bounded_without_changing_feedback_cutoff",
+    "test_worklane.WorklaneTests.test_completion_does_not_touch_live_assignments_or_completed_tasks",
     "test_worklane.WorklaneTests.test_duplicate_controller_is_locked",
     "test_worklane.WorklaneTests.test_existing_linked_pr_not_implemented_twice",
     "test_worklane.WorklaneTests.test_explicit_retry_reviews_current_head",
@@ -577,7 +586,8 @@
     "test_worklane.WorklaneTests.test_review_thread_lookup_rejects_other_repositories",
     "test_worklane.WorklaneTests.test_review_thread_pagination_cannot_silently_truncate",
     "test_worklane.WorklaneTests.test_review_threads_include_all_pages_and_replies",
-    "test_worklane.WorklaneTests.test_success_exhausting_last_point_defers_next_request"
+    "test_worklane.WorklaneTests.test_success_exhausting_last_point_defers_next_request",
+    "test_worklane.WorklaneTests.test_waiting_review_reconciliation_skips_active_assignments"
   ],
   "inventory_sha256": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
   "runtime_rows": [
@@ -1759,26 +1769,26 @@
     },
     {
       "id": "test_worklane.WorklaneTests.test_closed_unmerged_or_retargeted_pr_does_not_complete_task",
-      "status": "unverified",
-      "missing_check_count": 1,
+      "status": "complete",
+      "missing_check_count": 0,
       "source_audit_required": false
     },
     {
       "id": "test_worklane.WorklaneTests.test_completion_checks_are_bounded_without_changing_feedback_cutoff",
-      "status": "unverified",
-      "missing_check_count": 1,
+      "status": "complete",
+      "missing_check_count": 0,
       "source_audit_required": false
     },
     {
       "id": "test_worklane.WorklaneTests.test_completion_does_not_touch_live_assignments_or_completed_tasks",
-      "status": "unverified",
-      "missing_check_count": 1,
+      "status": "complete",
+      "missing_check_count": 0,
       "source_audit_required": false
     },
     {
       "id": "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit",
-      "status": "unverified",
-      "missing_check_count": 1,
+      "status": "complete",
+      "missing_check_count": 0,
       "source_audit_required": false
     },
     {
@@ -1789,8 +1799,8 @@
     },
     {
       "id": "test_worklane.WorklaneTests.test_waiting_review_reconciliation_skips_active_assignments",
-      "status": "unverified",
-      "missing_check_count": 1,
+      "status": "complete",
+      "missing_check_count": 0,
       "source_audit_required": false
     },
     {
@@ -2066,811 +2076,811 @@
     {
       "id": "source.worklane.py.validate_config",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.load_config",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.save_config",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubRateLimit",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubRateLimit.__init__",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.github_scoped",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.rate_limit_error",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.InterruptedRun",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.memory_fd",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.now",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.command",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.raw_command",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.gh",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.graphql",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.read_json",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.locked",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.process_identity",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.event_text",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.readable_log",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.__init__",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.connect",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._put",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._put.visit",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._get",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._upgrade",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._remove_archived_files",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.get_meta",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.set_meta",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.log_sessions",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._save",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.load",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.save",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.all",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.paused",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.pause",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.dependency_blocks",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.request_stop",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.session",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.runs",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.begin_run",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.attach_process",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._attach_session",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.attach_session",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._log",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._event",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.record_event",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.record_events",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.append_log",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.log_entries",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.events",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.finish_run",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.queue_input",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.advance_run",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.recover_runs",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.running",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget.__init__",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget.snapshot",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget.check",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget.record",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget._record",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget.clear",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget.call",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.DatabaseLogWriter",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.DatabaseLogWriter.__init__",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.DatabaseLogWriter.write",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.DatabaseLogWriter.flush",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.DatabaseLogWriter.isatty",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.dependency_count",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.__init__",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.security_report",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.require_safe",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.refresh_fields",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.add_issue",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.ensure_review_status",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.next_cursor",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.linked_prs",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.items",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.dependencies_ready",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.item_status",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.move",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.AgentBackend",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.AgentBackend.__init__",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.AgentBackend.run",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.AgentBackend._invoke",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.AgentBackend._invoke.received",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.HarnessBackend",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.HarnessBackend.__init__",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.HarnessBackend.selection",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.HarnessBackend.run",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.__init__",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.stack_policy",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.dependency_block",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.dependencies_ready",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.reviewed_parent",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.validate_stack",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.reconcile_stacks",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.restack",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.issue",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.pr_number",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.pr",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.trusted_feedback_user",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.feedback_editor",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.human_feedback",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.human_feedback.trusted",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.poll_human_feedback",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.feedback_quiet",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.review_threads",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.refresh_review_threads",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.verify_stack_ancestry",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.verify_pr",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.post",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.worktree",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.require_trusted_feedback",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.before_turn",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.agent_result",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.build",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.request_rework",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.requeue_conflict",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.review",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.execute",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.recover_tasks",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.reconcile_completed",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.reconcile_waiting",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.recover",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.pick",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.github_backoff",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.run",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.repository",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.installation_info",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.harness_option_names",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.harness_flags",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
@@ -3866,7 +3876,7 @@
     {
       "id": "failure.worklane.py.2007",
       "status": "unverified",
-      "missing_check_count": 1,
+      "missing_check_count": 0,
       "source_audit_required": true
     },
     {
@@ -3944,127 +3954,127 @@
     {
       "id": "constant.worklane.py.HUMAN_FEEDBACK_QUIET_SECONDS",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.WORKERS",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.REVIEWER",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.READY",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.PROGRESS",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.REVIEW",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.HUMAN",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.ACTIVE",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.ROLES",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.CONFIG_FILE",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.CONFIG_DEFAULTS",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.GITHUB_BUDGET",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.RESULT_SCHEMA",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.COMMON_PROMPT",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.BUILD_PROMPT",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.REVIEW_PROMPT",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.FINALIZE_PROMPT",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.PROTOCOL",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.ANSI_ESCAPE",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.MCP_DIAGNOSTIC",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.CodexBackend",
       "status": "unverified",
-      "missing_check_count": 144,
+      "missing_check_count": 139,
       "source_audit_required": true
     },
     {
@@ -5236,12 +5246,7 @@
     "test_worklane.WorklaneTests.test_waiting_review_drift_is_visible_and_preserves_external_status",
     "test_worklane.WorklaneTests.test_merged_pr_completes_missing_board_task_before_drift_checks",
     "test_worklane.WorklaneTests.test_merged_task_cannot_be_dispatched_from_stale_ready_board_status",
-    "test_worklane.WorklaneTests.test_closed_unmerged_or_retargeted_pr_does_not_complete_task",
-    "test_worklane.WorklaneTests.test_completion_checks_are_bounded_without_changing_feedback_cutoff",
-    "test_worklane.WorklaneTests.test_completion_does_not_touch_live_assignments_or_completed_tasks",
-    "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit",
     "test_worklane.WorklaneTests.test_waiting_review_uses_direct_status_when_listing_lags",
-    "test_worklane.WorklaneTests.test_waiting_review_reconciliation_skips_active_assignments",
     "test_worklane.WorklaneTests.test_retry_status_drift_reuses_completed_build",
     "test_worklane.WorklaneTests.test_completed_review_and_finalizer_survive_quota_failure",
     "test_worklane.WorklaneTests.test_passing_review_and_handoff_required_for_human",

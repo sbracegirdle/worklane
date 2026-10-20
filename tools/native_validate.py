@@ -22,6 +22,7 @@ ACCEPTANCE = {
     'native-boundaries':'test_native_boundaries.py',
     'native-restack':'test_native_restack.py',
     'native-storage':'test_native_storage_boundaries.py',
+    'native-reconciliation':'test_native_reconciliation.py',
 }
 
 
@@ -104,7 +105,8 @@ def main():
            'WORKLANE_NATIVE_WORKFLOW_EVIDENCE':str(EVIDENCE/'native-workflow.json'),
            'WORKLANE_NATIVE_LIFECYCLE_EVIDENCE':str(EVIDENCE/'native-lifecycle.json'),
            'WORKLANE_NATIVE_RESTACK_EVIDENCE':str(EVIDENCE/'native-restack.json'),
-           'WORKLANE_NATIVE_STORAGE_EVIDENCE':str(EVIDENCE/'native-storage.json')}
+           'WORKLANE_NATIVE_STORAGE_EVIDENCE':str(EVIDENCE/'native-storage.json'),
+           'WORKLANE_NATIVE_RECONCILIATION_EVIDENCE':str(EVIDENCE/'native-reconciliation.json')}
     commands = [
         ['cargo','fmt','--all','--check'],
         ['cargo','clippy','--all-targets','--locked','--offline','--','-D','warnings'],

@@ -23,6 +23,11 @@
       "registered_checks": 5,
       "reason": null
     },
+    "native-reconciliation": {
+      "admitted": true,
+      "registered_checks": 5,
+      "reason": null
+    },
     "native-runtime": {
       "admitted": true,
       "reason": null
@@ -32,8 +37,8 @@
       "reason": null
     }
   },
-  "verified_count": 195,
-  "remaining_count": 564,
+  "verified_count": 200,
+  "remaining_count": 559,
   "verified_rows": [
     "test_config.ConfigTests.test_defaults_are_read_only_and_config_is_per_checkout",
     "test_config.ConfigTests.test_invalid_config_has_path_and_never_silently_uses_defaults",
@@ -132,6 +137,11 @@
     "test_worklane.WorklaneTests.test_budget_shared_by_repositories_and_blocks_commands",
     "test_worklane.WorklaneTests.test_budget_serializes_calls_across_repository_instances",
     "test_worklane.WorklaneTests.test_success_exhausting_last_point_defers_next_request",
+    "test_worklane.WorklaneTests.test_closed_unmerged_or_retargeted_pr_does_not_complete_task",
+    "test_worklane.WorklaneTests.test_completion_checks_are_bounded_without_changing_feedback_cutoff",
+    "test_worklane.WorklaneTests.test_completion_does_not_touch_live_assignments_or_completed_tasks",
+    "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit",
+    "test_worklane.WorklaneTests.test_waiting_review_reconciliation_skips_active_assignments",
     "test_worklane.WorklaneTests.test_board_and_link_cursor_cycles_fail_closed",
     "test_worklane.WorklaneTests.test_review_thread_and_reply_cursor_cycles_fail_closed",
     "test_worklane.WorklaneTests.test_existing_linked_pr_not_implemented_twice",
@@ -359,7 +369,6 @@
         "test_worklane.WorklaneTests.test_claim_failures_increase_backoff_after_successful_board_reads",
         "test_worklane.WorklaneTests.test_merged_pr_completes_missing_board_task_before_drift_checks",
         "test_worklane.WorklaneTests.test_merged_task_cannot_be_dispatched_from_stale_ready_board_status",
-        "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit",
         "test_worklane.WorklaneTests.test_completed_review_and_finalizer_survive_quota_failure",
         "test_worklane.WorklaneTests.test_worker_receives_threads_and_must_resolve_them_before_completion",
         "test_worklane.WorklaneTests.test_worker_pass_with_open_thread_does_not_advance",
@@ -391,11 +400,7 @@
         "test_worklane.WorklaneTests.test_idle_hour_and_exhausted_hour_have_bounded_request_counts",
         "test_worklane.WorklaneTests.test_completed_build_retries_verification_without_another_agent_turn",
         "test_worklane.WorklaneTests.test_waiting_review_drift_is_visible_and_preserves_external_status",
-        "test_worklane.WorklaneTests.test_closed_unmerged_or_retargeted_pr_does_not_complete_task",
-        "test_worklane.WorklaneTests.test_completion_checks_are_bounded_without_changing_feedback_cutoff",
-        "test_worklane.WorklaneTests.test_completion_does_not_touch_live_assignments_or_completed_tasks",
         "test_worklane.WorklaneTests.test_waiting_review_uses_direct_status_when_listing_lags",
-        "test_worklane.WorklaneTests.test_waiting_review_reconciliation_skips_active_assignments",
         "test_worklane.WorklaneTests.test_retry_status_drift_reuses_completed_build",
         "test_worklane.WorklaneTests.test_passing_review_and_handoff_required_for_human",
         "test_worklane.WorklaneTests.test_human_handoff_verifies_ready_pr_and_only_promotes_drafts",
@@ -2889,91 +2894,6 @@
       "audit_status": "not required"
     },
     {
-      "id": "test_worklane.WorklaneTests.test_closed_unmerged_or_retargeted_pr_does_not_complete_task",
-      "batch": "workflow",
-      "source": "test_worklane.py:480",
-      "original_stage": "runtime",
-      "original_checks": [
-        "test_worklane.WorklaneTests.test_closed_unmerged_or_retargeted_pr_does_not_complete_task"
-      ],
-      "missing_proof_set": "b8f4b8eaab3ab62c",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/controller.rs",
-        "runtime/src/workflow.rs",
-        "test_native_workflow.py",
-        "test_native_lifecycle.py",
-        "test_native_restack.py"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
-    },
-    {
-      "id": "test_worklane.WorklaneTests.test_completion_checks_are_bounded_without_changing_feedback_cutoff",
-      "batch": "workflow",
-      "source": "test_worklane.py:493",
-      "original_stage": "runtime",
-      "original_checks": [
-        "test_worklane.WorklaneTests.test_completion_checks_are_bounded_without_changing_feedback_cutoff"
-      ],
-      "missing_proof_set": "e4a74b3f3e2526d7",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/workflow.rs",
-        "runtime/src/controller.rs"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
-    },
-    {
-      "id": "test_worklane.WorklaneTests.test_completion_does_not_touch_live_assignments_or_completed_tasks",
-      "batch": "workflow",
-      "source": "test_worklane.py:513",
-      "original_stage": "runtime",
-      "original_checks": [
-        "test_worklane.WorklaneTests.test_completion_does_not_touch_live_assignments_or_completed_tasks"
-      ],
-      "missing_proof_set": "5ab4c9d95f5ba76a",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/controller.rs",
-        "runtime/src/workflow.rs",
-        "test_native_workflow.py",
-        "test_native_lifecycle.py",
-        "test_native_restack.py"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
-    },
-    {
-      "id": "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit",
-      "batch": "github",
-      "source": "test_worklane.py:523",
-      "original_stage": "runtime",
-      "original_checks": [
-        "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit"
-      ],
-      "missing_proof_set": "9dbcf9e48a264e38",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/transport.rs",
-        "runtime/src/board.rs",
-        "runtime/src/workflow.rs",
-        "test_native_boundaries.py",
-        "test_native_security.py"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
-    },
-    {
       "id": "test_worklane.WorklaneTests.test_waiting_review_uses_direct_status_when_listing_lags",
       "batch": "workflow",
       "source": "test_worklane.py:537",
@@ -2982,28 +2902,6 @@
         "test_worklane.WorklaneTests.test_waiting_review_uses_direct_status_when_listing_lags"
       ],
       "missing_proof_set": "1765d1352da8c126",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/controller.rs",
-        "runtime/src/workflow.rs",
-        "test_native_workflow.py",
-        "test_native_lifecycle.py",
-        "test_native_restack.py"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
-    },
-    {
-      "id": "test_worklane.WorklaneTests.test_waiting_review_reconciliation_skips_active_assignments",
-      "batch": "workflow",
-      "source": "test_worklane.py:550",
-      "original_stage": "runtime",
-      "original_checks": [
-        "test_worklane.WorklaneTests.test_waiting_review_reconciliation_skips_active_assignments"
-      ],
-      "missing_proof_set": "fa15c0032617ac37",
       "obligations": [
         "executable_assertion"
       ],
@@ -3626,7 +3524,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3655,7 +3553,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3684,7 +3582,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3713,7 +3611,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3743,7 +3641,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3773,7 +3671,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3805,7 +3703,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3837,7 +3735,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3869,7 +3767,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3901,7 +3799,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3933,7 +3831,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3965,7 +3863,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3995,7 +3893,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4027,7 +3925,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4057,7 +3955,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4089,7 +3987,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4121,7 +4019,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4153,7 +4051,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4185,7 +4083,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4217,7 +4115,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4246,7 +4144,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4275,7 +4173,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4304,7 +4202,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4333,7 +4231,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4362,7 +4260,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4391,7 +4289,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4420,7 +4318,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4449,7 +4347,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4478,7 +4376,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4507,7 +4405,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4536,7 +4434,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4565,7 +4463,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4594,7 +4492,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4623,7 +4521,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4652,7 +4550,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4681,7 +4579,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4710,7 +4608,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4739,7 +4637,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4768,7 +4666,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4797,7 +4695,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4826,7 +4724,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4855,7 +4753,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4884,7 +4782,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4913,7 +4811,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4942,7 +4840,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4971,7 +4869,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5000,7 +4898,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5029,7 +4927,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5058,7 +4956,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5087,7 +4985,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5116,7 +5014,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5145,7 +5043,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5174,7 +5072,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5203,7 +5101,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5232,7 +5130,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5261,7 +5159,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5290,7 +5188,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5320,7 +5218,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5350,7 +5248,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5380,7 +5278,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5410,7 +5308,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5440,7 +5338,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5470,7 +5368,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5500,7 +5398,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5530,7 +5428,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5562,7 +5460,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5594,7 +5492,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5626,7 +5524,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5658,7 +5556,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5690,7 +5588,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5722,7 +5620,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5752,7 +5650,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5782,7 +5680,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5812,7 +5710,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5842,7 +5740,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5872,7 +5770,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5902,7 +5800,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5932,7 +5830,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5962,7 +5860,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5992,7 +5890,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6022,7 +5920,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6052,7 +5950,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6082,7 +5980,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6112,7 +6010,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6144,7 +6042,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6176,7 +6074,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6208,7 +6106,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6240,7 +6138,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6272,7 +6170,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6304,7 +6202,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6336,7 +6234,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6368,7 +6266,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6400,7 +6298,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6430,7 +6328,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6460,7 +6358,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6490,7 +6388,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6520,7 +6418,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6550,7 +6448,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6580,7 +6478,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6610,7 +6508,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6640,7 +6538,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6670,7 +6568,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6700,7 +6598,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6730,7 +6628,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6760,7 +6658,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6790,7 +6688,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6820,7 +6718,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6850,7 +6748,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6880,7 +6778,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6910,7 +6808,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6940,7 +6838,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6970,7 +6868,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7000,7 +6898,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7030,7 +6928,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7060,7 +6958,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7090,7 +6988,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7120,7 +7018,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7150,7 +7048,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7180,7 +7078,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7210,7 +7108,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7240,7 +7138,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7270,7 +7168,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7300,7 +7198,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7330,7 +7228,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7360,7 +7258,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7390,7 +7288,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7420,7 +7318,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7450,7 +7348,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7480,7 +7378,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7510,7 +7408,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7540,7 +7438,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7570,7 +7468,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7600,7 +7498,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7632,7 +7530,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7664,7 +7562,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11221,9 +11119,8 @@
       "original_checks": [
         "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit"
       ],
-      "missing_proof_set": "9dbcf9e48a264e38",
+      "missing_proof_set": "4f53cda18c2baa0c",
       "obligations": [
-        "executable_assertion",
         "source_audit"
       ],
       "candidate_files_to_review": [
@@ -11516,7 +11413,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11548,7 +11445,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11580,7 +11477,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11612,7 +11509,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11644,7 +11541,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11676,7 +11573,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11708,7 +11605,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11740,7 +11637,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11772,7 +11669,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11804,7 +11701,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11833,7 +11730,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11862,7 +11759,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11894,7 +11791,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11926,7 +11823,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11958,7 +11855,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11990,7 +11887,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -12022,7 +11919,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -12054,7 +11951,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -12086,7 +11983,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -12118,7 +12015,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -12150,7 +12047,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "57021245e52a98fc",
+      "missing_proof_set": "bf9054e0d9dde8b8",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -14464,23 +14361,8 @@
     "23b21dd1c0219a42": [
       "test_worklane.WorklaneTests.test_merged_task_cannot_be_dispatched_from_stale_ready_board_status"
     ],
-    "b8f4b8eaab3ab62c": [
-      "test_worklane.WorklaneTests.test_closed_unmerged_or_retargeted_pr_does_not_complete_task"
-    ],
-    "e4a74b3f3e2526d7": [
-      "test_worklane.WorklaneTests.test_completion_checks_are_bounded_without_changing_feedback_cutoff"
-    ],
-    "5ab4c9d95f5ba76a": [
-      "test_worklane.WorklaneTests.test_completion_does_not_touch_live_assignments_or_completed_tasks"
-    ],
-    "9dbcf9e48a264e38": [
-      "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit"
-    ],
     "1765d1352da8c126": [
       "test_worklane.WorklaneTests.test_waiting_review_uses_direct_status_when_listing_lags"
-    ],
-    "fa15c0032617ac37": [
-      "test_worklane.WorklaneTests.test_waiting_review_reconciliation_skips_active_assignments"
     ],
     "c9c94af6e399b3d6": [
       "test_worklane.WorklaneTests.test_retry_status_drift_reuses_completed_build"
@@ -14563,7 +14445,7 @@
     "6bfbcec00eeaa082": [
       "test_worklane.WorklaneTests.test_pr_head_changes_require_fresh_review"
     ],
-    "57021245e52a98fc": [
+    "bf9054e0d9dde8b8": [
       "test_add_issue.AddIssueTests.test_ambiguous_board_never_creates_issue",
       "test_add_issue.AddIssueTests.test_concurrent_pickup_of_ready_issue_succeeds_without_resetting_status",
       "test_add_issue.AddIssueTests.test_default_creates_issue_with_literal_multiline_description_and_ready_status",
@@ -14668,12 +14550,8 @@
       "test_worklane.WorklaneTests.test_caps_three_workers_one_reviewer_and_only_authorized_statuses",
       "test_worklane.WorklaneTests.test_changed_pr_before_promotion_blocks_human_review",
       "test_worklane.WorklaneTests.test_claim_failures_increase_backoff_after_successful_board_reads",
-      "test_worklane.WorklaneTests.test_closed_unmerged_or_retargeted_pr_does_not_complete_task",
       "test_worklane.WorklaneTests.test_completed_build_retries_verification_without_another_agent_turn",
       "test_worklane.WorklaneTests.test_completed_review_and_finalizer_survive_quota_failure",
-      "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit",
-      "test_worklane.WorklaneTests.test_completion_checks_are_bounded_without_changing_feedback_cutoff",
-      "test_worklane.WorklaneTests.test_completion_does_not_touch_live_assignments_or_completed_tasks",
       "test_worklane.WorklaneTests.test_concurrent_failure_stops_remaining_claims_and_survives_clear",
       "test_worklane.WorklaneTests.test_conflict_during_finalizer_never_advances_to_human",
       "test_worklane.WorklaneTests.test_conflicts_respect_round_limit_and_human_board_edits",
@@ -14704,7 +14582,6 @@
       "test_worklane.WorklaneTests.test_three_failed_reviews_require_inspection",
       "test_worklane.WorklaneTests.test_unknown_mergeability_retries_saved_handoff_without_another_turn",
       "test_worklane.WorklaneTests.test_waiting_review_drift_is_visible_and_preserves_external_status",
-      "test_worklane.WorklaneTests.test_waiting_review_reconciliation_skips_active_assignments",
       "test_worklane.WorklaneTests.test_waiting_review_uses_direct_status_when_listing_lags",
       "test_worklane.WorklaneTests.test_worker_pass_with_open_thread_does_not_advance",
       "test_worklane.WorklaneTests.test_worker_receives_threads_and_must_resolve_them_before_completion"
@@ -17065,86 +16942,6 @@
       ],
       "reference_only_is_insufficient": true
     },
-    "test_worklane.WorklaneTests.test_closed_unmerged_or_retargeted_pr_does_not_complete_task": {
-      "batch": "workflow",
-      "source": {
-        "source": "test_worklane.py:480",
-        "end": 491,
-        "contract": "closed unmerged or retargeted pr does not complete task"
-      },
-      "obligation": "Run unchanged frozen assertions against native code with bound observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "-m",
-        "unittest",
-        "-q",
-        "test_worklane.WorklaneTests.test_closed_unmerged_or_retargeted_pr_does_not_complete_task"
-      ],
-      "reference_only_is_insufficient": true
-    },
-    "test_worklane.WorklaneTests.test_completion_checks_are_bounded_without_changing_feedback_cutoff": {
-      "batch": "workflow",
-      "source": {
-        "source": "test_worklane.py:493",
-        "end": 511,
-        "contract": "completion checks are bounded without changing feedback cutoff"
-      },
-      "obligation": "Run unchanged frozen assertions against native code with bound observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "-m",
-        "unittest",
-        "-q",
-        "test_worklane.WorklaneTests.test_completion_checks_are_bounded_without_changing_feedback_cutoff"
-      ],
-      "reference_only_is_insufficient": true
-    },
-    "test_worklane.WorklaneTests.test_completion_does_not_touch_live_assignments_or_completed_tasks": {
-      "batch": "workflow",
-      "source": {
-        "source": "test_worklane.py:513",
-        "end": 521,
-        "contract": "completion does not touch live assignments or completed tasks"
-      },
-      "obligation": "Run unchanged frozen assertions against native code with bound observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "-m",
-        "unittest",
-        "-q",
-        "test_worklane.WorklaneTests.test_completion_does_not_touch_live_assignments_or_completed_tasks"
-      ],
-      "reference_only_is_insufficient": true
-    },
-    "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit": {
-      "batch": "github",
-      "source": {
-        "source": "test_worklane.py:523",
-        "end": 535,
-        "contract": "completion api failure preserves task and rate limit"
-      },
-      "obligation": "Run unchanged frozen assertions against native code with bound observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "-m",
-        "unittest",
-        "-q",
-        "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit"
-      ],
-      "reference_only_is_insufficient": true
-    },
     "test_worklane.WorklaneTests.test_waiting_review_uses_direct_status_when_listing_lags": {
       "batch": "workflow",
       "source": {
@@ -17162,26 +16959,6 @@
         "unittest",
         "-q",
         "test_worklane.WorklaneTests.test_waiting_review_uses_direct_status_when_listing_lags"
-      ],
-      "reference_only_is_insufficient": true
-    },
-    "test_worklane.WorklaneTests.test_waiting_review_reconciliation_skips_active_assignments": {
-      "batch": "workflow",
-      "source": {
-        "source": "test_worklane.py:550",
-        "end": 555,
-        "contract": "waiting review reconciliation skips active assignments"
-      },
-      "obligation": "Run unchanged frozen assertions against native code with bound observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "-m",
-        "unittest",
-        "-q",
-        "test_worklane.WorklaneTests.test_waiting_review_reconciliation_skips_active_assignments"
       ],
       "reference_only_is_insufficient": true
     },

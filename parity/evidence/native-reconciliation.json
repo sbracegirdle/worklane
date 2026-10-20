@@ -1,0 +1,61 @@
+{
+  "mode": "differential",
+  "candidate_runtime": "native",
+  "reference_verified": true,
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "inventory_sha256": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
+  "candidate": [
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter"
+  ],
+  "candidate_hashes": {
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "75f15107726162e2f54d86a4e71b01d2b6f3c735c4bedf5c232baf3b60f797d6"
+  },
+  "release_sha256": "75f15107726162e2f54d86a4e71b01d2b6f3c735c4bedf5c232baf3b60f797d6",
+  "driver": "test_native_reconciliation.py",
+  "harness_hashes": {
+    "test_native_reconciliation.py": "23dd266a25ffa6879f656536f65806bbc2f13e3680567f85ceed3f374576ce89",
+    "tools/native_test_bridge.py": "8d52eb86f5007cca43ec32710939276ecc7d102ae167a8e4c1b06620cd3607cd"
+  },
+  "results": [
+    {
+      "id": "test_worklane.WorklaneTests.test_closed_unmerged_or_retargeted_pr_does_not_complete_task",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_completion_checks_are_bounded_without_changing_feedback_cutoff",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_completion_does_not_touch_live_assignments_or_completed_tasks",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_waiting_review_reconciliation_skips_active_assignments",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    }
+  ]
+}

@@ -18,12 +18,21 @@ use std::{
 pub struct Error {
     pub kind: &'static str,
     pub message: String,
+    pub retry_at: Option<f64>,
 }
 impl Error {
     pub fn new(kind: &'static str, message: impl Into<String>) -> Self {
         Self {
             kind,
             message: message.into(),
+            retry_at: None,
+        }
+    }
+    pub fn quota(message: impl Into<String>, retry_at: f64) -> Self {
+        Self {
+            kind: "quota",
+            message: message.into(),
+            retry_at: Some(retry_at),
         }
     }
 }

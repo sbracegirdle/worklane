@@ -8,7 +8,7 @@ import subprocess
 import sys
 import unittest
 from unittest.mock import patch
-from tools.native_test_bridge import NativeBackend, NativeRouter, NativeState, NativeLogWriter, invoke, ROOT
+from tools.native_test_bridge import NativeBackend, NativeRouter, NativeState, NativeLogWriter, invoke, ROOT, acceptance_report
 import test_sessions
 import test_harness
 import worklane as w
@@ -30,7 +30,6 @@ SESSION_EXCLUDED = {
 }
 HARNESS_EXCLUDED = {
     'test_inherited_pwd_cannot_redirect_runs_exports_or_interactive_resume',
-    'test_signal_interruption_and_controller_restart_resume_exact_id',
     'test_interactive_resume_uses_saved_harness_with_lock_and_checks_missing_history',
     'test_tui_restart_preserves_all_harness_options_and_explicit_overrides',
     'test_check_requires_only_selected_binaries_and_reports_configuration',
@@ -54,7 +53,7 @@ def native_case(original, name):
             if result.skipped:
                 self.fail('Native parity assertion was skipped: '+repr(result.skipped))
         EVIDENCE.append({'id':original.__module__+'.'+original.__name__+'.'+name,
-                         'reference':'pass','candidate':'pass'})
+                         'status':'pass','comparison':'equal','observations':{'frozen_assertions':'pass'}})
     return run
 
 
@@ -62,6 +61,7 @@ def native_case(original, name):
 class NativeAcceptanceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        EVIDENCE.clear()
         subprocess.run(['cargo','build','--locked','--offline'],cwd=ROOT,check=True,capture_output=True)
         # Prevent a changed local test or oracle from masquerading as frozen parity.
         pin = json.loads((ROOT/'parity/inventory.json').read_text())['revision']
@@ -75,7 +75,7 @@ class NativeAcceptanceTests(unittest.TestCase):
     def tearDownClass(cls):
         if os.environ.get('WORKLANE_NATIVE_EVIDENCE'):
             from pathlib import Path
-            Path(os.environ['WORKLANE_NATIVE_EVIDENCE']).write_text(json.dumps(EVIDENCE,indent=2)+'\n')
+            Path(os.environ['WORKLANE_NATIVE_EVIDENCE']).write_text(json.dumps(acceptance_report(EVIDENCE,'test_native_runtime.py'),indent=2)+'\n')
 
 
 for source, exclude in [(test_sessions.SessionTests,SESSION_EXCLUDED),(test_harness.HarnessTests,HARNESS_EXCLUDED)]:

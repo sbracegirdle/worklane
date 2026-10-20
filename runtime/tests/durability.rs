@@ -659,6 +659,159 @@ fn successful_last_point_preserves_response_without_copying_body_into_cooldown_s
 }
 
 #[test]
+fn quota_probe_failure_keeps_known_quota_and_shared_cooldown() {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use worklane_runtime::{Error, transport::CommandResult};
+    let (root, transport) = quota_transport();
+    let calls = Arc::new(AtomicUsize::new(0));
+    let seen = calls.clone();
+    let transport = transport.with_executor(Arc::new(move |request| {
+        if seen.fetch_add(1, Ordering::SeqCst) == 0 {
+            return Ok(CommandResult {
+                stdout: String::new(),
+                stderr: "API rate limit exceeded".into(),
+                exit: 1,
+            });
+        }
+        assert_eq!(request.argv[0], "/custom/gh");
+        assert!(request.argv.iter().any(|arg| arg == "graphql"));
+        Err(Error::new("busy", "probe timed out"))
+    }));
+    let mut request = fake_api(root.path(), "");
+    request.argv = vec!["/custom/gh".into(), "pr".into(), "list".into()];
+    let error = transport.call(&request).unwrap_err();
+    assert_eq!(error.kind, "quota");
+    assert_eq!(error.retry_at, Some(0.));
+    assert_eq!(error.message, "API rate limit exceeded");
+    assert_eq!(transport.snapshot().unwrap()["until"], 1060.);
+    assert_eq!(transport.call(&request).unwrap_err().retry_at, Some(1060.));
+    assert_eq!(calls.load(Ordering::SeqCst), 2);
+}
+
+#[test]
+fn successful_probe_body_is_not_a_quota_error_or_persisted_diagnostic() {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use worklane_runtime::transport::CommandResult;
+    let (root, transport) = quota_transport();
+    let calls = Arc::new(AtomicUsize::new(0));
+    let transport = transport.with_executor(Arc::new(move |_| {
+        Ok(if calls.fetch_add(1, Ordering::SeqCst) == 0 {
+            CommandResult {
+                stdout: String::new(),
+                stderr: "unknown owner type".into(),
+                exit: 1,
+            }
+        } else {
+            CommandResult {
+                stdout: json!({"data":{"viewer":{"login":"private rate limit detail"}}})
+                    .to_string(),
+                stderr: String::new(),
+                exit: 0,
+            }
+        })
+    }));
+    let mut request = fake_api(root.path(), "");
+    request.argv = vec!["gh".into(), "project".into(), "view".into(), "2".into()];
+    let error = transport.call(&request).unwrap_err();
+    assert_eq!(error.kind, "github");
+    assert_eq!(error.message, "gh failed: unknown owner type");
+    assert_eq!(transport.snapshot().unwrap(), json!({}));
+}
+
+#[test]
+fn unicode_decimal_issue_aliases_cannot_evade_cycles_or_completion_gates() {
+    use worklane_runtime::config::ConfigStore;
+    assert_eq!(ConfigStore::issue_number("4९").unwrap(), 49);
+    assert!(ConfigStore::issue_number("4!").is_err());
+    assert!(ConfigStore::issue_number("").is_err());
+    let values = json!({"stack_dependencies":["50:4९"],"project":"owner/2९"});
+    assert_eq!(
+        ConfigStore::validate(&values).unwrap()["stack_dependencies"],
+        values["stack_dependencies"]
+    );
+    assert!(
+        ConfigStore::validate(&json!({"stack_dependencies":["50:5३"],"completion_gates":[53]}))
+            .unwrap_err()
+            .message
+            .contains("Completion gate #53")
+    );
+    assert!(
+        ConfigStore::validate(&json!({"stack_dependencies":["50:5३","53:50"]}))
+            .unwrap_err()
+            .message
+            .contains("cycle")
+    );
+}
+
+#[test]
+fn cached_browser_launch_survives_helper_exit_without_controller_ownership_or_cooldown_changes() {
+    use std::os::unix::fs::PermissionsExt;
+    use worklane_runtime::{actions::Actions, harness::AgentHarness};
+    let (root, mut transport) = quota_transport();
+    let state = StateStore::with_dependencies(
+        "owner/repo",
+        Some(root.path()),
+        transport.budget.deps.clone(),
+    )
+    .unwrap();
+    let url = "https://github.com/owner/repo/pull/12";
+    state
+        .set_meta(
+            &format!("tui:pr:{url}"),
+            &json!({"value":{"number":12,"url":url},"retry_at":5000.}),
+        )
+        .unwrap();
+    let cooldown = json!({"until":5000.,"error":"fixture quota","delay":60});
+    transport
+        .budget
+        .set_meta("github_backoff", &cooldown)
+        .unwrap();
+    let executable = root.path().join("fake-gh");
+    std::fs::write(
+        &executable,
+        "#!/bin/sh\nsleep 60 </dev/null >/dev/null 2>&1 &\nprintf '%s' \"$!\" > browser.pid\n",
+    )
+    .unwrap();
+    std::fs::set_permissions(&executable, std::fs::Permissions::from_mode(0o700)).unwrap();
+    transport.executable = executable;
+    let actions = Actions {
+        agent: AgentHarness::new(root.path(), &state, &json!({})).unwrap(),
+        state,
+        root: root.path().into(),
+        transport: transport.clone(),
+        invocation: Default::default(),
+    };
+    actions.open_pr(&json!({"pr_url":url})).unwrap();
+    let pid = std::fs::read_to_string(root.path().join("browser.pid"))
+        .unwrap()
+        .parse::<i32>()
+        .unwrap();
+    let birth =
+        ProcessSupervisor::identity(pid).expect("launched browser must survive the gh helper");
+    // Clean up only the fake browser created by this test, including assertion failures.
+    struct Browser(worklane_runtime::process::ProcessRef);
+    impl Drop for Browser {
+        fn drop(&mut self) {
+            let _ = ProcessSupervisor::terminate_owned(
+                std::slice::from_ref(&self.0),
+                &[],
+                Duration::ZERO,
+                &Default::default(),
+            );
+        }
+    }
+    let _browser = Browser(worklane_runtime::process::ProcessRef { pid, birth });
+    let environment = std::fs::read(format!("/proc/{pid}/environ")).unwrap();
+    assert!(
+        !environment
+            .split(|b| *b == 0)
+            .any(|value| value.starts_with(b"WORKLANE_PROCESS_OWNER=")
+                || value.starts_with(b"WORKLANE_CONTROLLER_OWNER="))
+    );
+    assert_eq!(transport.snapshot().unwrap(), cooldown);
+}
+
+#[test]
 fn prepared_schema_is_in_memory_and_uses_the_shared_schema_argument() {
     use std::{
         fs::File,

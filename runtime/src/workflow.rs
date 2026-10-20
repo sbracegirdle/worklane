@@ -462,12 +462,7 @@ impl Workflow {
             .map(|e| {
                 let s = e.as_str().unwrap();
                 let (a, b) = s.split_once(':').unwrap();
-                Ok((
-                    a.parse::<i64>()
-                        .map_err(|_| Error::new("validation", "Issue number exceeds range."))?,
-                    b.parse::<i64>()
-                        .map_err(|_| Error::new("validation", "Issue number exceeds range."))?,
-                ))
+                Ok((ConfigStore::issue_number(a)?, ConfigStore::issue_number(b)?))
             })
             .collect::<Result<_>>()?;
         let gates = list(&c["completion_gates"])

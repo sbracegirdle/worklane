@@ -14,6 +14,7 @@ use std::{
     },
     path::{Path, PathBuf},
     process::{Command, Stdio},
+    sync::Arc,
     time::{Duration, Instant},
 };
 #[derive(Clone, Debug)]
@@ -30,6 +31,8 @@ pub struct CommandResult {
     pub stderr: String,
     pub exit: i32,
 }
+/// A command boundary shared by real subprocesses and deterministic acceptance drivers.
+pub type CommandExecutor = Arc<dyn Fn(&CommandRequest) -> Result<CommandResult> + Send + Sync>;
 pub fn nonblocking(fd: RawFd) -> Result<()> {
     let flags = unsafe { libc::fcntl(fd, libc::F_GETFL) };
     if flags < 0 || unsafe { libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK) } < 0 {
@@ -59,6 +62,12 @@ pub fn readable(fd: RawFd, deadline: Instant) -> Result<()> {
 }
 /// Bounded capture with simultaneous stdin/stdout/stderr servicing, deadline and descendant cleanup.
 pub fn execute(request: &CommandRequest) -> Result<CommandResult> {
+    capture(request, true)
+}
+fn execute_browser(request: &CommandRequest) -> Result<CommandResult> {
+    capture(request, false)
+}
+fn capture(request: &CommandRequest, managed: bool) -> Result<CommandResult> {
     let argv = &request.argv;
     let exe = argv
         .first()
@@ -72,8 +81,18 @@ pub fn execute(request: &CommandRequest) -> Result<CommandResult> {
         .stdout(Stdio::piped())
         .stderr(Stdio::piped());
     ProcessSupervisor::prepare(&mut command, &[]);
-    let token = uuid::Uuid::new_v4().simple().to_string();
-    command.env(crate::process::OWNER_ENV, &token);
+    let token = if managed {
+        uuid::Uuid::new_v4().simple().to_string()
+    } else {
+        String::new()
+    };
+    if managed {
+        command.env(crate::process::OWNER_ENV, &token);
+    } else {
+        command
+            .env_remove(crate::process::OWNER_ENV)
+            .env_remove(crate::process::CONTROLLER_ENV);
+    }
     let mut child = OwnedChild::new(command.spawn()?, token);
     let mut input = child.child.stdin.take();
     let mut out = child.child.stdout.take().unwrap();
@@ -258,12 +277,16 @@ pub struct GitHubTransport {
     pub executable: PathBuf,
     pub budget: StateStore,
     controller_token: String,
+    executor: CommandExecutor,
+    browser_executor: CommandExecutor,
 }
 impl GitHubTransport {
     pub fn new(state: &StateStore, cwd: &Path) -> Result<Self> {
         Ok(Self {
             cwd: cwd.into(),
             executable: "gh".into(),
+            executor: Arc::new(execute),
+            browser_executor: Arc::new(execute_browser),
             controller_token: crate::string(
                 &state.get_meta("runtime", json!({}))?,
                 "ownership_token",
@@ -275,6 +298,11 @@ impl GitHubTransport {
             )?,
         })
     }
+    pub fn with_executor(mut self, executor: CommandExecutor) -> Self {
+        self.executor = executor.clone();
+        self.browser_executor = executor;
+        self
+    }
     fn timestamp(&self) -> Result<f64> {
         let value = chrono::DateTime::parse_from_rfc3339(&self.budget.deps.clock.now())
             .map_err(|e| Error::new("validation", e.to_string()))?;
@@ -283,9 +311,9 @@ impl GitHubTransport {
     pub fn check(&self) -> Result<()> {
         let s = self.budget.get_meta("github_backoff", json!({}))?;
         if self.timestamp()? < s["until"].as_f64().unwrap_or(0.) {
-            return Err(Error::new(
-                "quota",
+            return Err(Error::quota(
                 s["error"].as_str().unwrap_or("GitHub cooldown active."),
+                s["until"].as_f64().unwrap_or(0.),
             ));
         }
         Ok(())
@@ -308,7 +336,15 @@ impl GitHubTransport {
     pub fn call(&self, request: &CommandRequest) -> Result<CommandResult> {
         let _l = ProcessSupervisor::lock(&self.budget.path.join("budget.lock"), true)?;
         self.check()?;
-        let response = execute(request)?;
+        self.raw_call(request, true)
+    }
+    fn raw_call(&self, request: &CommandRequest, budgeted: bool) -> Result<CommandResult> {
+        let executor = if budgeted {
+            &self.executor
+        } else {
+            &self.browser_executor
+        };
+        let response = executor(request)?;
         let detail = [response.stdout.trim(), response.stderr.trim()]
             .into_iter()
             .filter(|s| !s.is_empty())
@@ -335,7 +371,7 @@ impl GitHubTransport {
         {
             let mut probe = request.clone();
             probe.argv = [
-                "gh",
+                request.argv[0].as_str(),
                 "api",
                 "-i",
                 "graphql",
@@ -345,21 +381,40 @@ impl GitHubTransport {
             .map(str::to_owned)
             .into();
             probe.stdin = None;
-            let p = execute(&probe)?;
-            let d = format!("{}\n{}", p.stdout, p.stderr);
-            if let Some(r) = rate_limit(&d, self.timestamp()?) {
-                self.record(&d, r)?;
-                return Err(Error::new("quota", d));
-            }
-            if limited.is_none() && p.exit != 0 {
-                return Err(Error::new("github", format!("gh failed: {}", d.trim())));
+            match executor(&probe) {
+                Ok(p) => {
+                    let d = [p.stdout.trim(), p.stderr.trim()]
+                        .into_iter()
+                        .filter(|s| !s.is_empty())
+                        .collect::<Vec<_>>()
+                        .join("\n");
+                    let failed =
+                        p.exit != 0 || graphql_body(&p.stdout).ok().is_some_and(|v| has_errors(&v));
+                    let probe_rate = if failed {
+                        rate_limit(&d, self.timestamp()?)
+                    } else {
+                        None
+                    };
+                    if let Some(r) = probe_rate {
+                        if budgeted {
+                            self.record(&d, r)?;
+                        }
+                        return Err(Error::quota(d, r));
+                    }
+                    if limited.is_none() && p.exit != 0 {
+                        return Err(Error::new("github", format!("gh failed: {d}")));
+                    }
+                }
+                Err(error) if limited.is_none() => return Err(error),
+                Err(_) => {} // Preserve the authoritative quota failure when its probe fails.
             }
         }
-        if response
-            .stdout
-            .casefold()
-            .lines()
-            .any(|s| s.trim() == "x-ratelimit-remaining: 0")
+        if budgeted
+            && response
+                .stdout
+                .casefold()
+                .lines()
+                .any(|s| s.trim() == "x-ratelimit-remaining: 0")
             && response.exit == 0
             && !graphql_errors
         {
@@ -375,8 +430,10 @@ impl GitHubTransport {
             )?;
         }
         if let Some(retry) = limited {
-            self.record(rate_detail, retry)?;
-            return Err(Error::new("quota", rate_detail));
+            if budgeted {
+                self.record(rate_detail, retry)?;
+            }
+            return Err(Error::quota(rate_detail, retry));
         }
         if response.exit != 0 {
             return Err(Error::new("github", format!("gh failed: {detail}")));
@@ -384,22 +441,29 @@ impl GitHubTransport {
         Ok(response)
     }
     pub fn text(&self, args: &[&str], stdin: Option<&str>) -> Result<String> {
+        Ok(self.call(&self.request(args, stdin))?.stdout.trim().into())
+    }
+    /// A user browser action remains available from cached details during API cooldown.
+    pub fn browse_pr(&self, repo: &str, url: &str) -> Result<()> {
+        self.raw_call(
+            &self.request(&["pr", "view", url, "--repo", repo, "--web"], None),
+            false,
+        )?;
+        Ok(())
+    }
+    fn request(&self, args: &[&str], stdin: Option<&str>) -> CommandRequest {
         let mut argv = vec![self.executable.to_string_lossy().into_owned()];
         argv.extend(args.iter().map(|s| s.to_string()));
-        Ok(self
-            .call(&CommandRequest {
-                argv,
-                cwd: self.cwd.clone(),
-                stdin: stdin.map(str::to_owned),
-                timeout: Duration::from_secs(120),
-                environment: BTreeMap::from([(
-                    crate::process::CONTROLLER_ENV.into(),
-                    self.controller_token.clone(),
-                )]),
-            })?
-            .stdout
-            .trim()
-            .into())
+        CommandRequest {
+            argv,
+            cwd: self.cwd.clone(),
+            stdin: stdin.map(str::to_owned),
+            timeout: Duration::from_secs(120),
+            environment: BTreeMap::from([(
+                crate::process::CONTROLLER_ENV.into(),
+                self.controller_token.clone(),
+            )]),
+        }
     }
     pub fn json(&self, args: &[&str]) -> Result<Value> {
         Ok(serde_json::from_str(&self.text(args, None)?)?)
@@ -471,7 +535,7 @@ fn graphql_body(s: &str) -> Result<Value> {
             .unwrap_or(&normalized),
     )?)
 }
-fn rate_limit(s: &str, now: f64) -> Option<f64> {
+pub fn rate_limit(s: &str, now: f64) -> Option<f64> {
     let lower = s.casefold();
     if !["rate limit", "rate_limit", "secondary rate"]
         .iter()
@@ -487,8 +551,8 @@ fn rate_limit(s: &str, now: f64) -> Option<f64> {
     }
     let mut retry = 0.;
     if let Some(v) = headers.get("retry-after") {
-        retry = if let Ok(n) = v.parse::<f64>() {
-            now + n
+        retry = if let Some(digits) = crate::unicode::decimal_text(v) {
+            now + digits.parse::<f64>().unwrap_or(0.)
         } else {
             chrono::DateTime::parse_from_rfc2822(v)
                 .map(|d| d.timestamp() as f64)

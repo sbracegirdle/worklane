@@ -9,6 +9,11 @@ use std::{
 
 pub struct ConfigStore;
 impl ConfigStore {
+    pub fn issue_number(value: &str) -> Result<i64> {
+        crate::unicode::decimal_text(value)
+            .and_then(|s| s.parse::<i64>().ok())
+            .ok_or_else(|| Error::new("validation", "Issue number exceeds range or is invalid."))
+    }
     pub fn defaults() -> Value {
         json!({"harness":"codex","workers":3,"model":"","effort":"high","interval":60,"project":"","stack_dependencies":[],"completion_gates":[],"worker_harness":"","worker_model":"","reviewer_harness":"","reviewer_model":"","finalizer_harness":"","finalizer_model":""})
     }
@@ -101,12 +106,21 @@ impl ConfigStore {
         let mut graph: BTreeMap<String, Vec<String>> = BTreeMap::new();
         for edge in edges {
             let (c, p) = edge.as_str().unwrap().split_once(':').unwrap();
-            if gates.iter().any(|n| n.as_i64() == p.parse::<i64>().ok()) {
+            let c = crate::unicode::decimal_text(c).ok_or_else(|| {
+                invalid("stack_dependencies must list CHILD:PARENT issue numbers.".into())
+            })?;
+            let p = crate::unicode::decimal_text(p).ok_or_else(|| {
+                invalid("stack_dependencies must list CHILD:PARENT issue numbers.".into())
+            })?;
+            if gates
+                .iter()
+                .any(|n| n.as_i64().is_some_and(|n| n.to_string() == p))
+            {
                 return Err(invalid(format!(
                     "Completion gate #{p} cannot be stackable."
                 )));
             }
-            graph.entry(c.into()).or_default().push(p.into());
+            graph.entry(c).or_default().push(p);
         }
         fn visit(
             node: &str,
@@ -151,7 +165,8 @@ impl ConfigStore {
             Err(e) => return Err(e.into()),
         };
         // Validate the file before applying overrides: malformed saved configuration never resets silently.
-        Self::validate(&values)?;
+        Self::validate(&values)
+            .map_err(|e| Error::new(e.kind, format!("{}: {e}", path.display())))?;
         for (k, v) in overrides
             .as_object()
             .ok_or_else(|| Error::new("validation", "Configuration overrides must be a table."))?

@@ -1,237 +1,405 @@
-[
-  {
-    "id": "test_harness.HarnessTests.test_deleted_controller_pwd_does_not_prevent_worker_start",
-    "reference": "pass",
-    "candidate": "pass"
+{
+  "mode": "differential",
+  "candidate_runtime": "native",
+  "reference_verified": true,
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "inventory_sha256": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
+  "candidate": [
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter"
+  ],
+  "candidate_hashes": {
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "c9e0174bb6a7d11b68a16fafe433e97d6198665fbeb285ea3f43d9ba38a54058"
   },
-  {
-    "id": "test_harness.HarnessTests.test_deleted_session_blocks_before_starting_new_turn",
-    "reference": "pass",
-    "candidate": "pass"
+  "release_sha256": "c9e0174bb6a7d11b68a16fafe433e97d6198665fbeb285ea3f43d9ba38a54058",
+  "driver": "test_native_runtime.py",
+  "harness_hashes": {
+    "test_native_runtime.py": "75e018c662fa0627760835d7a1e78e19edf4bd5fcbec35921dc396ac6d78a40a",
+    "tools/native_test_bridge.py": "ad4824cd5867930b4e29f30e222716634e3114107bdf18d1dba50c20beea0d03"
   },
-  {
-    "id": "test_harness.HarnessTests.test_each_role_has_separate_named_session_and_persistent_wire_events",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_harness.HarnessTests.test_failed_opencode_queued_input_is_retried_with_saved_session",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_harness.HarnessTests.test_global_default_role_overrides_and_models",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_harness.HarnessTests.test_incomplete_failed_and_invalid_results_never_pass",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_harness.HarnessTests.test_mismatched_session_rolls_back_raw_event_and_mapping",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_harness.HarnessTests.test_missing_session_does_not_fall_back_to_new_conversation",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_harness.HarnessTests.test_permissions_disable_subagents_and_preserve_user_denials",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_harness.HarnessTests.test_queued_input_resumes_exact_opencode_conversation_for_every_role",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_harness.HarnessTests.test_rejects_wrong_worktree_and_harness",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_harness.HarnessTests.test_resume_after_failure_preserves_session_and_feedback",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_harness.HarnessTests.test_saved_harness_and_model_survive_configuration_changes",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_harness.HarnessTests.test_stop_request_interrupts_every_role_and_resumes_exact_session",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_harness.HarnessTests.test_successful_turns_clean_detached_descendants_before_replacing_owner",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_harness.HarnessTests.test_timeout_retains_session_and_immediate_stop_starts_no_process",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_harness.HarnessTests.test_tool_steps_do_not_complete_turn_or_pollute_result",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_all_agent_storage_is_sqlite_without_json_or_log_files",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_ambiguous_projects_do_not_create_or_assign_an_arbitrary_project",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_concurrent_sessions_create_one_project",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_configured_model_and_effort_reach_every_role_and_resume_exact_session",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_controller_output_is_logged_in_database",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_database_prevents_cross_role_session_reuse",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_deleted_worktree_never_creates_replacement_session",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_existing_project_is_matched_by_root_across_pages_not_name",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_feedback_and_reopen_resume_exact_worker_session",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_four_concurrent_writers_and_reopen",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_input_completion_serializes_with_new_submissions_and_bounds_queue",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_input_survives_failed_delivery_and_restarts_only_in_matching_role",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_invalid_session_event_rolls_back_event_and_log",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_json_migration_is_atomic_idempotent_and_archives_originals_in_sqlite",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_json_migration_recovers_known_session_from_legacy_log",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_live_input_runs_followup_in_exact_session_before_returning_result",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_metadata_failure_is_logged_and_resume_retries_same_session",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_migration_from_sqlite_v1_imports_files_and_normalizes_payloads",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_mismatched_resume_id_is_rejected",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_missing_id_never_falls_back_to_new_session",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_project_uses_primary_checkout_and_preserves_execution_worktree",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_provider_failure_keeps_session_for_explicit_retry",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_queued_followup_rechecks_security_before_resuming_agent",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_resume_updates_name_and_reuses_project_after_controller_restart",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_session_event_and_mapping_commit_together_before_crash",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_session_is_committed_before_turn_finishes",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_session_names_include_repository_issue_role_and_clean_title",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_stale_task_save_cannot_erase_session",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_timeout_retains_session",
-    "reference": "pass",
-    "candidate": "pass"
-  },
-  {
-    "id": "test_sessions.SessionTests.test_worker_reviewer_and_finalizer_are_separate_and_resumable",
-    "reference": "pass",
-    "candidate": "pass"
-  }
-]
+  "results": [
+    {
+      "id": "test_harness.HarnessTests.test_deleted_controller_pwd_does_not_prevent_worker_start",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_deleted_session_blocks_before_starting_new_turn",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_each_role_has_separate_named_session_and_persistent_wire_events",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_failed_opencode_queued_input_is_retried_with_saved_session",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_global_default_role_overrides_and_models",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_incomplete_failed_and_invalid_results_never_pass",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_mismatched_session_rolls_back_raw_event_and_mapping",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_missing_session_does_not_fall_back_to_new_conversation",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_permissions_disable_subagents_and_preserve_user_denials",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_queued_input_resumes_exact_opencode_conversation_for_every_role",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_rejects_wrong_worktree_and_harness",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_resume_after_failure_preserves_session_and_feedback",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_saved_harness_and_model_survive_configuration_changes",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_signal_interruption_and_controller_restart_resume_exact_id",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_stop_request_interrupts_every_role_and_resumes_exact_session",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_successful_turns_clean_detached_descendants_before_replacing_owner",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_timeout_retains_session_and_immediate_stop_starts_no_process",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_harness.HarnessTests.test_tool_steps_do_not_complete_turn_or_pollute_result",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_all_agent_storage_is_sqlite_without_json_or_log_files",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_ambiguous_projects_do_not_create_or_assign_an_arbitrary_project",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_concurrent_sessions_create_one_project",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_configured_model_and_effort_reach_every_role_and_resume_exact_session",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_controller_output_is_logged_in_database",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_database_prevents_cross_role_session_reuse",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_deleted_worktree_never_creates_replacement_session",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_existing_project_is_matched_by_root_across_pages_not_name",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_feedback_and_reopen_resume_exact_worker_session",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_four_concurrent_writers_and_reopen",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_input_completion_serializes_with_new_submissions_and_bounds_queue",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_input_survives_failed_delivery_and_restarts_only_in_matching_role",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_invalid_session_event_rolls_back_event_and_log",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_json_migration_is_atomic_idempotent_and_archives_originals_in_sqlite",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_json_migration_recovers_known_session_from_legacy_log",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_live_input_runs_followup_in_exact_session_before_returning_result",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_metadata_failure_is_logged_and_resume_retries_same_session",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_migration_from_sqlite_v1_imports_files_and_normalizes_payloads",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_mismatched_resume_id_is_rejected",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_missing_id_never_falls_back_to_new_session",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_project_uses_primary_checkout_and_preserves_execution_worktree",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_provider_failure_keeps_session_for_explicit_retry",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_queued_followup_rechecks_security_before_resuming_agent",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_resume_updates_name_and_reuses_project_after_controller_restart",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_session_event_and_mapping_commit_together_before_crash",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_session_is_committed_before_turn_finishes",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_session_names_include_repository_issue_role_and_clean_title",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_stale_task_save_cannot_erase_session",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_timeout_retains_session",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_worker_reviewer_and_finalizer_are_separate_and_resumable",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    }
+  ]
+}

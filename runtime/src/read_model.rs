@@ -304,13 +304,14 @@ impl ReadModel {
         let mut saved = self.state.get_meta(&owner, json!({}))?;
         let now = chrono::DateTime::parse_from_rfc3339(&self.state.deps.clock.now())
             .map_err(|e| Error::new("validation", e.to_string()))?
-            .timestamp() as f64;
+            .timestamp_micros() as f64
+            / 1_000_000.;
         if now >= saved["retry_at"].as_f64().unwrap_or(0.) {
             match loader() {
                 Ok(value) => saved = json!({"value":value,"retry_at":now+60.}),
                 Err(e) => {
                     saved["error"] = json!(e.to_string());
-                    saved["retry_at"] = json!(now + 60.);
+                    saved["retry_at"] = json!((now + 60.).max(e.retry_at.unwrap_or(0.)));
                 }
             }
             self.state.set_meta(&owner, &saved)?;

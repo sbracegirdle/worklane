@@ -10,14 +10,18 @@ use std::{
 use worklane_runtime::{
     config::ConfigStore,
     harness::{self, AgentHarness, OpenCodeTurn},
-    process::{ProcessRef, ProcessSupervisor, Processes},
+    process::{ProcessRef, ProcessSupervisor},
     state::StateStore,
     *,
 };
 fn state(request: &Value) -> Result<StateStore> {
     let root = request["state_root"].as_str().map(Path::new);
     let deps = if request["real_dependencies"] == true {
-        Dependencies::default()
+        let mut deps = Dependencies::default();
+        if let Some(clock) = request["clock"].as_str() {
+            deps.clock = Arc::new(FixedClock(clock.into()));
+        }
+        deps
     } else {
         Dependencies {
             clock: Arc::new(FixedClock(
@@ -68,6 +72,9 @@ fn run(request: &Value) -> Result<Value> {
             unsafe { libc::_exit(99) }
         }
         "controller.run" => controller_fixture(request),
+        "transport.call" | "board.call" | "workflow.call" | "action.call" | "read.call" => {
+            boundary_fixture(request)
+        }
         "security.call" => security_fixture(request),
         "board.project" => {
             let state = state(request)?;
@@ -133,6 +140,7 @@ fn run(request: &Value) -> Result<Value> {
             worklane_runtime::read_model::ReadModel::new(state(request)?).snapshot(None)
         }
         "config.validate" => ConfigStore::validate(&request["values"]),
+        "config.number" => Ok(json!(ConfigStore::issue_number(&string(request, "value"))?)),
         "config.resolve" => ConfigStore::resolve(
             request["root"].as_str().map(Path::new).unwrap_or(&cwd),
             request.get("overrides").unwrap_or(&json!({})),
@@ -181,18 +189,25 @@ fn run(request: &Value) -> Result<Value> {
                 .filter_map(Value::as_str)
                 .map(str::to_owned)
                 .collect::<Vec<_>>();
+            let known = request["known"]
+                .as_object()
+                .map(|values| {
+                    values
+                        .iter()
+                        .filter_map(|(pid, birth)| {
+                            Some((pid.parse().ok()?, birth.as_str()?.to_string()))
+                        })
+                        .collect()
+                })
+                .unwrap_or_default();
             if op == "process.owned" {
-                Ok(json!(ProcessSupervisor::owned(
-                    &roots,
-                    &tokens,
-                    &Processes::new()
-                )))
+                Ok(json!(ProcessSupervisor::owned(&roots, &tokens, &known)))
             } else {
                 Ok(json!(ProcessSupervisor::terminate_owned(
                     &roots,
                     &tokens,
                     Duration::from_secs_f64(request["grace"].as_f64().unwrap_or(0.1)),
-                    &Processes::new()
+                    &known
                 )?))
             }
         }
@@ -513,6 +528,280 @@ fn selected_board(request: &Value, state: &StateStore, root: &Path) -> Result<bo
         security: Value::Null,
         public_warning_shown: Default::default(),
     })
+}
+// Anonymous pipes are inherited only by this test driver, never by provider processes.
+fn callback(request: &Value) -> Result<Arc<dyn Fn(Value) -> Result<Value> + Send + Sync>> {
+    use std::{io::Write, os::fd::FromRawFd, sync::Mutex, time::Instant};
+    let read = request["callback_read_fd"]
+        .as_i64()
+        .ok_or_else(|| Error::new("validation", "Missing callback input."))? as i32;
+    let write = request["callback_write_fd"]
+        .as_i64()
+        .ok_or_else(|| Error::new("validation", "Missing callback output."))?
+        as i32;
+    unsafe {
+        libc::fcntl(read, libc::F_SETFD, libc::FD_CLOEXEC);
+        libc::fcntl(write, libc::F_SETFD, libc::FD_CLOEXEC);
+    }
+    transport::nonblocking(read)?;
+    transport::nonblocking(write)?;
+    let stream = Mutex::new(unsafe {
+        (
+            std::fs::File::from_raw_fd(read),
+            std::fs::File::from_raw_fd(write),
+        )
+    });
+    Ok(Arc::new(move |event| {
+        let mut stream = stream
+            .lock()
+            .map_err(|_| Error::new("io", "Callback lock poisoned."))?;
+        let deadline = Instant::now() + Duration::from_secs(10);
+        let mut outgoing = serde_json::to_vec(&event)?;
+        outgoing.push(b'\n');
+        if outgoing.len() > 16 * 1024 * 1024 {
+            return fail("Oversized callback request.");
+        }
+        let mut written = 0;
+        while written < outgoing.len() {
+            if Instant::now() >= deadline {
+                return fail("Callback write timed out.");
+            }
+            match stream.1.write(&outgoing[written..]) {
+                Ok(0) => return fail("Callback closed while writing."),
+                Ok(n) => written += n,
+                Err(e) if e.kind() == io::ErrorKind::WouldBlock => {
+                    std::thread::sleep(Duration::from_millis(1))
+                }
+                Err(e) => return Err(e.into()),
+            }
+        }
+        let mut incoming = Vec::new();
+        loop {
+            transport::readable(read, deadline)?;
+            let mut bytes = [0; 4096];
+            match stream.0.read(&mut bytes) {
+                Ok(0) => return fail("Callback closed before replying."),
+                Ok(n) => incoming.extend_from_slice(&bytes[..n]),
+                Err(e) if e.kind() == io::ErrorKind::WouldBlock => continue,
+                Err(e) => return Err(e.into()),
+            }
+            if incoming.len() > 16 * 1024 * 1024 {
+                return fail("Oversized callback response.");
+            }
+            if incoming.last() == Some(&b'\n') {
+                break;
+            }
+        }
+        let value: Value = serde_json::from_slice(&incoming)?;
+        if let Some(error) = value["error"].as_str() {
+            let kind = match value["kind"].as_str() {
+                Some("quota") => "quota",
+                Some("busy") => "busy",
+                Some("io") => "io",
+                _ => "github",
+            };
+            return Err(if kind == "quota" {
+                Error::quota(error, value["retry_at"].as_f64().unwrap_or(0.))
+            } else {
+                Error::new(kind, error)
+            });
+        }
+        Ok(value["ok"].clone())
+    }))
+}
+fn boundary_fixture(request: &Value) -> Result<Value> {
+    let state = state(request)?;
+    let root = request["root"]
+        .as_str()
+        .map(PathBuf::from)
+        .unwrap_or(std::env::current_dir()?);
+    let call = callback(request)?;
+    let transport = transport::GitHubTransport::new(&state,&root)?.with_executor(Arc::new(move |r| {
+        let v = call(json!({"argv":r.argv,"cwd":r.cwd,"stdin":r.stdin,"timeout":r.timeout.as_secs_f64()}))?;
+        Ok(transport::CommandResult { stdout:string(&v,"stdout"),stderr:string(&v,"stderr"),exit:v["exit"].as_i64().unwrap_or(0) as i32 })
+    }));
+    let method = string(request, "method");
+    if request["op"] == "read.call" {
+        let argv = request["argv"]
+            .as_array()
+            .ok_or_else(|| Error::new("validation", "Missing read argv."))?;
+        let argv = argv
+            .iter()
+            .map(|v| v.as_str().unwrap_or_default())
+            .collect::<Vec<_>>();
+        let (value, error) = read_model::ReadModel::new(state)
+            .cached_page(&string(request, "key"), || transport.json(&argv))?;
+        return Ok(json!({"value":value,"error":error}));
+    }
+    if request["op"] == "action.call" {
+        let actions = actions::Actions {
+            agent: AgentHarness::new(&root, &state, &json!({}))?,
+            state,
+            transport,
+            root,
+            invocation: Default::default(),
+        };
+        actions.open_pr(&request["task"])?;
+        return Ok(Value::Null);
+    }
+    if request["op"] == "transport.call" {
+        let result = if method == "rate" {
+            Ok(json!(transport::rate_limit(
+                &string(request, "detail"),
+                request["now"].as_f64().unwrap_or(0.)
+            )))
+        } else if method == "graphql" {
+            transport.graphql(&string(request, "query"), &request["variables"])
+        } else {
+            let argv = request["argv"]
+                .as_array()
+                .ok_or_else(|| Error::new("validation", "Missing argv."))?
+                .iter()
+                .map(|v| v.as_str().unwrap_or_default().to_string())
+                .collect();
+            transport
+                .call(&transport::CommandRequest {
+                    argv,
+                    cwd: root,
+                    stdin: request["stdin"].as_str().map(str::to_owned),
+                    timeout: Duration::from_secs(120),
+                    environment: Default::default(),
+                })
+                .map(|r| json!(r.stdout.trim()))
+        };
+        return Ok(match result {
+            Ok(value) => json!({"value":value,"budget":transport.snapshot()?}),
+            Err(error) => {
+                json!({"error":error.message,"kind":error.kind,"retry_at":error.retry_at,"budget":transport.snapshot()?})
+            }
+        });
+    }
+    let mut board = selected_board(request, &state, &root)?;
+    board.transport = transport;
+    let attrs = &request["board"];
+    if let Some(s) = attrs["repo"].as_str() {
+        board.repo = s.into();
+    }
+    if let Some(s) = attrs["owner"].as_str() {
+        board.owner = s.into();
+    }
+    if let Some(n) = attrs["number"].as_i64() {
+        board.number = n;
+    }
+    if let Some(v) = attrs.get("project") {
+        board.project = v.clone();
+    }
+    if let Some(v) = attrs.get("field") {
+        board.field = v.clone();
+    }
+    if let Some(v) = attrs.get("options") {
+        board.options = serde_json::from_value(v.clone())?;
+    }
+    if let Some(v) = attrs.get("required_statuses") {
+        board.required_statuses = serde_json::from_value(v.clone())?;
+    }
+    if request["op"] == "board.call" {
+        let value = match method.as_str() {
+            "items" => json!(board.items()?),
+            "linked_prs" => json!(board.linked_prs(&request["id"], request["connection"].clone())?),
+            "refresh_fields" => {
+                board.refresh_fields()?;
+                Value::Null
+            }
+            "ensure_review_status" => {
+                board.ensure_review_status()?;
+                Value::Null
+            }
+            "dependencies_ready" => {
+                let mut item = request["item"].clone();
+                let ready = board.dependencies_ready(&mut item)?;
+                json!({"ready":ready,"item":item})
+            }
+            "item_status" => json!(board.item_status(&request["item"])?),
+            "move" => {
+                board.move_item(
+                    &request["item"],
+                    &string(request, "status"),
+                    &string(request, "expected"),
+                )?;
+                Value::Null
+            }
+            "dependency_count" => json!(board::dependency_count(&request["issue"])?),
+            _ => return fail("Unknown board boundary method."),
+        };
+        return Ok(
+            json!({"value":value,"board":{"project":board.project,"field":board.field,"options":board.options}}),
+        );
+    }
+    let agent = AgentHarness::new(&root, &state, &json!({}))?;
+    let mut flow = workflow::Workflow::new(state, board, agent, root, "main".into());
+    flow.stack_items = request["stack_items"]
+        .as_array()
+        .cloned()
+        .unwrap_or_default();
+    flow.feedback_unavailable = request["feedback_unavailable"]
+        .as_array()
+        .cloned()
+        .unwrap_or_default()
+        .iter()
+        .filter_map(Value::as_i64)
+        .collect();
+    if matches!(
+        method.as_str(),
+        "poll"
+            | "pick"
+            | "recover"
+            | "dependencies_ready"
+            | "reconcile_completed"
+            | "reconcile_waiting"
+    ) {
+        let mut items = request["items"].as_array().cloned().unwrap_or_default();
+        let mut item = request["item"].clone();
+        let active = request["active"]
+            .as_array()
+            .cloned()
+            .unwrap_or_default()
+            .iter()
+            .filter_map(Value::as_i64)
+            .collect();
+        let result = match method.as_str() {
+            "poll" => flow
+                .poll_human_feedback(&mut items, &active)
+                .map(|_| Value::Null),
+            "pick" => flow
+                .pick(&mut item, &string(request, "slot"))
+                .map(|t| json!(t)),
+            "recover" => flow
+                .recover(&mut items, &string(request, "slot"))
+                .map(|t| json!(t)),
+            "dependencies_ready" => flow
+                .dependencies_ready(&mut item, request.get("saved"))
+                .map(|r| json!(r)),
+            "reconcile_completed" => flow
+                .reconcile_completed(&items, &active)
+                .map(|_| Value::Null),
+            "reconcile_waiting" => flow
+                .reconcile_waiting(&mut items, &active)
+                .map(|_| Value::Null),
+            _ => unreachable!(),
+        };
+        let mut output =
+            json!({"item":item,"items":items,"feedback_unavailable":flow.feedback_unavailable});
+        match result {
+            Ok(value) => output["value"] = value,
+            Err(error) => {
+                output["error"] = json!(error.message);
+                output["kind"] = json!(error.kind);
+            }
+        }
+        return Ok(output);
+    }
+    match method.as_str() {
+        "review_threads" => Ok(json!(flow.review_threads(&string(request, "url"))?)),
+        "human_feedback" => flow.human_feedback(&request["task"]),
+        "pr_number" => Ok(json!(flow.pr_number(&string(request, "url"))?)),
+        _ => fail("Unknown workflow boundary method."),
+    }
 }
 fn security_fixture(request: &Value) -> Result<Value> {
     let state = state(request)?;

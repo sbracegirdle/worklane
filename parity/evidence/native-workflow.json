@@ -1,0 +1,3748 @@
+{
+  "mode": "differential",
+  "candidate_runtime": "native",
+  "reference_verified": true,
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "inventory_sha256": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
+  "candidate": [
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter"
+  ],
+  "candidate_hashes": {
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "c9e0174bb6a7d11b68a16fafe433e97d6198665fbeb285ea3f43d9ba38a54058"
+  },
+  "release_sha256": "c9e0174bb6a7d11b68a16fafe433e97d6198665fbeb285ea3f43d9ba38a54058",
+  "driver": "test_native_workflow.py",
+  "harness_hashes": {
+    "test_native_workflow.py": "7acc4d171c9f48538900fdf64a073c6e0e73df785b38423d57ccf1289bec5430",
+    "tools/native_test_bridge.py": "ad4824cd5867930b4e29f30e222716634e3114107bdf18d1dba50c20beea0d03"
+  },
+  "results": [
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_blocked_dependencies_and_closed_issues_preserve_saved_work test_blocked_dependencies_and_closed_issues_preserve_saved_work (test_native_workflow.NativeWorkflowTests.test_blocked_dependencies_and_closed_issues_preserve_saved_work) (blocked=0)",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "In Progress",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "build",
+            "error": "Interrupted issue was closed; not resuming.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "In Progress",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "In Progress"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_blocked_dependencies_and_closed_issues_preserve_saved_work test_blocked_dependencies_and_closed_issues_preserve_saved_work (test_native_workflow.NativeWorkflowTests.test_blocked_dependencies_and_closed_issues_preserve_saved_work) (blocked=1)",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "In Progress",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "interrupted",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "build",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "In Progress",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 1
+          }
+        ],
+        "statuses": {
+          "item-1": "In Progress"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_blocked_dependencies_and_closed_issues_preserve_saved_work test_blocked_dependencies_and_closed_issues_preserve_saved_work (test_native_workflow.NativeWorkflowTests.test_blocked_dependencies_and_closed_issues_preserve_saved_work) (blocked=101)",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "In Progress",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "interrupted",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "build",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "In Progress",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 101
+          }
+        ],
+        "statuses": {
+          "item-1": "In Progress"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff (test_native_workflow.NativeWorkflowTests.test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff) (change='merged')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Human review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "done",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "human_feedback_cutoff": "2026-10-20T00:00:00+00:00",
+            "completion_source": "merged_pr",
+            "merged_head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "completed_at": "2026-10-20T00:00:00+00:00",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Human review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            }
+          }
+        ],
+        "statuses": {
+          "item-1": "Human review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff (test_native_workflow.NativeWorkflowTests.test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff) (change='closed')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Human review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "human_review",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "human_feedback_cutoff": "2026-10-20T00:00:00+00:00",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Human review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            }
+          }
+        ],
+        "statuses": {
+          "item-1": "Human review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff (test_native_workflow.NativeWorkflowTests.test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff) (change='retargeted')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Human review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "human_review",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "human_feedback_cutoff": "2026-10-20T00:00:00+00:00",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Human review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            }
+          }
+        ],
+        "statuses": {
+          "item-1": "Human review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff (test_native_workflow.NativeWorkflowTests.test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff) (change='lagging')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Human review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "awaiting_review",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "human_feedback_cutoff": "2026-10-20T00:00:00+00:00",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Agent review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            }
+          }
+        ],
+        "statuses": {
+          "item-1": "Agent review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff (test_native_workflow.NativeWorkflowTests.test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff) (change='drift')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Human review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "human_feedback_cutoff": "2026-10-20T00:00:00+00:00",
+            "failed_phase": "awaiting_review",
+            "resume_stage": "build",
+            "blocker": "board_status_drift",
+            "error": "Completed implementation expected Agent review; board is done. Check project automations/manual edits, then run worklane retry 1 to revalidate the saved build. Board status was preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Human review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            }
+          }
+        ],
+        "statuses": {
+          "item-1": "Done"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff (test_native_workflow.NativeWorkflowTests.test_completion_and_waiting_reconciliation_preserve_board_and_feedback_cutoff) (change='active')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Human review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "human_review",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "human_feedback_cutoff": "2026-10-20T00:00:00+00:00",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Human review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            }
+          }
+        ],
+        "statuses": {
+          "item-1": "Human review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_deleted_edited_and_temporarily_inaccessible_feedback test_deleted_edited_and_temporarily_inaccessible_feedback (test_native_workflow.NativeWorkflowTests.test_deleted_edited_and_temporarily_inaccessible_feedback) (change='deleted')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Human review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "rework",
+            "round": 0,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:05:01+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "human_feedback_observed_at": "2026-10-20T00:05:01+00:00",
+            "human_feedback": {},
+            "human_feedback_snapshot": {},
+            "issue": {
+              "state": "OPEN",
+              "number": 1,
+              "title": "Title",
+              "body": "",
+              "labels": [],
+              "comments": [],
+              "url": "issue"
+            },
+            "human_feedback_polled_at": "2026-10-20T00:05:01+00:00",
+            "human_feedback_generation": 1,
+            "human_feedback_pending": true,
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Ready for work",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Ready for work"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_deleted_edited_and_temporarily_inaccessible_feedback test_deleted_edited_and_temporarily_inaccessible_feedback (test_native_workflow.NativeWorkflowTests.test_deleted_edited_and_temporarily_inaccessible_feedback) (change='edited')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "round": 0,
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "item": {
+              "id": "item-1",
+              "status": "Ready for work",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              },
+              "blocked_by_count": 0
+            },
+            "phase": "building",
+            "human_feedback_seen": {
+              "issue:1": {
+                "body": "Edited request",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:05:01+00:00",
+                "url": "https://github.com/comment/1"
+              }
+            },
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:10:02+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "human_feedback_observed_at": "2026-10-20T00:05:01+00:00",
+            "human_feedback": {
+              "issue:1": {
+                "body": "Edited request",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:05:01+00:00",
+                "url": "https://github.com/comment/1"
+              }
+            },
+            "human_feedback_snapshot": {
+              "issue:1": {
+                "body": "Edited request",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:05:01+00:00",
+                "url": "https://github.com/comment/1"
+              }
+            },
+            "issue": {
+              "state": "OPEN",
+              "number": 1,
+              "title": "Title",
+              "body": "",
+              "labels": [],
+              "comments": [],
+              "url": "issue"
+            },
+            "human_feedback_polled_at": "2026-10-20T00:10:02+00:00",
+            "human_feedback_generation": 1,
+            "human_feedback_cutoff": "2026-10-20T00:10:02+00:00",
+            "question": false,
+            "slot": "worker-1",
+            "started_at": "2026-10-20T00:10:02+00:00",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Ready for work",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "In Progress"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_deleted_edited_and_temporarily_inaccessible_feedback test_deleted_edited_and_temporarily_inaccessible_feedback (test_native_workflow.NativeWorkflowTests.test_deleted_edited_and_temporarily_inaccessible_feedback) (change='unavailable')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Human review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "rework",
+            "round": 0,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:05:01+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "human_feedback_observed_at": "2026-10-20T00:00:00+00:00",
+            "human_feedback": {
+              "issue:1": {
+                "body": "Fix the boundary",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:00:00+00:00",
+                "url": "https://github.com/comment/1"
+              }
+            },
+            "human_feedback_snapshot": {
+              "issue:1": {
+                "body": "Fix the boundary",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:00:00+00:00",
+                "url": "https://github.com/comment/1"
+              }
+            },
+            "issue": {
+              "state": "OPEN",
+              "number": 1,
+              "title": "Title",
+              "body": "",
+              "labels": [],
+              "comments": [],
+              "url": "issue"
+            },
+            "human_feedback_polled_at": "2026-10-20T00:05:01+00:00",
+            "human_feedback_generation": 1,
+            "human_feedback_pending": true,
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Ready for work",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Ready for work"
+        },
+        "unavailable": [
+          1
+        ]
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_feedback_debounce_restart_exact_session_and_claim_once",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "round": 0,
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "item": {
+              "id": "item-1",
+              "status": "Ready for work",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              },
+              "blocked_by_count": 0
+            },
+            "phase": "building",
+            "human_feedback_seen": {
+              "issue:1": {
+                "body": "Fix the boundary",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:00:00+00:00",
+                "url": "https://github.com/comment/1"
+              },
+              "issue:2": {
+                "body": "Also fix validation",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:04:00+00:00",
+                "url": "https://github.com/comment/2"
+              }
+            },
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:09:01+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "human_feedback_observed_at": "2026-10-20T00:04:00+00:00",
+            "human_feedback": {
+              "issue:1": {
+                "body": "Fix the boundary",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:00:00+00:00",
+                "url": "https://github.com/comment/1"
+              },
+              "issue:2": {
+                "body": "Also fix validation",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:04:00+00:00",
+                "url": "https://github.com/comment/2"
+              }
+            },
+            "human_feedback_snapshot": {
+              "issue:1": {
+                "body": "Fix the boundary",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:00:00+00:00",
+                "url": "https://github.com/comment/1"
+              },
+              "issue:2": {
+                "body": "Also fix validation",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:04:00+00:00",
+                "url": "https://github.com/comment/2"
+              }
+            },
+            "issue": {
+              "state": "OPEN",
+              "number": 1,
+              "title": "Title",
+              "body": "",
+              "labels": [],
+              "comments": [],
+              "url": "issue"
+            },
+            "human_feedback_polled_at": "2026-10-20T00:09:01+00:00",
+            "human_feedback_generation": 1,
+            "human_feedback_cutoff": "2026-10-20T00:09:01+00:00",
+            "question": false,
+            "slot": "worker-1",
+            "started_at": "2026-10-20T00:09:01+00:00",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Ready for work",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "In Progress"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_idle_polling_active_assignments_and_human_overrides",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Human review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "human_review",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:55:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "human_feedback": {},
+            "human_feedback_snapshot": {},
+            "issue": {
+              "state": "OPEN",
+              "number": 1,
+              "title": "Title",
+              "body": "",
+              "labels": [],
+              "comments": [],
+              "url": "issue"
+            },
+            "human_feedback_polled_at": "2026-10-20T00:55:00+00:00",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Done",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            }
+          }
+        ],
+        "statuses": {
+          "item-1": "Human review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_live_revocation_blocks_dispatch_until_author_and_editor_restored",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "round": 0,
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "item": {
+              "id": "item-1",
+              "status": "Ready for work",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              },
+              "blocked_by_count": 0
+            },
+            "phase": "building",
+            "human_feedback_seen": {
+              "issue:1": {
+                "body": "Fix the boundary",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:00:00+00:00",
+                "url": "https://github.com/comment/1"
+              }
+            },
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:05:01+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "human_feedback_observed_at": "2026-10-20T00:00:00+00:00",
+            "human_feedback": {
+              "issue:1": {
+                "body": "Fix the boundary",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:00:00+00:00",
+                "url": "https://github.com/comment/1"
+              }
+            },
+            "human_feedback_snapshot": {
+              "issue:1": {
+                "body": "Fix the boundary",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:00:00+00:00",
+                "url": "https://github.com/comment/1"
+              }
+            },
+            "issue": {
+              "state": "OPEN",
+              "number": 1,
+              "title": "Title",
+              "body": "",
+              "labels": [],
+              "comments": [],
+              "url": "issue"
+            },
+            "human_feedback_polled_at": "2026-10-20T00:05:01+00:00",
+            "human_feedback_generation": 1,
+            "human_feedback_cutoff": "2026-10-20T00:05:01+00:00",
+            "question": false,
+            "slot": "worker-1",
+            "started_at": "2026-10-20T00:05:01+00:00",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Ready for work",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "In Progress"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='build', phase='interrupted', status='Ready for work')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Ready for work",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              },
+              "blocked_by_count": 0
+            },
+            "phase": "building",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "build",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "issue": {
+              "state": "OPEN",
+              "number": 1,
+              "title": "Title",
+              "body": "",
+              "labels": [],
+              "comments": [],
+              "url": "issue"
+            },
+            "slot": "worker-1",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Ready for work",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "In Progress"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='build', phase='interrupted', status='In Progress')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "In Progress",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              },
+              "blocked_by_count": 0
+            },
+            "phase": "building",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "build",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "issue": {
+              "state": "OPEN",
+              "number": 1,
+              "title": "Title",
+              "body": "",
+              "labels": [],
+              "comments": [],
+              "url": "issue"
+            },
+            "slot": "worker-1",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "In Progress",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "In Progress"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='build', phase='interrupted', status='Agent review')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Agent review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "awaiting_review",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "build",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Agent review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Agent review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='build', phase='interrupted', status='Human review')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Human review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "build",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected In Progress; board is Human review. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Human review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Human review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='build', phase='interrupted', status='Done')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Done",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "build",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected In Progress; board is Done. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Done",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Done"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='build', phase='retry', status='Ready for work')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Ready for work",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              },
+              "blocked_by_count": 0
+            },
+            "phase": "building",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "build",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "issue": {
+              "state": "OPEN",
+              "number": 1,
+              "title": "Title",
+              "body": "",
+              "labels": [],
+              "comments": [],
+              "url": "issue"
+            },
+            "slot": "worker-1",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Ready for work",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "In Progress"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='build', phase='retry', status='In Progress')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "In Progress",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              },
+              "blocked_by_count": 0
+            },
+            "phase": "building",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "build",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "issue": {
+              "state": "OPEN",
+              "number": 1,
+              "title": "Title",
+              "body": "",
+              "labels": [],
+              "comments": [],
+              "url": "issue"
+            },
+            "slot": "worker-1",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "In Progress",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "In Progress"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='build', phase='retry', status='Agent review')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Agent review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "awaiting_review",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "build",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Agent review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Agent review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='build', phase='retry', status='Human review')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Human review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "build",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected In Progress; board is Human review. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Human review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Human review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='build', phase='retry', status='Done')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Done",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "build",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected In Progress; board is Done. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Done",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Done"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='review', phase='interrupted', status='Ready for work')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Ready for work",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "review",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected Agent review; board is Ready for work. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Ready for work",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Ready for work"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='review', phase='interrupted', status='In Progress')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "In Progress",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "review",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected Agent review; board is In Progress. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "In Progress",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "In Progress"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='review', phase='interrupted', status='Agent review')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Agent review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              },
+              "blocked_by_count": 0
+            },
+            "phase": "reviewing",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "review",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "issue": {
+              "state": "OPEN",
+              "number": 1,
+              "title": "Title",
+              "body": "",
+              "labels": [],
+              "comments": [],
+              "url": "issue"
+            },
+            "slot": "reviewer",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Agent review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Agent review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='review', phase='interrupted', status='Human review')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Human review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "review",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected Agent review; board is Human review. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Human review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Human review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='review', phase='interrupted', status='Done')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Done",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "review",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected Agent review; board is Done. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Done",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Done"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='review', phase='retry', status='Ready for work')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Ready for work",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "review",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected Agent review; board is Ready for work. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Ready for work",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Ready for work"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='review', phase='retry', status='In Progress')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "In Progress",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "review",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected Agent review; board is In Progress. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "In Progress",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "In Progress"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='review', phase='retry', status='Agent review')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Agent review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              },
+              "blocked_by_count": 0
+            },
+            "phase": "reviewing",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "review",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "issue": {
+              "state": "OPEN",
+              "number": 1,
+              "title": "Title",
+              "body": "",
+              "labels": [],
+              "comments": [],
+              "url": "issue"
+            },
+            "slot": "reviewer",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Agent review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Agent review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='review', phase='retry', status='Human review')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Human review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "review",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected Agent review; board is Human review. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Human review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Human review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='review', phase='retry', status='Done')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Done",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "review",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected Agent review; board is Done. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Done",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Done"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='finalize', phase='interrupted', status='Ready for work')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Ready for work",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "finalize",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected Agent review; board is Ready for work. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Ready for work",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Ready for work"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='finalize', phase='interrupted', status='In Progress')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "In Progress",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "finalize",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected Agent review; board is In Progress. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "In Progress",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "In Progress"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='finalize', phase='interrupted', status='Agent review')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Agent review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              },
+              "blocked_by_count": 0
+            },
+            "phase": "finalizing",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "finalize",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "issue": {
+              "state": "OPEN",
+              "number": 1,
+              "title": "Title",
+              "body": "",
+              "labels": [],
+              "comments": [],
+              "url": "issue"
+            },
+            "slot": "reviewer",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Agent review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Agent review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='finalize', phase='interrupted', status='Human review')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Human review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "human_review",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "finalize",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Human review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Human review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='finalize', phase='interrupted', status='Done')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Done",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "finalize",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected Agent review; board is Done. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Done",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Done"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='finalize', phase='retry', status='Ready for work')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Ready for work",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "finalize",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected Agent review; board is Ready for work. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Ready for work",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Ready for work"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='finalize', phase='retry', status='In Progress')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "In Progress",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "finalize",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected Agent review; board is In Progress. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "In Progress",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "In Progress"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='finalize', phase='retry', status='Agent review')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Agent review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              },
+              "blocked_by_count": 0
+            },
+            "phase": "finalizing",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "finalize",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "issue": {
+              "state": "OPEN",
+              "number": 1,
+              "title": "Title",
+              "body": "",
+              "labels": [],
+              "comments": [],
+              "url": "issue"
+            },
+            "slot": "reviewer",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Agent review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Agent review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='finalize', phase='retry', status='Human review')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Human review",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "human_review",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "finalize",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Human review",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Human review"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session test_recovery_stage_status_matrix_preserves_saved_session (test_native_workflow.NativeWorkflowTests.test_recovery_stage_status_matrix_preserves_saved_session) (stage='finalize', phase='retry', status='Done')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "item": {
+              "id": "item-1",
+              "status": "Done",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              }
+            },
+            "phase": "blocked",
+            "round": 2,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "human_feedback_seen": {},
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:00:00+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "resume_stage": "finalize",
+            "question": false,
+            "build_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "review_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "handoff_result": {
+              "verdict": "pass",
+              "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "pr_url": "https://github.com/owner/repo/pull/9",
+              "summary": "Validated acceptance criteria",
+              "findings": []
+            },
+            "error": "Saved work expected Agent review; board is Done. Human status changes are preserved.",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Done",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "Done"
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "id": "test_native_workflow.NativeWorkflowTests.test_remote_move_crash_recovers_saved_intent_and_does_not_duplicate_claim",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "tasks": [
+          {
+            "number": 1,
+            "branch": "codex/1-worklane",
+            "base": "main",
+            "round": 0,
+            "pr_url": "https://github.com/owner/repo/pull/9",
+            "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "item": {
+              "id": "item-1",
+              "status": "Ready for work",
+              "content": {
+                "number": 1,
+                "type": "Issue",
+                "repository": "owner/repo"
+              },
+              "blocked_by_count": 0
+            },
+            "phase": "building",
+            "human_feedback_seen": {
+              "issue:1": {
+                "body": "Fix the boundary",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:00:00+00:00",
+                "url": "https://github.com/comment/1"
+              }
+            },
+            "worker_worktree": "<root>/saved-worktree",
+            "updated_at": "2026-10-20T00:05:01+00:00",
+            "active_stage": "build",
+            "active_run_id": "00000000-0000-0000-0000-000000000001",
+            "log_run_id": "00000000-0000-0000-0000-000000000001",
+            "human_feedback_observed_at": "2026-10-20T00:00:00+00:00",
+            "human_feedback": {
+              "issue:1": {
+                "body": "Fix the boundary",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:00:00+00:00",
+                "url": "https://github.com/comment/1"
+              }
+            },
+            "human_feedback_snapshot": {
+              "issue:1": {
+                "body": "Fix the boundary",
+                "author": "human",
+                "state": "",
+                "updated_at": "2026-10-20T00:00:00+00:00",
+                "url": "https://github.com/comment/1"
+              }
+            },
+            "issue": {
+              "state": "OPEN",
+              "number": 1,
+              "title": "Title",
+              "body": "",
+              "labels": [],
+              "comments": [],
+              "url": "issue"
+            },
+            "human_feedback_polled_at": "2026-10-20T00:05:01+00:00",
+            "human_feedback_generation": 1,
+            "human_feedback_cutoff": "2026-10-20T00:05:01+00:00",
+            "question": false,
+            "slot": "worker-1",
+            "started_at": "2026-10-20T00:05:01+00:00",
+            "sessions": {
+              "worker": {
+                "role": "worker",
+                "session_id": "ses_preserved",
+                "backend": "opencode",
+                "worktree": "<root>/saved-worktree",
+                "model": "provider/model"
+              }
+            }
+          }
+        ],
+        "items": [
+          {
+            "id": "item-1",
+            "status": "Ready for work",
+            "content": {
+              "number": 1,
+              "type": "Issue",
+              "repository": "owner/repo"
+            },
+            "blocked_by_count": 0
+          }
+        ],
+        "statuses": {
+          "item-1": "In Progress"
+        },
+        "unavailable": []
+      }
+    }
+  ]
+}

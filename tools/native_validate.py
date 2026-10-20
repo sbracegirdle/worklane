@@ -7,14 +7,41 @@ from pathlib import Path
 import subprocess
 import sys
 
+try:
+    from .port_gate import assess
+except ImportError:
+    from port_gate import assess
+
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / 'parity/evidence'
+
+
+def acceptance_checks(report, manifest, inventory_sha, release_sha, harness_hashes):
+    """Stale binaries, changed assertion drivers and reference-only runs cannot attest parity."""
+    if (report.get('mode')!='differential' or report.get('candidate_runtime')!='native'
+            or report.get('reference')!=manifest['revision'] or not report.get('reference_verified')
+            or report.get('inventory_sha256')!=inventory_sha or report.get('release_sha256')!=release_sha
+            or not report.get('candidate') or not report.get('candidate_hashes')
+            or report['candidate'][0] not in report['candidate_hashes']
+            or any(value!=release_sha for value in report['candidate_hashes'].values())
+            or report.get('harness_hashes')!=harness_hashes):
+        return set()
+    return {row['id'] for row in report.get('results',[]) if row['id'] in manifest['checks']
+            and row.get('status')=='pass' and row.get('comparison')=='equal' and 'observations' in row}
+
+
+def runtime_failures(manifest, reports):
+    runtime_ids={row['id'] for row in manifest['matrix'] if row['stage']=='runtime'}
+    # Evidence is bound to the complete frozen contract, including later stages.
+    return {row['row']:row for row in assess(manifest,reports) if row['row'] in runtime_ids}
 
 
 def main():
     env = {**os.environ, 'UV_CACHE_DIR':'/tmp/worklane-50-uv', 'WORKLANE_TEST_RUST':'1',
            'WORKLANE_TEST_INSTALL':'0', 'WORKLANE_TEST_OPENCODE':'0',
-           'WORKLANE_NATIVE_EVIDENCE':str(EVIDENCE/'native-acceptance.json')}
+           'WORKLANE_NATIVE_EVIDENCE':str(EVIDENCE/'native-acceptance.json'),
+           'WORKLANE_NATIVE_BOUNDARY_EVIDENCE':str(EVIDENCE/'native-boundaries.json'),
+           'WORKLANE_NATIVE_WORKFLOW_EVIDENCE':str(EVIDENCE/'native-workflow.json')}
     commands = [
         ['cargo','fmt','--all','--check'],
         ['cargo','clippy','--all-targets','--locked','--offline','--','-D','warnings'],
@@ -39,26 +66,46 @@ def main():
     acceptance = json.loads((EVIDENCE/'native-acceptance.json').read_text())
     runtime = json.loads((EVIDENCE/'native-runtime.json').read_text())
     security = json.loads((EVIDENCE/'native-security.json').read_text())
-    passed = {row['id'] for row in acceptance if row['reference']==row['candidate']=='pass'}
-    passed.update('fixture:'+row['id'] for row in runtime['results'] if row['status']=='pass')
-    passed.update('fixture:'+row['id'] for row in security['results'] if row['status']=='pass')
+    boundary = json.loads((EVIDENCE/'native-boundaries.json').read_text())
+    workflow = json.loads((EVIDENCE/'native-workflow.json').read_text())
+    inventory_sha=hashlib.sha256((ROOT/'parity/inventory.json').read_bytes()).hexdigest()
+    release_sha=hashlib.sha256((ROOT/'target/debug/runtime-fixture-adapter').read_bytes()).hexdigest()
+    passed=set()
+    reports=[]
+    for evidence in (acceptance,boundary):
+        driver=evidence['driver']
+        hashes={path:hashlib.sha256((ROOT/path).read_bytes()).hexdigest()
+                for path in (driver,'tools/native_test_bridge.py')}
+        checks=acceptance_checks(evidence,manifest,inventory_sha,release_sha,hashes)
+        passed.update(checks)
+        if checks:reports.append(evidence)
+    for evidence in (runtime,security):
+        if (evidence.get('release_sha256')==release_sha
+                and evidence.get('candidate_hashes',{}).get(str(ROOT/'target/debug/runtime-fixture-adapter'))==release_sha):
+            reports.append(evidence)
+    stage_manifest={**manifest,'matrix':[row for row in manifest['matrix'] if row['stage']=='runtime']}
+    failures=runtime_failures(manifest,reports)
+    # The shared gate validates registered fixture membership, reference/hash binding,
+    # exact observations and source audits, rather than trusting a status string.
+    passed.update(check for row in stage_manifest['matrix'] if row['id'] not in failures
+                  for check in row['checks'] if check.startswith('fixture:'))
     rows = []
     for row in manifest['matrix']:
         if row['stage'] != 'runtime':
             continue
-        checks = set()
-        for check in row['checks']:
-            checks.update(manifest['suites'][check[6:]] if check.startswith('suite:') else [check])
-        missing = sorted(checks-passed)
+        missing = failures.get(row['id'],{}).get('missing_checks',[])
         source_audit = row['id'].startswith(('source.','constant.','failure.','document.'))
-        rows.append({'id':row['id'],'status':'unverified' if missing or source_audit else 'complete',
+        rows.append({'id':row['id'],'status':'unverified' if row['id'] in failures else 'complete',
                      'missing_check_count':len(missing),'source_audit_required':source_audit})
     unverified = [row['id'] for row in rows if row['status']!='complete']
     current_main=subprocess.check_output(['git','rev-parse','origin/main'],cwd=ROOT,text=True).strip()
     main_drift=subprocess.check_output(['git','diff','--name-only',manifest['revision'],current_main],cwd=ROOT,text=True).splitlines()
     report = {'reference':manifest['revision'],'current_main':current_main,'upstream_drift':main_drift,'candidate_hashes':runtime['candidate_hashes'],
               'environment':{key:env[key] for key in ('UV_CACHE_DIR','WORKLANE_TEST_RUST','WORKLANE_TEST_INSTALL','WORKLANE_TEST_OPENCODE')},
-              'commands':results,'acceptance_checks':len(acceptance),'portable_cases':len(runtime['results']),
+              'commands':results,'acceptance_checks':len(acceptance['results']),
+              'boundary_checks':len(boundary['results']),
+              'supplemental_workflow_scenarios':len(workflow['results']),
+              'portable_cases':len(runtime['results']),
               'security_fixtures':{'passed':sum(row['status']=='pass' for row in security['results']),
                                    'total':len(security['results']),'candidate_runtime':security['candidate_runtime']},
               'security_ownership':manifest['security_ownership'],

@@ -158,21 +158,24 @@ impl Actions {
         Ok(result)
     }
     pub fn open_pr(&self, task: &Value) -> Result<()> {
-        if task["pr_url"].as_str().is_some_and(|s| !s.is_empty()) {
-            self.transport.text(
-                &[
-                    "pr",
-                    "view",
-                    &string(task, "pr_url"),
-                    "--repo",
-                    &self.state.repo,
-                    "--web",
-                ],
-                None,
-            )?;
-            return Ok(());
+        let (pr, error) = crate::read_model::ReadModel::new(self.state.clone())
+            .pr_status(&self.transport, task)?;
+        let url = string(&pr, "url");
+        if url.is_empty() {
+            return Err(crate::Error::new(
+                if error.is_empty() {
+                    "not_found"
+                } else {
+                    "github"
+                },
+                if error.is_empty() {
+                    "No PR for the selected issue.".into()
+                } else {
+                    error
+                },
+            ));
         }
-        fail("No PR is saved for this issue yet.")
+        self.transport.browse_pr(&self.state.repo, &url)
     }
     pub fn load_editor(&self, project: Option<&str>, number: Option<i64>) -> Result<IssueDraft> {
         let board = Board::open_with_policy(

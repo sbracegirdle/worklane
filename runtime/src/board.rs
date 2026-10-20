@@ -84,8 +84,7 @@ impl Board {
             (
                 transport.json(&["project", "view", n, "--owner", o, "--format", "json"])?,
                 o.to_string(),
-                n.parse::<i64>()
-                    .map_err(|_| Error::new("validation", "Invalid project number."))?,
+                crate::config::ConfigStore::issue_number(n)?,
             )
         } else {
             let data = transport.graphql(BOARD___INIT___0, &json!({"owner":owner,"name":name}))?;
@@ -297,7 +296,7 @@ impl Board {
         }
         Ok(())
     }
-    fn linked_prs(&self, id: &Value, mut c: Value) -> Result<Vec<String>> {
+    pub fn linked_prs(&self, id: &Value, mut c: Value) -> Result<Vec<String>> {
         let mut out = Vec::new();
         let mut seen = BTreeSet::new();
         while !c.is_null() {

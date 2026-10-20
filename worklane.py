@@ -689,6 +689,13 @@ class DatabaseLogWriter:
         return False
 
 
+def dependency_count(issue):
+    count = (issue.get("issueDependenciesSummary") or {}).get("blockedBy")
+    if type(count) is not int or count < 0:
+        raise RuntimeError("GitHub dependency status is unavailable; refusing assignment.")
+    return count
+
+
 class Board:
     def __init__(self, repo, path, project=None, *, load_fields=True, required_statuses=(READY, PROGRESS, HUMAN)):
         self.repo, self.path = repo, path
@@ -820,6 +827,7 @@ class Board:
                   }
                 } content { ... on Issue {
                   number title body url state repository { nameWithOwner }
+                  issueDependenciesSummary { blockedBy }
                 } } }
               } } }
             }""", {"id": self.project["id"], "cursor": cursor})
@@ -838,12 +846,26 @@ class Board:
                 links = (node.get("links") or {}).get("pullRequests")
                 items.append({"id": node["id"], "status": (node.get("fieldValueByName") or {}).get("name", ""),
                               "title": issue["title"], "content": content,
+                              "blocked_by_count": dependency_count(issue),
                               "linked pull requests": self.linked_prs(node["id"], links)})
             cursor = self.next_cursor(connection["pageInfo"], seen)
             if cursor is None:
                 if count != connection["totalCount"]:
                     raise RuntimeError("GitHub returned incomplete board pagination.")
                 return items
+
+    def dependencies_ready(self, item):
+        if item.get("blocked_by_count", 0):
+            return False
+        owner, name = self.repo.split("/")
+        data = graphql("""query($owner:String!, $name:String!, $number:Int!) {
+          repository(owner:$owner, name:$name) { issue(number:$number) {
+            issueDependenciesSummary { blockedBy }
+          } }
+        }""", {"owner": owner, "name": name, "number": item["content"]["number"]})
+        issue = (data.get("repository") or {}).get("issue") or {}
+        item["blocked_by_count"] = dependency_count(issue)
+        return item["blocked_by_count"] == 0
 
     def item_status(self, item):
         data = graphql("""query($id:ID!) { node(id:$id) { ... on ProjectV2Item {
@@ -1587,6 +1609,8 @@ class Runner:
                 task.update(phase="blocked", error="Saved item is no longer on this board.")
                 self.state.save(task)
                 continue
+            if not self.board.dependencies_ready(current):
+                continue
             status = current.get("status", "").casefold()
             expected = PROGRESS if stage == "build" else REVIEW
             if stage == "build" and status == READY.casefold():
@@ -1635,6 +1659,8 @@ class Runner:
         previous = self.state.load(number)
         review = slot == REVIEWER
         if previous.get("phase") in {"done", "blocked", "interrupted"} or previous.get("phase") in ACTIVE:
+            return None
+        if not self.board.dependencies_ready(item):
             return None
         if not review and previous.get("human_feedback_pending"):
             if (number in getattr(self, "feedback_unavailable", set())
@@ -1928,12 +1954,15 @@ def main(argv=None):
         board = Board(repo, root, args.project)
         if args.action == "check":
             items = board.items()
+            ready = [i for i in items if i.get("status", "").casefold() == READY.casefold()]
             print(json.dumps({"repository": repo, "board": board.project["url"], "model": args.model,
                               "cli": installation_info(),
                               "workers": 3, "reviewers": 1,
                               "will_add_agent_review": REVIEW.casefold() not in board.options,
-                              "ready": [i["content"]["number"] for i in items if i.get("status", "").casefold() == READY.casefold()],
-                              "agent_review": [i["content"]["number"] for i in items if i.get("status", "").casefold() == REVIEW.casefold()]}, indent=2))
+                              "ready": [i["content"]["number"] for i in ready if i["blocked_by_count"] == 0],
+                              "dependency_blocked": {str(i["content"]["number"]): i["blocked_by_count"]
+                                                     for i in items if i["blocked_by_count"]},
+                              "agent_review": [i["content"]["number"] for i in items if i.get("status", "").casefold() == REVIEW.casefold() and i["blocked_by_count"] == 0]}, indent=2))
             return 0
         if args.action == "start":
             with locked(state.path / "runner.lock", blocking=False):

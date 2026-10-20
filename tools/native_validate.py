@@ -21,6 +21,7 @@ ACCEPTANCE = {
     'native-acceptance':'test_native_runtime.py',
     'native-boundaries':'test_native_boundaries.py',
     'native-restack':'test_native_restack.py',
+    'native-storage':'test_native_storage_boundaries.py',
 }
 
 
@@ -89,7 +90,9 @@ def runtime_failures(manifest, reports):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--assess-only',action='store_true',help='Reconcile existing evidence; never claim stale full checks passed.')
+    mode=parser.add_mutually_exclusive_group()
+    mode.add_argument('--assess-only',action='store_true',help='Reconcile existing evidence; never claim stale full checks passed.')
+    mode.add_argument('--refresh-native',action='store_true',help='Run native acceptance/fixtures; retain the separate full-suite freshness requirement.')
     args=parser.parse_args()
     inputs=checked_inputs()
     previous_path=EVIDENCE/'native-validation.json'
@@ -100,7 +103,8 @@ def main():
            'WORKLANE_NATIVE_BOUNDARY_EVIDENCE':str(EVIDENCE/'native-boundaries.json'),
            'WORKLANE_NATIVE_WORKFLOW_EVIDENCE':str(EVIDENCE/'native-workflow.json'),
            'WORKLANE_NATIVE_LIFECYCLE_EVIDENCE':str(EVIDENCE/'native-lifecycle.json'),
-           'WORKLANE_NATIVE_RESTACK_EVIDENCE':str(EVIDENCE/'native-restack.json')}
+           'WORKLANE_NATIVE_RESTACK_EVIDENCE':str(EVIDENCE/'native-restack.json'),
+           'WORKLANE_NATIVE_STORAGE_EVIDENCE':str(EVIDENCE/'native-storage.json')}
     commands = [
         ['cargo','fmt','--all','--check'],
         ['cargo','clippy','--all-targets','--locked','--offline','--','-D','warnings'],
@@ -113,13 +117,23 @@ def main():
         ['git','diff','--check'],
         ['git','diff','--cached','--check'],
     ]
-    results = previous.get('commands',[]) if args.assess_only else []
-    for index, command in enumerate([] if args.assess_only else commands):
-        log = Path(f'/tmp/worklane50-validation-{index}.log')
+    full_run=not (args.assess_only or args.refresh_native)
+    results = [] if full_run else previous.get('commands',[])
+    targeted=previous.get('targeted_commands',[]) if args.assess_only else []
+    targeted_inputs=inputs if args.refresh_native else previous.get('targeted_inputs') if args.assess_only else None
+    selected=commands if full_run else []
+    if args.refresh_native:
+        native_modules=[Path(path).stem for path in ACCEPTANCE.values()]
+        native_modules+=['test_native_workflow','test_native_lifecycle','test_native_actions',
+                         'test_native_security','test_native_gate','test_native_plan']
+        selected=commands[:3]+[['uv','run','--no-project','python','-m','unittest','-q',*native_modules]]+commands[4:6]+commands[7:]
+    for index, command in enumerate(selected):
+        prefix='native-refresh' if args.refresh_native else 'validation'
+        log = Path(f'/tmp/worklane50-{prefix}-{index}.log')
         with log.open('w') as output:
             process = subprocess.run(command,cwd=ROOT,env=env,stdout=output,stderr=subprocess.STDOUT)
         tail = '\n'.join(log.read_text().splitlines()[-10:])
-        results.append({'command':command,'exit':process.returncode,'log':str(log),'tail':tail})
+        (targeted if args.refresh_native else results).append({'command':command,'exit':process.returncode,'log':str(log),'tail':tail})
         print(json.dumps({'command':command,'exit':process.returncode}),flush=True)
     manifest = json.loads((ROOT/'parity/inventory.json').read_text())
     acceptance = json.loads((EVIDENCE/'native-acceptance.json').read_text())
@@ -146,12 +160,15 @@ def main():
     unverified = [row['id'] for row in rows if row['status']!='complete']
     current_main=subprocess.check_output(['git','rev-parse','origin/main'],cwd=ROOT,text=True).strip()
     main_drift=subprocess.check_output(['git','diff','--name-only',manifest['revision'],current_main],cwd=ROOT,text=True).splitlines()
-    full_inputs=previous.get('checked_inputs') if args.assess_only else inputs
+    full_inputs=inputs if full_run else previous.get('checked_inputs')
     checks_current=(full_inputs==checked_inputs() and len(results)==len(commands))
     report = {'reference':manifest['revision'],'current_main':current_main,'upstream_drift':main_drift,'candidate_hashes':runtime['candidate_hashes'],
               'environment':{key:env[key] for key in ('UV_CACHE_DIR','WORKLANE_TEST_RUST','WORKLANE_TEST_INSTALL','WORKLANE_TEST_OPENCODE')},
               'commands':results,'acceptance_checks':len(acceptance['results']),
               'checked_inputs':full_inputs,'checks_current':checks_current,
+              'targeted_commands':targeted,
+              'targeted_inputs':targeted_inputs,
+              'targeted_checks_current':bool(targeted) and targeted_inputs==checked_inputs() and all(row['exit']==0 for row in targeted),
               'assessment_only':args.assess_only,'report_admission':admission,
               'boundary_checks':len(boundary['results']),
               'supplemental_workflow_scenarios':len(workflow['results']),

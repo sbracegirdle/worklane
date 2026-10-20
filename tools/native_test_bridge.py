@@ -1,5 +1,5 @@
 """Test-only facades run frozen Python assertions against the Rust library driver."""
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 import json
 import os
 from pathlib import Path
@@ -328,7 +328,7 @@ def native_dependencies_ready(runner, selected, task=None):
 def native_validate_stack(runner, task):return native_assignment(runner,'validate_stack',task=task)
 
 
-def native_restack_boundary(runner, method, *, items=None, active=(), task=None, tree=None):
+def native_restack_boundary(runner, method, *, items=None, active=(), task=None, tree=None, review=False):
     """Real native restack/ancestry code with the frozen tests' Git and GH boundaries."""
     import worklane as w
     board=runner.board
@@ -373,7 +373,8 @@ def native_restack_boundary(runner, method, *, items=None, active=(), task=None,
     output=invoke_rpc({'op':'workflow.call','method':method,'repo':runner.repo,'root':str(runner.root),
         'state_root':str(runner.state.path.parent.parent),'clock':w.now(),
         'board':{'options':statuses},'items':items or [],'active':list(active),'task':task or {},
-        'tree':str(tree or runner.root),'local_commands':True},command)
+        'tree':str(tree or runner.root),'review':review,'local_commands':True},command)
+    if task is not None:task.update(output['task'])
     if items is not None:items[:]=output['items']
     if 'error' in output:
         if output['kind']=='quota':raise w.GitHubRateLimit(output['error'])
@@ -387,6 +388,40 @@ def native_reconcile_stacks(runner, items, active_numbers=()):
 
 def native_verify_stack_ancestry(runner, task, tree):
     return native_restack_boundary(runner,'verify_stack_ancestry',task=task,tree=tree)
+
+
+def native_worktree(runner, task, review=False):
+    return Path(native_restack_boundary(runner,'worktree',task=task,review=review))
+
+
+def native_descriptor(request):
+    """Receive the actual Rust-created descriptor, without copying its contents."""
+    import array
+    import socket
+    with ExitStack() as stack:
+        receiver,sender=socket.socketpair()
+        stack.callback(receiver.close);stack.callback(sender.close)
+        receiver.settimeout(2)
+        invoke({**request,'socket_fd':sender.fileno()},pass_fds=(sender.fileno(),))
+        _,ancillary,flags,_=receiver.recvmsg(1,socket.CMSG_SPACE(array.array('i').itemsize),socket.MSG_CMSG_CLOEXEC)
+        descriptors=array.array('i')
+        for level,kind,data in ancillary:
+            if level==socket.SOL_SOCKET and kind==socket.SCM_RIGHTS:
+                descriptors.frombytes(data[:len(data)-(len(data)%descriptors.itemsize)])
+        if len(descriptors)!=1 or flags&socket.MSG_CTRUNC:
+            for descriptor in descriptors:os.close(descriptor)
+            raise RuntimeError('Native descriptor transfer was incomplete')
+        return descriptors[0]
+
+
+def native_memory_fd(name):return native_descriptor({'op':'memory.fd','name':name})
+
+
+@contextmanager
+def native_locked(path, *, blocking=True):
+    fd=native_descriptor({'op':'lock.fd','path':str(path),'blocking':blocking})
+    try:yield fd
+    finally:os.close(fd)
 
 
 def native_owned(roots=(),tokens=(),known=None):

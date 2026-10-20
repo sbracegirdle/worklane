@@ -1,7 +1,7 @@
 {
   "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
   "inventory_sha256": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
-  "binary_sha256": "0d71911560c6059b4f1ef652893ac9995b14312f96d728485b6d2050d15d5eee",
+  "binary_sha256": "75f15107726162e2f54d86a4e71b01d2b6f3c735c4bedf5c232baf3b60f797d6",
   "report_admission": {
     "native-acceptance": {
       "admitted": true,
@@ -18,6 +18,11 @@
       "registered_checks": 9,
       "reason": null
     },
+    "native-storage": {
+      "admitted": true,
+      "registered_checks": 5,
+      "reason": null
+    },
     "native-runtime": {
       "admitted": true,
       "reason": null
@@ -27,8 +32,8 @@
       "reason": null
     }
   },
-  "verified_count": 190,
-  "remaining_count": 569,
+  "verified_count": 195,
+  "remaining_count": 564,
   "verified_rows": [
     "test_config.ConfigTests.test_defaults_are_read_only_and_config_is_per_checkout",
     "test_config.ConfigTests.test_invalid_config_has_path_and_never_silently_uses_defaults",
@@ -87,7 +92,9 @@
     "test_sessions.SessionTests.test_json_migration_is_atomic_idempotent_and_archives_originals_in_sqlite",
     "test_sessions.SessionTests.test_json_migration_recovers_known_session_from_legacy_log",
     "test_sessions.SessionTests.test_recovery_respects_human_board_override",
+    "test_sessions.SessionTests.test_reviewer_reuses_worktree_across_changed_pr_heads",
     "test_sessions.SessionTests.test_all_agent_storage_is_sqlite_without_json_or_log_files",
+    "test_sessions.SessionTests.test_memory_backed_protocol_supports_managed_python_without_os_helper",
     "test_sessions.SessionTests.test_controller_output_is_logged_in_database",
     "test_sessions.SessionTests.test_invalid_session_event_rolls_back_event_and_log",
     "test_sessions.SessionTests.test_migration_from_sqlite_v1_imports_files_and_normalizes_payloads",
@@ -112,6 +119,9 @@
     "test_stacking.RestackTests.test_lost_board_transition_response_recovers_without_duplicate_history",
     "test_stop.StopTests.test_detached_orphan_and_ignoring_descendant_die_without_touching_unrelated",
     "test_stop.StopTests.test_stale_pid_cannot_own_unrelated_process",
+    "test_worklane.WorklaneTests.test_duplicate_controller_is_locked",
+    "test_worklane.WorklaneTests.test_repository_case_uses_same_controller_lock",
+    "test_worklane.WorklaneTests.test_lock_is_retained_by_child_after_parent_closes",
     "test_worklane.WorklaneTests.test_board_excludes_other_repos_and_non_issues",
     "test_worklane.WorklaneTests.test_incomplete_board_fails_closed",
     "test_worklane.WorklaneTests.test_board_paginates_with_project_id_and_retains_all_issues",
@@ -264,8 +274,6 @@
         "test_sessions.SessionTests.test_conflict_rework_resumes_original_worker_with_findings",
         "test_sessions.SessionTests.test_signal_interruption_and_restart_keep_same_conversation",
         "test_sessions.SessionTests.test_interrupted_finalizer_skips_repeat_review",
-        "test_sessions.SessionTests.test_reviewer_reuses_worktree_across_changed_pr_heads",
-        "test_sessions.SessionTests.test_memory_backed_protocol_supports_managed_python_without_os_helper",
         "test_stop.StopTests.test_stop_bypasses_blocked_dispatch_and_repeated_requests_keep_immediate",
         "test_stop.StopTests.test_immediate_stop_kills_live_worker_and_reports_stopped",
         "test_stop.StopTests.test_startup_stop_is_not_overwritten_after_blocking_auth",
@@ -379,9 +387,6 @@
         "test_worklane.BoardCommandTests.test_explicit_project_and_checkout",
         "test_worklane.BoardCommandTests.test_falls_back_to_owner_projects",
         "test_worklane.BoardCommandTests.test_browser_failure_is_reported",
-        "test_worklane.WorklaneTests.test_duplicate_controller_is_locked",
-        "test_worklane.WorklaneTests.test_repository_case_uses_same_controller_lock",
-        "test_worklane.WorklaneTests.test_lock_is_retained_by_child_after_parent_closes",
         "test_worklane.WorklaneTests.test_concurrent_failure_stops_remaining_claims_and_survives_clear",
         "test_worklane.WorklaneTests.test_idle_hour_and_exhausted_hour_have_bounded_request_counts",
         "test_worklane.WorklaneTests.test_completed_build_retries_verification_without_another_agent_turn",
@@ -2424,50 +2429,6 @@
       "audit_status": "not required"
     },
     {
-      "id": "test_sessions.SessionTests.test_reviewer_reuses_worktree_across_changed_pr_heads",
-      "batch": "boundaries",
-      "source": "test_sessions.py:642",
-      "original_stage": "runtime",
-      "original_checks": [
-        "test_sessions.SessionTests.test_reviewer_reuses_worktree_across_changed_pr_heads"
-      ],
-      "missing_proof_set": "0d616628e6318e29",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/state.rs",
-        "runtime/src/config.rs",
-        "runtime/src/process.rs",
-        "runtime/src/harness.rs",
-        "test_native_runtime.py"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
-    },
-    {
-      "id": "test_sessions.SessionTests.test_memory_backed_protocol_supports_managed_python_without_os_helper",
-      "batch": "boundaries",
-      "source": "test_sessions.py:685",
-      "original_stage": "runtime",
-      "original_checks": [
-        "test_sessions.SessionTests.test_memory_backed_protocol_supports_managed_python_without_os_helper"
-      ],
-      "missing_proof_set": "e0ddc5b58663163d",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/state.rs",
-        "runtime/src/config.rs",
-        "runtime/src/process.rs",
-        "runtime/src/harness.rs",
-        "test_native_runtime.py"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
-    },
-    {
       "id": "test_stop.StopTests.test_stop_bypasses_blocked_dispatch_and_repeated_requests_keep_immediate",
       "batch": "boundaries",
       "source": "test_stop.py:31",
@@ -2703,69 +2664,6 @@
       "candidate_files_to_review": [
         "runtime/src/board.rs",
         "runtime/src/transport.rs"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
-    },
-    {
-      "id": "test_worklane.WorklaneTests.test_duplicate_controller_is_locked",
-      "batch": "workflow",
-      "source": "test_worklane.py:197",
-      "original_stage": "runtime",
-      "original_checks": [
-        "test_worklane.WorklaneTests.test_duplicate_controller_is_locked"
-      ],
-      "missing_proof_set": "4062320146735226",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/controller.rs",
-        "runtime/src/workflow.rs",
-        "test_native_workflow.py",
-        "test_native_lifecycle.py",
-        "test_native_restack.py"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
-    },
-    {
-      "id": "test_worklane.WorklaneTests.test_repository_case_uses_same_controller_lock",
-      "batch": "workflow",
-      "source": "test_worklane.py:205",
-      "original_stage": "runtime",
-      "original_checks": [
-        "test_worklane.WorklaneTests.test_repository_case_uses_same_controller_lock"
-      ],
-      "missing_proof_set": "aa6a105043199b79",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/board.rs",
-        "runtime/src/transport.rs"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
-    },
-    {
-      "id": "test_worklane.WorklaneTests.test_lock_is_retained_by_child_after_parent_closes",
-      "batch": "workflow",
-      "source": "test_worklane.py:209",
-      "original_stage": "runtime",
-      "original_checks": [
-        "test_worklane.WorklaneTests.test_lock_is_retained_by_child_after_parent_closes"
-      ],
-      "missing_proof_set": "b37de7acf64833b7",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/controller.rs",
-        "runtime/src/workflow.rs",
-        "test_native_workflow.py",
-        "test_native_lifecycle.py",
-        "test_native_restack.py"
       ],
       "implementation_status": "Review required; absent proof does not establish absent implementation.",
       "audit_status": "not required"
@@ -3728,7 +3626,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3757,7 +3655,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3786,7 +3684,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3815,7 +3713,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3845,7 +3743,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3875,7 +3773,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3907,7 +3805,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3939,7 +3837,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -3971,7 +3869,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4003,7 +3901,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4035,7 +3933,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4067,7 +3965,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4097,7 +3995,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4129,7 +4027,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4159,7 +4057,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4191,7 +4089,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4223,7 +4121,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4255,7 +4153,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4287,7 +4185,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4319,7 +4217,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4348,7 +4246,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4377,7 +4275,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4406,7 +4304,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4435,7 +4333,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4464,7 +4362,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4493,7 +4391,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4522,7 +4420,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4551,7 +4449,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4580,7 +4478,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4609,7 +4507,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4638,7 +4536,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4667,7 +4565,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4696,7 +4594,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4725,7 +4623,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4754,7 +4652,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4783,7 +4681,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4812,7 +4710,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4841,7 +4739,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4870,7 +4768,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4899,7 +4797,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4928,7 +4826,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4957,7 +4855,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -4986,7 +4884,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5015,7 +4913,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5044,7 +4942,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5073,7 +4971,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5102,7 +5000,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5131,7 +5029,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5160,7 +5058,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5189,7 +5087,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5218,7 +5116,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5247,7 +5145,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5276,7 +5174,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5305,7 +5203,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5334,7 +5232,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5363,7 +5261,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5392,7 +5290,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5422,7 +5320,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5452,7 +5350,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5482,7 +5380,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5512,7 +5410,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5542,7 +5440,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5572,7 +5470,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5602,7 +5500,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5632,7 +5530,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5664,7 +5562,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5696,7 +5594,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5728,7 +5626,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5760,7 +5658,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5792,7 +5690,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5824,7 +5722,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5854,7 +5752,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5884,7 +5782,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5914,7 +5812,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5944,7 +5842,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -5974,7 +5872,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6004,7 +5902,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6034,7 +5932,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6064,7 +5962,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6094,7 +5992,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6124,7 +6022,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6154,7 +6052,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6184,7 +6082,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6214,7 +6112,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6246,7 +6144,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6278,7 +6176,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6310,7 +6208,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6342,7 +6240,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6374,7 +6272,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6406,7 +6304,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6438,7 +6336,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6470,7 +6368,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6502,7 +6400,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6532,7 +6430,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6562,7 +6460,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6592,7 +6490,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6622,7 +6520,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6652,7 +6550,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6682,7 +6580,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6712,7 +6610,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6742,7 +6640,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6772,7 +6670,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6802,7 +6700,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6832,7 +6730,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6862,7 +6760,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6892,7 +6790,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6922,7 +6820,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6952,7 +6850,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -6982,7 +6880,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7012,7 +6910,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7042,7 +6940,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7072,7 +6970,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7102,7 +7000,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7132,7 +7030,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7162,7 +7060,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7192,7 +7090,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7222,7 +7120,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7252,7 +7150,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7282,7 +7180,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7312,7 +7210,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7342,7 +7240,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7372,7 +7270,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7402,7 +7300,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7432,7 +7330,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7462,7 +7360,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7492,7 +7390,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7522,7 +7420,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7552,7 +7450,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7582,7 +7480,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7612,7 +7510,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7642,7 +7540,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7672,7 +7570,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7702,7 +7600,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7734,7 +7632,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7766,7 +7664,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7789,7 +7687,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7809,7 +7707,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7829,7 +7727,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7849,7 +7747,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7869,7 +7767,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7889,7 +7787,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7909,7 +7807,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7929,7 +7827,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7949,7 +7847,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7969,7 +7867,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -7989,7 +7887,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8009,7 +7907,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8029,7 +7927,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8049,7 +7947,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8069,7 +7967,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8089,7 +7987,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8109,7 +8007,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8129,7 +8027,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8149,7 +8047,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8169,7 +8067,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8189,7 +8087,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8209,7 +8107,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8229,7 +8127,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8249,7 +8147,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8269,7 +8167,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8289,7 +8187,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8309,7 +8207,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8329,7 +8227,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8349,7 +8247,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -8369,7 +8267,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11618,7 +11516,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11650,7 +11548,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11682,7 +11580,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11714,7 +11612,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11746,7 +11644,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11778,7 +11676,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11810,7 +11708,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11842,7 +11740,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11874,7 +11772,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11906,7 +11804,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11935,7 +11833,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11964,7 +11862,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -11996,7 +11894,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -12028,7 +11926,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -12060,7 +11958,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -12092,7 +11990,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -12124,7 +12022,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -12156,7 +12054,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -12188,7 +12086,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -12220,7 +12118,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -12252,7 +12150,7 @@
         "suite:test_installation",
         "suite:test_security"
       ],
-      "missing_proof_set": "b8e2cc3e077be8b3",
+      "missing_proof_set": "57021245e52a98fc",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -12447,7 +12345,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -12467,7 +12365,7 @@
         "suite:test_harness",
         "suite:test_sessions"
       ],
-      "missing_proof_set": "b897de06dd08a156",
+      "missing_proof_set": "e0f26d4a2c3fe423",
       "obligations": [
         "executable_assertion",
         "source_audit"
@@ -14500,12 +14398,6 @@
     "6bfcb116a03c9495": [
       "test_sessions.SessionTests.test_interrupted_finalizer_skips_repeat_review"
     ],
-    "0d616628e6318e29": [
-      "test_sessions.SessionTests.test_reviewer_reuses_worktree_across_changed_pr_heads"
-    ],
-    "e0ddc5b58663163d": [
-      "test_sessions.SessionTests.test_memory_backed_protocol_supports_managed_python_without_os_helper"
-    ],
     "4cf2643ae799fda7": [
       "test_stop.StopTests.test_stop_bypasses_blocked_dispatch_and_repeated_requests_keep_immediate"
     ],
@@ -14541,15 +14433,6 @@
     ],
     "908d7ff64bf5edb3": [
       "test_worklane.BoardCommandTests.test_controller_board_still_loads_workflow_fields_by_default"
-    ],
-    "4062320146735226": [
-      "test_worklane.WorklaneTests.test_duplicate_controller_is_locked"
-    ],
-    "aa6a105043199b79": [
-      "test_worklane.WorklaneTests.test_repository_case_uses_same_controller_lock"
-    ],
-    "b37de7acf64833b7": [
-      "test_worklane.WorklaneTests.test_lock_is_retained_by_child_after_parent_closes"
     ],
     "b1ba789968739a85": [
       "test_worklane.WorklaneTests.test_status_and_pause_do_not_need_github"
@@ -14680,7 +14563,7 @@
     "6bfbcec00eeaa082": [
       "test_worklane.WorklaneTests.test_pr_head_changes_require_fresh_review"
     ],
-    "b8e2cc3e077be8b3": [
+    "57021245e52a98fc": [
       "test_add_issue.AddIssueTests.test_ambiguous_board_never_creates_issue",
       "test_add_issue.AddIssueTests.test_concurrent_pickup_of_ready_issue_succeeds_without_resetting_status",
       "test_add_issue.AddIssueTests.test_default_creates_issue_with_literal_multiline_description_and_ready_status",
@@ -14768,8 +14651,6 @@
       "test_sessions.SessionTests.test_conflict_rework_resumes_original_worker_with_findings",
       "test_sessions.SessionTests.test_human_feedback_dispatch_resumes_original_worker_with_batch",
       "test_sessions.SessionTests.test_interrupted_finalizer_skips_repeat_review",
-      "test_sessions.SessionTests.test_memory_backed_protocol_supports_managed_python_without_os_helper",
-      "test_sessions.SessionTests.test_reviewer_reuses_worktree_across_changed_pr_heads",
       "test_sessions.SessionTests.test_signal_interruption_and_restart_keep_same_conversation",
       "test_stop.StopTests.test_immediate_stop_kills_live_worker_and_reports_stopped",
       "test_stop.StopTests.test_startup_stop_is_not_overwritten_after_blocking_auth",
@@ -14797,14 +14678,12 @@
       "test_worklane.WorklaneTests.test_conflict_during_finalizer_never_advances_to_human",
       "test_worklane.WorklaneTests.test_conflicts_respect_round_limit_and_human_board_edits",
       "test_worklane.WorklaneTests.test_cross_repository_pr_is_rejected",
-      "test_worklane.WorklaneTests.test_duplicate_controller_is_locked",
       "test_worklane.WorklaneTests.test_exhausted_quota_does_not_poll_every_loop",
       "test_worklane.WorklaneTests.test_failed_handoff_does_not_move_to_human",
       "test_worklane.WorklaneTests.test_failed_or_unverified_draft_promotion_blocks_human_review",
       "test_worklane.WorklaneTests.test_human_handoff_verifies_ready_pr_and_only_promotes_drafts",
       "test_worklane.WorklaneTests.test_human_status_override_is_respected",
       "test_worklane.WorklaneTests.test_idle_hour_and_exhausted_hour_have_bounded_request_counts",
-      "test_worklane.WorklaneTests.test_lock_is_retained_by_child_after_parent_closes",
       "test_worklane.WorklaneTests.test_merge_conflict_requeues_worker_without_launching_reviewer",
       "test_worklane.WorklaneTests.test_merged_pr_completes_missing_board_task_before_drift_checks",
       "test_worklane.WorklaneTests.test_merged_task_cannot_be_dispatched_from_stale_ready_board_status",
@@ -14815,7 +14694,6 @@
       "test_worklane.WorklaneTests.test_pr_head_changes_require_fresh_review",
       "test_worklane.WorklaneTests.test_question_review_does_not_fetch_pr_threads",
       "test_worklane.WorklaneTests.test_rate_limit_during_claim_does_not_try_remaining_slots",
-      "test_worklane.WorklaneTests.test_repository_case_uses_same_controller_lock",
       "test_worklane.WorklaneTests.test_resolved_threads_are_supplied_to_reviewer_and_allow_handoff",
       "test_worklane.WorklaneTests.test_retry_status_drift_reuses_completed_build",
       "test_worklane.WorklaneTests.test_review_changes_return_to_ready",
@@ -14831,7 +14709,7 @@
       "test_worklane.WorklaneTests.test_worker_pass_with_open_thread_does_not_advance",
       "test_worklane.WorklaneTests.test_worker_receives_threads_and_must_resolve_them_before_completion"
     ],
-    "b897de06dd08a156": [
+    "e0f26d4a2c3fe423": [
       "test_harness.HarnessTests.test_background_start_forwards_role_options",
       "test_harness.HarnessTests.test_check_requires_only_selected_binaries_and_reports_configuration",
       "test_harness.HarnessTests.test_inherited_pwd_cannot_redirect_runs_exports_or_interactive_resume",
@@ -14843,8 +14721,6 @@
       "test_sessions.SessionTests.test_conflict_rework_resumes_original_worker_with_findings",
       "test_sessions.SessionTests.test_human_feedback_dispatch_resumes_original_worker_with_batch",
       "test_sessions.SessionTests.test_interrupted_finalizer_skips_repeat_review",
-      "test_sessions.SessionTests.test_memory_backed_protocol_supports_managed_python_without_os_helper",
-      "test_sessions.SessionTests.test_reviewer_reuses_worktree_across_changed_pr_heads",
       "test_sessions.SessionTests.test_signal_interruption_and_restart_keep_same_conversation"
     ],
     "0d1ef883e3f3b3f5": [
@@ -16749,46 +16625,6 @@
       ],
       "reference_only_is_insufficient": true
     },
-    "test_sessions.SessionTests.test_reviewer_reuses_worktree_across_changed_pr_heads": {
-      "batch": "boundaries",
-      "source": {
-        "source": "test_sessions.py:642",
-        "end": 669,
-        "contract": "reviewer reuses worktree across changed pr heads"
-      },
-      "obligation": "Run unchanged frozen assertions against native code with bound observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "-m",
-        "unittest",
-        "-q",
-        "test_sessions.SessionTests.test_reviewer_reuses_worktree_across_changed_pr_heads"
-      ],
-      "reference_only_is_insufficient": true
-    },
-    "test_sessions.SessionTests.test_memory_backed_protocol_supports_managed_python_without_os_helper": {
-      "batch": "boundaries",
-      "source": {
-        "source": "test_sessions.py:685",
-        "end": 694,
-        "contract": "memory backed protocol supports managed python without os helper"
-      },
-      "obligation": "Run unchanged frozen assertions against native code with bound observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "-m",
-        "unittest",
-        "-q",
-        "test_sessions.SessionTests.test_memory_backed_protocol_supports_managed_python_without_os_helper"
-      ],
-      "reference_only_is_insufficient": true
-    },
     "test_stop.StopTests.test_stop_bypasses_blocked_dispatch_and_repeated_requests_keep_immediate": {
       "batch": "boundaries",
       "source": {
@@ -17026,66 +16862,6 @@
         "unittest",
         "-q",
         "test_worklane.BoardCommandTests.test_controller_board_still_loads_workflow_fields_by_default"
-      ],
-      "reference_only_is_insufficient": true
-    },
-    "test_worklane.WorklaneTests.test_duplicate_controller_is_locked": {
-      "batch": "workflow",
-      "source": {
-        "source": "test_worklane.py:197",
-        "end": 203,
-        "contract": "duplicate controller is locked"
-      },
-      "obligation": "Run unchanged frozen assertions against native code with bound observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "-m",
-        "unittest",
-        "-q",
-        "test_worklane.WorklaneTests.test_duplicate_controller_is_locked"
-      ],
-      "reference_only_is_insufficient": true
-    },
-    "test_worklane.WorklaneTests.test_repository_case_uses_same_controller_lock": {
-      "batch": "workflow",
-      "source": {
-        "source": "test_worklane.py:205",
-        "end": 207,
-        "contract": "repository case uses same controller lock"
-      },
-      "obligation": "Run unchanged frozen assertions against native code with bound observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "-m",
-        "unittest",
-        "-q",
-        "test_worklane.WorklaneTests.test_repository_case_uses_same_controller_lock"
-      ],
-      "reference_only_is_insufficient": true
-    },
-    "test_worklane.WorklaneTests.test_lock_is_retained_by_child_after_parent_closes": {
-      "batch": "workflow",
-      "source": {
-        "source": "test_worklane.py:209",
-        "end": 214,
-        "contract": "lock is retained by child after parent closes"
-      },
-      "obligation": "Run unchanged frozen assertions against native code with bound observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "-m",
-        "unittest",
-        "-q",
-        "test_worklane.WorklaneTests.test_lock_is_retained_by_child_after_parent_closes"
       ],
       "reference_only_is_insufficient": true
     },
@@ -18640,7 +18416,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.invalid-effort": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -18685,7 +18461,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.invalid-stack_dependencies": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -18700,7 +18476,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.memory.unavailable": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -18715,7 +18491,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.memory.syscall-error": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -18745,7 +18521,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.repository.unsupported-origin": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -18760,7 +18536,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.invalid-worker_harness": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -18820,7 +18596,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.state.newer-schema": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -18895,7 +18671,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.board.missing-field": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -18910,7 +18686,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.board.add-missing-destination": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -18925,7 +18701,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.board.failed-review-status": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -18940,7 +18716,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.board.repeated-cursor": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -18955,7 +18731,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.board.status-drift": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -18970,7 +18746,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.board.unverified-transition": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -18985,7 +18761,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.agent.before-turn": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19000,7 +18776,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.agent.missing-history": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19015,7 +18791,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.stack.parent-missing-handoff": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19030,7 +18806,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.stack.pending-restack": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19045,7 +18821,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.restack.moved-target": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19060,7 +18836,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.restack.missing-worktree": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19075,7 +18851,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.restack.wrong-branch": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19090,7 +18866,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.restack.changed-intent": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19105,7 +18881,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.worktree.missing-saved": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19120,7 +18896,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.build.blocked-result": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19135,7 +18911,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.build.pass-with-findings": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19150,7 +18926,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.review.blocked-result": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19165,7 +18941,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.review.pass-with-findings": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19180,7 +18956,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.github.successful-quota-error": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19195,7 +18971,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.state.unsupported-value": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19210,7 +18986,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.state.foreign-key-migration": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19245,7 +19021,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.board.missing-status": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19275,7 +19051,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.agent.invalid-event-shape": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19290,7 +19066,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.agent.after-launch": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19305,7 +19081,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.agent.invalid-result-shape": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19320,7 +19096,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.agent.invalid-verdict": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19335,7 +19111,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.agent.invalid-result-types": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19350,7 +19126,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.agent.invalid-findings": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19365,7 +19141,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.agent.before-launch": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19380,7 +19156,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.stack.changed-prerequisite": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19395,7 +19171,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.restack.changed-child-head": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19410,7 +19186,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.restack.changed-local-head": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19425,7 +19201,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.restack.changed-pr": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19440,7 +19216,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.restack.unverified-retarget": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19455,7 +19231,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.feedback.changed-pr": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19470,7 +19246,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.stack.unpushed-head": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19485,7 +19261,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.worktree.wrong-worker-branch": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19500,7 +19276,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.worktree.existing-local-branch": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19515,7 +19291,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.build.question-created-pr": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19530,7 +19306,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.build.invalid-sha": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19545,7 +19321,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.build.wrong-head": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19560,7 +19336,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.build.dirty-worktree": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19575,7 +19351,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.review.wrong-result-head": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19590,7 +19366,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.review.modified-worktree": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19605,7 +19381,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.workflow.immediate-stop": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19620,7 +19396,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.state.changed-legacy-file": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19635,7 +19411,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.budget.propagates-quota": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19650,7 +19426,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.board.incomplete-items": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19665,7 +19441,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.agent.next-turn": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19680,7 +19456,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.agent.exit-timeout": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19695,7 +19471,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.stack.parent-quota": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19710,7 +19486,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.stack.restack-quota": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19725,7 +19501,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.restack.wrong-board-status": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19740,7 +19516,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.worktree.moved-parent": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19755,7 +19531,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.completion.retargeted-pr": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19770,7 +19546,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.pick.missing-linked-pr": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19785,7 +19561,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.github.failed-owner-probe": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19800,7 +19576,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.agent.conflicting-session-ids": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19815,7 +19591,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.agent.during-turn": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19830,7 +19606,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.stack.closed-parent": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19845,7 +19621,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.worktree.dirty-reviewer": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19860,7 +19636,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.pick.closed-retry-pr": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19875,7 +19651,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.metadata.oversized-response": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19890,7 +19666,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.metadata.repeated-project-cursor": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19905,7 +19681,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.editor.empty-title": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19920,7 +19696,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.resume.missing-command": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19935,7 +19711,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.cli.start-exited": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19950,7 +19726,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.cli.start-timeout": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19965,7 +19741,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.cli.start-cancelled": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19980,7 +19756,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.cli.run-cancelled": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -19995,7 +19771,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.cli.missing-binary": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -20010,7 +19786,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.cli.retry-invalid-phase": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -20025,7 +19801,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.cli.resume-during-stop": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -20040,7 +19816,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.cli.stop-incomplete": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -20055,7 +19831,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.editor.existing-save-error": {
-      "batch": "boundaries",
+      "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -20070,7 +19846,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.terminal-initialization-error": {
-      "batch": "boundaries",
+      "batch": "integration",
       "source": "parity/fixtures/runtime.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -20085,7 +19861,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.terminal-missing-backend": {
-      "batch": "boundaries",
+      "batch": "integration",
       "source": "parity/fixtures/runtime.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -20100,7 +19876,7 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.terminal-interrupt": {
-      "batch": "boundaries",
+      "batch": "integration",
       "source": "parity/fixtures/runtime.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",
       "reference_command": [
@@ -20135,9 +19911,7 @@
         "test_sessions.SessionTests.test_human_feedback_dispatch_resumes_original_worker_with_batch",
         "test_sessions.SessionTests.test_conflict_rework_resumes_original_worker_with_findings",
         "test_sessions.SessionTests.test_signal_interruption_and_restart_keep_same_conversation",
-        "test_sessions.SessionTests.test_interrupted_finalizer_skips_repeat_review",
-        "test_sessions.SessionTests.test_reviewer_reuses_worktree_across_changed_pr_heads",
-        "test_sessions.SessionTests.test_memory_backed_protocol_supports_managed_python_without_os_helper"
+        "test_sessions.SessionTests.test_interrupted_finalizer_skips_repeat_review"
       ],
       "boundary": "Use existing JSON operations; shared Rust/bridge edits stay with the owning worker."
     },

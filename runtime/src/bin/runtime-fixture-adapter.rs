@@ -50,10 +50,57 @@ fn snapshot(state: &StateStore, stage: &str) -> Result<Value> {
         json!({"tasks":state.all()?,"runs":state.runs(None)?,"logs":logs,"session":state.session(1,role(stage)?)?}),
     )
 }
+// Test-only descriptor transfer preserves the native open file description in the caller.
+fn send_fd(socket: i32, descriptor: i32) -> Result<()> {
+    let mut payload = 0u8;
+    let mut control = [0usize; 8];
+    let mut iov = libc::iovec {
+        iov_base: (&mut payload as *mut u8).cast(),
+        iov_len: 1,
+    };
+    let mut message: libc::msghdr = unsafe { std::mem::zeroed() };
+    message.msg_iov = &mut iov;
+    message.msg_iovlen = 1;
+    message.msg_control = control.as_mut_ptr().cast();
+    message.msg_controllen =
+        unsafe { libc::CMSG_SPACE(std::mem::size_of::<i32>() as u32) } as usize;
+    unsafe {
+        let header = libc::CMSG_FIRSTHDR(&message);
+        (*header).cmsg_level = libc::SOL_SOCKET;
+        (*header).cmsg_type = libc::SCM_RIGHTS;
+        (*header).cmsg_len = libc::CMSG_LEN(std::mem::size_of::<i32>() as u32) as usize;
+        std::ptr::write_unaligned(libc::CMSG_DATA(header).cast::<i32>(), descriptor);
+        if libc::sendmsg(socket, &message, libc::MSG_NOSIGNAL) != 1 {
+            return Err(std::io::Error::last_os_error().into());
+        }
+    }
+    Ok(())
+}
 fn run(request: &Value) -> Result<Value> {
     let op = string(request, "op");
     let cwd = std::env::current_dir()?;
     match op.as_str() {
+        "memory.fd" => {
+            let name = std::ffi::CString::new(string(request, "name"))
+                .map_err(|e| Error::new("validation", e.to_string()))?;
+            let file = harness::memory_file(&name)?;
+            send_fd(
+                request["socket_fd"].as_i64().unwrap_or(-1) as i32,
+                file.as_raw_fd(),
+            )?;
+            Ok(Value::Null)
+        }
+        "lock.fd" => {
+            let lock = ProcessSupervisor::lock(
+                Path::new(&string(request, "path")),
+                request["blocking"] != false,
+            )?;
+            send_fd(
+                request["socket_fd"].as_i64().unwrap_or(-1) as i32,
+                lock.as_raw_fd(),
+            )?;
+            Ok(Value::Null)
+        }
         "state.crash" => {
             let state = state(request)?;
             let mut task = json!({"number":1,"phase":"building"});

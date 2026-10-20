@@ -34,13 +34,14 @@ PACKAGES={
 
 
 def package(identifier):
-    if identifier.startswith(('source.','constant.','failure.','fixture.runtime.guard.')):return 'audits'
+    identifier=identifier.removeprefix('fixture:')
+    if identifier.startswith(('source.','constant.','failure.','fixture.runtime.guard.','runtime.guard.')):return 'audits'
     if identifier.startswith('test_port_parity.'):return 'integration'
     if identifier.startswith(('test_stacking.','test_api_budget.')):return 'workflow'
     if identifier.startswith(('test_human_feedback.','test_security.','test_dependencies.')):return 'github'
     if identifier.startswith('test_worklane.'):
         return 'github' if any(word in identifier for word in ('board','github','budget','quota','thread','rate_limit','dependency')) else 'workflow'
-    if identifier.startswith('fixture.runtime.terminal'):return 'integration'
+    if identifier.startswith(('fixture.runtime.terminal','runtime.terminal')):return 'integration'
     return 'boundaries'
 
 

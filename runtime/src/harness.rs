@@ -298,7 +298,7 @@ fn check_opencode_session(session: &Value, tree: &Path, owner: &str) -> Result<(
     }
 }
 
-fn memory_file(name: &std::ffi::CStr) -> Result<File> {
+pub fn memory_file(name: &std::ffi::CStr) -> Result<File> {
     let fd = unsafe { libc::memfd_create(name.as_ptr(), libc::MFD_CLOEXEC) };
     if fd < 0 {
         return Err(std::io::Error::last_os_error().into());

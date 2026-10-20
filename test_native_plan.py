@@ -11,6 +11,10 @@ from tools import native_validate as validation
 
 
 class NativePlanTests(unittest.TestCase):
+    def test_fixture_producer_matches_its_row_batch(self):
+        for name in ('runtime.guard.agent.before-turn','runtime.terminal-interrupt'):
+            self.assertEqual(plan.package('fixture:'+name),plan.package('fixture.'+name))
+
     def test_shared_proofs_are_deduplicated_without_dropping_audits_or_cross_stage_checks(self):
         manifest={'revision':'pin','checks':{'shared':{'source':'test.py:1'},'cli':{'source':'test_cli.py:2'}},
             'matrix':[{'id':'source.worklane.py.State','stage':'runtime','source':'worklane.py:1','checks':['suite:both']},

@@ -8,13 +8,13 @@
     "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter"
   ],
   "candidate_hashes": {
-    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "0d71911560c6059b4f1ef652893ac9995b14312f96d728485b6d2050d15d5eee"
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "75f15107726162e2f54d86a4e71b01d2b6f3c735c4bedf5c232baf3b60f797d6"
   },
-  "release_sha256": "0d71911560c6059b4f1ef652893ac9995b14312f96d728485b6d2050d15d5eee",
+  "release_sha256": "75f15107726162e2f54d86a4e71b01d2b6f3c735c4bedf5c232baf3b60f797d6",
   "driver": "test_native_runtime.py",
   "harness_hashes": {
     "test_native_runtime.py": "75e018c662fa0627760835d7a1e78e19edf4bd5fcbec35921dc396ac6d78a40a",
-    "tools/native_test_bridge.py": "c2d814ab13f33e541e4d11ffe3983e9f85e2a8730149cb578c782a5820718668"
+    "tools/native_test_bridge.py": "8d52eb86f5007cca43ec32710939276ecc7d102ae167a8e4c1b06620cd3607cd"
   },
   "results": [
     {
@@ -400,6 +400,15 @@
       "observations": {
         "frozen_assertions": "pass"
       }
+    }
+  ],
+  "retries": [
+    {
+      "reason": "Unchanged Python reference timed out during aggregate run; isolated exact assertion passed unchanged.",
+      "command": "WORKLANE_TEST_RUST=1 WORKLANE_NATIVE_EVIDENCE=/tmp/worklane50-queue-retry.json UV_CACHE_DIR=/tmp/worklane-50-uv uv run --no-project python -m unittest -q test_native_runtime.NativeAcceptanceTests.test_HarnessTests_test_queued_input_resumes_exact_opencode_conversation_for_every_role",
+      "exit": 0,
+      "tests": 1,
+      "id": "test_harness.HarnessTests.test_queued_input_resumes_exact_opencode_conversation_for_every_role"
     }
   ]
 }

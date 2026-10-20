@@ -1,0 +1,61 @@
+{
+  "mode": "differential",
+  "candidate_runtime": "native",
+  "reference_verified": true,
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "inventory_sha256": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
+  "candidate": [
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter"
+  ],
+  "candidate_hashes": {
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "75f15107726162e2f54d86a4e71b01d2b6f3c735c4bedf5c232baf3b60f797d6"
+  },
+  "release_sha256": "75f15107726162e2f54d86a4e71b01d2b6f3c735c4bedf5c232baf3b60f797d6",
+  "driver": "test_native_storage_boundaries.py",
+  "harness_hashes": {
+    "test_native_storage_boundaries.py": "c7a00719e4e90b133d6312d8d8d3898755c18578e17adcab651e462f8a572093",
+    "tools/native_test_bridge.py": "8d52eb86f5007cca43ec32710939276ecc7d102ae167a8e4c1b06620cd3607cd"
+  },
+  "results": [
+    {
+      "id": "test_worklane.WorklaneTests.test_duplicate_controller_is_locked",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_lock_is_retained_by_child_after_parent_closes",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_memory_backed_protocol_supports_managed_python_without_os_helper",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_repository_case_uses_same_controller_lock",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_reviewer_reuses_worktree_across_changed_pr_heads",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    }
+  ]
+}

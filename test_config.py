@@ -140,7 +140,7 @@ class ConfigTests(unittest.TestCase):
             self.assertTrue(tui.config_walkthrough(curses, screen, self.root))
         settings = w.load_config(self.root)
         self.assertEqual(settings, {"workers": 2, "model": "custom-model", "effort": "medium",
-                                    "interval": 20, "project": "owner/7", "harness": "codex",
+                                    "interval": 20, "project": "owner/7", "harness": "codex", "stack_dependencies": [], "completion_gates": [],
                                     **{f"{role}_{option}": "" for role in w.ROLES.values() for option in ("harness", "model")}})
         self.assertTrue(any("between 1 and 16" in frame for frame in screen.frames))
         for index in range(1, 13):

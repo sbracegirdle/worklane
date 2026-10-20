@@ -142,7 +142,7 @@ Starting another process does not create another conversation. Session transcrip
 remain managed by Codex in its own local storage; keep that storage, the Worklane
 database and worktrees when moving or backing up an installation.
 
-`stop` lets active work finish. `stop --now`, agent timeout, or a controller crash
+`stop` drains active jobs; TUI `X` interrupts immediately. Status records shutdown requests and remaining processes. `stop --now`, agent timeout, or a controller crash
 leaves an interrupted assignment. On the next `start`, Worklane continues the saved
 session and stage, including owned tickets already In Progress. This is continuation
 of assigned work, not new ticket intake. A stopped finalizer resumes the handoff
@@ -190,3 +190,6 @@ worklane run --model MODEL   # Explicit model override
 `--once` does not continue filling slots or review work completed later in that
 batch. Use continuous mode for the full pipeline. Each project runs its own bounded
 team; limits are per repository, not shared across all projects.
+
+`worklane stack` lists pinned ancestors and PRs; the TUI shows ordered stacks and blockers.
+Single-parent stacks merge forward after upstream changes; conflicts or dirty worktrees block without rewriting history or auto-merging PRs.

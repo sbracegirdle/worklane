@@ -39,6 +39,7 @@ class SecurityTests(unittest.TestCase):
         output = io.StringIO()
         with patch.object(w, "repository", return_value=("owner/repo", self.root, "main")), \
              patch.object(w, "State", return_value=self.state), \
+             patch.object(w, "installation_info", return_value={}), \
              patch.object(w.shutil, "which", return_value="/bin/fake"), redirect_stdout(output):
             code = w.main(argv)
         return code, output.getvalue()
@@ -91,7 +92,8 @@ class SecurityTests(unittest.TestCase):
                    lambda: runner.recover([], "worker-1"),
                    lambda: runner.poll_human_feedback([]),
                    lambda: runner.agent_result({"number": 1}, "build", self.root, ""),
-                   lambda: runner.post({}, "review", {}), lambda: tui.save_editor("owner/repo", editor)]
+                   lambda: runner.post({}, "review", {}), lambda: runner.restack({}, [], item(1)),
+                   lambda: tui.save_editor("owner/repo", editor)]
         for action in actions:
             with self.subTest(action=action), self.assertRaisesRegex(RuntimeError, "security preflight"):
                 action()
@@ -129,6 +131,14 @@ class SecurityTests(unittest.TestCase):
         code, output = self.cli(["check", "--project", "owner/2"])
         self.assertEqual(code, 1)
         self.assertIn('"error": "offline"', output)
+
+    def test_check_stack_inspector_needs_no_agent_backend(self):
+        w.save_config(self.root, {"stack_dependencies": ["2:1"]})
+        with patch.object(w.Board, "refresh_fields"), patch.object(w.Board, "items", return_value=[]), \
+             patch.object(w.Board, "options", {}, create=True):
+            code, output = self.cli(["check", "--project", "owner/2"])
+        self.assertEqual(code, 0)
+        self.assertTrue(json.loads(output)["security"]["safe"])
 
     def test_detached_override_propagates_only_when_supplied(self):
         for override in (False, True):

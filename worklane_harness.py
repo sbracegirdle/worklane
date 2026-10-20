@@ -10,6 +10,8 @@ import threading
 import time
 import uuid
 
+from worklane_process import identity, terminate_owned
+
 MODEL = "gpt-6.1-sol"
 
 
@@ -29,16 +31,14 @@ def session_name(repo, number, role, task):
 
 
 def terminate(process):
-    if process.poll() is None:
-        try:
-            os.killpg(process.pid, signal.SIGTERM)
-        except ProcessLookupError:
-            pass
-        try:
-            process.wait(timeout=15)
-        except subprocess.TimeoutExpired:
-            os.killpg(process.pid, signal.SIGKILL)
-            process.wait()
+    if process.poll() is not None:
+        return
+    terminate_owned([(process.pid, getattr(process, "worklane_identity", None) or identity(process.pid))])
+    try:
+        process.wait(timeout=2)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait()
 
 
 class CodexAppServer:
@@ -55,6 +55,7 @@ class CodexAppServer:
             ["codex", "app-server", "--listen", "stdio://"], cwd=self.cwd,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
             start_new_session=True)
+        self.process.worklane_identity = identity(self.process.pid)
         try:
             self.request("initialize", {
                 "clientInfo": {"name": "worklane", "version": "0.1.0"},

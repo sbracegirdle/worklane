@@ -21,7 +21,7 @@ class PreviewInstallTests(unittest.TestCase):
             checkout = root / "integration checkout"
             checkout.mkdir()
             project = Path(w.__file__).resolve().parent
-            for name in ("worklane.py", "worklane_harness.py", "worklane_tui.py", "pyproject.toml"):
+            for name in ("worklane.py", "worklane_harness.py", "worklane_tui.py", "worklane_process.py", "pyproject.toml"):
                 shutil.copyfile(project / name, checkout / name)
             env = dict(os.environ, UV_TOOL_DIR=str(root / "tools"),
                        UV_TOOL_BIN_DIR=str(root / "bin"), XDG_STATE_HOME=str(root / "state"))

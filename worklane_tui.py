@@ -125,10 +125,12 @@ def pr_view(repo, task):
 
 def controller_action(action, root, options):
     """Use the same CLI safeguards as commands entered in another terminal."""
-    args = [sys.executable, str(Path(worklane.__file__).resolve()), action, "--repo", str(root)]
+    args = [sys.executable, str(Path(worklane.__file__).resolve()), "stop" if action == "stop-now" else action, "--repo", str(root)]
+    if action == "stop-now":
+        args.append("--now")
     if options.get("dangerously_allow_public_board"):
         args.append("--dangerously-allow-public-board")
-    if action in {"start", "resume", "retry"} and options.get("project") and action != "start":
+    if action in {"resume", "retry"} and options.get("project"):
         args.extend(["--project", options["project"]])
     if action == "start":
         for name in ("project", "model", "interval", "workers", "effort", *[key for key in worklane.harness_option_names() if key != "model"]):
@@ -784,6 +786,9 @@ class Dashboard:
             for i in range(start, min(len(items), start + capacity)):
                 item = items[i]
                 blocked = f" (blocked by {item['blocked_by_count']})" if item.get("blocked_by_count") else ""
+                reason = self.state.get_meta(f"dependency:{item['content']['number']}", {}).get("reason")
+                if reason and i == page['index']:
+                    self.put(screen, bottom, "  " + reason, self.colors.get("warn", 0))
                 self.put(screen, 4 + i - start,
                          f" {'›' if i == page['index'] else ' '} {item['status'] or 'No status'}{blocked}  ·  #{item['content']['number']}  {item['title']}",
                          c.A_REVERSE if i == page["index"] else 0)
@@ -793,6 +798,10 @@ class Dashboard:
             self.put(screen, 2, "  " + value.get("url", "Saved issue content; loading updates…"), c.A_DIM)
             self.put(screen, 3, f"  ISSUE #{page['number']}  {value.get('title', '')}", c.A_BOLD)
             content = [value.get("state", ""), "", value.get("body") or "No description."]
+            task = self.state.load(page["number"])
+            if task.get("stack"):
+                content = ["Stack (oldest first):", *[f"#{edge['number']} {edge['pr_url']} @ {edge['head_sha']}" for edge in task["stack"]],
+                           f"#{page['number']} {task.get('pr_url', '')} (base {task['base']})", "", *content]
             for comment in value.get("comments", []):
                 author = comment.get("author") or comment.get("user") or {}
                 content.extend(["", f"{author.get('login', 'unknown')} · {comment.get('createdAt') or comment.get('created_at', '')}", comment.get("body", "")])
@@ -866,6 +875,12 @@ class Dashboard:
                               (self.pr_status(issue["task"]) + "  ·  ", muted),
                               (issue['title'], c.A_BOLD if selected else 0),
                               (f"  {len(issue['sessions'])} session{'s' if len(issue['sessions']) != 1 else ''}", muted)])
+                task = issue["task"]
+                if task.get("stack"):
+                    chain = " → ".join(f"#{edge['number']}@{edge['head_sha'][:8]}" for edge in task["stack"])
+                    lines.append([("     Stack " + chain + f" → #{issue['number']} (base {task['base']})", muted)])
+                if task.get("stack_blocked"):
+                    lines.append([("     Stack blocked: " + task["stack_blocked"], self.colors.get("warn", 0))])
             else:
                 selected = key == self.focus
                 branch = "└─" if row is issue["sessions"][-1] else "├─"
@@ -1009,7 +1024,7 @@ class Dashboard:
         limit = (self.state.get_meta("runtime", {}) if data["busy"] else self.settings()).get("workers", 3)
         self.paint(screen, 1, [("  Workers ", c.A_DIM),
                               (f"{'●' * workers}{'○' * max(0, limit - workers)} {workers}/{limit}", self.colors.get("live", 0)),
-                              ("    Review ", c.A_DIM), (f"{'●' if reviews else '○'} {reviews}/1", self.colors.get("agent", 0))])
+                              ("    Review ", c.A_DIM), (f"{'●' if reviews else '○'} {reviews}/1", self.colors.get("agent", 0)), ("  X kill", c.A_DIM)])
         issues = issue_groups(data["rows"])
         bottom = height - (6 if self.detail and not self.editor else 4)
         if self.editor:
@@ -1035,7 +1050,7 @@ class Dashboard:
         elif chosen and not self.page and not self.editor:
             self.paint(screen, bottom + 1, [(f"  #{chosen['number']}  ", c.A_BOLD),
                                            (chosen["title"], 0), (f"  /  {chosen['role']}", self.colors.get("agent", 0))])
-        error = chosen["task"].get("error") if chosen and not self.page and not self.jobs else None
+        error = (chosen["task"].get("stack_blocked") or chosen["task"].get("error")) if chosen and not self.page and not self.jobs else None
         self.put(screen, height - 2, "  " + (self.message or error or "Select an issue to see sessions; Enter on a session opens its transcript."),
                  self.colors.get("warn", 0) if error and not self.message else c.A_DIM)
         controls = "m message  b/Esc/q back  PgUp/PgDn scroll  / search  End " + ("context" if self.searching else "follow")
@@ -1210,8 +1225,8 @@ class Dashboard:
                     self.composing, self.draft, self.input_run = True, "", chosen["run"]["id"]
                     self.message = "Input for this session's next turn. /help lists basic commands."
                 continue
-            if not self.detail and key in (ord("s"), ord("x")):
-                self.control("start" if key == ord("s") else "stop")
+            if not self.detail and key in (ord("s"), ord("x"), ord("X")):
+                self.control("start" if key == ord("s") else "stop-now" if key == ord("X") else "stop")
                 continue
             if not self.detail and key == ord("c"):
                 if self.jobs:

@@ -57,6 +57,7 @@ class NativePlanTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory)
             (root/'parity').mkdir();(root/'parity/inventory.json').write_text('{}')
+            (root/'docs').mkdir();(root/'docs/port.md').write_text('Core contract')
             (root/'tools').mkdir();driver=root/'tools/driver.py';driver.write_text('first')
             with patch.object(validation,'ROOT',root):
                 before=validation.checked_inputs()

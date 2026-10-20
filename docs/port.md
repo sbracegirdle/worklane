@@ -1,6 +1,7 @@
-# Rust CLI/TUI parity contract
+# Rust CLI/TUI core release contract
 
-Choose **Rust** for the complete port. Python remains operational until stage 5 passes.
+Choose **Rust**; Python remains operational until #53 verifies the installed core release.
+The owner’s 2026-10-20 scope supersedes exhaustive shipment gates; inventory coverage remains advisory.
 
 | Decision | Rationale |
 | --- | --- |
@@ -22,7 +23,7 @@ Choose **Rust** for the complete port. Python remains operational until stage 5 
 - `suite:MODULE` expands through `inventory.suites`; source/failure rows require every check in their owning suites.
 - Every explicit failure/exit row has a specific check proven to detect deletion of its `raise`; no failure uses blanket suites.
 - [Failure proof](../parity/failure-checks.json) binds those checks to the pinned source, fixture inputs and execution helpers.
-- Before each stage and cutover: fetch main, review its complete diff, update fixtures/inventory, and rerun both executables.
+- Reconcile reference/main changes before handoff; retain exact reference, candidate, binary and driver identities.
 - The inventory audit fails on reference drift; local unmerged edits never enter the archived Python oracle.
 
 ## Owning stages
@@ -30,12 +31,12 @@ Choose **Rust** for the complete port. Python remains operational until stage 5 
 | Stage | Required delivery |
 | --- | --- |
 | 1: contract | This decision, source inventory, executable reference checks, portable fixtures and comparison harness. |
-| 2: runtime | Rust domain types, storage, configuration, GitHub/agent transports, workflows, process ownership and fixture adapter. |
-| 3: CLI | Every parser surface and command; use the frozen runtime interface and fixtures independently of stage 4. |
-| 4: TUI | Every screen, key branch, editor, search, cache and resume behavior; use stage 2 independently of stage 3. |
-| 5: cutover | Refresh main, pass every matrix row on both implementations, verify installed executable and retain rollback state. |
+| 2: runtime #50 | Core groups 1–9; shared interfaces for CLI/TUI. |
+| 3: CLI #51 | Core group 10: command families, configuration and backlog controls. |
+| 4: TUI #52 | Core groups 11–12: navigation, editing, sessions and lifecycle controls. |
+| 5: cutover #53 | Groups 1–14, independent review, installed CLI/PTY/lifecycle checks, backed-up drained upgrade; blocks desktop #40–#48. |
 
-## Command and terminal obligations
+## Advisory surface inventory
 
 | Surface | Observable contract |
 | --- | --- |
@@ -65,7 +66,7 @@ Choose **Rust** for the complete port. Python remains operational until stage 5 
 | Exit/back | `b`, Esc, Backspace, `q`; overview `q`/Ctrl-C exits dashboard; restore terminal/keypad after interactive agent resume. |
 | Terminal limits | Minimum 50×12, refresh 0.1–60 seconds, `NO_COLOR`/`--no-color`, combining/wide characters and resize recovery. |
 
-## Runtime invariants
+## Shared runtime behavior
 
 | Area | Required behavior / executable checks |
 | --- | --- |
@@ -109,7 +110,7 @@ Types use UTF-8 strings, repository-qualified identifiers, UTC timestamps and ex
 - Stage 2 freezes these interfaces as a Rust library; CLI/TUI link the same crate, without invoking each other internally.
 - The [runtime fixtures](../parity/fixtures/runtime.json) define test-adapter requests and shared values, not a desktop API.
 - The [Python adapter](../tools/port_reference_driver.py) executes the archived runtime; Rust supplies an equivalent test executable.
-- Existing test methods remain mandatory oracle fixtures; stage owners must implement equivalent candidate observations for every assertion and failure path.
+- Reuse representative existing assertions for core scenarios; unselected exhaustive rows remain visibly incomplete.
 - Public CLI output, terminal frames, persisted data, remote writes and failure semantics are contract observations, not implementation choices.
 
 ## Differential harness
@@ -133,15 +134,14 @@ uv run --no-project python tools/port_parity.py --fixtures parity/fixtures/runti
 - PTY fixtures retain raw output and terminal signals/resizes; event-driven input avoids arbitrary sleeps.
 - New gap fixtures cover parser failures, literal transport data, partial issue creation, stack policy, queued-input restart and TUI `X`.
 
-## Cutover evidence gate
+## Core evidence gate
 
-- **100% functionality means every matrix row passes on both executables with evidence, with zero missing/deferred/stubbed cases.**
-- Require exact reference SHA, candidate binary hash, fixture hash, command/environment and individual check observations for each row.
-- Expand every suite reference; skipped, failed, missing, manual-unverified or Python-only checks block cutover.
-- Source/doc rows require explicit review of unasserted behavior; failure rows additionally require their deletion-detecting executable checks.
-- Test counts and line coverage alone never establish parity; published stage-1 evidence establishes the Python baseline only.
-- Installation/OpenCode opt-in checks and live authenticated full-workflow validation remain mandatory before cutover; no provider turn is authorized here.
-- Preserve database/worktrees/agent history and Python rollback command; switch installations only in stage 5 after all checks pass.
+- #50 requires nine native scenario groups: storage/config; dispatch; exact sessions; review/handoff; controls; recovery; dependencies/stacks; privacy; transport.
+- `core_runtime_ready` requires every group, current regression checks and bound native observations; missing/failing core assertions block readiness.
+- `core_release_ready` remains false here; #53 requires all fourteen groups, independent review and installed cutover.
+- `exhaustive_parity_complete` remains separate; historic inventory, deletion proofs and source audits never imply core completion.
+- Controlled providers/GitHub are allowed; report opt-in skips and live/installed limits honestly. Both command surfaces retain privacy guards.
+- Deferred: exhaustive failure/source/constant audits and unselected legacy assertions. CLI/TUI presentation and installation belong to #51–#53.
 
 [Interface signatures and value types](../parity/runtime-api.json) freeze the stage-2 boundary used independently by CLI and TUI.
 
@@ -150,11 +150,11 @@ uv run --no-project python tools/port_gate.py /tmp/differential-cli.json /tmp/di
 ```
 
 - Gate reports also require one `release_sha256`; use harness `--release PATH` when testing a separate runtime adapter.
-- Source audits identify row, validation commands, artifact SHA-256 and an empty `unasserted_behaviors` list; missing audits block cutover.
+- `port_gate.py` retains the advisory exhaustive audit; it does not decide core release readiness.
 - Fixture Git fetch/push uses a disposable local upstream; GitHub origin discovery remains unchanged. This harness is not an OS sandbox.
 
 - Fixture reports require a registered path, matching hash and case membership; CLI evidence cannot attest to runtime cases.
 - [Failure fixtures](../parity/fixtures/failures.json) inject controlled runtime faults and assert diagnostics, exits, persistence and side effects.
 
 The [native runtime](../runtime/) preserves SQLite v2 and committed turns; Python remains operational.
-`uv run --no-project python tools/native_validate.py` records differential evidence and explicitly lists unverified parity rows.
+`uv run --no-project python tools/native_validate.py` gates core scenarios and records advisory unverified rows.

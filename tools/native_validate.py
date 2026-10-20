@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
-"""Record native checks and fail closed on incomplete frozen runtime evidence."""
+"""Gate the nine core runtime scenarios; retain exhaustive parity as advisory evidence."""
 import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 import subprocess
 import sys
 
 try:
+    from .native_core import assess_core
     from .port_gate import assess
     from .native_test_bridge import acceptance_inputs
 except ImportError:
+    from native_core import assess_core
     from port_gate import assess
     from native_test_bridge import acceptance_inputs
 
@@ -29,7 +32,7 @@ ACCEPTANCE = {
 def checked_inputs():
     paths=[*ROOT.glob('test_*.py'),*ROOT.glob('worklane*.py'),
            *ROOT.glob('Cargo.*'),*ROOT.glob('runtime/Cargo.*'),
-           *ROOT.glob('runtime/**/*.rs'),*ROOT.glob('tools/*.py'),ROOT/'parity/inventory.json']
+           *ROOT.glob('runtime/**/*.rs'),*ROOT.glob('tools/*.py'),ROOT/'parity/inventory.json',ROOT/'docs/port.md']
     return {str(path.relative_to(ROOT)):hashlib.sha256(path.read_bytes()).hexdigest()
             for path in sorted(set(paths))}
 
@@ -145,8 +148,16 @@ def main():
         log = Path(f'/tmp/worklane50-{prefix}-{index}.log')
         with log.open('w') as output:
             process = subprocess.run(command,cwd=ROOT,env=env,stdout=output,stderr=subprocess.STDOUT)
-        tail = '\n'.join(log.read_text().splitlines()[-10:])
-        (targeted if args.refresh_native else results).append({'command':command,'exit':process.returncode,'log':str(log),'tail':tail})
+        output=log.read_text()
+        tail = '\n'.join(output.splitlines()[-10:])
+        record={'command':command,'exit':process.returncode,'log':str(log),'tail':tail,
+                'log_sha256':hashlib.sha256(log.read_bytes()).hexdigest()}
+        if command==['cargo','test','--locked','--offline']:
+            record['passed_tests']=re.findall(r'^test (\S+) \.\.\. ok$',output,re.M)
+            binaries=re.findall(r'Running .*?\((target/debug/deps/[^)]+)\)',output)
+            record['test_binary_hashes']={path:hashlib.sha256((ROOT/path).read_bytes()).hexdigest()
+                                          for path in binaries}
+        (targeted if args.refresh_native else results).append(record)
         print(json.dumps({'command':command,'exit':process.returncode}),flush=True)
     manifest = json.loads((ROOT/'parity/inventory.json').read_text())
     acceptance = json.loads((EVIDENCE/'native-acceptance.json').read_text())
@@ -175,7 +186,11 @@ def main():
     main_drift=subprocess.check_output(['git','diff','--name-only',manifest['revision'],current_main],cwd=ROOT,text=True).splitlines()
     full_inputs=inputs if full_run else previous.get('checked_inputs')
     checks_current=(full_inputs==checked_inputs() and len(results)==len(commands))
-    report = {'reference':manifest['revision'],'current_main':current_main,'upstream_drift':main_drift,'candidate_hashes':runtime['candidate_hashes'],
+    binary_hash=hashlib.sha256((ROOT/'target/debug/runtime-fixture-adapter').read_bytes()).hexdigest()
+    core=assess_core(ROOT,manifest['revision'],binary_hash,results,checks_current,main_drift)
+    report = {**core,'candidate_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+              'candidate_inputs_sha256':hashlib.sha256(json.dumps(checked_inputs(),sort_keys=True).encode()).hexdigest(),
+              'reference':manifest['revision'],'current_main':current_main,'upstream_drift':main_drift,'candidate_hashes':runtime['candidate_hashes'],
               'environment':{key:env[key] for key in ('UV_CACHE_DIR','WORKLANE_TEST_RUST','WORKLANE_TEST_INSTALL','WORKLANE_TEST_OPENCODE')},
               'commands':results,'acceptance_checks':len(acceptance['results']),
               'checked_inputs':full_inputs,'checks_current':checks_current,
@@ -194,12 +209,14 @@ def main():
               'passed_checks':sorted(passed),
               'inventory_sha256':hashlib.sha256((ROOT/'parity/inventory.json').read_bytes()).hexdigest(),
               'runtime_rows':rows,'unverified_rows':unverified,
-              'stage2_complete':not unverified and not main_drift and checks_current and all(row['exit']==0 for row in results),
+              'exhaustive_parity_complete':not unverified and core['core_runtime_ready'],
+              'exhaustive_inventory_advisory':True,
+              'stage2_complete':core['core_runtime_ready'],
               'limits':['No installation switch or live authenticated provider turns.',
                         'Protocol/results: 4 MiB; subprocess capture: 16 MiB; logs/events use bounded pages.',
                         'Workflow, transport and failure rows without native assertions remain unverified; source audits are pending.']}
     (EVIDENCE/'native-validation.json').write_text(json.dumps(report,indent=2)+'\n')
-    print(json.dumps({'complete_rows':len(rows)-len(unverified),'runtime_rows':len(rows),'stage2_complete':report['stage2_complete']}))
+    print(json.dumps({'complete_rows':len(rows)-len(unverified),'runtime_rows':len(rows),'core_runtime_ready':report['core_runtime_ready'],'core_release_ready':False,'exhaustive_parity_complete':report['exhaustive_parity_complete']}))
     return 0 if report['stage2_complete'] else 1
 
 

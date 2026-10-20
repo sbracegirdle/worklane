@@ -15,7 +15,7 @@ import unicodedata
 import uuid
 
 import worklane
-from worklane import ROLES, WORKERS, locked, process_identity, readable_log
+from worklane import ROLES, locked, process_identity, readable_log
 
 
 GROUP_ORDER = ("running", "blocked", "failed", "interrupted", "retry", "awaiting_review", "human_review", "completed", "queued")
@@ -109,7 +109,7 @@ def controller_action(action, root, options):
     """Use the same CLI safeguards as commands entered in another terminal."""
     args = [sys.executable, str(Path(worklane.__file__).resolve()), action, "--repo", str(root)]
     if action == "start":
-        for name in ("project", "model", "interval"):
+        for name in ("project", "model", "interval", "harness", "workers", "effort"):
             if options.get(name) is not None:
                 args.extend(["--" + name, str(options[name])])
         if options.get("once"):
@@ -366,6 +366,83 @@ def clipped(value, width):
     return "".join(result)
 
 
+def config_walkthrough(c, screen, root, options=None):
+    """Collect a complete configuration without writing until confirmation."""
+    values = worklane.load_config(root)
+    values.update({key: value for key, value in (options or {}).items()
+                   if key in worklane.CONFIG_DEFAULTS and value is not None})
+    questions = (
+        ("harness", "Which agent harness?", "codex is the only supported harness currently."),
+        ("workers", "How many coding workers?", "1 to 16 concurrent workers, plus one independent reviewer."),
+        ("model", "Which agent model?", "Enter a model available to your authenticated Codex CLI."),
+        ("effort", "Which reasoning effort?", "low, medium, high or xhigh"),
+        ("interval", "How many seconds between board polls?", "Minimum 10 seconds."),
+        ("project", "Which GitHub project board?", "OWNER/NUMBER, or leave empty for automatic discovery."),
+    )
+    step, error = 0, ""
+    text = str(values[questions[step][0]])
+    screen.keypad(True)
+    screen.timeout(100)
+    try:
+        c.curs_set(0)
+    except c.error:
+        pass
+    while True:
+        height, width = screen.getmaxyx()
+        screen.erase()
+        def put(y, line, style=0):
+            if 0 <= y < height:
+                try:
+                    screen.addstr(y, 0, clipped("  " + line, max(0, width - 1)), style)
+                except c.error:
+                    pass
+        confirming = step == len(questions)
+        put(0, "WORKLANE SETUP", c.A_BOLD)
+        put(1, str(Path(root) / worklane.CONFIG_FILE), c.A_DIM)
+        if height < 12 or width < 50:
+            put(3, "Enlarge terminal to at least 50×12; Esc cancels.")
+        elif confirming:
+            put(3, "Save these settings?", c.A_BOLD)
+            for y, (key, value) in enumerate(values.items(), 4):
+                put(y, f"{key}: {value or 'auto'}")
+        else:
+            _, question, hint = questions[step]
+            put(3, f"{step + 1}/{len(questions)}  {question}", c.A_BOLD)
+            for y, line in enumerate(wrapped(hint, width - 4), 5):
+                put(y, line)
+            put(8, "> " + clipped(text, max(1, width - 7)) + "_", c.A_REVERSE)
+        put(height - 2, error, c.A_BOLD)
+        put(height - 1, "Enter save · Esc cancel" if confirming else "Enter next · Ctrl-U clear · Esc cancel", c.A_DIM)
+        screen.refresh()
+        try:
+            key = screen.get_wch()
+        except c.error:
+            continue
+        if key in ("\x1b", 27):
+            return False
+        if height < 12 or width < 50:
+            continue
+        if key in ("\n", "\r", c.KEY_ENTER):
+            try:
+                if confirming:
+                    worklane.save_config(root, values)
+                    return True
+                name = questions[step][0]
+                value = int(text) if name in {"workers", "interval"} else text.strip()
+                values = worklane.validate_config({**values, name: value})
+                step += 1
+                text = "" if step == len(questions) else str(values[questions[step][0]])
+                error = ""
+            except (ValueError, OSError) as problem:
+                error = str(problem)
+        elif key in ("\x15", 21):
+            text = ""
+        elif key in ("\b", "\x7f", c.KEY_BACKSPACE):
+            text = text[:-1]
+        elif isinstance(key, str) and key.isprintable() and not confirming:
+            text += key
+
+
 class Dashboard:
     def __init__(self, curses, state, repo, refresh, *, no_color=False, root=None, options=None):
         self.curses, self.state, self.repo, self.refresh = curses, state, repo, refresh
@@ -579,7 +656,8 @@ class Dashboard:
 
     def settings(self):
         runtime = self.state.get_meta("runtime", {})
-        return {**{key: runtime[key] for key in ("project", "model", "interval", "once") if key in runtime},
+        saved = worklane.load_config(self.root) if (self.root / worklane.CONFIG_FILE).exists() else {}
+        return {**{key: runtime[key] for key in (*worklane.CONFIG_DEFAULTS, "once") if key in runtime}, **saved,
                 **{key: value for key, value in self.options.items() if value is not None}}
 
     def open_page(self, kind, *, number=None, fallback=None):
@@ -844,8 +922,9 @@ class Dashboard:
         active = [row for row in data["rows"] if row["active"]]
         workers = sum(row["role"] == "worker" for row in active)
         reviews = sum(row["role"] in {"reviewer", "finalizer"} for row in active)
+        limit = (self.state.get_meta("runtime", {}) if data["busy"] else self.settings()).get("workers", 3)
         self.paint(screen, 1, [("  Workers ", c.A_DIM),
-                              (f"{'●' * workers}{'○' * max(0, len(WORKERS) - workers)} {workers}/3", self.colors.get("live", 0)),
+                              (f"{'●' * workers}{'○' * max(0, limit - workers)} {workers}/{limit}", self.colors.get("live", 0)),
                               ("    Review ", c.A_DIM), (f"{'●' if reviews else '○'} {reviews}/1", self.colors.get("agent", 0))])
         issues = issue_groups(data["rows"])
         bottom = height - (6 if self.detail and not self.editor else 4)
@@ -879,11 +958,11 @@ class Dashboard:
         if self.searching and not self.detail:
             controls = "Enter search   Backspace edit   Esc cancel" if self.editing else "↑↓/jk select  Enter open  / edit  b/Esc/q back"
         elif not self.detail:
-            controls = "s start x stop i issue B board / search q quit"
+            controls = "s start x stop c config i issue B board q quit"
             if width >= 70:
-                controls = "s start x stop i issue B board n new e edit / search q quit"
+                controls = "s start x stop c config i issue B board n new e edit q quit"
             if width >= 100:
-                controls = "s start x stop i issue B board n new e edit / search ↑↓ select Enter open a resume q quit"
+                controls = "s start x stop c config i issue B board n new e edit / search ↑↓ select Enter open a resume q quit"
         if self.page:
             controls = "↑↓/jk select Enter/i issue n new e edit r refresh Esc back" if self.page["kind"] == "board" else "↑↓/PgUp/PgDn scroll e edit r refresh Esc back"
         if self.composing:
@@ -1046,6 +1125,18 @@ class Dashboard:
             if not self.detail and key in (ord("s"), ord("x")):
                 self.control("start" if key == ord("s") else "stop")
                 continue
+            if not self.detail and key == ord("c"):
+                if self.jobs:
+                    self.message = "Wait for the current action before configuring Worklane."
+                    continue
+                try:
+                    saved = config_walkthrough(c, screen, self.root, self.options)
+                    self.message = "Configuration saved; applies on next start. CLI overrides remain active." if saved else "Setup cancelled; settings unchanged."
+                except (ValueError, OSError) as error:
+                    self.message = str(error)
+                finally:
+                    screen.timeout(max(1, int(self.refresh * 1000)))
+                continue
             if not self.detail and not self.searching and key in (ord("n"), ord("e")):
                 if key == ord("n") or chosen:
                     self.open_editor(None if key == ord("n") else chosen["number"])
@@ -1120,14 +1211,28 @@ class Dashboard:
 def run_tui(state, repo, refresh=1, *, no_color=False, root=None, options=None):
     if not math.isfinite(refresh) or not .1 <= refresh <= 60:
         raise RuntimeError("--refresh must be between 0.1 and 60 seconds.")
+    def show(curses, screen):
+        dashboard = Dashboard(curses, state, repo, refresh, no_color=no_color, root=root, options=options)
+        if not (dashboard.root / worklane.CONFIG_FILE).exists():
+            saved = config_walkthrough(curses, screen, dashboard.root, options)
+            dashboard.message = "Configuration saved; s starts Worklane." if saved else "Setup cancelled; using defaults and CLI overrides. c reopens setup."
+        dashboard.run(screen)
+    terminal_ui(show)
+
+
+def run_config(root, *, no_color=False, options=None):
+    terminal_ui(lambda c, screen: config_walkthrough(c, screen, root, options))
+
+
+def terminal_ui(callback):
     if not sys.stdin.isatty() or not sys.stdout.isatty():
-        raise RuntimeError("worklane tui requires an interactive terminal; use worklane status or worklane logs for redirected output.")
+        raise RuntimeError("Worklane setup/TUI requires an interactive terminal; use worklane status or worklane logs for redirected output.")
     try:
         import curses
     except ImportError:
         raise RuntimeError("This Python build has no curses support; use worklane status or worklane logs.") from None
     try:
-        curses.wrapper(Dashboard(curses, state, repo, refresh, no_color=no_color, root=root, options=options).run)
+        curses.wrapper(lambda screen: callback(curses, screen))
     except KeyboardInterrupt:
         pass  # Quitting a view must never stop the controller.
     except curses.error as error:

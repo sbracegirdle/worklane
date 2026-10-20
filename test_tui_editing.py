@@ -294,6 +294,7 @@ class IssueEditorTests(unittest.TestCase):
         self.assertIn("rate limit", self.dashboard.message)
 
     def test_real_terminal_create_unicode_multiline_status_resize_and_save(self):
+        w.save_config(self.root, {})  # Exercise the issue editor after initial setup.
         master, slave = pty.openpty()
         self.addCleanup(os.close, master)
         self.addCleanup(os.close, slave)

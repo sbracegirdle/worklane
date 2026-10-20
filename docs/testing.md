@@ -20,6 +20,7 @@ log following and quitting without stopping the controller. Interactive resume
 uses a mocked invocation; no real coding conversation is resumed by these tests.
 TUI controls use mocked launches; cached issue/board views also run in a real terminal.
 Input tests cover terminal composition, queued follow-up subprocesses, session routing, completion races and interrupted delivery recovery.
+Configuration tests cover validation, atomic saves, cancellation, overrides, dispatch capacity and first-use setup in a real terminal.
 Cache tests cover expiry, offline content, comment pagination and shared GitHub cooldowns.
 
 Metadata tests use a fake app-server subprocess to check naming, project reuse and

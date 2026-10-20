@@ -1,4 +1,4 @@
-# Storage decision: SQLite for all Worklane data
+# Storage decision: SQLite for Worklane runtime data
 
 Worklane uses SQLite for all of its durable runtime data, including controller
 output, agent events, results, issue/PR details and session mappings. There are no
@@ -39,6 +39,7 @@ Runtime settings use typed database values too. The schema version is SQLite's
 `user_version`. Empty process-lock files and Git worktrees remain on disk as
 operational resources; they are not parallel state/log stores.
 Session input queues use typed values; completion and new submissions serialize transactionally before workflow handoff.
+User configuration lives separately in [`.worklane.toml`](configuration.md); SQLite retains the running controller's settings snapshot.
 
 Human feedback uses nested task values: the acknowledged comment/review snapshot,
 the pending batch, its latest observation time and its handoff generation. New

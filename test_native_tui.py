@@ -23,8 +23,7 @@ PROBE = ROOT/'target/debug/examples/tui-controller-probe'
 class NativeTuiTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        if not BINARY.exists() or not PROBE.exists():
-            subprocess.run(['cargo', 'build', '--locked', '--offline', '--bin', 'worklane-tui', '--example', 'tui-controller-probe'], cwd=ROOT, check=True)
+        subprocess.run(['cargo', 'build', '--locked', '--offline', '--bin', 'worklane-tui', '--example', 'tui-controller-probe'], cwd=ROOT, check=True)
         if BINARY.read_bytes()[:4] != b'\x7fELF':
             raise AssertionError('PTY candidate must be the native ELF executable')
 

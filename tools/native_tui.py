@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import termios
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,7 +23,18 @@ class EvidenceResult(unittest.TextTestResult):
         self.cases=[]
     def addSuccess(self, test):
         super().addSuccess(test)
-        self.cases.append({'id':test.id(), 'status':'pass', 'scenario':11 if '.test_group11_' in test.id() else 12})
+        observations={'saved_worker_session':test.state.session(1,'worker')['session_id'],
+            'expected_worker_session':test.session_id, 'saved_phase':test.state.load(1)['phase'],
+            'pending_worker_input':test.inputs(), 'gh_commands':[c['args'] for c in test.calls()]}
+        if test.process is not None:
+            observations.update(terminal_restored=termios.tcgetattr(test.slave)==test.original_terminal,
+                exit=test.process.returncode, terminal_sha256=hashlib.sha256(test.output).hexdigest(),
+                observed_terminal_tokens=[token for token in ['Overview','Logs #1','Fresh output after refresh',
+                    'Second paginated comment','Input queued','Configuration saved','Cancelled',
+                    'security preflight refused','Controller started','Stop requested','Session returned','Retry saved']
+                    if token.encode() in test.output])
+        self.cases.append({'id':test.id(), 'status':'pass', 'scenario':11 if '.test_group11_' in test.id() else 12,
+                           'observations':observations})
 
 if __name__ == '__main__':
     if len(sys.argv) != 2 or not os.environ.get('WORKLANE_TUI_BIN'):
@@ -34,6 +46,7 @@ if __name__ == '__main__':
     source=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     reference=json.loads((ROOT/'parity/inventory.json').read_text())['revision']
     assert digest(BINARY)==binary_hash, 'Candidate changed during PTY checks'
+    assert digest(ROOT/'target/debug/worklane-tui')==binary_hash, 'Installed debug candidate differs from current native build'
     report={'reference':reference,'runtime_parent':'5cc71a5880dc77727987e4a496c53181f5e5d8f0',
         'candidate_source_revision':source,'candidate':str(BINARY.resolve()),'candidate_sha256':binary_hash,
         'controller_probe':str(PROBE),'controller_probe_sha256':digest(PROBE),

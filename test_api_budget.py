@@ -47,8 +47,12 @@ class ApiBudgetTests(unittest.TestCase):
                             nodes.append({"id": n, "fieldValueByName": {"name": status},
                                 "links": {"pullRequests": connection([{"url": f"https://github.com/owner/repo/pull/{n}"}] if n == "4" else [])},
                                 "content": {"number": int(n), "title": "Issue", "body": "", "url": "issue",
-                                            "repository": {"nameWithOwner": "owner/repo"}}})
+                                            "repository": {"nameWithOwner": "owner/repo"},
+                                            "issueDependenciesSummary": {"blockedBy": 0}}})
                         data = {"node": {"items": dict(connection(nodes), totalCount=4)}}
+                    elif "issueDependenciesSummary" in query:
+                        calls["dependency check"] += 1
+                        data = {"repository": {"issue": {"issueDependenciesSummary": {"blockedBy": 0}}}}
                     elif "reviewThreads(" in query:
                         calls["review threads"] += 1
                         data = {"repository": {"pullRequest": {"reviewThreads": connection([])}}}
@@ -84,10 +88,10 @@ class ApiBudgetTests(unittest.TestCase):
                 runner.run(threading.Event())
             self.assertEqual([state.load(n)["phase"] for n in range(1, 5)],
                              ["awaiting_review"] * 3 + ["human_review"])
-            self.assertEqual(calls, Counter({"board page": 1, "item status": 14,
+            self.assertEqual(calls, Counter({"board page": 1, "dependency check": 4, "item status": 14,
                 "status mutation": 7, "issue": 4, "PR identity": 9, "comment read": 5,
                 "comment write": 5, "review threads": 6, "feedback REST page": 4}))
-            self.assertEqual(sum(calls.values()), 55)
+            self.assertEqual(sum(calls.values()), 59)
 
 
 if __name__ == "__main__":

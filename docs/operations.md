@@ -29,6 +29,7 @@ Ready for work -> In Progress -> Agent review -> Human review
 Rework goes back to **Ready for work** so workers only ever claim that status.
 The first run adds **Agent review** immediately before Human review, preserving
 existing option IDs, colors and descriptions. `check` never changes the board.
+Native GitHub “blocked by” dependencies prevent assignment and recovery until all blockers close; checks fail closed.
 Only open issues belonging to the current repository are eligible. Board API item
 order determines pickup order; custom view sort/filter order is not available
 through this CLI. Projects larger than 10,000 items are refused rather than read

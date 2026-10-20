@@ -599,8 +599,9 @@ class Dashboard:
             start = max(0, page["index"] - capacity + 1)
             for i in range(start, min(len(items), start + capacity)):
                 item = items[i]
+                blocked = f" (blocked by {item['blocked_by_count']})" if item.get("blocked_by_count") else ""
                 self.put(screen, 4 + i - start,
-                         f" {'›' if i == page['index'] else ' '} {item['status'] or 'No status'}  ·  #{item['content']['number']}  {item['title']}",
+                         f" {'›' if i == page['index'] else ' '} {item['status'] or 'No status'}{blocked}  ·  #{item['content']['number']}  {item['title']}",
                          c.A_REVERSE if i == page["index"] else 0)
             if value and not items:
                 self.put(screen, 4, "  No open issues on this board for this repository.", c.A_DIM)

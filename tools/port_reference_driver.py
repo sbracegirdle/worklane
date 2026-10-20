@@ -25,6 +25,9 @@ def main():
     try:
         if op == 'config.validate':
             output = w.validate_config(request['values'])
+        elif op == 'security.call':
+            from port_security_cases import invoke
+            output = invoke(w, request)
         elif op == 'guard.invoke':
             from port_failure_cases import invoke
             outcome, code = invoke(request)

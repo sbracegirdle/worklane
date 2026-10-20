@@ -1,0 +1,205 @@
+{
+  "mode": "differential",
+  "candidate_runtime": "native",
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "reference_verified": true,
+  "inventory_sha256": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
+  "fixtures_path": "parity/fixtures/failures.json",
+  "fixtures_sha256": "8f20769c54ee449ad28ee779db727dcfd2b9673869a9bdbf014014f6d23ebf22",
+  "candidate": [
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter"
+  ],
+  "candidate_hashes": {
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "434e6509a5d5c5c722f62addd274a0a3577eb6f51a52be3aa33cff1b66c12240"
+  },
+  "release_sha256": "434e6509a5d5c5c722f62addd274a0a3577eb6f51a52be3aa33cff1b66c12240",
+  "results": [
+    {
+      "id": "runtime.guard.build.blocked-result",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Implementation blocked: Validated acceptance criteria\", \"type\": \"RuntimeError\", \"effects\": {\"board_moves\": [], \"posts\": 0}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.guard.build.pass-with-findings",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Worker reported unresolved findings with a passing verdict.\", \"type\": \"RuntimeError\", \"effects\": {\"board_moves\": [], \"posts\": 0}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.guard.build.question-created-pr",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Question-only work unexpectedly created a PR; inspect manually.\", \"type\": \"RuntimeError\", \"effects\": {\"board_moves\": [], \"posts\": 0}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.guard.build.invalid-sha",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Worker did not provide an exact commit SHA.\", \"type\": \"RuntimeError\", \"effects\": {\"board_moves\": [], \"posts\": 0}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.guard.build.wrong-head",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Worker checkout differs from the pushed PR head.\", \"type\": \"RuntimeError\", \"effects\": {\"board_moves\": [], \"posts\": 0}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.guard.build.dirty-worktree",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Worker left uncommitted changes.\", \"type\": \"RuntimeError\", \"effects\": {\"board_moves\": [], \"posts\": 0}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    }
+  ],
+  "unverified_cases": [
+    "runtime.guard.agent.after-launch",
+    "runtime.guard.agent.before-launch",
+    "runtime.guard.agent.before-turn",
+    "runtime.guard.agent.conflicting-session-ids",
+    "runtime.guard.agent.during-turn",
+    "runtime.guard.agent.exit-timeout",
+    "runtime.guard.agent.invalid-event-shape",
+    "runtime.guard.agent.invalid-findings",
+    "runtime.guard.agent.invalid-result-shape",
+    "runtime.guard.agent.invalid-result-types",
+    "runtime.guard.agent.invalid-verdict",
+    "runtime.guard.agent.missing-history",
+    "runtime.guard.agent.next-turn",
+    "runtime.guard.board.add-missing-destination",
+    "runtime.guard.board.failed-review-status",
+    "runtime.guard.board.incomplete-items",
+    "runtime.guard.board.missing-field",
+    "runtime.guard.board.missing-status",
+    "runtime.guard.board.repeated-cursor",
+    "runtime.guard.board.status-drift",
+    "runtime.guard.board.unverified-transition",
+    "runtime.guard.budget.propagates-quota",
+    "runtime.guard.cli.missing-binary",
+    "runtime.guard.cli.resume-during-stop",
+    "runtime.guard.cli.retry-invalid-phase",
+    "runtime.guard.cli.run-cancelled",
+    "runtime.guard.cli.start-cancelled",
+    "runtime.guard.cli.start-exited",
+    "runtime.guard.cli.start-timeout",
+    "runtime.guard.cli.stop-incomplete",
+    "runtime.guard.completion.retargeted-pr",
+    "runtime.guard.editor.empty-title",
+    "runtime.guard.editor.existing-save-error",
+    "runtime.guard.feedback.changed-pr",
+    "runtime.guard.github.failed-owner-probe",
+    "runtime.guard.github.successful-quota-error",
+    "runtime.guard.invalid-effort",
+    "runtime.guard.invalid-stack_dependencies",
+    "runtime.guard.invalid-worker_harness",
+    "runtime.guard.memory.syscall-error",
+    "runtime.guard.memory.unavailable",
+    "runtime.guard.metadata.oversized-response",
+    "runtime.guard.metadata.repeated-project-cursor",
+    "runtime.guard.pick.closed-retry-pr",
+    "runtime.guard.pick.missing-linked-pr",
+    "runtime.guard.repository.unsupported-origin",
+    "runtime.guard.restack.changed-child-head",
+    "runtime.guard.restack.changed-intent",
+    "runtime.guard.restack.changed-local-head",
+    "runtime.guard.restack.changed-pr",
+    "runtime.guard.restack.missing-worktree",
+    "runtime.guard.restack.moved-target",
+    "runtime.guard.restack.unverified-retarget",
+    "runtime.guard.restack.wrong-board-status",
+    "runtime.guard.restack.wrong-branch",
+    "runtime.guard.resume.missing-command",
+    "runtime.guard.review.blocked-result",
+    "runtime.guard.review.modified-worktree",
+    "runtime.guard.review.pass-with-findings",
+    "runtime.guard.review.wrong-result-head",
+    "runtime.guard.stack.changed-prerequisite",
+    "runtime.guard.stack.closed-parent",
+    "runtime.guard.stack.parent-missing-handoff",
+    "runtime.guard.stack.parent-quota",
+    "runtime.guard.stack.pending-restack",
+    "runtime.guard.stack.restack-quota",
+    "runtime.guard.stack.unpushed-head",
+    "runtime.guard.state.changed-legacy-file",
+    "runtime.guard.state.foreign-key-migration",
+    "runtime.guard.state.newer-schema",
+    "runtime.guard.state.unsupported-value",
+    "runtime.guard.workflow.immediate-stop",
+    "runtime.guard.worktree.dirty-reviewer",
+    "runtime.guard.worktree.existing-local-branch",
+    "runtime.guard.worktree.missing-saved",
+    "runtime.guard.worktree.moved-parent",
+    "runtime.guard.worktree.wrong-worker-branch"
+  ]
+}

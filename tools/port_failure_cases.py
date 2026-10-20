@@ -256,6 +256,9 @@ def invoke(request):
             elif name.startswith('board.'):
                 board=object.__new__(w.Board)
                 board.repo='owner/repo'; board.owner='owner'; board.number=2
+                board.dangerously_allow_public_board=False
+                security={'node':{'public':False,'viewerCanUpdate':True},'repository':{'viewerPermission':'ADMIN'}}
+                stack.enter_context(patch.object(w,'graphql',return_value=security))
                 board.project={'id':'project'}; board.field={'id':'status'}
                 board.required_statuses=(w.READY,); board.options={w.READY.casefold():'ready',w.PROGRESS.casefold():'progress'}
                 if name == 'board.add-missing-destination':
@@ -266,7 +269,7 @@ def invoke(request):
                 elif name == 'board.missing-field':
                     stack.enter_context(patch.object(w,'gh',return_value={'fields':[]})); board.refresh_fields()
                 elif name == 'board.failed-review-status':
-                    stack.enter_context(patch.object(w,'graphql',return_value={'node':{'options':[{'id':'human','name':w.HUMAN}]}}))
+                    stack.enter_context(patch.object(w,'graphql',return_value={**security,'node':{**security['node'],'options':[{'id':'human','name':w.HUMAN}]}}))
                     board.refresh_fields=Mock(); board.ensure_review_status()
                 elif name == 'board.status-drift':
                     board.item_status=Mock(return_value=w.HUMAN.casefold())

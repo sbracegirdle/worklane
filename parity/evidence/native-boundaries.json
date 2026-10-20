@@ -1,0 +1,445 @@
+{
+  "mode": "differential",
+  "candidate_runtime": "native",
+  "reference_verified": true,
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "inventory_sha256": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
+  "candidate": [
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter"
+  ],
+  "candidate_hashes": {
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "434e6509a5d5c5c722f62addd274a0a3577eb6f51a52be3aa33cff1b66c12240"
+  },
+  "release_sha256": "434e6509a5d5c5c722f62addd274a0a3577eb6f51a52be3aa33cff1b66c12240",
+  "driver": "test_native_boundaries.py",
+  "harness_hashes": {
+    "test_native_boundaries.py": "7f3cce639cbebdbe970645f6b9f6e239682f26157efeba928ed3361c7aa41f8c",
+    "tools/native_test_bridge.py": "8d52eb86f5007cca43ec32710939276ecc7d102ae167a8e4c1b06620cd3607cd"
+  },
+  "results": [
+    {
+      "id": "test_worklane.WorklaneTests.test_blocked_task_never_auto_restarts",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_claim_quota_failure_recovers_before_and_after_status_write",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_closed_issues_are_never_claimed",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_existing_linked_pr_not_implemented_twice",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_explicit_retry_reviews_current_head",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_board_and_link_cursor_cycles_fail_closed",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_board_excludes_other_repos_and_non_issues",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_board_paginates_linked_pr_field_without_closing_reference",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_board_paginates_with_project_id_and_retains_all_issues",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_board_rejects_stuck_cursor",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_board_status_ids_are_preserved_when_review_is_added",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_incomplete_board_fails_closed",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_budget_serializes_calls_across_repository_instances",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_budget_shared_by_repositories_and_blocks_commands",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_rate_limit_backoff_survives_new_runner_and_is_bounded",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_success_exhausting_last_point_defers_next_request",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_config.ConfigTests.test_defaults_are_read_only_and_config_is_per_checkout",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_config.ConfigTests.test_invalid_config_has_path_and_never_silently_uses_defaults",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_blocked_review_is_not_assigned",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_dependency_api_failure_or_hidden_issue_cannot_claim",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_fresh_blocker_overrides_unblocked_snapshot_before_claim",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_interrupted_and_retry_stages_remain_untouched_while_blocked",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_known_blockers_do_not_make_per_slot_requests",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_missing_or_malformed_summary_fails_closed",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_summary_counts_only_open_blockers_and_has_no_pagination_limit",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_closed_changed_or_retargeted_pr_is_not_reworked",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_question_feedback_uses_issue_without_a_pr",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_reads_all_pages_and_kinds_ignoring_bots_markers_and_approvals",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stop.StopTests.test_detached_orphan_and_ignoring_descendant_die_without_touching_unrelated",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stop.StopTests.test_stale_pid_cannot_own_unrelated_process",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_sessions.SessionTests.test_recovery_respects_human_board_override",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_active_handoff_revalidates_draft_conflict_and_board_withdrawal",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_all_desktop_edges_remain_hard_completion_dependencies",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_changed_heads_feedback_drafts_and_missing_review_block",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_closed_completion_gate_still_requires_verified_merged_handoff",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_completion_gate_rejects_unreviewed_merged_head",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_exact_reviewed_parent_pins_child_base_and_provenance",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_fan_in_blocks_visibly_instead_of_dropping_an_edge",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_incomplete_native_list_fails_closed_and_cycles_are_rejected",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_interrupted_child_keeps_pinned_revision_and_original_assignment",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_unlisted_hard_gate_and_external_dependencies_never_stack",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_review_thread_and_reply_cursor_cycles_fail_closed",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_review_thread_api_errors_fail_closed",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_review_thread_lookup_rejects_other_repositories",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_review_thread_pagination_cannot_silently_truncate",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_review_threads_include_all_pages_and_replies",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.GitHubErrorTests.test_graphql_error_body_is_classified_even_with_success_exit",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.GitHubErrorTests.test_header_reset_avoids_an_extra_probe",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.GitHubErrorTests.test_primary_reset_and_secondary_retry_after_headers",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.GitHubErrorTests.test_probe_timeout_keeps_known_quota_failure",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.GitHubErrorTests.test_project_owner_error_reports_underlying_rate_limit",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.GitHubErrorTests.test_rate_limit_is_distinguished_from_other_errors",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.GitHubErrorTests.test_real_owner_error_is_not_misreported_as_rate_limit",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    }
+  ]
+}

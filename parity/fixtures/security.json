@@ -1,0 +1,1577 @@
+{
+  "schema": 1,
+  "reference_kind": "runtime",
+  "scenarios": [
+    {
+      "id": "runtime.security-report-private",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"report\", \"override\": false}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-report-public",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"report\", \"override\": false}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-report-explicit-public",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"report\", \"override\": true}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"WRITE\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-report-unknown",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"report\", \"override\": true}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": null, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-report-malformed",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"report\", \"override\": false}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": \"false\", \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-report-read-only",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"report\", \"override\": false}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"READ\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-report-project-denied",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"report\", \"override\": false}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": false}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-safe-private",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"safe\", \"override\": false}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-safe-public",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"safe\", \"override\": false}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-safe-explicit-public",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"safe\", \"override\": true}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"WRITE\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-safe-unknown",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"safe\", \"override\": true}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": null, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-safe-malformed",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"safe\", \"override\": false}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": \"false\", \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-safe-read-only",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"safe\", \"override\": false}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"READ\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-safe-project-denied",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"safe\", \"override\": false}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": false}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-open-private",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"open\", \"override\": false}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "project",
+              "view"
+            ],
+            "stdout": "{\"id\": \"project\", \"number\": 2, \"url\": \"board-url\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-open-public",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"open\", \"override\": false}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "project",
+              "view"
+            ],
+            "stdout": "{\"id\": \"project\", \"number\": 2, \"url\": \"board-url\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-open-explicit-public",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"open\", \"override\": true}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "project",
+              "view"
+            ],
+            "stdout": "{\"id\": \"project\", \"number\": 2, \"url\": \"board-url\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"WRITE\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-open-unknown",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"open\", \"override\": true}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "project",
+              "view"
+            ],
+            "stdout": "{\"id\": \"project\", \"number\": 2, \"url\": \"board-url\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": null, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-open-malformed",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"open\", \"override\": false}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "project",
+              "view"
+            ],
+            "stdout": "{\"id\": \"project\", \"number\": 2, \"url\": \"board-url\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": \"false\", \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-open-read-only",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"open\", \"override\": false}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "project",
+              "view"
+            ],
+            "stdout": "{\"id\": \"project\", \"number\": 2, \"url\": \"board-url\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"READ\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-open-project-denied",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"open\", \"override\": false}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "project",
+              "view"
+            ],
+            "stdout": "{\"id\": \"project\", \"number\": 2, \"url\": \"board-url\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": false}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-deny-add",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"add\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "security preflight"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-deny-ensure_review",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"ensure_review\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "security preflight"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-deny-move",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"move\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "security preflight"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-deny-pick",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"pick\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "security preflight"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-deny-recover",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"recover\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "security preflight"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-deny-poll",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"poll\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "security preflight"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-deny-agent_result",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"agent_result\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "security preflight"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-deny-post",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"post\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "security preflight"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-deny-restack",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"restack\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "security preflight"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-deny-save_editor",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"save_editor\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "security preflight"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": true, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-feedback-write",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"feedback\", \"task\": {\"number\": 1}}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"write\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"body\": \"Fix it\", \"lastEditedAt\": null, \"editor\": {\"login\": \"editor\", \"__typename\": \"User\"}}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-trusted-write",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"trusted\", \"task\": {\"number\": 1, \"human_feedback\": {\"issue:1\": {\"body\": \"Fix it\", \"author\": \"trusted\", \"state\": \"CHANGES_REQUESTED\", \"updated_at\": \"2026-10-20T00:00:00+00:00\", \"url\": \"\"}}}}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"write\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"body\": \"Fix it\", \"lastEditedAt\": null, \"editor\": {\"login\": \"editor\", \"__typename\": \"User\"}}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-feedback-maintain",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"feedback\", \"task\": {\"number\": 1}}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"maintain\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"body\": \"Fix it\", \"lastEditedAt\": null, \"editor\": {\"login\": \"editor\", \"__typename\": \"User\"}}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-trusted-maintain",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"trusted\", \"task\": {\"number\": 1, \"human_feedback\": {\"issue:1\": {\"body\": \"Fix it\", \"author\": \"trusted\", \"state\": \"CHANGES_REQUESTED\", \"updated_at\": \"2026-10-20T00:00:00+00:00\", \"url\": \"\"}}}}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"maintain\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"body\": \"Fix it\", \"lastEditedAt\": null, \"editor\": {\"login\": \"editor\", \"__typename\": \"User\"}}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-feedback-admin",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"feedback\", \"task\": {\"number\": 1}}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"admin\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"body\": \"Fix it\", \"lastEditedAt\": null, \"editor\": {\"login\": \"editor\", \"__typename\": \"User\"}}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-trusted-admin",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"trusted\", \"task\": {\"number\": 1, \"human_feedback\": {\"issue:1\": {\"body\": \"Fix it\", \"author\": \"trusted\", \"state\": \"CHANGES_REQUESTED\", \"updated_at\": \"2026-10-20T00:00:00+00:00\", \"url\": \"\"}}}}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"admin\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"body\": \"Fix it\", \"lastEditedAt\": null, \"editor\": {\"login\": \"editor\", \"__typename\": \"User\"}}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-feedback-outsider",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"feedback\", \"task\": {\"number\": 1}}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"read\"}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-trusted-outsider",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"trusted\", \"task\": {\"number\": 1, \"human_feedback\": {\"issue:1\": {\"body\": \"Fix it\", \"author\": \"trusted\", \"state\": \"CHANGES_REQUESTED\", \"updated_at\": \"2026-10-20T00:00:00+00:00\", \"url\": \"\"}}}}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"read\"}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-feedback-trusted-editor",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"feedback\", \"task\": {\"number\": 1}}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"write\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"body\": \"Fix it\", \"lastEditedAt\": \"2026-10-20T01:00:00Z\", \"editor\": {\"login\": \"editor\", \"__typename\": \"User\"}}}}"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/editor/permission"
+            ],
+            "stdout": "{\"permission\": \"maintain\"}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-trusted-trusted-editor",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"trusted\", \"task\": {\"number\": 1, \"human_feedback\": {\"issue:1\": {\"body\": \"Fix it\", \"author\": \"trusted\", \"state\": \"CHANGES_REQUESTED\", \"updated_at\": \"2026-10-20T00:00:00+00:00\", \"url\": \"\"}}}}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"write\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"body\": \"Fix it\", \"lastEditedAt\": \"2026-10-20T01:00:00Z\", \"editor\": {\"login\": \"editor\", \"__typename\": \"User\"}}}}"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/editor/permission"
+            ],
+            "stdout": "{\"permission\": \"maintain\"}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-feedback-revoked-editor",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"feedback\", \"task\": {\"number\": 1}}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"write\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"body\": \"Fix it\", \"lastEditedAt\": \"2026-10-20T01:00:00Z\", \"editor\": {\"login\": \"editor\", \"__typename\": \"User\"}}}}"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/editor/permission"
+            ],
+            "stdout": "{\"permission\": \"read\"}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-trusted-revoked-editor",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"trusted\", \"task\": {\"number\": 1, \"human_feedback\": {\"issue:1\": {\"body\": \"Fix it\", \"author\": \"trusted\", \"state\": \"CHANGES_REQUESTED\", \"updated_at\": \"2026-10-20T00:00:00+00:00\", \"url\": \"\"}}}}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"write\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"body\": \"Fix it\", \"lastEditedAt\": \"2026-10-20T01:00:00Z\", \"editor\": {\"login\": \"editor\", \"__typename\": \"User\"}}}}"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/editor/permission"
+            ],
+            "stdout": "{\"permission\": \"read\"}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-feedback-bot-editor",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"feedback\", \"task\": {\"number\": 1}}",
+          "exit": 0
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"write\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"body\": \"Fix it\", \"lastEditedAt\": \"2026-10-20T01:00:00Z\", \"editor\": {\"login\": \"editor\", \"__typename\": \"Bot\"}}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-trusted-bot-editor",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"trusted\", \"task\": {\"number\": 1, \"human_feedback\": {\"issue:1\": {\"body\": \"Fix it\", \"author\": \"trusted\", \"state\": \"CHANGES_REQUESTED\", \"updated_at\": \"2026-10-20T00:00:00+00:00\", \"url\": \"\"}}}}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"write\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"body\": \"Fix it\", \"lastEditedAt\": \"2026-10-20T01:00:00Z\", \"editor\": {\"login\": \"editor\", \"__typename\": \"Bot\"}}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-feedback-missing-provenance",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"feedback\", \"task\": {\"number\": 1}}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"write\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": null}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-trusted-missing-provenance",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"trusted\", \"task\": {\"number\": 1, \"human_feedback\": {\"issue:1\": {\"body\": \"Fix it\", \"author\": \"trusted\", \"state\": \"CHANGES_REQUESTED\", \"updated_at\": \"2026-10-20T00:00:00+00:00\", \"url\": \"\"}}}}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"write\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": null}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-feedback-changed-provenance",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"feedback\", \"task\": {\"number\": 1}}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"write\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"body\": \"Changed\", \"lastEditedAt\": null, \"editor\": {\"login\": \"editor\", \"__typename\": \"User\"}}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-trusted-changed-provenance",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"trusted\", \"task\": {\"number\": 1, \"human_feedback\": {\"issue:1\": {\"body\": \"Fix it\", \"author\": \"trusted\", \"state\": \"CHANGES_REQUESTED\", \"updated_at\": \"2026-10-20T00:00:00+00:00\", \"url\": \"\"}}}}",
+          "exit": 1
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[], [{\"id\": 1, \"node_id\": \"comment-1\", \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\", \"state\": \"CHANGES_REQUESTED\", \"author_association\": \"NONE\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\": \"write\"}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "lastEditedAt"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"body\": \"Changed\", \"lastEditedAt\": null, \"editor\": {\"login\": \"editor\", \"__typename\": \"User\"}}}}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-feedback-missing-node-id",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"feedback\", \"task\": {\"number\": 1}}",
+          "exit": 1,
+          "stdout_contains": [
+            "Feedback edit provenance is unavailable; refusing rework."
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100"
+            ],
+            "stdout": "[[{\"id\": 1, \"body\": \"Fix it\", \"user\": {\"login\": \"trusted\", \"type\": \"User\"}, \"created_at\": \"2026-10-20T00:00:00+00:00\"}]]"
+          },
+          {
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdout": "{\"permission\":\"write\"}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.security-report-quota",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"security.call\", \"method\": \"report\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "API rate limit exceeded"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stderr": "API rate limit exceeded",
+            "exit": 1
+          }
+        ]
+      }
+    }
+  ]
+}

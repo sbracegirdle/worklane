@@ -1,14 +1,14 @@
 {
-  "inventory_sha256": "e89264f5b2dfb4a01968e787be680796610f8662b7371b22e6d6aa1f80b6e198",
+  "inventory_sha256": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
   "reference_verified": true,
   "fixtures_sha256": "8f20769c54ee449ad28ee779db727dcfd2b9673869a9bdbf014014f6d23ebf22",
   "candidate": [
     "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13",
-    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/49/tools/port_reference_driver.py",
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/tools/port_reference_driver.py",
     "--source",
-    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/49"
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50"
   ],
-  "reference": "5122d0abc1b60fa0110d9c90937c6ffa1ab73d3c",
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
   "mode": "differential",
   "results": [
     {
@@ -1507,15 +1507,19 @@
     }
   ],
   "harness_hashes": {
+    "tools/native_parity.py": "249e641fd9735169f2d711a89407ae6160bbcf45a95878484f3936311158d3a5",
+    "tools/native_test_bridge.py": "ba54d9a89e6c26d3897d51e57756ca4e1d62dec10f3bf9f4f398c7e6b3493565",
+    "tools/native_validate.py": "633f0249e0aac30c8ae185d62fc9bf127270eb6e10fd2a3eebbd3d7081d73e75",
     "tools/parity_git.py": "5b347550f001ba6660281480c9e6ec1ab458827e46f229ee78b5ba3b37e8491c",
     "tools/parity_tool.py": "fb60b5f671154ee16f3c1cfd81ca86be6ef294ec05a89d7d42122e7ce6b7479e",
     "tools/port_checks.py": "477d6e390762a315a259c0963b2e1d0dc7a30b3439a708035cb4e3e1abc88f36",
-    "tools/port_failure_audit.py": "f930ee1b0a62a277a39abafd51389fc94fdb1dd0de29ce688b854243ac68d9dc",
-    "tools/port_failure_cases.py": "b9c1b19a939a37fa515cfbe82bffb289b3870612449c574e0449657bf0bbd386",
-    "tools/port_gate.py": "92cb049d1f5c7e3cf8b9c3514e0c6f45dd1c3ac1d6d6208b38aa680f98d6aea1",
-    "tools/port_inventory.py": "e49e304ec48b5deded92cc4b74ca725bc30b61e25466862a240c1b8f8a215297",
-    "tools/port_parity.py": "b3ae9e648010aee94e2e1b81dd5898458281885e617c603d3d57ca106a744b38",
-    "tools/port_reference_driver.py": "3d4419a794cf941ad13448f2f53c483b6ba0e08527fdacb5c7193648cab08518"
+    "tools/port_failure_audit.py": "78bccb3f868cff06920ba686d959903bee1956a7ddd965a217a3184c1a5b3bca",
+    "tools/port_failure_cases.py": "444b36b09df6bc8bbcc0057157c9ac38ea21cb4e4e2e0f7db861604d6e50e68f",
+    "tools/port_gate.py": "d76dedfc0bef62f52810efffe9f28a9235adab30c98f7a285dd9931e37ec32c0",
+    "tools/port_inventory.py": "b6afbd75f115a3f715e3f78ad788c6333d4a2b9f8c365f216eaad1804d45a053",
+    "tools/port_parity.py": "14bd6cc8fe7cfa8b1bacdd8ad8d5f93f9147c13eb787550acca78deda5448e9b",
+    "tools/port_reference_driver.py": "a544e8929db52ce4e614e7017daf707a58c5fb9d7df13df6fe1e02e4bef405ea",
+    "tools/port_security_cases.py": "df074ad396ead2707a425d101139adcb483a1aac696437e1f13de71fb07f96bd"
   },
   "fixtures_path": "parity/fixtures/failures.json",
   "environment": {
@@ -1526,17 +1530,18 @@
   },
   "candidate_hashes": {
     "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13": "50056e60c8559d1d2927f3474b413d68360e88f532e9937eefa03b1c1b7245d1",
-    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/49/tools/port_reference_driver.py": "3d4419a794cf941ad13448f2f53c483b6ba0e08527fdacb5c7193648cab08518"
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/tools/port_reference_driver.py": "a544e8929db52ce4e614e7017daf707a58c5fb9d7df13df6fe1e02e4bef405ea"
   },
   "release_sha256": "50056e60c8559d1d2927f3474b413d68360e88f532e9937eefa03b1c1b7245d1",
+  "candidate_runtime": "interpreted",
   "reference_command": [
-    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/49/.venv/bin/python",
-    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/49/tools/port_reference_driver.py",
+    "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13",
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/tools/port_reference_driver.py",
     "--source",
-    "/tmp/worklane-reference-4ljclmjd"
+    "/tmp/worklane-reference-tvtqm6rr"
   ],
   "reference_hashes": {
-    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/49/.venv/bin/python": "50056e60c8559d1d2927f3474b413d68360e88f532e9937eefa03b1c1b7245d1",
-    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/49/tools/port_reference_driver.py": "3d4419a794cf941ad13448f2f53c483b6ba0e08527fdacb5c7193648cab08518"
+    "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13": "50056e60c8559d1d2927f3474b413d68360e88f532e9937eefa03b1c1b7245d1",
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/tools/port_reference_driver.py": "a544e8929db52ce4e614e7017daf707a58c5fb9d7df13df6fe1e02e4bef405ea"
   }
 }

@@ -1,0 +1,142 @@
+{
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "reviews": [
+    {
+      "row": "source.worklane.py.Runner.validate_stack",
+      "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+      "source": {
+        "path": "worklane.py",
+        "sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
+        "span": [
+          1393,
+          1399
+        ]
+      },
+      "candidate": {
+        "path": "runtime/src/workflow.rs",
+        "sha256": "1295aa69ce505ee4753b03588f62a5d6a7b66d10e16c0a8da1f0aeb3b9a070c8",
+        "symbols": [
+          "saved_stack",
+          "Workflow.validate_stack"
+        ]
+      },
+      "implementation_status": "Malformed saved stack handling fixed; complete source audit and frozen suite obligations remain pending.",
+      "reviewed_behavior": [
+        "Missing stack fields and empty arrays preserve existing behavior.",
+        "Null, boolean, integer, string and nonempty object stacks cannot bypass ancestry checks.",
+        "Malformed saved state remains intact; execution blocks before Git or provider commands."
+      ],
+      "evidence": [
+        "test_native_stack_shape.NativeStackShapeTests.test_saved_stack_types_cannot_silently_remove_ancestry_checks",
+        "runtime/src/workflow.rs::malformed_saved_stack_cannot_skip_ancestry_or_launch_a_turn"
+      ],
+      "unasserted_behaviors": [
+        "Complete original source-symbol semantics and remaining owning-suite checks remain required by the unchanged gate."
+      ],
+      "audit_status": "partial; not acceptance evidence"
+    },
+    {
+      "row": "source.worklane.py.Runner.verify_stack_ancestry",
+      "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+      "source": {
+        "path": "worklane.py",
+        "sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
+        "span": [
+          1717,
+          1722
+        ]
+      },
+      "candidate": {
+        "path": "runtime/src/workflow.rs",
+        "sha256": "1295aa69ce505ee4753b03588f62a5d6a7b66d10e16c0a8da1f0aeb3b9a070c8",
+        "symbols": [
+          "saved_stack",
+          "Workflow.verify_stack_ancestry"
+        ]
+      },
+      "implementation_status": "Malformed saved stack handling fixed; complete source audit and frozen suite obligations remain pending.",
+      "reviewed_behavior": [
+        "Missing stack fields and empty arrays preserve existing behavior.",
+        "Null, boolean, integer, string and nonempty object stacks cannot bypass ancestry checks.",
+        "Malformed saved state remains intact; execution blocks before Git or provider commands."
+      ],
+      "evidence": [
+        "test_native_stack_shape.NativeStackShapeTests.test_saved_stack_types_cannot_silently_remove_ancestry_checks",
+        "runtime/src/workflow.rs::malformed_saved_stack_cannot_skip_ancestry_or_launch_a_turn"
+      ],
+      "unasserted_behaviors": [
+        "Complete original source-symbol semantics and remaining owning-suite checks remain required by the unchanged gate."
+      ],
+      "audit_status": "partial; not acceptance evidence"
+    },
+    {
+      "row": "source.worklane.py.Runner.dependencies_ready",
+      "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+      "source": {
+        "path": "worklane.py",
+        "sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
+        "span": [
+          1307,
+          1369
+        ]
+      },
+      "candidate": {
+        "path": "runtime/src/workflow.rs",
+        "sha256": "1295aa69ce505ee4753b03588f62a5d6a7b66d10e16c0a8da1f0aeb3b9a070c8",
+        "symbols": [
+          "saved_stack",
+          "Workflow.dependencies_ready"
+        ]
+      },
+      "implementation_status": "Malformed saved stack handling fixed; complete source audit and frozen suite obligations remain pending.",
+      "reviewed_behavior": [
+        "Missing stack fields and empty arrays preserve existing behavior.",
+        "Null, boolean, integer, string and nonempty object stacks cannot bypass ancestry checks.",
+        "Malformed saved state remains intact; execution blocks before Git or provider commands."
+      ],
+      "evidence": [
+        "test_native_stack_shape.NativeStackShapeTests.test_saved_stack_types_cannot_silently_remove_ancestry_checks",
+        "runtime/src/workflow.rs::malformed_saved_stack_cannot_skip_ancestry_or_launch_a_turn"
+      ],
+      "unasserted_behaviors": [
+        "Complete original source-symbol semantics and remaining owning-suite checks remain required by the unchanged gate."
+      ],
+      "audit_status": "partial; not acceptance evidence"
+    },
+    {
+      "row": "source.worklane.py.Runner.reconcile_stacks",
+      "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+      "source": {
+        "path": "worklane.py",
+        "sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
+        "span": [
+          1401,
+          1438
+        ]
+      },
+      "candidate": {
+        "path": "runtime/src/workflow.rs",
+        "sha256": "1295aa69ce505ee4753b03588f62a5d6a7b66d10e16c0a8da1f0aeb3b9a070c8",
+        "symbols": [
+          "saved_stack",
+          "Workflow.reconcile_stacks"
+        ]
+      },
+      "implementation_status": "Malformed saved stack handling fixed; complete source audit and frozen suite obligations remain pending.",
+      "reviewed_behavior": [
+        "Missing stack fields and empty arrays preserve existing behavior.",
+        "Null, boolean, integer, string and nonempty object stacks cannot bypass ancestry checks.",
+        "Malformed saved state remains intact; execution blocks before Git or provider commands."
+      ],
+      "evidence": [
+        "test_native_stack_shape.NativeStackShapeTests.test_saved_stack_types_cannot_silently_remove_ancestry_checks",
+        "runtime/src/workflow.rs::malformed_saved_stack_cannot_skip_ancestry_or_launch_a_turn"
+      ],
+      "unasserted_behaviors": [
+        "Complete original source-symbol semantics and remaining owning-suite checks remain required by the unchanged gate."
+      ],
+      "audit_status": "partial; not acceptance evidence"
+    }
+  ],
+  "requirements_unchanged": true
+}

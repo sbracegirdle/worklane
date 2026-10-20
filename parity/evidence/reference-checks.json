@@ -391,6 +391,158 @@
       "reason": "Set WORKLANE_TEST_INSTALL=1 to exercise isolated uv tool installs"
     },
     {
+      "id": "test_port_parity.DifferentialTests.test_fetch_and_push_use_only_disposable_local_upstream",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_identical_controlled_transport_and_literal_unicode_input",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_missing_output_and_changed_failure_exit_are_rejected",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_only_exact_sandbox_path_is_normalized",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_pty_resize_unicode_and_signal_exit_are_observed",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_suppressed_unscripted_transport_error_still_fails_fixture",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_timeout_cleans_detached_descendant_after_parent_has_exited",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_timeouts_clean_processes_and_fixture_paths_cannot_escape",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_tui_uppercase_stop_uses_immediate_control_and_lowercase_drains",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_unconsumed_and_unexpected_transport_calls_are_rejected",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.EvidenceGateTests.test_fixture_identity_hash_and_case_membership_are_mandatory",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.EvidenceGateTests.test_mixed_release_and_conflicting_check_results_block_cutover",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.EvidenceGateTests.test_real_cli_report_cannot_cover_cases_without_fixture_identity",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.EvidenceGateTests.test_reference_only_skips_or_missing_source_audits_never_establish_parity",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.EvidenceGateTests.test_unknown_fixture_fields_and_bad_command_arrays_fail_closed",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.FailureContractTests.test_every_failure_has_a_specific_deletion_detecting_acceptance_check",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.FailureContractTests.test_terminal_initialization_fixture_rejects_suppressed_failure",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_current_write_maintain_admin_permissions_authorize_feedback_not_association",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_missing_or_racing_edit_provenance_and_permission_failures_fail_closed",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_outsider_comments_reviews_and_inline_feedback_never_trigger_rework",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_outsider_edits_of_trusted_feedback_cannot_authorize_rework",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_public_override_does_not_authorize_outsider_feedback",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_recovery_permission_lookup_failures_preserve_saved_work_and_board_status",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_recovery_reauthorizes_revoked_authors_and_editors_before_status_changes",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_recovery_still_resumes_currently_trusted_feedback",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_revoked_author_or_editor_permission_blocks_pending_rework",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_saved_feedback_is_reauthorized_before_agent_and_status_claim",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.SecurityTests.test_check_reports_rejected_public_unknown_and_failed_checks",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.SecurityTests.test_check_stack_inspector_needs_no_agent_backend",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.SecurityTests.test_cli_blocks_public_before_start_run_add_retry_resume_or_tui_edit",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.SecurityTests.test_detached_override_propagates_only_when_supplied",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.SecurityTests.test_failed_security_read_refuses_even_with_override",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.SecurityTests.test_interactive_resume_rechecks_live_security_without_runtime_override",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.SecurityTests.test_override_is_explicit_warns_and_never_allows_unknown_visibility",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.SecurityTests.test_private_public_unknown_and_permissions_fail_closed",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.SecurityTests.test_public_override_cannot_be_saved_in_checkout_configuration",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.SecurityTests.test_tui_propagation_requires_current_options_never_saved_runtime_consent",
+      "status": "pass"
+    },
+    {
+      "id": "test_security.SecurityTests.test_visibility_changes_block_each_mutation_dispatch_resume_and_rework",
+      "status": "pass"
+    },
+    {
       "id": "test_sessions.SessionTests.test_all_agent_storage_is_sqlite_without_json_or_log_files",
       "status": "pass"
     },
@@ -503,6 +655,10 @@
       "status": "pass"
     },
     {
+      "id": "test_sessions.SessionTests.test_queued_followup_rechecks_security_before_resuming_agent",
+      "status": "pass"
+    },
+    {
       "id": "test_sessions.SessionTests.test_recovery_respects_human_board_override",
       "status": "pass"
     },
@@ -564,6 +720,14 @@
     },
     {
       "id": "test_stacking.RestackTests.test_pre_pr_interruption_keeps_the_worker_stage_after_parent_merge",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.RestackTests.test_security_change_after_push_prevents_pr_retarget_and_board_transition",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.RestackTests.test_security_change_before_push_preserves_remote_branch_and_pending_intent",
       "status": "pass"
     },
     {
@@ -1231,8 +1395,8 @@
       "status": "pass"
     }
   ],
-  "passed": 305,
-  "total": 307,
-  "reference": "5122d0abc1b60fa0110d9c90937c6ffa1ab73d3c",
+  "passed": 346,
+  "total": 348,
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
   "mode": "reference-only"
 }

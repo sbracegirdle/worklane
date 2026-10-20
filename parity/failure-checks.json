@@ -13,8 +13,8 @@
     "cli.missing-title": "707e49d5c99047d43f4e82a29ad3adf81e265887e3b7e834e0f9d31c35a4be42",
     "cli.empty-title": "155ae18c90c80156603a402b1dad3642cf037191b57c4b06dc3a70128a541784",
     "cli.add-number": "2ce5c79ecd3427cc3e43503374be0dd29ff03092c342502d52e4d0a51854a282",
-    "cli.retry-number": "0f9fae52806980b33a453b33ee07a4bc29f671f721a2204f19f72069eac0605e",
-    "cli.retry-unknown": "f4f10f6e818ad0ce6e71d55fc9c637977b666c206615bf146de7c430435db04f",
+    "cli.retry-number": "a9c9d4c701dee730ea4294a1fdba2faaef6166a4cbf2f2c31be9de9b5beb4faf",
+    "cli.retry-unknown": "90753e7c8b8a17072e966b55e376d91361e9921945ecdcb796f9855c3d8dd18c",
     "cli.workers-range": "f5393cebd961cb8f65b97a06016f27e5d721e95c5e41b73e890c60753600b245",
     "cli.interval-range": "b2384c41476dc4d398365a77ece0731ff604224c564990fa5862eae6551b39d7",
     "cli.invalid-project": "434e4a67e059fa8ade788f6dbe997538ad4ca6b1e28653837fa6961cd19041d1",
@@ -23,21 +23,21 @@
     "cli.tui-refresh": "463e38ae4f950b060d78c9d0b183e2dc5d4b9588e10b6c47452c7b43ebeb791a",
     "cli.tui-refresh-low": "3ae58278b7857d6a7cbdf92c51e95a5e20693ce240c4a3d0bc0e7928fba05c7d",
     "cli.tui-refresh-high": "dbaef12244849c664d72da229797772943ddc8f1e5dfb89351d8108a2c9f3630",
-    "cli.offline-controls": "3f581344be454710a3cd00a115c86ea33ea01ec04974cd0b73bb9e5861047aec",
+    "cli.offline-controls": "3d6230c23ef62f72706c9c46691a7f1272e242f557578cd8ad61638515bb55de",
     "cli.stack-policy": "48884b383d672bc06a97a762a137b2bc7836c635052ea2213aa22bfe16a25ef4",
     "cli.invalid-config": "ac9068a3ce128c6c304da703ff386b6a98429c65b3c640f72bdb694ff8e86e07",
     "cli.unknown-config": "a25b9b8a9549a3647d677d51ac24d8a6afa0848765860eb18d3a6564cc76e70b",
     "cli.stack-cycle": "6ab9544a538ca40556d82e91208a7d84eee3817a31787a0684cf72bd1fa479f4",
     "cli.hard-gate": "da7ddddb09bc5729482ec36ebbc18c81cbdbf4991bbff1da3f7610e4ba2cd911",
-    "cli.board-browser": "171c96bd6936d4d4bd81da5b89700cc7817870b8c32c5c8c3868d6f52e233108",
+    "cli.board-browser": "0338d348d10c9f15200ee64e201a369f04735b6215768fa4e4441a0bec949ddc",
     "cli.board-offline": "ff5ab9211564f70c76dcc3c1784bf9cddea45301b95464424bae6faffe81d8a4",
-    "cli.add-ready": "035c67a6a303ed4c134603b5a8f3177a2b15a6f5c8cc91712ca664a09918e314",
-    "cli.add-draft": "334ee732c7babfeb44da0eb2066ccfe66fef1affbd77366d3c00db2afdc7de7e",
-    "cli.add-shaping": "c19ffe56a70f5a799d7cac0058fefe2ec0ab60606fe3da98ceb957e89c91049e",
-    "cli.add-partial-failure": "d8af9b66eef199d7933ebd1f7d24cf635fc219d86d68085ef404265f15be9837",
+    "cli.add-ready": "cba3f6ebed1942df563bf57ce9ba27b87cb32f5527ec869851d8e783709ee0bf",
+    "cli.add-draft": "bf36f91a50f4459ce9cdfcf0b1e6028c63dbe21f9e4b7f558167d34eb8eed560",
+    "cli.add-shaping": "dfd1d04e03811c609909c612e7f42022e13b3c26e4be56942abff7960f2aef50",
+    "cli.add-partial-failure": "8ba801c08db77ae113955e6348cf1c0ab478b7665f30fafb652e21fea02a4171",
     "tui.default-quit": "e3050697cb3a49aa52a3d3a38fa77cb54ffaecb607a858a5ed3ba2ca51b6368f",
     "tui.first-run-cancel": "fa1bb9989d7204bd6b4bdd62cff23b84a14871e1f1455efb1a24ee9a308093ca",
-    "cli.empty-queue-run": "777f11b39ecf52ddbb9c7580acec37dd5a53c98e8f4cfcab7462492631f0085f",
+    "cli.empty-queue-run": "e6705fc0a82503cd904a114b0e21d2fc31e9be1aeb30fd953742a0030ab1551c",
     "tui.uppercase-stop-now": "7c58a7d2008d10903d7e6d07b173c8fe2857ce9dfea489fbbcaec09e2a1ed190",
     "runtime.guard.build.blocked-result": "a3229eb3e5df7c57f82174df5effb229878550c615f21aaa779e5118891c0ca3",
     "runtime.guard.build.pass-with-findings": "2cb877d8dd65b84cd415830323ea7332e92f61ca94af5cf9fed0d71a4ccaa5d8",
@@ -150,25 +150,77 @@
     "runtime.agent-opencode-finalize": "f355bd591bf9aa84ed1e0a674db8003347bbeed606886d61a052db202e36de2b",
     "runtime.agent-opencode-incomplete": "ab0531388d13572cbd5c6dbbdea66ee86627fc3f2d104b607c95ab5087984d6d",
     "runtime.pinned-stack-reopen": "af65f80202cb4897062c4faf7e42d22b028290095bfcf165e3140f1ea20ba131",
-    "runtime.controller-question-build": "a363da5c0ef342db9a5f8ef602d55b4169755ac18415ee78fcc2146247e20365",
+    "runtime.controller-question-build": "585647fa177d22b32a3153028401c28af6c4c44abbe6151326817efa67355fa9",
     "runtime.terminal-initialization-error": "f09f585e9be62d0db2eabad8db6039a95c8fc0126d3e998ef32b25788e74324b",
     "runtime.terminal-missing-backend": "dffeb5e037ef4948cd3656e170365940c450a94a8ef1dd35108892211fe93c42",
-    "runtime.terminal-interrupt": "3acf6d39b30246c33a5ba8c48fd2f8cb407a5443626b4bcaf3bc9a948c254d55"
+    "runtime.terminal-interrupt": "3acf6d39b30246c33a5ba8c48fd2f8cb407a5443626b4bcaf3bc9a948c254d55",
+    "runtime.security-report-private": "3542676b0b6b0abb6276f60060232cde248902d2d7df64cb2e164b82c4e7f90a",
+    "runtime.security-report-public": "ed7a42bc03364174966abbad4cc5c235ab5937b1282190c913c69ced9628c41e",
+    "runtime.security-report-explicit-public": "3eb28a5a58b11b446bea7ebfabbdc10f904813c1707e4151e0c0bc997b21691c",
+    "runtime.security-report-unknown": "a97ac844a09082005da067f778abc22aa291995a02174505babdb0ad4bbe20c7",
+    "runtime.security-report-malformed": "841a4d2664a1b8eb4ff0e4707c93fa97a6cf05c17144fff71e1d5f217d7432e1",
+    "runtime.security-report-read-only": "913a7cae5fa1fce0de40c59eca3e83f54689cb3620d88331bb7982695573dd57",
+    "runtime.security-report-project-denied": "6aa4cfc10716d995f6b6164ea92a2473a3e853eb875850aa585bbd387a8e46b8",
+    "runtime.security-safe-private": "874f1cc8ea2a3e59ad3904fc56096cdc4221b11be78f2e6128914e231fd8b35e",
+    "runtime.security-safe-public": "ea6bcfe84ef7dfb0fccbf3277dafb20d42d15779b1f964f7b7ae795fef153d5f",
+    "runtime.security-safe-explicit-public": "9fcd618cef2af6ba1fa1d341e2d514c0d308e10eaa6be4623cd3d1d98c95d1b5",
+    "runtime.security-safe-unknown": "444a05895915039f22ce6f7353d9edc9882679075812e382ac5de6a66d553db7",
+    "runtime.security-safe-malformed": "5719234d806cbabf4d3cd60def6dc4693fa88cafb05f90d89daa71949677ea82",
+    "runtime.security-safe-read-only": "7a4d8117e314afc70ce0ea6b29f01ea2ac47765dbc60fadd7d86c0defd7bde84",
+    "runtime.security-safe-project-denied": "4ca9c6e2f2c009bbfbcedfb1da720995671ad011f34da8f25d4040f61ccf3b3a",
+    "runtime.security-open-private": "d45f72989ff2e4f5cf40ad05815f47b1902861690c61431f1b469c9dd77af10d",
+    "runtime.security-open-public": "fa67087c0d36a0fbeffe1d77463ff5f850dc6280dc61d6cf99a276a81d9975d6",
+    "runtime.security-open-explicit-public": "576a663a1f80cf958d0194ce1ee55317de896178dd7a69d87f13415f4b71b74c",
+    "runtime.security-open-unknown": "3e0c582b5bc0b662250cbcc9c061c3ec017a2652df927a27787684235a6ea890",
+    "runtime.security-open-malformed": "00bd4502f216cfc78f1b4664af56a12c5457817fa657d4ab0510952f646e7ced",
+    "runtime.security-open-read-only": "fb5ad639450c57543e492cc97f3acba8a78dabf7ce5600068134af26b46c425e",
+    "runtime.security-open-project-denied": "c5d178389c575312b635e51f5a6352093e38328bc5f3665501900eae4e4258bd",
+    "runtime.security-deny-add": "a5ec33166006b2814f7ad0263fc785f406558f27ed84298b3b3d4995876fb628",
+    "runtime.security-deny-ensure_review": "f210b2572c1abdbaa2a945ea5b22ccfe3a6c9832292d3e856248a8c4025bbf7b",
+    "runtime.security-deny-move": "1ff134df596249fe1df23a60b7eb5e0884178e03e1ab865e0e4880e325bda9d5",
+    "runtime.security-deny-pick": "d11dd6f876fdf74ac2d78b740dadd759f19efe9fb2f4d7e03cb936ae2f78737d",
+    "runtime.security-deny-recover": "cbacf25e3bfa30e420a31db835e0b8c4b67388ef2c81d60d6a0de3c0931ab614",
+    "runtime.security-deny-poll": "47ea6908082d03a8057e7849eb09ed5ab31198131fb6ec9bc89405799232456a",
+    "runtime.security-deny-agent_result": "00e3702e2e71bcb40b1ad5f89e9dedc85ed75768489ccfe0159148363c9c2c7f",
+    "runtime.security-deny-post": "108fac1c87aaf0d201b5220b155b114a32dad1eac4489422948a07779767a5e8",
+    "runtime.security-deny-restack": "9803989a4e2cfe78440bfa2df0784e04a2f1d2d31a4f5956bd252998a0a4bbc7",
+    "runtime.security-deny-save_editor": "2d6fba9710e465819f34aa12fd762c3c1b043d1ae54b3f23c0e43421db89b192",
+    "runtime.security-feedback-write": "3b64c16b938cdc51d674c22942078944de8dc23c5ec2dd921f0bd4fa16af3186",
+    "runtime.security-trusted-write": "92846f34e6267b2a4ac998961c70b550a50c8ed5cabb8aa754fc0755ff09c715",
+    "runtime.security-feedback-maintain": "344f871f4ff1063159ac12bce8ca598118be04241cf970cad804d5881cf09ba1",
+    "runtime.security-trusted-maintain": "b2ca65b75b974ba807d510a5d203ac776f28ff4a9333dc738355fdf6760e7981",
+    "runtime.security-feedback-admin": "74fb29bbb17f6cad5fc4d1d2fcacfae7f8744131d728456926e6ec1f51b638fb",
+    "runtime.security-trusted-admin": "7b852a0e3c6414c17bf5ab83715aeb39b91fe255aede34d2324d5dc05df9c845",
+    "runtime.security-feedback-outsider": "6a2b3901bdc41e7ebe7704e48291b067e9b94654c80ad21f002d1decd59ba43d",
+    "runtime.security-trusted-outsider": "ab92b7afb8b1fdbf696428a789ba78c83a2db5bbeef509e9cd38e8360c0fa4a1",
+    "runtime.security-feedback-trusted-editor": "c487c9a388f1e28a20ee718bbc6ffa2572c376b1c4fb0db7860f997d7ee9b8d8",
+    "runtime.security-trusted-trusted-editor": "16fc591142395ac51e9a56fe9e73779aceb4e61eef701733bb7e5a372d6ee00c",
+    "runtime.security-feedback-revoked-editor": "6eb834a8d09755421743674ead216c202df591792db50d018fd4f8cd3f26ca72",
+    "runtime.security-trusted-revoked-editor": "8ea60e402cc867ffab5d03b0715e063183ccb4add424e05be2c064cb916c2f15",
+    "runtime.security-feedback-bot-editor": "3412d999ecfcc5e9df8de5333cf6df885f419cb7fb0649289479670bea18986a",
+    "runtime.security-trusted-bot-editor": "95f0fdd7149cc6ffe59ab6d6543f592b7d452576768625f1849271ac9b0e2f83",
+    "runtime.security-feedback-missing-provenance": "ad47814c7c3da982c97d3b8c8a8389908b01c0ec938218dd1d686903b1cd0a5b",
+    "runtime.security-trusted-missing-provenance": "0e4193e8c9b742f0b9f1a34f144d482691b767151f595e832f74e477b687a3da",
+    "runtime.security-feedback-changed-provenance": "ff0a5b5196874be700b9ed25d4187bb7b7d558f01a7c74e6b76f014e50b21f0c",
+    "runtime.security-trusted-changed-provenance": "9303669d493da594ede4de6370156ca2ddea837d4a18189533a2b29d7e66aa6d",
+    "runtime.security-feedback-missing-node-id": "bb7263223eb1a9e9eb2e2b4663ba475e349c5aed69e0bc998a79064140e5565d",
+    "runtime.security-report-quota": "7f2e09a7dfdd8c22c53184878041e495cb7857a01565223cb48a06c2bdc20f5b"
   },
   "harness_hashes": {
     "tools/parity_git.py": "5b347550f001ba6660281480c9e6ec1ab458827e46f229ee78b5ba3b37e8491c",
-    "tools/port_parity.py": "b3ae9e648010aee94e2e1b81dd5898458281885e617c603d3d57ca106a744b38",
-    "tools/port_failure_cases.py": "b9c1b19a939a37fa515cfbe82bffb289b3870612449c574e0449657bf0bbd386",
-    "tools/port_reference_driver.py": "3d4419a794cf941ad13448f2f53c483b6ba0e08527fdacb5c7193648cab08518",
+    "tools/port_parity.py": "14bd6cc8fe7cfa8b1bacdd8ad8d5f93f9147c13eb787550acca78deda5448e9b",
+    "tools/port_security_cases.py": "df074ad396ead2707a425d101139adcb483a1aac696437e1f13de71fb07f96bd",
+    "tools/port_failure_cases.py": "444b36b09df6bc8bbcc0057157c9ac38ea21cb4e4e2e0f7db861604d6e50e68f",
+    "tools/port_reference_driver.py": "a544e8929db52ce4e614e7017daf707a58c5fb9d7df13df6fe1e02e4bef405ea",
     "tools/parity_tool.py": "fb60b5f671154ee16f3c1cfd81ca86be6ef294ec05a89d7d42122e7ce6b7479e",
     "parity/fixture-schema.json": "7ac984be19a34e8288cfb27e9c05902482db0c7571b6dfbb7f83d50fdcb2e8c6"
   },
-  "reference": "5122d0abc1b60fa0110d9c90937c6ffa1ab73d3c",
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
   "mutation": "Replace the complete raise statement with pass; retain line numbers",
   "failures": {
-    "failure.worklane.py.2446": {
-      "source": "worklane.py:2446",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2576": {
+      "source": "worklane.py:2576",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:cli.help"
       ],
@@ -176,7 +228,7 @@
     },
     "failure.worklane.py.51": {
       "source": "worklane.py:51",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:cli.unknown-config"
       ],
@@ -184,7 +236,7 @@
     },
     "failure.worklane.py.54": {
       "source": "worklane.py:54",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.invalid-harness-bad"
       ],
@@ -192,7 +244,7 @@
     },
     "failure.worklane.py.59": {
       "source": "worklane.py:59",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:cli.workers-range"
       ],
@@ -200,7 +252,7 @@
     },
     "failure.worklane.py.64": {
       "source": "worklane.py:64",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.invalid-effort"
       ],
@@ -208,7 +260,7 @@
     },
     "failure.worklane.py.66": {
       "source": "worklane.py:66",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:cli.interval-range"
       ],
@@ -216,7 +268,7 @@
     },
     "failure.worklane.py.68": {
       "source": "worklane.py:68",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:cli.invalid-project"
       ],
@@ -224,7 +276,7 @@
     },
     "failure.worklane.py.72": {
       "source": "worklane.py:72",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.invalid-stack_dependencies"
       ],
@@ -232,7 +284,7 @@
     },
     "failure.worklane.py.74": {
       "source": "worklane.py:74",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.invalid-completion_gates-[0]"
       ],
@@ -240,7 +292,7 @@
     },
     "failure.worklane.py.176": {
       "source": "worklane.py:176",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.memory.unavailable"
       ],
@@ -248,7 +300,7 @@
     },
     "failure.worklane.py.181": {
       "source": "worklane.py:181",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.memory.syscall-error"
       ],
@@ -256,7 +308,7 @@
     },
     "failure.worklane.py.285": {
       "source": "worklane.py:285",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:cli.board-offline"
       ],
@@ -264,7 +316,7 @@
     },
     "failure.worklane.py.308": {
       "source": "worklane.py:308",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.GitHubErrorTests.test_graphql_error_body_is_classified_even_with_success_exit",
         "test_worklane.WorklaneTests.test_review_thread_api_errors_fail_closed"
@@ -273,16 +325,16 @@
     },
     "failure.worklane.py.845": {
       "source": "worklane.py:845",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_dependencies.DependencyTests.test_dependency_api_failure_or_hidden_issue_cannot_claim",
         "test_dependencies.DependencyTests.test_missing_or_malformed_summary_fails_closed"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2130": {
-      "source": "worklane.py:2130",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2240": {
+      "source": "worklane.py:2240",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.repository.unsupported-origin"
       ],
@@ -290,7 +342,7 @@
     },
     "failure.worklane.py.57": {
       "source": "worklane.py:57",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.invalid-worker_harness"
       ],
@@ -298,7 +350,7 @@
     },
     "failure.worklane.py.62": {
       "source": "worklane.py:62",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.invalid-model-with space"
       ],
@@ -306,7 +358,7 @@
     },
     "failure.worklane.py.79": {
       "source": "worklane.py:79",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:cli.hard-gate"
       ],
@@ -314,7 +366,7 @@
     },
     "failure.worklane.py.83": {
       "source": "worklane.py:83",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:cli.stack-cycle"
       ],
@@ -322,7 +374,7 @@
     },
     "failure.worklane.py.99": {
       "source": "worklane.py:99",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:cli.invalid-config"
       ],
@@ -330,7 +382,7 @@
     },
     "failure.worklane.py.284": {
       "source": "worklane.py:284",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.GitHubErrorTests.test_header_reset_avoids_an_extra_probe",
         "test_worklane.GitHubErrorTests.test_probe_timeout_keeps_known_quota_failure",
@@ -341,7 +393,7 @@
     },
     "failure.worklane.py.406": {
       "source": "worklane.py:406",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.state.newer-schema"
       ],
@@ -349,7 +401,7 @@
     },
     "failure.worklane.py.655": {
       "source": "worklane.py:655",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.mismatched-session"
       ],
@@ -357,7 +409,7 @@
     },
     "failure.worklane.py.713": {
       "source": "worklane.py:713",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_sessions.SessionTests.test_input_completion_serializes_with_new_submissions_and_bounds_queue"
       ],
@@ -365,7 +417,7 @@
     },
     "failure.worklane.py.715": {
       "source": "worklane.py:715",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_sessions.SessionTests.test_input_completion_serializes_with_new_submissions_and_bounds_queue"
       ],
@@ -373,7 +425,7 @@
     },
     "failure.worklane.py.778": {
       "source": "worklane.py:778",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_tui.TuiTests.test_pr_refresh_failure_marks_saved_data_stale_and_respects_shared_cooldown",
         "test_tui.TuiTests.test_views_share_controller_github_cooldown_and_paginate_comments",
@@ -384,180 +436,204 @@
       ],
       "status": "detected"
     },
-    "failure.worklane.py.883": {
-      "source": "worklane.py:883",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.915": {
+      "source": "worklane.py:915",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
+      "checks": [
+        "fixture:runtime.security-safe-public"
+      ],
+      "status": "detected"
+    },
+    "failure.worklane.py.927": {
+      "source": "worklane.py:927",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.board.missing-field"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.893": {
-      "source": "worklane.py:893",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.938": {
+      "source": "worklane.py:938",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.board.add-missing-destination"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.932": {
-      "source": "worklane.py:932",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.978": {
+      "source": "worklane.py:978",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.board.failed-review-status"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.940": {
-      "source": "worklane.py:940",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.986": {
+      "source": "worklane.py:986",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.board.repeated-cursor"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1034": {
-      "source": "worklane.py:1034",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1081": {
+      "source": "worklane.py:1081",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.board.status-drift"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1038": {
-      "source": "worklane.py:1038",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1085": {
+      "source": "worklane.py:1085",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.board.unverified-transition"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1055": {
-      "source": "worklane.py:1055",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1103": {
+      "source": "worklane.py:1103",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.agent.before-turn"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1061": {
-      "source": "worklane.py:1061",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1109": {
+      "source": "worklane.py:1109",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.agent.missing-history"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1063": {
-      "source": "worklane.py:1063",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1111": {
+      "source": "worklane.py:1111",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_harness.HarnessTests.test_rejects_wrong_worktree_and_harness"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1065": {
-      "source": "worklane.py:1065",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1113": {
+      "source": "worklane.py:1113",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_harness.HarnessTests.test_rejects_wrong_worktree_and_harness",
         "test_sessions.SessionTests.test_deleted_worktree_never_creates_replacement_session"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1325": {
-      "source": "worklane.py:1325",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1378": {
+      "source": "worklane.py:1378",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_stacking.StackTests.test_active_handoff_revalidates_draft_conflict_and_board_withdrawal",
         "test_stacking.StackTests.test_changed_heads_feedback_drafts_and_missing_review_block"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1330": {
-      "source": "worklane.py:1330",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1383": {
+      "source": "worklane.py:1383",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.stack.parent-missing-handoff"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1334": {
-      "source": "worklane.py:1334",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1387": {
+      "source": "worklane.py:1387",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_stacking.StackTests.test_active_handoff_revalidates_draft_conflict_and_board_withdrawal",
         "test_stacking.StackTests.test_changed_heads_feedback_drafts_and_missing_review_block"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1337": {
-      "source": "worklane.py:1337",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1390": {
+      "source": "worklane.py:1390",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_stacking.StackTests.test_changed_heads_feedback_drafts_and_missing_review_block"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1342": {
-      "source": "worklane.py:1342",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1395": {
+      "source": "worklane.py:1395",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.stack.pending-restack"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1393": {
-      "source": "worklane.py:1393",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1447": {
+      "source": "worklane.py:1447",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.restack.moved-target"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1396": {
-      "source": "worklane.py:1396",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1450": {
+      "source": "worklane.py:1450",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.restack.missing-worktree"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1398": {
-      "source": "worklane.py:1398",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1452": {
+      "source": "worklane.py:1452",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_stacking.RestackTests.test_dirty_worktree_or_changed_merged_revision_preserves_child"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1400": {
-      "source": "worklane.py:1400",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1454": {
+      "source": "worklane.py:1454",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.restack.wrong-branch"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1411": {
-      "source": "worklane.py:1411",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1465": {
+      "source": "worklane.py:1465",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.restack.changed-intent"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1461": {
-      "source": "worklane.py:1461",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1517": {
+      "source": "worklane.py:1517",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.WorklaneTests.test_review_thread_lookup_rejects_other_repositories"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1625": {
-      "source": "worklane.py:1625",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1533": {
+      "source": "worklane.py:1533",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
+      "checks": [
+        "fixture:runtime.security-feedback-missing-node-id"
+      ],
+      "status": "detected"
+    },
+    "failure.worklane.py.1541": {
+      "source": "worklane.py:1541",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
+      "checks": [
+        "fixture:runtime.security-feedback-missing-provenance"
+      ],
+      "status": "detected"
+    },
+    "failure.worklane.py.1715": {
+      "source": "worklane.py:1715",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.WorklaneTests.test_open_threads_block_passing_review_even_when_outdated",
         "test_worklane.WorklaneTests.test_thread_opened_during_handoff_blocks_human_review",
@@ -565,9 +641,9 @@
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1638": {
-      "source": "worklane.py:1638",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1728": {
+      "source": "worklane.py:1728",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.WorklaneTests.test_changed_pr_before_promotion_blocks_human_review",
         "test_worklane.WorklaneTests.test_failed_or_unverified_draft_promotion_blocks_human_review",
@@ -575,90 +651,90 @@
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1640": {
-      "source": "worklane.py:1640",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1730": {
+      "source": "worklane.py:1730",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.WorklaneTests.test_failed_or_unverified_draft_promotion_blocks_human_review"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1678": {
-      "source": "worklane.py:1678",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1769": {
+      "source": "worklane.py:1769",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.worktree.missing-saved"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1730": {
-      "source": "worklane.py:1730",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1833": {
+      "source": "worklane.py:1833",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.build.blocked-result"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1732": {
-      "source": "worklane.py:1732",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1835": {
+      "source": "worklane.py:1835",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.build.pass-with-findings"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1754": {
-      "source": "worklane.py:1754",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1857": {
+      "source": "worklane.py:1857",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.WorklaneTests.test_conflicts_respect_round_limit_and_human_board_edits",
         "test_worklane.WorklaneTests.test_three_failed_reviews_require_inspection"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1794": {
-      "source": "worklane.py:1794",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1897": {
+      "source": "worklane.py:1897",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.review.blocked-result"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1799": {
-      "source": "worklane.py:1799",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1902": {
+      "source": "worklane.py:1902",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.review.pass-with-findings"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2217": {
-      "source": "worklane.py:2217",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2331": {
+      "source": "worklane.py:2331",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:cli.now-scope"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2219": {
-      "source": "worklane.py:2219",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2333": {
+      "source": "worklane.py:2333",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:cli.title-scope"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2221": {
-      "source": "worklane.py:2221",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2335": {
+      "source": "worklane.py:2335",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:cli.missing-title"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2415": {
-      "source": "worklane.py:2415",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2545": {
+      "source": "worklane.py:2545",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.cli.start-timeout"
       ],
@@ -666,7 +742,7 @@
     },
     "failure.worklane.py.292": {
       "source": "worklane.py:292",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.github.successful-quota-error"
       ],
@@ -674,7 +750,7 @@
     },
     "failure.worklane.py.323": {
       "source": "worklane.py:323",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.queued-input-restart"
       ],
@@ -682,7 +758,7 @@
     },
     "failure.worklane.py.433": {
       "source": "worklane.py:433",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.state.unsupported-value"
       ],
@@ -690,7 +766,7 @@
     },
     "failure.worklane.py.539": {
       "source": "worklane.py:539",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.state.foreign-key-migration"
       ],
@@ -698,7 +774,7 @@
     },
     "failure.worklane.py.722": {
       "source": "worklane.py:722",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_sessions.SessionTests.test_input_completion_serializes_with_new_submissions_and_bounds_queue",
         "test_sessions.SessionTests.test_live_input_runs_followup_in_exact_session_before_returning_result",
@@ -708,32 +784,40 @@
     },
     "failure.worklane.py.726": {
       "source": "worklane.py:726",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_sessions.SessionTests.test_input_completion_serializes_with_new_submissions_and_bounds_queue"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.872": {
-      "source": "worklane.py:872",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.874": {
+      "source": "worklane.py:874",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_add_issue.AddIssueTests.test_ambiguous_board_never_creates_issue",
         "test_worklane.BoardCommandTests.test_no_board_or_ambiguous_board_does_not_open_browser"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.887": {
-      "source": "worklane.py:887",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.907": {
+      "source": "worklane.py:907",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
+      "checks": [
+        "fixture:runtime.security-report-quota"
+      ],
+      "status": "detected"
+    },
+    "failure.worklane.py.931": {
+      "source": "worklane.py:931",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.board.missing-status"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.909": {
-      "source": "worklane.py:909",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.954": {
+      "source": "worklane.py:954",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_add_issue.AddIssueTests.test_missing_item_cannot_report_success",
         "test_add_issue.AddIssueTests.test_partial_failures_retain_issue_url_and_warn_against_duplicate_creation",
@@ -741,50 +825,50 @@
       ],
       "status": "detected"
     },
-    "failure.worklane.py.911": {
-      "source": "worklane.py:911",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.956": {
+      "source": "worklane.py:956",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:cli.add-partial-failure"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.987": {
-      "source": "worklane.py:987",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1033": {
+      "source": "worklane.py:1033",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.WorklaneTests.test_incomplete_board_fails_closed"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1117": {
-      "source": "worklane.py:1117",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1166": {
+      "source": "worklane.py:1166",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.agent.invalid-event-shape"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1148": {
-      "source": "worklane.py:1148",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1197": {
+      "source": "worklane.py:1197",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.agent.after-launch"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1184": {
-      "source": "worklane.py:1184",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1233": {
+      "source": "worklane.py:1233",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_harness.HarnessTests.test_signal_interruption_and_controller_restart_resume_exact_id",
         "test_sessions.SessionTests.test_signal_interruption_and_restart_keep_same_conversation"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1186": {
-      "source": "worklane.py:1186",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1235": {
+      "source": "worklane.py:1235",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_harness.HarnessTests.test_failed_opencode_queued_input_is_retried_with_saved_session",
         "test_harness.HarnessTests.test_resume_after_failure_preserves_session_and_feedback",
@@ -793,233 +877,241 @@
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1188": {
-      "source": "worklane.py:1188",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1237": {
+      "source": "worklane.py:1237",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.agent-opencode-incomplete"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1191": {
-      "source": "worklane.py:1191",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1240": {
+      "source": "worklane.py:1240",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.agent.invalid-result-shape"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1193": {
-      "source": "worklane.py:1193",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1242": {
+      "source": "worklane.py:1242",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.agent.invalid-verdict"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1195": {
-      "source": "worklane.py:1195",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1244": {
+      "source": "worklane.py:1244",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.agent.invalid-result-types"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1197": {
-      "source": "worklane.py:1197",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1246": {
+      "source": "worklane.py:1246",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.agent.invalid-findings"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1203": {
-      "source": "worklane.py:1203",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1252": {
+      "source": "worklane.py:1252",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.agent.before-launch"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1346": {
-      "source": "worklane.py:1346",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1399": {
+      "source": "worklane.py:1399",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.stack.changed-prerequisite"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1405": {
-      "source": "worklane.py:1405",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1459": {
+      "source": "worklane.py:1459",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.restack.changed-child-head"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1417": {
-      "source": "worklane.py:1417",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1471": {
+      "source": "worklane.py:1471",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.restack.changed-local-head"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1431": {
-      "source": "worklane.py:1431",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1485": {
+      "source": "worklane.py:1485",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.restack.changed-pr"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1436": {
-      "source": "worklane.py:1436",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1492": {
+      "source": "worklane.py:1492",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.restack.unverified-retarget"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1476": {
-      "source": "worklane.py:1476",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1556": {
+      "source": "worklane.py:1556",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.feedback.changed-pr"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1645": {
-      "source": "worklane.py:1645",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1735": {
+      "source": "worklane.py:1735",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.stack.unpushed-head"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1690": {
-      "source": "worklane.py:1690",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1781": {
+      "source": "worklane.py:1781",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.worktree.wrong-worker-branch"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1700": {
-      "source": "worklane.py:1700",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1791": {
+      "source": "worklane.py:1791",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.worktree.existing-local-branch"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1735": {
-      "source": "worklane.py:1735",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1806": {
+      "source": "worklane.py:1806",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
+      "checks": [
+        "fixture:runtime.security-trusted-outsider"
+      ],
+      "status": "detected"
+    },
+    "failure.worklane.py.1838": {
+      "source": "worklane.py:1838",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.build.question-created-pr"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1739": {
-      "source": "worklane.py:1739",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1842": {
+      "source": "worklane.py:1842",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.build.invalid-sha"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1742": {
-      "source": "worklane.py:1742",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1845": {
+      "source": "worklane.py:1845",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.build.wrong-head"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1744": {
-      "source": "worklane.py:1744",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1847": {
+      "source": "worklane.py:1847",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.build.dirty-worktree"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1789": {
-      "source": "worklane.py:1789",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1892": {
+      "source": "worklane.py:1892",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.review.wrong-result-head"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1791": {
-      "source": "worklane.py:1791",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1894": {
+      "source": "worklane.py:1894",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.review.modified-worktree"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1808": {
-      "source": "worklane.py:1808",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1911": {
+      "source": "worklane.py:1911",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.WorklaneTests.test_failed_handoff_does_not_move_to_human"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1823": {
-      "source": "worklane.py:1823",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1926": {
+      "source": "worklane.py:1926",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.WorklaneTests.test_unknown_mergeability_retries_saved_handoff_without_another_turn"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1836": {
-      "source": "worklane.py:1836",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1940": {
+      "source": "worklane.py:1940",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.workflow.immediate-stop"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2025": {
-      "source": "worklane.py:2025",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2134": {
+      "source": "worklane.py:2134",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.WorklaneTests.test_existing_linked_pr_not_implemented_twice"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2236": {
-      "source": "worklane.py:2236",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2350": {
+      "source": "worklane.py:2350",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_add_issue.AddIssueTests.test_missing_gh_does_not_create_issue"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2244": {
-      "source": "worklane.py:2244",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2359": {
+      "source": "worklane.py:2359",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.BoardCommandTests.test_missing_github_cli_is_reported"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2337": {
-      "source": "worklane.py:2337",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2457": {
+      "source": "worklane.py:2457",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:cli.retry-number"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2361": {
-      "source": "worklane.py:2361",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2481": {
+      "source": "worklane.py:2481",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.cli.missing-binary"
       ],
@@ -1027,7 +1119,7 @@
     },
     "failure.worklane.py.279": {
       "source": "worklane.py:279",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.GitHubErrorTests.test_project_owner_error_reports_underlying_rate_limit"
       ],
@@ -1035,7 +1127,7 @@
     },
     "failure.worklane.py.550": {
       "source": "worklane.py:550",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.state.changed-legacy-file"
       ],
@@ -1043,167 +1135,167 @@
     },
     "failure.worklane.py.810": {
       "source": "worklane.py:810",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.budget.propagates-quota"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1004": {
-      "source": "worklane.py:1004",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1050": {
+      "source": "worklane.py:1050",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.board.incomplete-items"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1098": {
-      "source": "worklane.py:1098",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1147": {
+      "source": "worklane.py:1147",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.agent.next-turn"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1141": {
-      "source": "worklane.py:1141",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1190": {
+      "source": "worklane.py:1190",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.agent.before-launch"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1182": {
-      "source": "worklane.py:1182",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1231": {
+      "source": "worklane.py:1231",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.agent.exit-timeout"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1298": {
-      "source": "worklane.py:1298",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1351": {
+      "source": "worklane.py:1351",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.stack.parent-quota"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1381": {
-      "source": "worklane.py:1381",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1434": {
+      "source": "worklane.py:1434",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.stack.restack-quota"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1423": {
-      "source": "worklane.py:1423",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1477": {
+      "source": "worklane.py:1477",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_stacking.RestackTests.test_conflicting_restack_aborts_without_losing_original_work"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1443": {
-      "source": "worklane.py:1443",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1499": {
+      "source": "worklane.py:1499",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.restack.wrong-board-status"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1558": {
-      "source": "worklane.py:1558",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1648": {
+      "source": "worklane.py:1648",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_human_feedback.HumanFeedbackTests.test_feedback_quota_failure_stops_before_other_tasks"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1632": {
-      "source": "worklane.py:1632",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1722": {
+      "source": "worklane.py:1722",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_stacking.RestackTests.test_child_ancestry_rejects_unrelated_remote_branch"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1705": {
-      "source": "worklane.py:1705",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1796": {
+      "source": "worklane.py:1796",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.worktree.moved-parent"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1827": {
-      "source": "worklane.py:1827",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1931": {
+      "source": "worklane.py:1931",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.WorklaneTests.test_failed_or_unverified_draft_promotion_blocks_human_review"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1892": {
-      "source": "worklane.py:1892",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1996": {
+      "source": "worklane.py:1996",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.completion.retargeted-pr"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1903": {
-      "source": "worklane.py:1903",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2007": {
+      "source": "worklane.py:2007",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2011": {
-      "source": "worklane.py:2011",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2120": {
+      "source": "worklane.py:2120",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.pick.missing-linked-pr"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2044": {
-      "source": "worklane.py:2044",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2153": {
+      "source": "worklane.py:2153",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.WorklaneTests.test_claim_quota_failure_recovers_before_and_after_status_write"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2265": {
-      "source": "worklane.py:2265",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2381": {
+      "source": "worklane.py:2381",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.cli.run-cancelled"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2341": {
-      "source": "worklane.py:2341",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2461": {
+      "source": "worklane.py:2461",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:cli.retry-unknown"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2343": {
-      "source": "worklane.py:2343",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2463": {
+      "source": "worklane.py:2463",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.cli.retry-invalid-phase"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2409": {
-      "source": "worklane.py:2409",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2539": {
+      "source": "worklane.py:2539",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.cli.start-exited"
       ],
@@ -1211,258 +1303,258 @@
     },
     "failure.worklane.py.282": {
       "source": "worklane.py:282",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.github.failed-owner-probe"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1079": {
-      "source": "worklane.py:1079",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1127": {
+      "source": "worklane.py:1127",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.agent.next-turn"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1125": {
-      "source": "worklane.py:1125",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1174": {
+      "source": "worklane.py:1174",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.agent.conflicting-session-ids"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1162": {
-      "source": "worklane.py:1162",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1211": {
+      "source": "worklane.py:1211",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.agent.during-turn"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1165": {
-      "source": "worklane.py:1165",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1214": {
+      "source": "worklane.py:1214",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_harness.HarnessTests.test_timeout_retains_session_and_immediate_stop_starts_no_process",
         "test_sessions.SessionTests.test_timeout_retains_session"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1370": {
-      "source": "worklane.py:1370",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1423": {
+      "source": "worklane.py:1423",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.stack.closed-parent"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1684": {
-      "source": "worklane.py:1684",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1775": {
+      "source": "worklane.py:1775",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.worktree.dirty-reviewer"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2020": {
-      "source": "worklane.py:2020",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2129": {
+      "source": "worklane.py:2129",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.pick.closed-retry-pr"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2323": {
-      "source": "worklane.py:2323",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2443": {
+      "source": "worklane.py:2443",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.cli.stop-incomplete"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2330": {
-      "source": "worklane.py:2330",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2450": {
+      "source": "worklane.py:2450",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.cli.resume-during-stop"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2401": {
-      "source": "worklane.py:2401",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2531": {
+      "source": "worklane.py:2531",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "fixture:runtime.guard.cli.start-cancelled"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.1367": {
-      "source": "worklane.py:1367",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.1420": {
+      "source": "worklane.py:1420",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_stacking.RestackTests.test_dirty_worktree_or_changed_merged_revision_preserves_child"
       ],
       "status": "detected"
     },
-    "failure.worklane.py.2101": {
-      "source": "worklane.py:2101",
-      "source_sha256": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e",
+    "failure.worklane.py.2211": {
+      "source": "worklane.py:2211",
+      "source_sha256": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64",
       "checks": [
         "test_worklane.WorklaneTests.test_claim_failures_increase_backoff_after_successful_board_reads",
         "test_worklane.WorklaneTests.test_rate_limit_during_claim_does_not_try_remaining_slots"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.65": {
-      "source": "worklane_tui.py:65",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.67": {
+      "source": "worklane_tui.py:67",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "test_tui_editing.IssueEditorTests.test_load_failure_and_budget_cooldown_do_not_write"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.84": {
-      "source": "worklane_tui.py:84",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.87": {
+      "source": "worklane_tui.py:87",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "fixture:runtime.guard.editor.empty-title"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.90": {
-      "source": "worklane_tui.py:90",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.93": {
+      "source": "worklane_tui.py:93",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "test_tui_editing.IssueEditorTests.test_stale_text_closed_issue_status_drift_or_removed_item_never_write"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.92": {
-      "source": "worklane_tui.py:92",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.95": {
+      "source": "worklane_tui.py:95",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "test_tui_editing.IssueEditorTests.test_stale_text_closed_issue_status_drift_or_removed_item_never_write"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.1306": {
-      "source": "worklane_tui.py:1306",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.1320": {
+      "source": "worklane_tui.py:1320",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "fixture:cli.tui-refresh"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.1322": {
-      "source": "worklane_tui.py:1322",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.1336": {
+      "source": "worklane_tui.py:1336",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "fixture:cli.tui-redirect"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.70": {
-      "source": "worklane_tui.py:70",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.72": {
+      "source": "worklane_tui.py:72",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "test_tui_editing.IssueEditorTests.test_stale_text_closed_issue_status_drift_or_removed_item_never_write"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.103": {
-      "source": "worklane_tui.py:103",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.106": {
+      "source": "worklane_tui.py:106",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "test_tui_editing.IssueEditorTests.test_partial_edit_failure_preserves_saved_text_and_draft_for_safe_retry"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.237": {
-      "source": "worklane_tui.py:237",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.244": {
+      "source": "worklane_tui.py:244",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "test_tui.TuiTests.test_resume_missing_session_missing_worktree_and_failed_cli"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.241": {
-      "source": "worklane_tui.py:241",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.248": {
+      "source": "worklane_tui.py:248",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "test_tui.TuiTests.test_resume_missing_session_missing_worktree_and_failed_cli"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.246": {
-      "source": "worklane_tui.py:246",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.253": {
+      "source": "worklane_tui.py:253",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "fixture:runtime.guard.resume.missing-command"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.251": {
-      "source": "worklane_tui.py:251",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.262": {
+      "source": "worklane_tui.py:262",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "test_tui.TuiTests.test_resume_missing_session_missing_worktree_and_failed_cli"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.1326": {
-      "source": "worklane_tui.py:1326",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.1340": {
+      "source": "worklane_tui.py:1340",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "fixture:runtime.terminal-missing-backend"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.1332": {
-      "source": "worklane_tui.py:1332",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.1346": {
+      "source": "worklane_tui.py:1346",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "fixture:runtime.terminal-initialization-error"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.244": {
-      "source": "worklane_tui.py:244",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.251": {
+      "source": "worklane_tui.py:251",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "test_tui.TuiTests.test_resume_refuses_controller_race_or_orphan_process"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.539": {
-      "source": "worklane_tui.py:539",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.551": {
+      "source": "worklane_tui.py:551",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "test_tui_editing.IssueEditorTests.test_cancel_loading_and_error_retain_responsive_terminal",
         "test_tui_editing.IssueEditorTests.test_load_failure_and_budget_cooldown_do_not_write"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.557": {
-      "source": "worklane_tui.py:557",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.569": {
+      "source": "worklane_tui.py:569",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "fixture:runtime.guard.editor.existing-save-error"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.757": {
-      "source": "worklane_tui.py:757",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.770": {
+      "source": "worklane_tui.py:770",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "test_tui.TuiTests.test_open_pr_handles_absence_offline_saved_pr_and_browser_failure"
       ],
       "status": "detected"
     },
-    "failure.worklane_tui.py.556": {
-      "source": "worklane_tui.py:556",
-      "source_sha256": "6285e7969d2ce9efaca2d858120e646d663dac28890f5aaad244481b869dcada",
+    "failure.worklane_tui.py.568": {
+      "source": "worklane_tui.py:568",
+      "source_sha256": "a81a2d2e51007d46a630d601cbba4f83686449ce9de843d8f04456772f5b2843",
       "checks": [
         "test_tui_editing.IssueEditorTests.test_failed_creation_keeps_draft_and_blocks_duplicate_save"
       ],
@@ -1489,7 +1581,8 @@
       "source": "worklane_harness.py:68",
       "source_sha256": "f24dd3961876e76688f163b5f5afc88fa0519fe9792fe6f445aa959ac66c8153",
       "checks": [
-        "test_sessions.SessionTests.test_app_server_transport_timeout_eof_and_initialize_error"
+        "test_sessions.SessionTests.test_app_server_transport_timeout_eof_and_initialize_error",
+        "test_sessions.SessionTests.test_cli_stop_now_then_run_resumes_saved_session"
       ],
       "status": "detected"
     },

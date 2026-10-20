@@ -1,0 +1,135 @@
+{
+  "mode": "differential",
+  "candidate_runtime": "native",
+  "reference_verified": true,
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "inventory_sha256": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
+  "candidate": [
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter"
+  ],
+  "candidate_hashes": {
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "434e6509a5d5c5c722f62addd274a0a3577eb6f51a52be3aa33cff1b66c12240"
+  },
+  "release_sha256": "434e6509a5d5c5c722f62addd274a0a3577eb6f51a52be3aa33cff1b66c12240",
+  "driver": "test_native_stack_shape.py",
+  "harness_hashes": {
+    "test_native_stack_shape.py": "327d777f636709dc0ff63b39c8afc9a8e3d819be0ebcf804580c08b2f80ebfa4",
+    "tools/native_test_bridge.py": "8d52eb86f5007cca43ec32710939276ecc7d102ae167a8e4c1b06620cd3607cd"
+  },
+  "results": [
+    {
+      "id": "test_native_stack_shape.NativeStackShapeTests.test_saved_stack_types_cannot_silently_remove_ancestry_checks (None, 'validate_stack')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "saved_stack": null,
+        "source_rejected": true,
+        "native_rejected": true,
+        "git_or_provider_commands": 0
+      }
+    },
+    {
+      "id": "test_native_stack_shape.NativeStackShapeTests.test_saved_stack_types_cannot_silently_remove_ancestry_checks (None, 'verify_stack_ancestry')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "saved_stack": null,
+        "source_rejected": true,
+        "native_rejected": true,
+        "git_or_provider_commands": 0
+      }
+    },
+    {
+      "id": "test_native_stack_shape.NativeStackShapeTests.test_saved_stack_types_cannot_silently_remove_ancestry_checks (False, 'validate_stack')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "saved_stack": false,
+        "source_rejected": true,
+        "native_rejected": true,
+        "git_or_provider_commands": 0
+      }
+    },
+    {
+      "id": "test_native_stack_shape.NativeStackShapeTests.test_saved_stack_types_cannot_silently_remove_ancestry_checks (False, 'verify_stack_ancestry')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "saved_stack": false,
+        "source_rejected": true,
+        "native_rejected": true,
+        "git_or_provider_commands": 0
+      }
+    },
+    {
+      "id": "test_native_stack_shape.NativeStackShapeTests.test_saved_stack_types_cannot_silently_remove_ancestry_checks (17, 'validate_stack')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "saved_stack": 17,
+        "source_rejected": true,
+        "native_rejected": true,
+        "git_or_provider_commands": 0
+      }
+    },
+    {
+      "id": "test_native_stack_shape.NativeStackShapeTests.test_saved_stack_types_cannot_silently_remove_ancestry_checks (17, 'verify_stack_ancestry')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "saved_stack": 17,
+        "source_rejected": true,
+        "native_rejected": true,
+        "git_or_provider_commands": 0
+      }
+    },
+    {
+      "id": "test_native_stack_shape.NativeStackShapeTests.test_saved_stack_types_cannot_silently_remove_ancestry_checks ('bad', 'validate_stack')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "saved_stack": "bad",
+        "source_rejected": true,
+        "native_rejected": true,
+        "git_or_provider_commands": 0
+      }
+    },
+    {
+      "id": "test_native_stack_shape.NativeStackShapeTests.test_saved_stack_types_cannot_silently_remove_ancestry_checks ('bad', 'verify_stack_ancestry')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "saved_stack": "bad",
+        "source_rejected": true,
+        "native_rejected": true,
+        "git_or_provider_commands": 0
+      }
+    },
+    {
+      "id": "test_native_stack_shape.NativeStackShapeTests.test_saved_stack_types_cannot_silently_remove_ancestry_checks ({'number': 2}, 'validate_stack')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "saved_stack": {
+          "number": 2
+        },
+        "source_rejected": true,
+        "native_rejected": true,
+        "git_or_provider_commands": 0
+      }
+    },
+    {
+      "id": "test_native_stack_shape.NativeStackShapeTests.test_saved_stack_types_cannot_silently_remove_ancestry_checks ({'number': 2}, 'verify_stack_ancestry')",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "saved_stack": {
+          "number": 2
+        },
+        "source_rejected": true,
+        "native_rejected": true,
+        "git_or_provider_commands": 0
+      }
+    }
+  ]
+}

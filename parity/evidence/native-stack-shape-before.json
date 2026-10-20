@@ -1,0 +1,25 @@
+{
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "candidate_head": "4396435c5a3dbe8ac91694a1454044aa10a3c1fd",
+  "candidate_included_uncommitted_fixture_adapter": true,
+  "results": [
+    {
+      "stack": null,
+      "reference": "TypeError",
+      "candidate": "accepted"
+    },
+    {
+      "stack": false,
+      "reference": "TypeError",
+      "candidate": "accepted"
+    },
+    {
+      "stack": 17,
+      "reference": "TypeError",
+      "candidate": "accepted"
+    }
+  ],
+  "status": "reproduced gap; superseded by targeted fix evidence",
+  "candidate_binary_sha256": "37725a89832f276ca358d58858481a9c70d6e1475c0f3a68337593939942c71e",
+  "candidate_binary_provenance": "Same pre-fix adapter build as the first six native failure comparisons."
+}

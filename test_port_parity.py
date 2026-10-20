@@ -84,6 +84,28 @@ class DifferentialTests(unittest.TestCase):
 
 
 class FailureContractTests(unittest.TestCase):
+    def test_cached_failure_audit_writes_every_retained_row(self):
+        import hashlib
+        from tools import port_failure_audit as audit
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory); (root/'parity/fixtures').mkdir(parents=True)
+            (root/'parity/inventory.json').write_text(json.dumps({'revision':'pinned','checks':{}}))
+            (root/'parity/fixture-schema.json').write_text('{}')
+            source="raise RuntimeError('one')\nraise RuntimeError('two')\n"
+            rows={f'failure.worklane.py.{line}':{'source':f'worklane.py:{line}',
+                  'source_sha256':hashlib.sha256(source.encode()).hexdigest(),
+                  'checks':['test_fake.Checks.test_a'],'status':'detected'} for line in (1,2)}
+            prior=root/'prior.json';prior.write_text(json.dumps({'reference':'pinned','failures':rows}))
+            hits=root/'hits.json';hits.write_text('{}'); output=root/'output.json'
+            def frozen(destination, revision):
+                for name in ('worklane.py','worklane_tui.py','worklane_harness.py','worklane_process.py'):
+                    (destination/name).write_text(source if name=='worklane.py' else '')
+                (destination/'test_fake.py').write_text('class Checks:\n def test_a(self): pass\n')
+            with patch.object(audit,'ROOT',root),patch.object(audit,'reference',side_effect=frozen), \
+                 patch.object(sys,'argv',['audit','--previous',str(prior),'--unit-hits',str(hits),'--output',str(output)]):
+                self.assertEqual(audit.main(),0)
+            self.assertEqual(json.loads(output.read_text())['failures'],rows)
+
     def test_every_failure_has_a_specific_deletion_detecting_acceptance_check(self):
         inventory=json.loads((ROOT/'parity/inventory.json').read_text())
         proof=json.loads((ROOT/'parity/failure-checks.json').read_text())
@@ -117,6 +139,16 @@ class FailureContractTests(unittest.TestCase):
 
 
 class EvidenceGateTests(unittest.TestCase):
+    def test_rust_cutover_rejects_python_only_or_unspecified_candidate_runtime(self):
+        from tools.port_gate import assess, contract_hash
+        inventory=self.inventory();inventory['language']='Rust'
+        report=self.report();report['inventory_sha256']=contract_hash(inventory)
+        for kind in (None,'interpreted'):
+            report['candidate_runtime']=kind
+            self.assertTrue(assess(inventory,[report]))
+        report['candidate_runtime']='native'
+        self.assertFalse(assess(inventory,[report]))
+
     def inventory(self):
         return {'revision':'pinned','checks':{'case':{}},'suites':{'runtime':['case']},'matrix':[{'id':'source.runtime','checks':['suite:runtime']}]}
 
@@ -185,6 +217,10 @@ class EvidenceGateTests(unittest.TestCase):
         from tools.port_gate import assess
         inventory=json.loads((ROOT/'parity/inventory.json').read_text())
         report=json.loads((ROOT/'parity/evidence/cli-self-comparison.json').read_text())
+        # Isolate fixture provenance; Python self-comparison is never Rust cutover evidence.
+        inventory.pop('language',None)
+        from tools.port_gate import contract_hash
+        report['inventory_sha256']=contract_hash(inventory)
         rows={row['id'] for row in inventory['matrix'] if row.get('source') == 'parity/fixtures/cli.json'}
         self.assertFalse(rows & {failure['row'] for failure in assess(inventory,[report])})
         forged=copy.deepcopy(report)

@@ -1,0 +1,2078 @@
+{
+  "mode": "differential",
+  "candidate_runtime": "native",
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "reference_verified": true,
+  "inventory_sha256": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
+  "fixtures_path": "parity/fixtures/security.json",
+  "fixtures_sha256": "e24469f3c3a5cb32fa1ddcba7909df09714810ba250912a440ced940b5ef06f8",
+  "candidate": [
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter"
+  ],
+  "candidate_hashes": {
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "434e6509a5d5c5c722f62addd274a0a3577eb6f51a52be3aa33cff1b66c12240"
+  },
+  "release_sha256": "434e6509a5d5c5c722f62addd274a0a3577eb6f51a52be3aa33cff1b66c12240",
+  "results": [
+    {
+      "id": "runtime.security-report-private",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {\"visibility\": \"private\", \"project_viewer_can_update\": true, \"repository_permission\": \"ADMIN\", \"safe\": true, \"public_board_override\": false, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-report-public",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {\"visibility\": \"public\", \"project_viewer_can_update\": true, \"repository_permission\": \"ADMIN\", \"safe\": false, \"public_board_override\": false, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-report-explicit-public",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {\"visibility\": \"public\", \"project_viewer_can_update\": true, \"repository_permission\": \"WRITE\", \"safe\": true, \"public_board_override\": true, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-report-unknown",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {\"visibility\": \"unknown\", \"project_viewer_can_update\": true, \"repository_permission\": \"ADMIN\", \"safe\": false, \"public_board_override\": true, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-report-malformed",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {\"visibility\": \"unknown\", \"project_viewer_can_update\": true, \"repository_permission\": \"ADMIN\", \"safe\": false, \"public_board_override\": false, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-report-read-only",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {\"visibility\": \"private\", \"project_viewer_can_update\": true, \"repository_permission\": \"READ\", \"safe\": false, \"public_board_override\": false, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-report-project-denied",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {\"visibility\": \"private\", \"project_viewer_can_update\": false, \"repository_permission\": \"ADMIN\", \"safe\": false, \"public_board_override\": false, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-safe-private",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {\"visibility\": \"private\", \"project_viewer_can_update\": true, \"repository_permission\": \"ADMIN\", \"safe\": true, \"public_board_override\": false, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-safe-public",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"public\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-safe-explicit-public",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {\"visibility\": \"public\", \"project_viewer_can_update\": true, \"repository_permission\": \"WRITE\", \"safe\": true, \"public_board_override\": true, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}}\n",
+            "stderr": "WARNING: --dangerously-allow-public-board permits operation on a publicly readable board. Review project access and automation rules; feedback still requires trusted permissions.\n"
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-safe-unknown",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"unknown\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": true, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-safe-malformed",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"unknown\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-safe-read-only",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"private\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"READ\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-safe-project-denied",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"private\\\", \\\"project_viewer_can_update\\\": false, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-open-private",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {\"visibility\": \"private\", \"project_viewer_can_update\": true, \"repository_permission\": \"ADMIN\", \"safe\": true, \"public_board_override\": false, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-open-public",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"public\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-open-explicit-public",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {\"visibility\": \"public\", \"project_viewer_can_update\": true, \"repository_permission\": \"WRITE\", \"safe\": true, \"public_board_override\": true, \"verification_limits\": [\"Repository permissions do not establish project collaborator access.\", \"Project collaborator grants and workflow rule settings require manual review.\", \"Public visibility permits reading; it does not grant anonymous writes.\"]}}\n",
+            "stderr": "WARNING: --dangerously-allow-public-board permits operation on a publicly readable board. Review project access and automation rules; feedback still requires trusted permissions.\n"
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-open-unknown",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"unknown\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": true, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-open-malformed",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"unknown\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-open-read-only",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"private\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"READ\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-open-project-denied",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"private\\\", \\\"project_viewer_can_update\\\": false, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--format",
+              "json"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-deny-add",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"public\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-deny-ensure_review",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"public\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-deny-move",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"public\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-deny-pick",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"public\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-deny-recover",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"public\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-deny-poll",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"public\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-deny-agent_result",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"public\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-deny-post",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"public\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-deny-restack",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"public\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-deny-save_editor",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Board security preflight refused operation: {\\\"visibility\\\": \\\"public\\\", \\\"project_viewer_can_update\\\": true, \\\"repository_permission\\\": \\\"ADMIN\\\", \\\"safe\\\": false, \\\"public_board_override\\\": false, \\\"verification_limits\\\": [\\\"Repository permissions do not establish project collaborator access.\\\", \\\"Project collaborator grants and workflow rule settings require manual review.\\\", \\\"Public visibility permits reading; it does not grant anonymous writes.\\\"]}; public boards require explicit --dangerously-allow-public-board.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-feedback-write",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {\"issue:1\": {\"body\": \"Fix it\", \"author\": \"trusted\", \"state\": \"CHANGES_REQUESTED\", \"updated_at\": \"2026-10-20T00:00:00+00:00\", \"url\": \"\"}}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-trusted-write",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": null}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-feedback-maintain",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {\"issue:1\": {\"body\": \"Fix it\", \"author\": \"trusted\", \"state\": \"CHANGES_REQUESTED\", \"updated_at\": \"2026-10-20T00:00:00+00:00\", \"url\": \"\"}}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-trusted-maintain",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": null}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-feedback-admin",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {\"issue:1\": {\"body\": \"Fix it\", \"author\": \"trusted\", \"state\": \"CHANGES_REQUESTED\", \"updated_at\": \"2026-10-20T00:00:00+00:00\", \"url\": \"\"}}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-trusted-admin",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": null}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-feedback-outsider",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-trusted-outsider",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Feedback authorization or content changed; inspect before rework.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-feedback-trusted-editor",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {\"issue:1\": {\"body\": \"Fix it\", \"author\": \"trusted\", \"state\": \"CHANGES_REQUESTED\", \"updated_at\": \"2026-10-20T00:00:00+00:00\", \"url\": \"\"}}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/editor/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-trusted-trusted-editor",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": null}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/editor/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-feedback-revoked-editor",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/editor/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-trusted-revoked-editor",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Feedback authorization or content changed; inspect before rework.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/editor/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-feedback-bot-editor",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 0,
+            "stdout": "{\"ok\": {}}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-trusted-bot-editor",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Feedback authorization or content changed; inspect before rework.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-feedback-missing-provenance",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Feedback edit provenance changed or is unavailable; refusing rework.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-trusted-missing-provenance",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Feedback edit provenance changed or is unavailable; refusing rework.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-feedback-changed-provenance",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Feedback edit provenance changed or is unavailable; refusing rework.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-trusted-changed-provenance",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Feedback edit provenance changed or is unavailable; refusing rework.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!) { node(id:$id) {\\n          ... on IssueComment { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReview { body lastEditedAt editor { login __typename } }\\n          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }\\n        } }\", \"variables\": {\"id\": \"comment-1\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-feedback-missing-node-id",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"Feedback edit provenance is unavailable; refusing rework.\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/issues/1/comments?per_page=100",
+              "--paginate",
+              "--slurp"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "repos/owner/repo/collaborators/trusted/permission"
+            ],
+            "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    },
+    {
+      "id": "runtime.security-report-quota",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "steps": [
+          {
+            "exit": 1,
+            "stdout": "{\"error\": \"API rate limit exceeded\"}\n",
+            "stderr": ""
+          }
+        ],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
+        "git_calls": [],
+        "files": {},
+        "sqlite": []
+      }
+    }
+  ],
+  "unverified_cases": []
+}

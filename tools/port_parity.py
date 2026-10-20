@@ -280,6 +280,18 @@ def reference(destination, revision):
     import io
     with tarfile.open(fileobj=io.BytesIO(archive)) as source:
         source.extractall(destination, filter='data')
+    # The pinned implementation/tests consume this contract's refreshed inputs.
+    # Keep source bytes frozen; old board fixtures predate mandatory live preflights.
+    for fixture in (ROOT / 'parity/fixtures').glob('*.json'):
+        shutil.copyfile(fixture, destination / 'parity/fixtures' / fixture.name)
+    # Newer pinned checks themselves archive revisions. Give them isolated refs
+    # and read-only object lookup, without sharing an index or checkout writes.
+    objects = Path(subprocess.check_output(['git','rev-parse','--git-path','objects'],cwd=ROOT,text=True).strip())
+    if not objects.is_absolute():
+        objects = ROOT / objects
+    subprocess.run(['git','init','--quiet','--template=','--initial-branch=reference',str(destination)],check=True)
+    (destination/'.git/objects/info/alternates').write_text(str(objects.resolve())+'\n')
+    subprocess.run(['git','update-ref','--no-deref','HEAD',revision],cwd=destination,check=True)
     return [sys.executable, str(destination / 'worklane.py')]
 
 
@@ -314,6 +326,10 @@ def main():
         report['candidate_hashes'] = command_hashes(candidate) if candidate else {}
         if candidate:
             report['release_sha256'] = hashlib.sha256((args.release or Path(candidate[0])).read_bytes()).hexdigest()
+            release = (args.release or Path(candidate[0])).read_bytes()
+            report['candidate_runtime'] = ('native' if release.startswith(b'\x7fELF')
+                                           and (args.release or not any(a.endswith('.py') for a in candidate[1:]))
+                                           else 'interpreted')
         report['reference_command'] = ref
         report['reference_hashes'] = command_hashes(ref)
         for fixture in fixture_set['scenarios']:

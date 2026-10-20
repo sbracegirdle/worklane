@@ -1,0 +1,93 @@
+{
+  "mode": "differential",
+  "candidate_runtime": "native",
+  "reference_verified": true,
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "inventory_sha256": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
+  "candidate": [
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter"
+  ],
+  "candidate_hashes": {
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "434e6509a5d5c5c722f62addd274a0a3577eb6f51a52be3aa33cff1b66c12240"
+  },
+  "release_sha256": "434e6509a5d5c5c722f62addd274a0a3577eb6f51a52be3aa33cff1b66c12240",
+  "driver": "test_native_restack.py",
+  "harness_hashes": {
+    "test_native_restack.py": "bb532ed312e96f951333205ac22108c0d72d27e17cd8185b4bfd98125592090e",
+    "tools/native_test_bridge.py": "8d52eb86f5007cca43ec32710939276ecc7d102ae167a8e4c1b06620cd3607cd"
+  },
+  "results": [
+    {
+      "id": "test_stacking.RestackTests.test_child_ancestry_rejects_unrelated_remote_branch",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.RestackTests.test_conflicting_restack_aborts_without_losing_original_work",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.RestackTests.test_dirty_worktree_or_changed_merged_revision_preserves_child",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.RestackTests.test_interrupted_retarget_reuses_recorded_merge_and_push",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.RestackTests.test_lost_board_transition_response_recovers_without_duplicate_history",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.RestackTests.test_pre_pr_interruption_keeps_the_worker_stage_after_parent_merge",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.RestackTests.test_security_change_after_push_prevents_pr_retarget_and_board_transition",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.RestackTests.test_security_change_before_push_preserves_remote_branch_and_pending_intent",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.RestackTests.test_squash_parent_merge_restacks_without_rewriting_and_requires_review",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    }
+  ]
+}

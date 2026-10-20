@@ -218,7 +218,33 @@
             "Use worklane retry"
           ]
         }
-      ]
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "projectsV2(first:100)"
+            ],
+            "stdout": "{\"data\": {\"repository\": {\"projectsV2\": {\"nodes\": [{\"id\": \"project-id\", \"number\": 2, \"title\": \"repo\", \"closed\": false, \"url\": \"https://github.com/users/owner/projects/2\", \"owner\": {\"login\": \"owner\"}}]}}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
     },
     {
       "id": "cli.retry-unknown",
@@ -233,7 +259,33 @@
             "No saved task"
           ]
         }
-      ]
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "projectsV2(first:100)"
+            ],
+            "stdout": "{\"data\": {\"repository\": {\"projectsV2\": {\"nodes\": [{\"id\": \"project-id\", \"number\": 2, \"title\": \"repo\", \"closed\": false, \"url\": \"https://github.com/users/owner/projects/2\", \"owner\": {\"login\": \"owner\"}}]}}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
     },
     {
       "id": "cli.workers-range",
@@ -449,7 +501,33 @@
           "path": "state/worklane/owner--repo/state.sqlite3",
           "query": "SELECT count(*) FROM tasks"
         }
-      ]
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "projectsV2(first:100)"
+            ],
+            "stdout": "{\"data\": {\"repository\": {\"projectsV2\": {\"nodes\": [{\"id\": \"project-id\", \"number\": 2, \"title\": \"repo\", \"closed\": false, \"url\": \"https://github.com/users/owner/projects/2\", \"owner\": {\"login\": \"owner\"}}]}}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          }
+        ]
+      }
     },
     {
       "id": "cli.stack-policy",
@@ -599,6 +677,17 @@
             "stdout": "{\"id\": \"project-id\", \"number\": 2, \"title\": \"repo\", \"closed\": false, \"url\": \"https://github.com/users/owner/projects/2\", \"owner\": {\"login\": \"owner\"}}"
           },
           {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
             "argv": [
               "project",
               "view",
@@ -673,10 +762,32 @@
           },
           {
             "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
               "project",
               "field-list"
             ],
             "stdout": "{\"fields\": [{\"id\": \"status-id\", \"name\": \"Status\", \"options\": [{\"id\": \"ready-for-work\", \"name\": \"Ready for work\"}, {\"id\": \"in-progress\", \"name\": \"In Progress\"}, {\"id\": \"agent-review\", \"name\": \"Agent review\"}, {\"id\": \"human-review\", \"name\": \"Human review\"}, {\"id\": \"draft\", \"name\": \"Draft\"}, {\"id\": \"shaping\", \"name\": \"Shaping\"}]}]}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
           },
           {
             "prefix": [
@@ -750,10 +861,32 @@
           },
           {
             "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
               "project",
               "field-list"
             ],
             "stdout": "{\"fields\": [{\"id\": \"status-id\", \"name\": \"Status\", \"options\": [{\"id\": \"ready-for-work\", \"name\": \"Ready for work\"}, {\"id\": \"in-progress\", \"name\": \"In Progress\"}, {\"id\": \"agent-review\", \"name\": \"Agent review\"}, {\"id\": \"human-review\", \"name\": \"Human review\"}, {\"id\": \"draft\", \"name\": \"Draft\"}, {\"id\": \"shaping\", \"name\": \"Shaping\"}]}]}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
           },
           {
             "prefix": [
@@ -827,10 +960,32 @@
           },
           {
             "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
               "project",
               "field-list"
             ],
             "stdout": "{\"fields\": [{\"id\": \"status-id\", \"name\": \"Status\", \"options\": [{\"id\": \"ready-for-work\", \"name\": \"Ready for work\"}, {\"id\": \"in-progress\", \"name\": \"In Progress\"}, {\"id\": \"agent-review\", \"name\": \"Agent review\"}, {\"id\": \"human-review\", \"name\": \"Human review\"}, {\"id\": \"draft\", \"name\": \"Draft\"}, {\"id\": \"shaping\", \"name\": \"Shaping\"}]}]}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
           },
           {
             "prefix": [
@@ -901,10 +1056,32 @@
           },
           {
             "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
               "project",
               "field-list"
             ],
             "stdout": "{\"fields\": [{\"id\": \"status-id\", \"name\": \"Status\", \"options\": [{\"id\": \"ready-for-work\", \"name\": \"Ready for work\"}, {\"id\": \"in-progress\", \"name\": \"In Progress\"}, {\"id\": \"agent-review\", \"name\": \"Agent review\"}, {\"id\": \"human-review\", \"name\": \"Human review\"}, {\"id\": \"draft\", \"name\": \"Draft\"}, {\"id\": \"shaping\", \"name\": \"Shaping\"}]}]}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
           },
           {
             "prefix": [
@@ -1002,6 +1179,17 @@
           },
           {
             "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
               "project",
               "field-list"
             ],
@@ -1022,9 +1210,86 @@
               "graphql"
             ],
             "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
               "items(first:100"
             ],
             "stdout": "{\"data\": {\"node\": {\"items\": {\"nodes\": [], \"totalCount\": 0, \"pageInfo\": {\"hasNextPage\": false, \"endCursor\": null}}}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
           }
         ],
         "codex": [

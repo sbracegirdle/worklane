@@ -1,0 +1,101 @@
+{
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "assigned_base": "f480886cf1deb37645ea2b8098523931b8e43ec5",
+  "merge_forward_commit": "83a4096250896fb74b3162ca7017ee17db4ae9ef",
+  "runtime_diff_from_assigned_base": [
+    "worklane.py",
+    "worklane_tui.py"
+  ],
+  "command": [
+    "uv",
+    "run",
+    "--no-project",
+    "python",
+    "tools/port_failure_audit.py",
+    "--revision",
+    "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+    "--previous",
+    "/tmp/worklane50-security-verified-cache.json",
+    "--output",
+    "/tmp/worklane50-security-failure-checks-complete.json"
+  ],
+  "result": {
+    "exit": 0,
+    "detected": 173,
+    "total": 173,
+    "gaps": [],
+    "persisted_rows": 173
+  },
+  "proof_sha256": "23203568a87909e313064af9e6a11c4b8ffcddb2b2fdca1cbd230b09ce58f2ba",
+  "fixture_inputs": "Refreshed contract fixtures are overlaid into disposable reference archives; pinned implementation/test source bytes remain unchanged.",
+  "cache_note": "171 detected rows were retained from the complete audit; missing-node-ID and quota propagation checks were added, executed, and retained in the verified cache.",
+  "additional_commands": [
+    {
+      "command": [
+        "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13",
+        "tools/port_checks.py",
+        "--evidence",
+        "parity/evidence/reference-checks.json"
+      ],
+      "exit": 0,
+      "log": "/tmp/worklane50-current-reference-0.log",
+      "tail": "reviewer: #1 Issue\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n----------------------------------------------------------------------\nRan 348 tests in 42.962s\n\nOK (skipped=2)\n{\"passed\": 346, \"total\": 348, \"reference\": \"8dff6c1c1a2b31e174b2a192032b004f8a5f898e\", \"mode\": \"reference-only\"}"
+    },
+    {
+      "command": [
+        "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13",
+        "tools/port_parity.py",
+        "--candidate",
+        "[\"/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13\", \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/worklane.py\"]",
+        "--evidence",
+        "parity/evidence/cli-self-comparison.json"
+      ],
+      "exit": 0,
+      "log": "/tmp/worklane50-current-reference-1.log",
+      "tail": "{\"mode\": \"differential\", \"passed\": 39, \"total\": 39}"
+    },
+    {
+      "command": [
+        "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13",
+        "tools/port_parity.py",
+        "--fixtures",
+        "parity/fixtures/runtime.json",
+        "--candidate",
+        "[\"/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13\", \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/tools/port_reference_driver.py\", \"--source\", \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50\"]",
+        "--evidence",
+        "parity/evidence/runtime-self-comparison.json"
+      ],
+      "exit": 0,
+      "log": "/tmp/worklane50-current-reference-2.log",
+      "tail": "{\"mode\": \"differential\", \"passed\": 32, \"total\": 32}"
+    },
+    {
+      "command": [
+        "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13",
+        "tools/port_parity.py",
+        "--fixtures",
+        "parity/fixtures/failures.json",
+        "--candidate",
+        "[\"/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13\", \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/tools/port_reference_driver.py\", \"--source\", \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50\"]",
+        "--evidence",
+        "parity/evidence/failure-self-comparison.json"
+      ],
+      "exit": 0,
+      "log": "/tmp/worklane50-current-reference-3.log",
+      "tail": "{\"mode\": \"differential\", \"passed\": 83, \"total\": 83}"
+    }
+  ],
+  "live_read_only_check": {
+    "project": "sbracegirdle/2",
+    "public": false,
+    "viewerCanUpdate": true,
+    "repository_permission": "ADMIN",
+    "dangerous_override": false
+  },
+  "security_ownership": {
+    "shared": 50,
+    "cli": 51,
+    "tui": 52,
+    "final_gate": 53
+  }
+}

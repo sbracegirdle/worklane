@@ -127,5 +127,6 @@ pub mod board;
 pub mod controller;
 mod queries;
 pub mod read_model;
+pub mod tui;
 mod unicode;
 pub mod workflow;

@@ -62,12 +62,26 @@ pub fn readable(fd: RawFd, deadline: Instant) -> Result<()> {
 }
 /// Bounded capture with simultaneous stdin/stdout/stderr servicing, deadline and descendant cleanup.
 pub fn execute(request: &CommandRequest) -> Result<CommandResult> {
-    capture(request, true)
+    capture(request, true, None)
+}
+/// Cancel only a frontend's in-flight requests, never detached controllers.
+pub fn execute_cancellable(
+    request: &CommandRequest,
+    cancelled: &std::sync::atomic::AtomicBool,
+) -> Result<CommandResult> {
+    capture(request, true, Some(cancelled))
 }
 fn execute_browser(request: &CommandRequest) -> Result<CommandResult> {
-    capture(request, false)
+    capture(request, false, None)
 }
-fn capture(request: &CommandRequest, managed: bool) -> Result<CommandResult> {
+fn capture(
+    request: &CommandRequest,
+    managed: bool,
+    cancelled: Option<&std::sync::atomic::AtomicBool>,
+) -> Result<CommandResult> {
+    if cancelled.is_some_and(|c| c.load(std::sync::atomic::Ordering::Relaxed)) {
+        return Err(Error::new("interrupted", "Dashboard request cancelled."));
+    }
     let argv = &request.argv;
     let exe = argv
         .first()
@@ -111,6 +125,9 @@ fn capture(request: &CommandRequest, managed: bool) -> Result<CommandResult> {
     let mut closed = [false, false];
     let deadline = Instant::now() + request.timeout;
     while !closed.iter().all(|v| *v) || input.is_some() {
+        if cancelled.is_some_and(|c| c.load(std::sync::atomic::Ordering::Relaxed)) {
+            return Err(Error::new("interrupted", "Dashboard request cancelled."));
+        }
         if Instant::now() > deadline {
             return Err(Error::new("busy", format!("{exe} timed out.")));
         }
@@ -160,6 +177,9 @@ fn capture(request: &CommandRequest, managed: bool) -> Result<CommandResult> {
         }
     }
     let status = loop {
+        if cancelled.is_some_and(|c| c.load(std::sync::atomic::Ordering::Relaxed)) {
+            return Err(Error::new("interrupted", "Dashboard request cancelled."));
+        }
         if let Some(s) = child.child.try_wait()? {
             break s;
         }
@@ -287,6 +307,7 @@ pub struct GitHubTransport {
     controller_token: String,
     executor: CommandExecutor,
     browser_executor: CommandExecutor,
+    cancelled: Option<Arc<std::sync::atomic::AtomicBool>>,
 }
 impl GitHubTransport {
     /// Browser and issue commands share the cooldown without creating repository runtime state.
@@ -326,6 +347,7 @@ impl GitHubTransport {
             executable: "gh".into(),
             executor: Arc::new(execute),
             browser_executor: Arc::new(execute_browser),
+            cancelled: None,
             controller_token: crate::string(
                 &state.get_meta("runtime", json!({}))?,
                 "ownership_token",
@@ -340,6 +362,16 @@ impl GitHubTransport {
     pub fn with_executor(mut self, executor: CommandExecutor) -> Self {
         self.executor = executor.clone();
         self.browser_executor = executor;
+        self
+    }
+    pub fn with_cancellation(mut self, cancelled: Arc<std::sync::atomic::AtomicBool>) -> Self {
+        self.budget.busy_timeout = Duration::from_millis(250);
+        let capture_cancel = cancelled.clone();
+        self.executor = Arc::new(move |request| execute_cancellable(request, &capture_cancel));
+        let browser_cancel = cancelled.clone();
+        self.browser_executor =
+            Arc::new(move |request| capture(request, false, Some(&browser_cancel)));
+        self.cancelled = Some(cancelled);
         self
     }
     fn timestamp(&self) -> Result<f64> {
@@ -362,8 +394,27 @@ impl GitHubTransport {
     pub fn snapshot(&self) -> Result<Value> {
         self.budget.get_meta("github_backoff", json!({}))
     }
+    fn budget_lock(&self) -> Result<crate::process::LockGuard> {
+        let path = self.budget.path.join("budget.lock");
+        if let Some(cancelled) = &self.cancelled {
+            loop {
+                if cancelled.load(std::sync::atomic::Ordering::Relaxed) {
+                    return Err(Error::new("interrupted", "Dashboard request cancelled."));
+                }
+                match ProcessSupervisor::lock(&path, false) {
+                    Ok(lock) => break Ok(lock),
+                    Err(error) if error.kind == "busy" => {
+                        std::thread::sleep(Duration::from_millis(10))
+                    }
+                    Err(error) => return Err(error),
+                }
+            }
+        } else {
+            ProcessSupervisor::lock(&path, true)
+        }
+    }
     pub fn clear(&self, previous: &Value) -> Result<()> {
-        let _l = ProcessSupervisor::lock(&self.budget.path.join("budget.lock"), true)?;
+        let _l = self.budget_lock()?;
         if self.snapshot()? == *previous {
             self.budget.set_meta("github_backoff", &json!({}))?;
         }
@@ -390,7 +441,7 @@ impl GitHubTransport {
         Ok(())
     }
     pub fn call(&self, request: &CommandRequest) -> Result<CommandResult> {
-        let _l = ProcessSupervisor::lock(&self.budget.path.join("budget.lock"), true)?;
+        let _l = self.budget_lock()?;
         self.check()?;
         let mut result = self.raw_call(request, true);
         if let Err(error) = &mut result {

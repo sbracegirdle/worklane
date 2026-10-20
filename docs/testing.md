@@ -1,5 +1,8 @@
 # Testing
 
+Native PTYs: `WORKLANE_TEST_RUST=1 uv run --no-project python -m unittest -v test_native_tui`; `WORKLANE_TUI_BIN` selects installed candidates.
+Controlled GitHub/providers cover groups 11–12; `runtime/examples/tui-controller-probe.rs` exercises native controller ownership without dispatching agents.
+
 See the [README](../README.md#develop) for development and test commands.
 
 Tests use temporary state and mocked GitHub/agent responses. They cover concurrency,

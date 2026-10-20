@@ -1,11 +1,35 @@
 """Native acceptance evidence must bind the tested binary and unchanged assertions."""
 import copy
+from pathlib import Path
+import subprocess
+import tempfile
 import unittest
-from tools.native_validate import acceptance_checks, runtime_failures
+from unittest.mock import patch
+from tools.native_validate import acceptance_checks, runtime_failures, upstream_changes
 from tools.port_gate import contract_hash
 
 
 class NativeEvidenceTests(unittest.TestCase):
+    def test_pinned_parent_accepts_its_merged_tree_but_rejects_upstream_drift_and_unrelated_pins(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            def git(*args):
+                return subprocess.check_output(['git',*args],cwd=root,text=True,stderr=subprocess.PIPE).strip()
+            git('init','-q','-b','main');git('config','user.name','Fixture');git('config','user.email','fixture@example.invalid')
+            (root/'reference').write_text('oracle');git('add','.');git('commit','-qm','oracle')
+            oracle=git('rev-parse','HEAD')
+            (root/'native').write_text('reviewed runtime');git('add','.');git('commit','-qm','parent')
+            parent=git('rev-parse','HEAD');git('checkout','-qb','candidate')
+            (root/'cli').write_text('CLI');git('add','.');git('commit','-qm','candidate')
+            with patch('tools.native_validate.ROOT',root):
+                self.assertEqual(upstream_changes(parent,parent),[])
+                self.assertEqual(upstream_changes(oracle,parent),['native'])
+                git('checkout','-q','main');(root/'unreviewed').write_text('change');git('add','.');git('commit','-qm','unreviewed')
+                unrelated=git('rev-parse','HEAD');git('checkout','-q','candidate')
+                self.assertEqual(upstream_changes(parent,unrelated),['unreviewed'])
+                with self.assertRaises(subprocess.CalledProcessError):upstream_changes(unrelated,unrelated)
+                with self.assertRaises(ValueError):upstream_changes('main',parent)
+
     def test_runtime_stage_keeps_full_contract_hash_and_later_stage_obligations(self):
         inventory={'revision':'pin','language':'Rust','checks':{'runtime':{},'cli':{}},
                    'matrix':[{'id':'runtime','stage':'runtime','checks':['runtime']},

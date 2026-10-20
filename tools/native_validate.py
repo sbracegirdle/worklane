@@ -37,6 +37,15 @@ def checked_inputs():
             for path in sorted(set(paths))}
 
 
+def upstream_changes(base, current_main):
+    """A stacked candidate compares upstream changes with its assigned pinned parent."""
+    resolved=subprocess.check_output(['git','rev-parse','--verify',base+'^{commit}'],cwd=ROOT,text=True).strip()
+    if resolved!=base:
+        raise ValueError('Validation base must be an exact full commit SHA.')
+    subprocess.run(['git','merge-base','--is-ancestor',base,'HEAD'],cwd=ROOT,check=True,capture_output=True)
+    return subprocess.check_output(['git','diff','--name-only',base,current_main],cwd=ROOT,text=True).splitlines()
+
+
 def admit_reports(manifest):
     """Reconcile every acceptance driver and fixture against the current binary."""
     inventory_sha=hashlib.sha256((ROOT/'parity/inventory.json').read_bytes()).hexdigest()
@@ -94,6 +103,7 @@ def runtime_failures(manifest, reports):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--base-revision',help='Exact assigned parent SHA for a stacked candidate; the executable oracle stays pinned.')
     mode=parser.add_mutually_exclusive_group()
     mode.add_argument('--assess-only',action='store_true',help='Reconcile existing evidence; never claim stale full checks passed.')
     mode.add_argument('--refresh-native',action='store_true',help='Run native acceptance/fixtures; retain the separate full-suite freshness requirement.')
@@ -183,14 +193,15 @@ def main():
                      'missing_check_count':len(missing),'source_audit_required':source_audit})
     unverified = [row['id'] for row in rows if row['status']!='complete']
     current_main=subprocess.check_output(['git','rev-parse','origin/main'],cwd=ROOT,text=True).strip()
-    main_drift=subprocess.check_output(['git','diff','--name-only',manifest['revision'],current_main],cwd=ROOT,text=True).splitlines()
+    validation_base=args.base_revision or manifest['revision']
+    main_drift=upstream_changes(validation_base,current_main)
     full_inputs=inputs if full_run else previous.get('checked_inputs')
     checks_current=(full_inputs==checked_inputs() and len(results)==len(commands))
     binary_hash=hashlib.sha256((ROOT/'target/debug/runtime-fixture-adapter').read_bytes()).hexdigest()
     core=assess_core(ROOT,manifest['revision'],binary_hash,results,checks_current,main_drift)
     report = {**core,'candidate_revision':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
               'candidate_inputs_sha256':hashlib.sha256(json.dumps(checked_inputs(),sort_keys=True).encode()).hexdigest(),
-              'reference':manifest['revision'],'current_main':current_main,'upstream_drift':main_drift,'candidate_hashes':runtime['candidate_hashes'],
+              'reference':manifest['revision'],'validation_base':validation_base,'current_main':current_main,'upstream_drift':main_drift,'candidate_hashes':runtime['candidate_hashes'],
               'environment':{key:env[key] for key in ('UV_CACHE_DIR','WORKLANE_TEST_RUST','WORKLANE_TEST_INSTALL','WORKLANE_TEST_OPENCODE')},
               'commands':results,'acceptance_checks':len(acceptance['results']),
               'checked_inputs':full_inputs,'checks_current':checks_current,

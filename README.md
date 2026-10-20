@@ -68,7 +68,7 @@ agents, creating local state, or requiring the board's workflow statuses or Code
 ## Board and handoff behavior
 The board uses **Ready for work**, **In Progress**, **Agent review** and
 **Human review** statuses. Worklane creates isolated worktrees and PRs; it does
-not merge, deploy or publish releases. No project configuration files are needed.
+not merge, deploy or publish releases. Optional [configuration](docs/configuration.md) has a first-use TUI walkthrough.
 
 ## Add issues
 
@@ -86,6 +86,7 @@ worklane add -t "Fix startup" --repo ~/code/another-project --project OWNER/NUMB
 
 - [Operations](docs/operations.md): board setup, options, review, recovery and limits.
 - [Dashboard](docs/dashboard.md): controls and session access.
+- [Configuration](docs/configuration.md): setup walkthrough, settings and overrides.
 - [Storage](docs/storage.md): SQLite design, migration and backups.
 - [Testing](docs/testing.md): test coverage and validation limits.
 - [Local installations](docs/installation.md): test unmerged changes and identify the installed revision.

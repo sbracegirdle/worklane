@@ -41,7 +41,7 @@ ACTIVE = {"building", "reviewing", "finalizing", "claiming"}
 ROLES = {"build": "worker", "review": "reviewer", "finalize": "finalizer"}
 CONFIG_FILE = ".worklane.toml"
 CONFIG_DEFAULTS = {"harness": "codex", "workers": 3, "model": "",
-                   "effort": "high", "interval": 60, "project": "",
+                   "effort": "high", "interval": 60, "project": "", "stack_dependencies": [], "completion_gates": [],
                    **{f"{role}_{option}": "" for role in ROLES.values() for option in ("harness", "model")}}
 
 
@@ -66,6 +66,25 @@ def validate_config(values):
         raise ValueError("interval must be an integer of at least 10 seconds.")
     if not isinstance(config["project"], str) or (config["project"] and not re.fullmatch(r"[\w-]+/[1-9]\d*", config["project"])):
         raise ValueError("project must be OWNER/NUMBER, or empty for automatic discovery.")
+    edges = config["stack_dependencies"]
+    gates = config["completion_gates"]
+    if not isinstance(edges, list) or any(not isinstance(edge, str) or not re.fullmatch(r"[1-9]\d*:[1-9]\d*", edge) for edge in edges):
+        raise ValueError("stack_dependencies must list CHILD:PARENT issue numbers.")
+    if not isinstance(gates, list) or any(type(gate) is not int or gate < 1 for gate in gates):
+        raise ValueError("completion_gates must list positive issue numbers.")
+    graph = {}
+    for edge in edges:
+        child, parent = map(int, edge.split(":"))
+        if parent in gates:
+            raise ValueError(f"Completion gate #{parent} cannot be stackable.")
+        graph.setdefault(child, set()).add(parent)
+    def visit(node, trail):
+        if node in trail:
+            raise ValueError("stack_dependencies contains a cycle.")
+        for parent in graph.get(node, ()):
+            visit(parent, trail | {node})
+    for child in graph:
+        visit(child, set())
     return config
 
 
@@ -195,7 +214,10 @@ cannot resolve an addressed thread, report blocked. Never resolve all threads
 indiscriminately or treat an outdated thread as automatically addressed. On retry,
 check existing replies/resolution before repeating external actions.
 Commit your changes, push the assigned branch without force, and create/update one
-PR against the repository default branch, with a closing reference to the issue.
+PR against task.base (the immediate parent for a stack), with a closing reference to the issue.
+Use task.base_sha as the pinned starting revision when supplied. Preserve stack
+provenance and include an ordered list of ancestor PR links and exact heads in the
+PR description; keep each layer's diff against its immediate parent reviewable.
 Do not request human review yet. Do not alter the primary checkout or shared
 integration branch; the serialized reviewer will prepare required local previews.
 For question-labelled issues, investigate and return findings without a PR.
@@ -581,6 +603,11 @@ class State:
 
     def pause(self, value):
         self.set_meta("control", {"paused": value, "updated_at": now()})
+
+    def dependency_blocks(self):
+        with self.connect() as db:
+            owners = [row[0] for row in db.execute("SELECT DISTINCT owner FROM state_values WHERE owner LIKE 'meta:dependency:%'")]
+            return {owner.rsplit(":", 1)[1]: self._get(db, owner) for owner in owners if self._get(db, owner).get("reason")}
 
     def request_stop(self, immediate=False):
         with self.connect() as db:
@@ -1215,6 +1242,216 @@ class Runner:
         self.workers = tuple(f"worker-{i + 1}" for i in range(getattr(args, "workers", len(WORKERS))))
         self.budget = GitHubBudget(state)
 
+    def stack_policy(self):
+        config = load_config(self.root)
+        return {tuple(map(int, edge.split(":"))) for edge in config["stack_dependencies"]}, set(config["completion_gates"])
+
+    def dependency_block(self, item, reason):
+        item["dependency_reason"] = reason
+        self.state.set_meta(f"dependency:{item['content']['number']}", {"reason": reason, "at": now()})
+        return False
+
+    def dependencies_ready(self, item, task=None):
+        edges, gates = self.stack_policy()
+        number = item["content"]["number"]
+        saved = task or self.state.load(number)
+        if not any(child == number for child, _ in edges) and not saved.get("stack") and not gates:
+            return self.board.dependencies_ready(item)
+        # Only explicit policy adds reads; unchanged controllers retain their budget.
+        owner, name = self.repo.split("/")
+        data = graphql("""query($owner:String!, $name:String!, $number:Int!) {
+          repository(owner:$owner, name:$name) { issue(number:$number) {
+            issueDependenciesSummary { blockedBy }
+          } }
+        }""", {"owner": owner, "name": name, "number": number})
+        count = dependency_count((data.get("repository") or {}).get("issue") or {})
+        item["blocked_by_count"] = count
+        pages = gh("api", f"repos/{self.repo}/issues/{number}/dependencies/blocked_by?per_page=100", "--paginate", "--slurp")
+        dependencies = [dependency for page in pages for dependency in page]
+        if any(d.get("state") not in {"open", "closed"} for d in dependencies):
+            return self.dependency_block(item, "Incomplete dependency states; inspect GitHub.")
+        opened = [d for d in dependencies if d["state"] == "open"]
+        if len(opened) != count:
+            return self.dependency_block(item, "Dependency list changed or is incomplete; retry next poll.")
+        parents = []
+        for dependency in dependencies:
+            parent_number = dependency["number"]
+            if dependency.get("repository_url", "").casefold() != f"https://api.github.com/repos/{self.repo}".casefold():
+                if dependency["state"] == "open":
+                    return self.dependency_block(item, "Open external dependency requires completion.")
+                continue
+            if parent_number in gates:
+                gate = self.state.load(parent_number)
+                head = gate.get("merged_head_sha")
+                if (dependency["state"] != "closed" or gate.get("phase") != "done" or gate.get("completion_source") != "merged_pr"
+                        or not re.fullmatch(r"[0-9a-f]{40}", head or "") or gate.get("head_sha") != head
+                        or any(gate.get(key, {}).get("verdict") != "pass" or gate.get(key, {}).get("head_sha") != head
+                               or gate.get(key, {}).get("findings") for key in ("review_result", "handoff_result"))):
+                    return self.dependency_block(item, f"Hard completion gate #{parent_number} requires its verified merged handoff.")
+            if dependency["state"] == "closed":
+                continue
+            if (number, parent_number) not in edges:
+                return self.dependency_block(item, f"Hard dependency #{parent_number} must complete; edge is not opted into stacking.")
+            try:
+                _, pr = self.reviewed_parent(parent_number)
+            except GitHubRateLimit:
+                raise
+            except RuntimeError as error:
+                return self.dependency_block(item, str(error))
+            parents.append({"number": parent_number, "pr_url": pr["url"], "branch": pr["headRefName"],
+                            "base": pr["baseRefName"], "head_sha": pr["headRefOid"], "reviewed_head": pr["headRefOid"]})
+        if len(parents) > 1:
+            return self.dependency_block(item, "Multiple open stack parents are unsupported; wait for completion or choose a linear dependency chain.")
+        stack = []
+        if parents:
+            parent = self.state.load(parents[0]["number"])
+            stack = [*parent.get("stack", []), parents[0]]
+            if number in [edge["number"] for edge in stack] or len({edge["number"] for edge in stack}) != len(stack):
+                return self.dependency_block(item, "Dependency stack cycle detected.")
+            if saved.get("stack") and saved["stack"] != stack:
+                return self.dependency_block(item, "Pinned upstream head changed; restack and independent review required.")
+        item["stack_plan"] = stack
+        item.pop("dependency_reason", None)
+        self.state.set_meta(f"dependency:{number}", {"reason": "", "at": now()})
+        return True
+
+    def reviewed_parent(self, number):
+        parent = self.state.load(number)
+        current = next((item for item in getattr(self, "stack_items", []) if item["content"]["number"] == number), None)
+        if (parent.get("phase") != "human_review" or parent.get("stack_blocked") or parent.get("restack_pending")
+                or not current or self.board.item_status(current) != HUMAN.casefold()
+                or parent.get("human_feedback_pending") or parent.get("human_feedback")
+                or number in getattr(self, "feedback_unavailable", set())):
+            raise RuntimeError(f"Stack parent #{number} is not ready in Human review.")
+        head = parent.get("head_sha")
+        if (not re.fullmatch(r"[0-9a-f]{40}", head or "")
+                or any(parent.get(key, {}).get("verdict") != "pass" or parent.get(key, {}).get("head_sha") != head
+                       or parent.get(key, {}).get("findings") for key in ("review_result", "handoff_result"))):
+            raise RuntimeError(f"Stack parent #{number} lacks independent review and handoff at its exact head.")
+        pr = self.pr(parent["pr_url"])
+        if (pr.get("isCrossRepository", False) or pr["state"] != "OPEN" or pr["isDraft"] or pr.get("mergeable") != "MERGEABLE"
+                or pr["headRefOid"] != head or pr["headRefName"] != parent["branch"] or pr["baseRefName"] != parent["base"]):
+            raise RuntimeError(f"Stack parent #{number} PR changed, conflicted or closed.")
+        self.refresh_review_threads(parent, require_resolved=True)
+        if self.human_feedback(parent) != parent.get("human_feedback_seen", {}):
+            raise RuntimeError(f"Stack parent #{number} has unprocessed human feedback.")
+        return parent, {**pr, "url": parent["pr_url"]}
+
+    def validate_stack(self, task):
+        if task.get("stack_blocked") or task.get("restack_pending"):
+            raise RuntimeError(task.get("stack_blocked") or "Restack is incomplete.")
+        for edge in task.get("stack", []):
+            _, pr = self.reviewed_parent(edge["number"])
+            if (pr["headRefName"] != edge["branch"] or pr["baseRefName"] != edge["base"] or pr["headRefOid"] != edge["head_sha"]):
+                raise RuntimeError(f"Stack prerequisite #{edge['number']} changed; reconcile the stack before continuing.")
+
+    def reconcile_stacks(self, items, active_numbers=()):
+        self.stack_items = items
+        by_number = {item["content"]["number"]: item for item in items}
+        for task in sorted(self.state.all(), key=lambda task: len(task.get("stack", []))):
+            if (not task.get("stack") and not task.get("restack_pending")) or task.get("phase") == "done" or task["number"] in active_numbers:
+                continue
+            current = by_number.get(task["number"])
+            if not current:
+                continue
+            last = self.state.get_meta(f"stack_poll:{task['number']}", 0)
+            if not task.get("stack_blocked") and not task.get("restack_pending") and time.time() - last < 300:
+                continue
+            try:
+                remaining = []
+                for edge in task["stack"]:
+                    parent = self.state.load(edge["number"])
+                    pr = self.pr(edge["pr_url"])
+                    if pr["state"] == "MERGED":
+                        if pr["headRefOid"] != edge["head_sha"]:
+                            raise RuntimeError(f"Merged parent #{edge['number']} differs from the pinned reviewed revision.")
+                        continue
+                    if pr["state"] != "OPEN":
+                        raise RuntimeError(f"Parent #{edge['number']} closed without merging.")
+                    parent, pr = self.reviewed_parent(edge["number"])
+                    remaining.append({"number": edge["number"], "pr_url": edge["pr_url"], "branch": pr["headRefName"],
+                                      "base": pr["baseRefName"], "head_sha": pr["headRefOid"], "reviewed_head": pr["headRefOid"]})
+                if remaining == task["stack"] and not task.get("restack_pending"):
+                    task.pop("stack_blocked", None)
+                    self.state.save(task)
+                    self.state.set_meta(f"stack_poll:{task['number']}", time.time())
+                    continue
+                self.restack(task, remaining, current)
+            except GitHubRateLimit:
+                raise
+            except Exception as error:
+                task["stack_blocked"] = str(error)
+                self.state.save(task)
+                print(f"#{task['number']} stack blocked: {error}", flush=True)
+
+    def restack(self, task, remaining, item):
+        """Merge forward, never rewrite history; journal before each external change."""
+        target = remaining[-1]["branch"] if remaining else task.get("default_base", self.args.base)
+        command(["git", "fetch", "origin"], cwd=self.root)
+        target_sha = remaining[-1]["head_sha"] if remaining else command(["git", "rev-parse", f"origin/{target}"], cwd=self.root)
+        if command(["git", "rev-parse", f"origin/{target}"], cwd=self.root) != target_sha:
+            raise RuntimeError("Restack target moved before fetch; retry after upstream review.")
+        path = task.get("worker_worktree")
+        if not path or not Path(path).exists():
+            raise RuntimeError("Restore the saved worker worktree before restacking.")
+        if command(["git", "status", "--porcelain"], cwd=path):
+            raise RuntimeError("Worker worktree has changes; preserving them until restacking can proceed cleanly.")
+        if command(["git", "branch", "--show-current"], cwd=path) != task["branch"]:
+            raise RuntimeError("Worker worktree branch changed; inspect before restacking.")
+        pending = task.get("restack_pending")
+        head = command(["git", "rev-parse", "HEAD"], cwd=path)
+        if not pending:
+            if task.get("head_sha") and task["head_sha"] != head:
+                raise RuntimeError("Child head changed outside Worklane; inspect before restacking.")
+            pending = {"old_base": task["base"], "old_head": head, "target": target,
+                       "target_sha": target_sha, "stack": remaining, "started_at": now()}
+            task["restack_pending"] = pending
+            self.state.save(task)
+        if pending["target"] != target or pending["target_sha"] != target_sha or pending["stack"] != remaining:
+            raise RuntimeError("Upstream changed during an interrupted restack; inspect saved restack intent.")
+        if head != pending.get("result_head", pending["old_head"]):
+            # A crash just after merge may precede recording its result. Accept only
+            # our exact two-parent merge, never an arbitrary local revision.
+            parents = command(["git", "show", "-s", "--format=%P", "HEAD"], cwd=path).split()
+            if parents != [pending["old_head"], target_sha]:
+                raise RuntimeError("Local head changed during restack; preserving it for inspection.")
+        if "result_head" not in pending:
+            try:
+                command(["git", "merge", "--no-ff", "--no-edit", target_sha], cwd=path)
+            except RuntimeError:
+                command(["git", "merge", "--abort"], cwd=path)
+                raise RuntimeError("Restack conflicts; merge aborted and original work preserved. Resolve in the saved worker session.") from None
+            pending["result_head"] = command(["git", "rev-parse", "HEAD"], cwd=path)
+            self.state.save(task)
+        if task.get("pr_url"):
+            pr = self.pr(task["pr_url"])
+            if (pr["state"] != "OPEN" or pr["headRefName"] != task["branch"]
+                    or pr["headRefOid"] not in {pending["old_head"], pending["result_head"]}
+                    or pr["baseRefName"] not in {pending["old_base"], target}):
+                raise RuntimeError("Child PR changed during restack; inspect before pushing.")
+            command(["git", "push", "origin", f"HEAD:refs/heads/{task['branch']}"], cwd=path)
+            command(["gh", "pr", "edit", task["pr_url"], "--repo", self.repo, "--base", target])
+            pr = self.pr(task["pr_url"])
+            if pr["headRefOid"] != pending["result_head"] or pr["baseRefName"] != target:
+                raise RuntimeError("Restack push/retarget is not yet verified; saved intent retained.")
+        if task.get("pr_url"):
+            status = self.board.item_status(item)
+            if status == HUMAN.casefold():
+                self.board.move(item, REVIEW, HUMAN)
+                item["status"] = REVIEW
+            elif status != REVIEW.casefold():
+                raise RuntimeError("Restacked PR needs Agent review; move the board item there before retrying.")
+        task.setdefault("stack_history", []).append({"stack": task["stack"], "base": task["base"],
+                                                      "base_sha": task.get("base_sha"), "head_sha": pending["old_head"], "restacked_at": now()})
+        task.update(stack=remaining, base=target, base_sha=target_sha, head_sha=pending["result_head"])
+        # Every changed base/head needs a fresh review in the original role session.
+        for key in ("completed_turns", "review_result", "handoff_result", "stack_blocked"):
+            task.pop(key, None)
+        if task.get("pr_url"):
+            task.update(phase="awaiting_review", round=task.get("round", 0) + 1)
+        task.pop("restack_pending", None)
+        self.state.save(task)
+
     def issue(self, number):
         return gh("issue", "view", str(number), "--repo", self.repo,
                   "--json", "number,title,body,state,labels,comments,url")
@@ -1227,7 +1464,7 @@ class Runner:
     def pr(self, url):
         self.pr_number(url)
         return gh("pr", "view", url, "--repo", self.repo,
-                  "--json", "url,headRefOid,headRefName,baseRefName,state,isDraft,mergeable,mergedAt")
+                  "--json", "url,headRefOid,headRefName,baseRefName,state,isDraft,mergeable,mergedAt,isCrossRepository")
 
     def human_feedback(self, task):
         """Read every page, including inline threads omitted by gh pr view."""
@@ -1387,12 +1624,27 @@ class Runner:
             references = [f"{thread['id']} ({thread['path']})" for thread in unresolved]
             raise RuntimeError("Unresolved PR review threads block completion: " + "; ".join(references))
 
+    def verify_stack_ancestry(self, task, tree):
+        for edge in task.get("stack", []):
+            try:
+                command(["git", "merge-base", "--is-ancestor", edge["head_sha"], "HEAD"], cwd=tree)
+            except RuntimeError:
+                raise RuntimeError(f"Child branch does not contain pinned parent #{edge['number']}; inspect before continuing.") from None
+
     def verify_pr(self, task, sha):
+        self.validate_stack(task)
         pr = self.pr(task["pr_url"])
         if pr["state"] != "OPEN" or pr["headRefOid"] != sha:
             raise RuntimeError("PR was closed or its head changed; a fresh review is required.")
-        if pr["headRefName"] != task["branch"] or pr["baseRefName"] != task["base"]:
+        if pr["headRefName"] != task["branch"] or pr["baseRefName"] != task["base"] or pr.get("isCrossRepository", False):
             raise RuntimeError("PR does not target the assigned branch/base.")
+        if task.get("stack"):
+            command(["git", "fetch", "origin"], cwd=self.root)
+            remote_head = command(["git", "rev-parse", f"origin/{task['branch']}"], cwd=self.root)
+            if remote_head != sha:
+                raise RuntimeError("PR head is not the exact pushed child branch revision.")
+            for edge in task["stack"]:
+                command(["git", "merge-base", "--is-ancestor", edge["head_sha"], sha], cwd=self.root)
         return pr
 
     def post(self, task, stage, result):
@@ -1405,6 +1657,10 @@ class Runner:
         body = marker + f"\nWorklane {stage} ({model})\n\n" + result["summary"]
         if result.get("findings"):
             body += "\n\n" + "\n".join(f"- {f}" for f in result["findings"])
+        if task.get("stack"):
+            body += "\n\nStack (oldest first):\n" + "\n".join(
+                f"- #{edge['number']}: {edge['pr_url']} @ {edge['head_sha']}" for edge in task["stack"])
+            body += f"\n- #{task['number']}: {task.get('pr_url', '')} @ {task.get('head_sha', '')} (base {task['base']})"
         target = task.get("pr_url")
         resource = "pr" if target else "issue"
         target = target or str(task["number"])
@@ -1442,7 +1698,11 @@ class Runner:
             local = subprocess.run(["git", "show-ref", "--verify", "--quiet", f"refs/heads/{task['branch']}"], cwd=self.root).returncode == 0
             if local:
                 raise RuntimeError(f"Branch {task['branch']} already exists without a saved worktree; inspect before retrying.")
-            start = f"origin/{task['branch']}" if remote else f"origin/{task['base']}"
+            start = f"origin/{task['branch']}" if remote else task.get("base_sha") or f"origin/{task['base']}"
+            if task.get("stack") and not remote:
+                actual = command(["git", "rev-parse", f"origin/{task['base']}"], cwd=self.root)
+                if actual != task["base_sha"]:
+                    raise RuntimeError("Stack parent branch changed before worktree creation.")
             command(["git", "worktree", "add", "-b", task["branch"], str(path), start], cwd=self.root)
         task["review_worktree" if review else "worker_worktree"] = str(path)
         self.state.save(task)
@@ -1456,7 +1716,9 @@ class Runner:
         return completed[stage]
 
     def build(self, task):
+        self.validate_stack(task)
         tree = self.worktree(task)
+        self.verify_stack_ancestry(task, tree)
         self.refresh_review_threads(task)
         # Explicitly supply primary-checkout instructions even when untracked there.
         instructions = self.root / "AGENTS.md"
@@ -1665,6 +1927,8 @@ class Runner:
 
     def recover(self, items, slot):
         for task in self.state.all():
+            if task.get("stack_blocked") or task.get("restack_pending"):
+                continue
             if task.get("phase") not in {"interrupted", "retry"}:
                 continue
             stage = task.get("resume_stage", task.get("active_stage", "build"))
@@ -1675,7 +1939,7 @@ class Runner:
                 task.update(phase="blocked", error="Saved item is no longer on this board.")
                 self.state.save(task)
                 continue
-            if not self.board.dependencies_ready(current):
+            if not self.dependencies_ready(current, task):
                 continue
             status = current.get("status", "").casefold()
             expected = PROGRESS if stage == "build" else REVIEW
@@ -1724,9 +1988,11 @@ class Runner:
         number = item["content"]["number"]
         previous = self.state.load(number)
         review = slot == REVIEWER
+        if previous.get("stack_blocked") or previous.get("restack_pending"):
+            return None
         if previous.get("phase") in {"done", "blocked", "interrupted"} or previous.get("phase") in ACTIVE:
             return None
-        if not self.board.dependencies_ready(item):
+        if not self.dependencies_ready(item, previous):
             return None
         if not review and previous.get("human_feedback_pending"):
             if (number in getattr(self, "feedback_unavailable", set())
@@ -1759,6 +2025,11 @@ class Runner:
                 raise RuntimeError("Ready issue already has a linked PR; inspect it or move it to Agent review instead of creating duplicate work.")
             task = {"number": number, "branch": f"codex/{number}-worklane", "base": self.args.base,
                     "round": 0, "pr_url": "", "head_sha": "", **previous, "phase": "claiming"}
+        if not previous and item.get("stack_plan"):
+            task["stack"] = item["stack_plan"]
+            task["base"] = task["stack"][-1]["branch"]
+            task["base_sha"] = task["stack"][-1]["head_sha"]
+            task["default_base"] = self.args.base
         task.setdefault("human_feedback_cutoff", previous.get("started_at") or now())
         task.update(item=item, issue=issue, question=question, slot=slot, started_at=now())
         task.pop("completed_turns", None)
@@ -1790,11 +2061,13 @@ class Runner:
                 if not self.state.paused() and time.time() >= backoff.get("until", 0) and len(futures) < len(self.workers) + 1:
                     try:
                         items = self.board.items()
+                        self.stack_items = items
                         with locked(self.state.path / "dispatch.lock"):
                             if not self.state.paused() and not stop.is_set():
                                 self.reconcile_completed(items, {assignments[slot] for slot in futures})
                                 self.reconcile_waiting(items, {assignments[slot] for slot in futures})
                                 self.poll_human_feedback(items, {assignments[slot] for slot in futures})
+                                self.reconcile_stacks(items, {assignments[slot] for slot in futures})
                         for slot in (*self.workers, REVIEWER):
                             if slot in futures or stop.is_set() or self.state.paused():
                                 continue
@@ -1897,7 +2170,7 @@ def harness_flags(options):
 
 def parser():
     p = argparse.ArgumentParser(description="Configurable workers and one independent reviewer for a GitHub project board.")
-    p.add_argument("action", nargs="?", default="tui", choices=["run", "start", "check", "board", "status", "logs", "tui", "config", "pause", "resume", "stop", "retry", "add"],
+    p.add_argument("action", nargs="?", default="tui", choices=["run", "start", "check", "board", "status", "logs", "tui", "config", "pause", "resume", "stop", "retry", "add", "stack"],
                    help="Command to run; board opens the project board in your browser (default: tui)")
     p.add_argument("number", nargs="?", type=int, help="Issue number for retry or logs")
     p.add_argument("--repo", default=".", help="Local repository checkout (default: current directory)")
@@ -2012,9 +2285,15 @@ def main(argv=None):
                 if content:
                     print(f"{entry['created_at']} [{entry['stream']}] {content}")
             return 0
+        if args.action == "stack":
+            tasks = sorted(state.all(), key=lambda task: (len(task.get("stack", [])), task["number"]))
+            print(json.dumps({"policy": {key: load_config(root)[key] for key in ("stack_dependencies", "completion_gates")},
+                              "stack": [{key: task.get(key) for key in ("number", "phase", "pr_url", "branch", "base", "base_sha", "head_sha", "stack", "stack_blocked")} for task in tasks]}, indent=2))
+            return 0
         if args.action == "status":
             runtime = state.get_meta("runtime", {})
             print(json.dumps({"repository": repo, "running": state.running(), "paused": state.paused(),
+                              "dependency_blocks": state.dependency_blocks(),
                               "shutdown": state.get_meta("shutdown", {}), "stop_result": state.get_meta("stop_result", {}),
                               "runtime": runtime, "tasks": state.all(), "runs": state.runs(),
                               "database": str(state.database), "state_dir": str(state.path)}, indent=2))
@@ -2087,12 +2366,19 @@ def main(argv=None):
         if args.action == "check":
             items = board.items()
             ready = [i for i in items if i.get("status", "").casefold() == READY.casefold()]
+            if args.stack_dependencies or args.completion_gates:
+                inspector = Runner(args, repo, root, state, board, None)
+                inspector.stack_items = items
+                for item in ready:
+                    inspector.dependencies_ready(item)
             print(json.dumps({"repository": repo, "board": board.project["url"], "model": args.model or (MODEL if args.harness == "codex" else "harness default"), "harness_options": harness_options,
                               "cli": installation_info(),
                               "harness": args.harness, "effort": args.effort,
                               "workers": args.workers, "reviewers": 1,
                               "will_add_agent_review": REVIEW.casefold() not in board.options,
-                              "ready": [i["content"]["number"] for i in ready if i["blocked_by_count"] == 0],
+                              "ready": [i["content"]["number"] for i in ready if not i.get("dependency_reason") and (i["blocked_by_count"] == 0 or i.get("stack_plan"))],
+                              "stack_ready": {str(i["content"]["number"]): i["stack_plan"] for i in ready if i.get("stack_plan") and not i.get("dependency_reason")},
+                              "dependency_reasons": {str(i["content"]["number"]): i["dependency_reason"] for i in ready if i.get("dependency_reason")},
                               "dependency_blocked": {str(i["content"]["number"]): i["blocked_by_count"]
                                                      for i in items if i["blocked_by_count"]},
                               "agent_review": [i["content"]["number"] for i in items if i.get("status", "").casefold() == REVIEW.casefold() and i["blocked_by_count"] == 0]}, indent=2))

@@ -190,3 +190,6 @@ worklane run --model MODEL   # Explicit model override
 `--once` does not continue filling slots or review work completed later in that
 batch. Use continuous mode for the full pipeline. Each project runs its own bounded
 team; limits are per repository, not shared across all projects.
+
+`worklane stack` lists pinned ancestors and PRs; the TUI shows ordered stacks and blockers.
+Single-parent stacks merge forward after upstream changes; conflicts or dirty worktrees block without rewriting history or auto-merging PRs.

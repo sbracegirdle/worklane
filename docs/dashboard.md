@@ -1,5 +1,8 @@
 # Terminal dashboard
 
+Native preview: `cargo run --locked --offline --bin worklane-tui -- --repo PATH`; #53 owns installation cutover.
+Native additions: `z/u` pause/resume, `X` immediate stop, `t` retry, `o` browser; configuration fields use JSON values.
+
 Run `worklane tui` alongside the controller to view local SQLite state. Use
 `--repo PATH` for another checkout and `--refresh 0.5` to change the refresh period
 (default: one second). Issues expand into sessions; viewing and quitting leave agents running.

@@ -1,5 +1,8 @@
 # Rust CLI/TUI core release contract
 
+Native integration: `worklane_runtime::tui::run(Options::new(root))`; `Options.controller` supplies native `run` arguments; standalone `worklane-tui` supports `--controller PATH`.
+Deferred TUI: richer colors, first-use walkthrough, cursor editing, PR badges, fuzzy search; exhaustive parity remains advisory.
+
 Choose **Rust**; Python remains operational until #53 verifies the installed core release.
 The owner’s 2026-10-20 scope supersedes exhaustive shipment gates; inventory coverage remains advisory.
 

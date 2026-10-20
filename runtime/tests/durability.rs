@@ -21,6 +21,38 @@ fn store() -> (tempfile::TempDir, StateStore) {
     let state = StateStore::open("Owner/Repo", Some(root.path())).unwrap();
     (root, state)
 }
+#[test]
+fn injected_quota_is_journaled_once_and_stale_success_cannot_clear_new_failure() {
+    use worklane_runtime::{Dependencies, Error, FixedClock, transport::GitHubTransport};
+    let root = tempfile::tempdir().unwrap();
+    let state = StateStore::with_dependencies(
+        "owner/repo",
+        Some(root.path()),
+        Dependencies {
+            clock: Arc::new(FixedClock("1970-01-01T00:16:40+00:00".into())),
+            ..Dependencies::default()
+        },
+    )
+    .unwrap();
+    let transport = GitHubTransport::new(&state, root.path())
+        .unwrap()
+        .with_executor(Arc::new(|_| Err(Error::quota("fixture quota", 5000.))));
+    let mut error = transport.text(&["fixture"], None).unwrap_err();
+    assert!(error.deferred);
+    let first = transport.snapshot().unwrap();
+    assert_eq!(first["delay"], 60);
+    assert_eq!(first["until"], 5000.);
+    transport.record_quota(&mut error).unwrap();
+    let mut deferred = transport.check().unwrap_err();
+    assert!(deferred.deferred);
+    transport.record_quota(&mut deferred).unwrap();
+    assert_eq!(transport.snapshot().unwrap(), first);
+    let mut next = Error::quota("second failure", 0.);
+    transport.record_quota(&mut next).unwrap();
+    transport.clear(&first).unwrap();
+    assert_eq!(transport.snapshot().unwrap()["delay"], 120);
+    assert_eq!(transport.snapshot().unwrap()["error"], "second failure");
+}
 fn run(state: &StateStore) -> (serde_json::Value, String) {
     let mut task = json!({"number":1,"phase":"building","stack":[{"number":2,"head_sha":"abc"}]});
     state.save(&mut task).unwrap();

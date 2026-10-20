@@ -12,6 +12,14 @@ ROOT = Path(__file__).resolve().parents[1]
 BINARY = ROOT / 'target/debug/runtime-fixture-adapter'
 
 
+def acceptance_inputs(driver):
+    dependencies={
+        'test_native_workflow.py':['tools/port_security_cases.py'],
+        'test_native_lifecycle.py':['test_native_workflow.py','tools/port_security_cases.py'],
+    }
+    return [driver,'tools/native_test_bridge.py',*dependencies.get(driver,[])]
+
+
 def acceptance_report(rows, driver):
     import hashlib
     inventory=ROOT/'parity/inventory.json'
@@ -21,7 +29,7 @@ def acceptance_report(rows, driver):
             'inventory_sha256':hashlib.sha256(inventory.read_bytes()).hexdigest(),
             'candidate':[str(BINARY)],'candidate_hashes':{str(BINARY):digest},'release_sha256':digest,
             'driver':driver,'harness_hashes':{path:hashlib.sha256((ROOT/path).read_bytes()).hexdigest()
-                                            for path in (driver,'tools/native_test_bridge.py')},
+                                            for path in acceptance_inputs(driver)},
             'results':rows}
 
 
@@ -39,7 +47,7 @@ def invoke_rpc(request, handler):
                     reply = {'ok':handler(json.loads(line))}
                 except Exception as error:
                     if isinstance(error, AssertionError): failures.append(error)
-                    reply = {'error':str(error),'retry_at':getattr(error,'retry_at',None),'kind':'quota' if isinstance(error,w.GitHubRateLimit) else
+                    reply = {'error':str(error),'retry_at':getattr(error,'retry_at',None),'deferred':getattr(error,'deferred',False),'kind':'quota' if isinstance(error,w.GitHubRateLimit) else
                              'busy' if isinstance(error,subprocess.TimeoutExpired) else 'io' if isinstance(error,OSError) else 'github'}
                 replies.write(json.dumps(reply).encode()+b'\n'); replies.flush()
     worker = threading.Thread(target=serve,daemon=True)
@@ -102,6 +110,38 @@ def native_graphql(query, variables=None):
     return output['value']
 
 
+class NativeBudget:
+    """The native shared quota journal, with only the raw response injected."""
+    def __init__(self, state):
+        import worklane as w
+        self.repo=state.repo
+        self.root=state.path.parent.parent
+        self.state=w.State('_github',self.root)
+
+    def boundary(self, method, handler=None, **values):
+        import worklane as w
+        from datetime import datetime, timezone
+        def command(event):
+            if handler is None:raise AssertionError('Unexpected budget request: '+repr(event))
+            return {'stdout':handler(),'stderr':'','exit':0}
+        output=invoke_rpc({'op':'budget.call','method':method,'repo':self.repo,
+            'state_root':str(self.root),'real_dependencies':True,
+            'clock':datetime.fromtimestamp(w.time.time(),timezone.utc).isoformat(),**values},command)
+        if 'error' in output:
+            if output['kind']=='quota':raise w.GitHubRateLimit(output['error'],output.get('retry_at') or 0,
+                                                            deferred=output['deferred'])
+            raise RuntimeError(output['error'])
+        return output
+
+    def snapshot(self):return self.boundary('snapshot')['value']
+    def check(self):self.boundary('check')
+    def clear(self, previous):self.boundary('clear',previous=previous)
+    def call(self, invoke):return self.boundary('call',invoke)['value']
+    def record(self, error):
+        output=self.boundary('record',error=str(error),retry_at=error.retry_at,deferred=error.deferred)
+        error.deferred=output['deferred']
+
+
 class NativeBoard:
     """Frozen Board assertions with command responses injected into the native Board."""
     def call(self, method, **values):
@@ -152,11 +192,46 @@ def native_review_threads(runner, url):
                        'state_root':str(runner.state.path.parent.parent)},command)
 
 
+def native_feedback(runner, task):
+    """Run native snapshot parsing with the frozen tests' API and provenance responses."""
+    import worklane as w
+    nodes={}
+    def command(event):
+        args=event['argv'][1:]
+        if 'graphql' in args:
+            body=json.loads(event['stdin'])
+            entry=nodes[body['variables']['id']]
+            editor=runner.feedback_editor(entry)
+            value={'node':{'body':entry.get('body') or '',
+                          'lastEditedAt':None if editor is None else w.now(),
+                          'editor':{'login':editor,'__typename':'User'} if isinstance(editor,str) else None}}
+            text=json.dumps({'data':value})
+        elif args[:2]==['pr','view']:
+            text=json.dumps({'url':args[2],'isDraft':False,'isCrossRepository':False,'mergeable':'MERGEABLE',
+                             **runner.pr(args[2])})
+        elif args[0]=='api' and args[1].endswith('/permission'):
+            trusted=runner.trusted_feedback_user(args[1].split('/')[-2])
+            text=json.dumps({'permission':'write' if trusted else 'read'})
+        else:
+            pages=json.loads(json.dumps(w.gh(*args)))
+            for page in pages:
+                for entry in page:
+                    # Frozen tests mock provenance above the command boundary.
+                    # A node lets the native provenance guard consume that response.
+                    identifier=entry.setdefault('node_id',f'fixture-{args[1]}-{entry["id"]}')
+                    nodes[identifier]=entry
+            text=json.dumps(pages)
+        return {'stdout':text,'stderr':'','exit':0}
+    return invoke_rpc({'op':'workflow.call','method':'human_feedback','repo':runner.repo,
+                       'root':str(runner.root),'state_root':str(runner.state.path.parent.parent),
+                       'task':task,'clock':w.now()},command)
+
+
 def native_dependency_count(issue):
     return object.__new__(NativeBoard).call('dependency_count',issue=issue)
 
 
-def native_assignment(runner, method, *, items=None, selected=None, slot='worker-1'):
+def native_assignment(runner, method, *, items=None, selected=None, slot='worker-1', task=None, saved=None):
     """Run the entire native claim/recovery guard with the frozen tests' fake board/API."""
     import worklane as w
     from unittest.mock import Mock
@@ -166,10 +241,13 @@ def native_assignment(runner, method, *, items=None, selected=None, slot='worker
         'repo','owner','number','project','field','options','required_statuses'}}
     attrs.setdefault('options',statuses)
     last_status={}
+    pr_task={}
+    feedback_nodes={}
     def find(identifier):
         return next((item for item in [*(items or []),*getattr(board,'queue',[]),selected or {}]
                      if item.get('id')==identifier),{'id':identifier})
     def command(event):
+        nonlocal pr_task
         args=event['argv'][1:]
         if 'graphql' in args:
             body=json.loads(event['stdin']);query,variables=body['query'],body['variables']
@@ -177,9 +255,19 @@ def native_assignment(runner, method, *, items=None, selected=None, slot='worker
                 board.require_safe()
                 value={'node':{'public':False,'viewerCanUpdate':True},'repository':{'viewerPermission':'ADMIN'}}
             elif 'ProjectV2Item' in query:
-                current=board.item_status(find(variables['id']));last_status[variables['id']]=current
+                current=board.item_status(find(variables['id']))
+                if (selected and selected.get('id')==variables['id'] and isinstance(board.item_status,Mock)
+                        and hasattr(board,'queue')):
+                    # FakeBoard.move checks its queue, not its mocked parent-status reader.
+                    current=next((i['status'].casefold() for i in board.queue if i['id']==variables['id']),None)
+                last_status[variables['id']]=current
                 value={'node':None if current is None else {'project':attrs.get('project',{'id':'project'}),
                        'fieldValueByName':{'name':current}}}
+            elif 'reviewThreads' in query and isinstance(runner.refresh_review_threads,Mock):
+                value={'repository':{'pullRequest':{'reviewThreads':{'nodes':[],
+                       'pageInfo':{'hasNextPage':False,'endCursor':None}}}}}
+            elif 'lastEditedAt' in query and variables['id'] in feedback_nodes:
+                value={'node':{'body':feedback_nodes[variables['id']]['body'],'lastEditedAt':None,'editor':None}}
             elif isinstance(w.graphql,Mock):value=w.graphql(query,variables)
             elif 'issueDependenciesSummary' in query:
                 ready=board.dependencies_ready(selected or find('item-'+str(variables['number'])))
@@ -189,22 +277,42 @@ def native_assignment(runner, method, *, items=None, selected=None, slot='worker
         elif args[:2]==['issue','view']:text=json.dumps(runner.issue(int(args[2])))
         elif args[:2]==['pr','view']:
             pr=runner.pr(args[2])
+            pr_task=next((t for t in runner.state.all() if t.get('pr_url')==args[2]),{})
             task=runner.state.load((selected or {}).get('content',{}).get('number',1))
             text=json.dumps({'url':args[2],'isCrossRepository':False,'mergeable':'MERGEABLE','state':'OPEN',
                              'headRefName':task.get('branch','codex/1-worklane'),'baseRefName':task.get('base','main'),
                              'headRefOid':task.get('head_sha','a'*40),'isDraft':False,**pr})
+        elif args[0]=='api' and '/dependencies/blocked_by?' in args[1]:text=json.dumps(w.gh(*args))
+        elif args[0]=='api' and args[1].endswith('/permission') and isinstance(runner.human_feedback,Mock):
+            text=json.dumps({'permission':'write'})
+        elif args[0]=='api' and isinstance(runner.human_feedback,Mock):
+            snapshot=runner.human_feedback(pr_task)
+            entries=[]
+            for index,(key,value) in enumerate(snapshot.items()):
+                entry={'id':index,'node_id':key,'body':value.get('body','fixture feedback') if isinstance(value,dict) else str(value),
+                       'user':{'login':'fixture','type':'User'},'created_at':w.now()}
+                entries.append(entry);feedback_nodes[key]=entry
+            text=json.dumps([entries])
         elif args[:2]==['project','item-edit']:
             identifier=args[args.index('--id')+1]
             option=args[-1]
             options=attrs.get('options',statuses)
             status=statuses[next(key for key,value in options.items() if value==option)]
-            board.move(find(identifier),status,statuses[last_status[identifier]])
+            try:
+                board.move(find(identifier),status,statuses[last_status[identifier]])
+            except w.GitHubRateLimit as error:
+                # Frozen direct pick/recover tests raise from FakeBoard.move,
+                # outside a scoped budget. Preserve that preclassified boundary;
+                # real raw-command quota journaling is checked separately.
+                error.deferred=True
+                raise
             text=''
         else:raise AssertionError('Unexpected assignment command: '+repr(args))
         return {'stdout':text,'stderr':'','exit':0}
     output=invoke_rpc({'op':'workflow.call','method':method,'repo':runner.repo,'root':str(runner.root),
         'state_root':str(runner.state.path.parent.parent),'board':attrs,'items':items or [],'item':selected or {},
-        'slot':slot,'clock':w.now(),'feedback_unavailable':list(getattr(runner,'feedback_unavailable',set()))},command)
+        'slot':slot,'clock':w.now(),'feedback_unavailable':list(getattr(runner,'feedback_unavailable',set())),
+        'stack_items':getattr(runner,'stack_items',[]),'task':task or {},'saved':saved},command)
     if items is not None:items[:]=output['items']
     if selected is not None:selected.update(output['item'])
     if 'error' in output:
@@ -215,6 +323,9 @@ def native_assignment(runner, method, *, items=None, selected=None, slot='worker
 
 def native_pick(runner, selected, slot):return native_assignment(runner,'pick',selected=selected,slot=slot)
 def native_recover(runner, items, slot):return native_assignment(runner,'recover',items=items,slot=slot)
+def native_dependencies_ready(runner, selected, task=None):
+    return native_assignment(runner,'dependencies_ready',selected=selected,saved=task)
+def native_validate_stack(runner, task):return native_assignment(runner,'validate_stack',task=task)
 
 
 def native_owned(roots=(),tokens=(),known=None):
@@ -230,6 +341,11 @@ def native_terminate_owned(roots=(),tokens=(),grace=2,known=None):
 
 def native_load_config(root):
     return invoke({'op':'config.resolve','root':str(root)})
+
+
+def native_validate_config(values):
+    try:return invoke({'op':'config.validate','values':values})
+    except RuntimeError as error:raise ValueError(str(error)) from error
 
 
 def native_save_config(root, values):

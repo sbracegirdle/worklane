@@ -12,13 +12,17 @@ import test_config
 import test_dependencies
 import test_sessions
 import test_stop
+import test_human_feedback
+import test_stacking
 from tools.native_test_bridge import (
     ROOT, NativeBoard, native_command, native_graphql, native_rate_limit,
     native_review_threads, native_load_config, native_save_config,
     acceptance_report,
     native_dependency_count, native_pick, native_recover,
     native_owned, native_terminate_owned,
-    invoke,
+    invoke, NativeBudget, native_feedback,
+    native_dependencies_ready, native_validate_stack,
+    native_validate_config,
 )
 
 EVIDENCE = []
@@ -48,7 +52,7 @@ class NativeBoundaryTests(unittest.TestCase):
         EVIDENCE.clear()
         subprocess.run(['cargo','build','--locked','--offline'],cwd=ROOT,check=True,capture_output=True)
         pin=json.loads((ROOT/'parity/inventory.json').read_text())['revision']
-        for filename in ('test_worklane.py','test_config.py','test_dependencies.py','test_sessions.py','test_stop.py','worklane.py'):
+        for filename in ('test_worklane.py','test_config.py','test_dependencies.py','test_sessions.py','test_stop.py','test_human_feedback.py','test_stacking.py','worklane.py'):
             actual=subprocess.check_output(['git','hash-object',filename],cwd=ROOT)
             expected=subprocess.check_output(['git','rev-parse',pin+':'+filename],cwd=ROOT)
             if actual!=expected:raise AssertionError('Frozen oracle drift: '+filename)
@@ -87,6 +91,11 @@ class NativeBoundaryTests(unittest.TestCase):
 for name in unittest.defaultTestLoader.getTestCaseNames(test_worklane.GitHubErrorTests):
     setattr(NativeBoundaryTests,'test_transport_'+name,boundary_case(test_worklane.GitHubErrorTests,name,[
         (w,'command',native_command),(w,'graphql',native_graphql),(w,'rate_limit_error',native_rate_limit)]))
+for name in ('test_rate_limit_backoff_survives_new_runner_and_is_bounded',
+             'test_budget_shared_by_repositories_and_blocks_commands',
+             'test_budget_serializes_calls_across_repository_instances',
+             'test_success_exhausting_last_point_defers_next_request'):
+    setattr(NativeBoundaryTests,'test_budget_'+name,boundary_case(test_worklane.WorklaneTests,name,[(w,'GitHubBudget',NativeBudget)]))
 for name in (
     'test_board_excludes_other_repos_and_non_issues','test_incomplete_board_fails_closed',
     'test_board_paginates_with_project_id_and_retains_all_issues',
@@ -120,6 +129,16 @@ for name in ('test_existing_linked_pr_not_implemented_twice','test_closed_issues
         (w.Runner,'pick',native_pick),(w.Runner,'recover',native_recover)]))
 setattr(NativeBoundaryTests,'test_recovery_human_override',boundary_case(test_sessions.SessionTests,
     'test_recovery_respects_human_board_override',[(w.Runner,'recover',native_recover)]))
+for name in ('test_question_feedback_uses_issue_without_a_pr',
+             'test_reads_all_pages_and_kinds_ignoring_bots_markers_and_approvals',
+             'test_closed_changed_or_retargeted_pr_is_not_reworked'):
+    setattr(NativeBoundaryTests,'test_feedback_'+name,boundary_case(test_human_feedback.HumanFeedbackTests,name,[
+        (w.Runner,'human_feedback',native_feedback)]))
+for name in unittest.defaultTestLoader.getTestCaseNames(test_stacking.StackTests):
+    setattr(NativeBoundaryTests,'test_stack_'+name,boundary_case(test_stacking.StackTests,name,[
+        (w.Runner,'pick',native_pick),(w.Runner,'recover',native_recover),
+        (w.Runner,'dependencies_ready',native_dependencies_ready),(w.Runner,'validate_stack',native_validate_stack),
+        (w,'validate_config',native_validate_config)]))
 for name in ('test_detached_orphan_and_ignoring_descendant_die_without_touching_unrelated',
              'test_stale_pid_cannot_own_unrelated_process'):
     setattr(NativeBoundaryTests,'test_process_'+name,boundary_case(test_stop.StopTests,name,[

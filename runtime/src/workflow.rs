@@ -1214,7 +1214,7 @@ impl Workflow {
         self.state.save(task)
     }
     pub fn execute(&self, task: &mut Value, review: bool, fd: RawFd) -> Result<()> {
-        let outcome = if self.state.get_meta("shutdown", json!({}))?["immediate"] == true {
+        let mut outcome = if self.state.get_meta("shutdown", json!({}))?["immediate"] == true {
             Err(Error::new(
                 "interrupted",
                 "Immediate stop requested before workflow execution.",
@@ -1224,7 +1224,8 @@ impl Workflow {
         } else {
             self.build(task, fd)
         };
-        if let Err(e) = &outcome {
+        if let Err(e) = &mut outcome {
+            self.board.transport.record_quota(e)?;
             if matches!(e.kind, "interrupted" | "quota") {
                 task["resume_stage"] = if e.kind == "quota" {
                     json!(if task["phase"] == "finalizing" {

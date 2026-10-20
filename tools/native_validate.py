@@ -9,8 +9,10 @@ import sys
 
 try:
     from .port_gate import assess
+    from .native_test_bridge import acceptance_inputs
 except ImportError:
     from port_gate import assess
+    from native_test_bridge import acceptance_inputs
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / 'parity/evidence'
@@ -41,7 +43,8 @@ def main():
            'WORKLANE_TEST_INSTALL':'0', 'WORKLANE_TEST_OPENCODE':'0',
            'WORKLANE_NATIVE_EVIDENCE':str(EVIDENCE/'native-acceptance.json'),
            'WORKLANE_NATIVE_BOUNDARY_EVIDENCE':str(EVIDENCE/'native-boundaries.json'),
-           'WORKLANE_NATIVE_WORKFLOW_EVIDENCE':str(EVIDENCE/'native-workflow.json')}
+           'WORKLANE_NATIVE_WORKFLOW_EVIDENCE':str(EVIDENCE/'native-workflow.json'),
+           'WORKLANE_NATIVE_LIFECYCLE_EVIDENCE':str(EVIDENCE/'native-lifecycle.json')}
     commands = [
         ['cargo','fmt','--all','--check'],
         ['cargo','clippy','--all-targets','--locked','--offline','--','-D','warnings'],
@@ -68,6 +71,7 @@ def main():
     security = json.loads((EVIDENCE/'native-security.json').read_text())
     boundary = json.loads((EVIDENCE/'native-boundaries.json').read_text())
     workflow = json.loads((EVIDENCE/'native-workflow.json').read_text())
+    lifecycle = json.loads((EVIDENCE/'native-lifecycle.json').read_text())
     inventory_sha=hashlib.sha256((ROOT/'parity/inventory.json').read_bytes()).hexdigest()
     release_sha=hashlib.sha256((ROOT/'target/debug/runtime-fixture-adapter').read_bytes()).hexdigest()
     passed=set()
@@ -75,7 +79,7 @@ def main():
     for evidence in (acceptance,boundary):
         driver=evidence['driver']
         hashes={path:hashlib.sha256((ROOT/path).read_bytes()).hexdigest()
-                for path in (driver,'tools/native_test_bridge.py')}
+                for path in acceptance_inputs(driver)}
         checks=acceptance_checks(evidence,manifest,inventory_sha,release_sha,hashes)
         passed.update(checks)
         if checks:reports.append(evidence)
@@ -105,6 +109,7 @@ def main():
               'commands':results,'acceptance_checks':len(acceptance['results']),
               'boundary_checks':len(boundary['results']),
               'supplemental_workflow_scenarios':len(workflow['results']),
+              'supplemental_lifecycle_scenarios':len(lifecycle['results']),
               'portable_cases':len(runtime['results']),
               'security_fixtures':{'passed':sum(row['status']=='pass' for row in security['results']),
                                    'total':len(security['results']),'candidate_runtime':security['candidate_runtime']},

@@ -217,7 +217,8 @@ impl Controller {
                     workflow.board.transport.clear(&previous)?;
                     Ok(())
                 })();
-                if let Err(e) = result {
+                if let Err(mut e) = result {
+                    workflow.board.transport.record_quota(&mut e)?;
                     self.state.append_log(
                         None,
                         "controller-error",

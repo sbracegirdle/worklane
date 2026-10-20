@@ -8,13 +8,13 @@
     "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter"
   ],
   "candidate_hashes": {
-    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "c9e0174bb6a7d11b68a16fafe433e97d6198665fbeb285ea3f43d9ba38a54058"
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "a737f6c64617813fe31a6d03eb06607c3bf6fb1b404ba0539ac52b2e0dfde6ed"
   },
-  "release_sha256": "c9e0174bb6a7d11b68a16fafe433e97d6198665fbeb285ea3f43d9ba38a54058",
+  "release_sha256": "a737f6c64617813fe31a6d03eb06607c3bf6fb1b404ba0539ac52b2e0dfde6ed",
   "driver": "test_native_boundaries.py",
   "harness_hashes": {
-    "test_native_boundaries.py": "9c38799df58fe348102d6a6a7fe426bc62df29d832f49bac833287827afff8cd",
-    "tools/native_test_bridge.py": "ad4824cd5867930b4e29f30e222716634e3114107bdf18d1dba50c20beea0d03"
+    "test_native_boundaries.py": "7f3cce639cbebdbe970645f6b9f6e239682f26157efeba928ed3361c7aa41f8c",
+    "tools/native_test_bridge.py": "8690496882321887e513a3d409e705ba08113c0465e948c69fe37591f282f882"
   },
   "results": [
     {
@@ -114,6 +114,38 @@
       }
     },
     {
+      "id": "test_worklane.WorklaneTests.test_budget_serializes_calls_across_repository_instances",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_budget_shared_by_repositories_and_blocks_commands",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_rate_limit_backoff_survives_new_runner_and_is_bounded",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_success_exhausting_last_point_defers_next_request",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
       "id": "test_config.ConfigTests.test_defaults_are_read_only_and_config_is_per_checkout",
       "status": "pass",
       "comparison": "equal",
@@ -186,6 +218,30 @@
       }
     },
     {
+      "id": "test_human_feedback.HumanFeedbackTests.test_closed_changed_or_retargeted_pr_is_not_reworked",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_question_feedback_uses_issue_without_a_pr",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_reads_all_pages_and_kinds_ignoring_bots_markers_and_approvals",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
       "id": "test_stop.StopTests.test_detached_orphan_and_ignoring_descendant_die_without_touching_unrelated",
       "status": "pass",
       "comparison": "equal",
@@ -203,6 +259,86 @@
     },
     {
       "id": "test_sessions.SessionTests.test_recovery_respects_human_board_override",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_active_handoff_revalidates_draft_conflict_and_board_withdrawal",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_all_desktop_edges_remain_hard_completion_dependencies",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_changed_heads_feedback_drafts_and_missing_review_block",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_closed_completion_gate_still_requires_verified_merged_handoff",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_completion_gate_rejects_unreviewed_merged_head",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_exact_reviewed_parent_pins_child_base_and_provenance",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_fan_in_blocks_visibly_instead_of_dropping_an_edge",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_incomplete_native_list_fails_closed_and_cycles_are_rejected",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_interrupted_child_keeps_pinned_revision_and_original_assignment",
+      "status": "pass",
+      "comparison": "equal",
+      "observations": {
+        "frozen_assertions": "pass"
+      }
+    },
+    {
+      "id": "test_stacking.StackTests.test_unlisted_hard_gate_and_external_dependencies_never_stack",
       "status": "pass",
       "comparison": "equal",
       "observations": {

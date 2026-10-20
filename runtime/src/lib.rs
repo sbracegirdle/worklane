@@ -19,6 +19,7 @@ pub struct Error {
     pub kind: &'static str,
     pub message: String,
     pub retry_at: Option<f64>,
+    pub deferred: bool,
 }
 impl Error {
     pub fn new(kind: &'static str, message: impl Into<String>) -> Self {
@@ -26,6 +27,7 @@ impl Error {
             kind,
             message: message.into(),
             retry_at: None,
+            deferred: false,
         }
     }
     pub fn quota(message: impl Into<String>, retry_at: f64) -> Self {
@@ -33,6 +35,7 @@ impl Error {
             kind: "quota",
             message: message.into(),
             retry_at: Some(retry_at),
+            deferred: false,
         }
     }
 }

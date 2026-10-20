@@ -72,9 +72,8 @@ fn run(request: &Value) -> Result<Value> {
             unsafe { libc::_exit(99) }
         }
         "controller.run" => controller_fixture(request),
-        "transport.call" | "board.call" | "workflow.call" | "action.call" | "read.call" => {
-            boundary_fixture(request)
-        }
+        "transport.call" | "board.call" | "workflow.call" | "action.call" | "read.call"
+        | "budget.call" => boundary_fixture(request),
         "security.call" => security_fixture(request),
         "board.project" => {
             let state = state(request)?;
@@ -600,11 +599,13 @@ fn callback(request: &Value) -> Result<Arc<dyn Fn(Value) -> Result<Value> + Send
                 Some("io") => "io",
                 _ => "github",
             };
-            return Err(if kind == "quota" {
+            let mut e = if kind == "quota" {
                 Error::quota(error, value["retry_at"].as_f64().unwrap_or(0.))
             } else {
                 Error::new(kind, error)
-            });
+            };
+            e.deferred = value["deferred"] == true;
+            return Err(e);
         }
         Ok(value["ok"].clone())
     }))
@@ -621,6 +622,35 @@ fn boundary_fixture(request: &Value) -> Result<Value> {
         Ok(transport::CommandResult { stdout:string(&v,"stdout"),stderr:string(&v,"stderr"),exit:v["exit"].as_i64().unwrap_or(0) as i32 })
     }));
     let method = string(request, "method");
+    if request["op"] == "budget.call" {
+        let mut error = Error::quota(
+            string(request, "error"),
+            request["retry_at"].as_f64().unwrap_or(0.),
+        );
+        error.deferred = request["deferred"] == true;
+        let result = match method.as_str() {
+            "record" => transport.record_quota(&mut error).map(|_| Value::Null),
+            "check" => transport.check().map(|_| Value::Null),
+            "snapshot" => transport.snapshot(),
+            "clear" => transport.clear(&request["previous"]).map(|_| Value::Null),
+            "call" => transport
+                .call(&transport::CommandRequest {
+                    argv: vec!["gh".into(), "fixture".into()],
+                    cwd: root,
+                    stdin: None,
+                    timeout: Duration::from_secs(120),
+                    environment: Default::default(),
+                })
+                .map(|v| json!(v.stdout)),
+            _ => fail("Unknown budget boundary method."),
+        };
+        return Ok(match result {
+            Ok(value) => json!({"value":value,"deferred":error.deferred}),
+            Err(e) => {
+                json!({"error":e.message,"kind":e.kind,"retry_at":e.retry_at,"deferred":e.deferred})
+            }
+        });
+    }
     if request["op"] == "read.call" {
         let argv = request["argv"]
             .as_array()
@@ -748,6 +778,42 @@ fn boundary_fixture(request: &Value) -> Result<Value> {
         .collect();
     if matches!(
         method.as_str(),
+        "build" | "review" | "execute" | "worktree" | "verify_pr" | "validate_stack" | "restack"
+    ) {
+        let mut task = request["task"].clone();
+        let lock = flow.state.controller_lock(true)?;
+        let result = match method.as_str() {
+            "build" => flow.build(&mut task, lock.as_raw_fd()).map(|_| Value::Null),
+            "review" => flow
+                .review(&mut task, lock.as_raw_fd())
+                .map(|_| Value::Null),
+            "execute" => flow
+                .execute(&mut task, request["review"] == true, lock.as_raw_fd())
+                .map(|_| Value::Null),
+            "worktree" => flow
+                .worktree(&mut task, request["review"] == true)
+                .map(|p| json!(p)),
+            "verify_pr" => flow.verify_pr(&task, &string(request, "head")),
+            "validate_stack" => flow.validate_stack(&task).map(|_| Value::Null),
+            "restack" => {
+                let mut item = request["item"].clone();
+                let remaining = request["remaining"].as_array().cloned().unwrap_or_default();
+                flow.restack(&mut task, &remaining, &mut item).map(|_| item)
+            }
+            _ => unreachable!(),
+        };
+        let mut output = json!({"task":task});
+        match result {
+            Ok(value) => output["value"] = value,
+            Err(error) => {
+                output["error"] = json!(error.message);
+                output["kind"] = json!(error.kind);
+            }
+        }
+        return Ok(output);
+    }
+    if matches!(
+        method.as_str(),
         "poll"
             | "pick"
             | "recover"
@@ -775,7 +841,7 @@ fn boundary_fixture(request: &Value) -> Result<Value> {
                 .recover(&mut items, &string(request, "slot"))
                 .map(|t| json!(t)),
             "dependencies_ready" => flow
-                .dependencies_ready(&mut item, request.get("saved"))
+                .dependencies_ready(&mut item, request.get("saved").filter(|v| !v.is_null()))
                 .map(|r| json!(r)),
             "reconcile_completed" => flow
                 .reconcile_completed(&items, &active)

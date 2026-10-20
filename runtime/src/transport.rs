@@ -311,10 +311,12 @@ impl GitHubTransport {
     pub fn check(&self) -> Result<()> {
         let s = self.budget.get_meta("github_backoff", json!({}))?;
         if self.timestamp()? < s["until"].as_f64().unwrap_or(0.) {
-            return Err(Error::quota(
+            let mut error = Error::quota(
                 s["error"].as_str().unwrap_or("GitHub cooldown active."),
                 s["until"].as_f64().unwrap_or(0.),
-            ));
+            );
+            error.deferred = true;
+            return Err(error);
         }
         Ok(())
     }
@@ -333,10 +335,29 @@ impl GitHubTransport {
         let delay = (old["delay"].as_f64().unwrap_or(30.) * 2.).clamp(60., 3600.);
         self.budget.set_meta("github_backoff",&json!({"delay":delay as i64,"until":old["until"].as_f64().unwrap_or(0.).max(self.timestamp()?+delay).max(retry),"error":message,"generation":self.budget.deps.ids.next().replace('-',"")}))
     }
+    /// Persist each quota failure once, including failures raised by injected transports.
+    pub fn record_quota(&self, error: &mut Error) -> Result<()> {
+        if error.kind != "quota" || error.deferred {
+            return Ok(());
+        }
+        let _lock = ProcessSupervisor::lock(&self.budget.path.join("budget.lock"), true)?;
+        self.record_error(error)
+    }
+    fn record_error(&self, error: &mut Error) -> Result<()> {
+        if error.kind == "quota" && !error.deferred {
+            self.record(&error.message, error.retry_at.unwrap_or(0.))?;
+            error.deferred = true;
+        }
+        Ok(())
+    }
     pub fn call(&self, request: &CommandRequest) -> Result<CommandResult> {
         let _l = ProcessSupervisor::lock(&self.budget.path.join("budget.lock"), true)?;
         self.check()?;
-        self.raw_call(request, true)
+        let mut result = self.raw_call(request, true);
+        if let Err(error) = &mut result {
+            self.record_error(error)?;
+        }
+        result
     }
     fn raw_call(&self, request: &CommandRequest, budgeted: bool) -> Result<CommandResult> {
         let executor = if budgeted {
@@ -396,9 +417,6 @@ impl GitHubTransport {
                         None
                     };
                     if let Some(r) = probe_rate {
-                        if budgeted {
-                            self.record(&d, r)?;
-                        }
                         return Err(Error::quota(d, r));
                     }
                     if limited.is_none() && p.exit != 0 {
@@ -430,9 +448,6 @@ impl GitHubTransport {
             )?;
         }
         if let Some(retry) = limited {
-            if budgeted {
-                self.record(rate_detail, retry)?;
-            }
             return Err(Error::quota(rate_detail, retry));
         }
         if response.exit != 0 {

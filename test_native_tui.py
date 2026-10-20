@@ -20,11 +20,14 @@ BINARY = Path(os.environ.get('WORKLANE_TUI_BIN', ROOT/'target/debug/worklane-tui
 PROBE = ROOT/'target/debug/examples/tui-controller-probe'
 
 @unittest.skipUnless(os.environ.get('WORKLANE_TEST_RUST') == '1', 'native Rust tests are opt-in')
-class NativeTuiTests(unittest.TestCase):
+class TuiFixture(unittest.TestCase):
+    binary = BINARY
+    command = []
+    refresh = '.05'
     @classmethod
     def setUpClass(cls):
         subprocess.run(['cargo', 'build', '--locked', '--offline', '--bin', 'worklane-tui', '--example', 'tui-controller-probe'], cwd=ROOT, check=True)
-        if BINARY.read_bytes()[:4] != b'\x7fELF':
+        if cls.binary.read_bytes()[:4] != b'\x7fELF':
             raise AssertionError('PTY candidate must be the native ELF executable')
 
     def setUp(self):
@@ -54,7 +57,7 @@ class NativeTuiTests(unittest.TestCase):
         self.addCleanup(os.close, self.master); self.addCleanup(os.close, self.slave)
         self.resize(28, 110)
         self.original_terminal = termios.tcgetattr(self.slave)
-        self.process = subprocess.Popen([str(BINARY), '--repo', str(self.tree), '--project', 'owner/2', '--refresh', '.05', *args], stdin=self.slave, stdout=self.slave, stderr=self.slave, env=self.env)
+        self.process = subprocess.Popen([str(self.binary), *self.command, '--repo', str(self.tree), '--project', 'owner/2', '--refresh', self.refresh, *args], stdin=self.slave, stdout=self.slave, stderr=self.slave, env=self.env, cwd=getattr(self, 'working_directory', None))
         process = self.process
         def cleanup():
             if process.poll() is None:
@@ -116,6 +119,8 @@ class NativeTuiTests(unittest.TestCase):
     def logs(self):
         self.send('\nj\n'); self.until('Logs #1'); self.until('Initial transcript')
 
+@unittest.skipUnless(os.environ.get('WORKLANE_TEST_RUST') == '1', 'native Rust tests are opt-in')
+class NativeTuiTests(TuiFixture):
     def test_group11_live_refresh_unicode_navigation_resize_search_details_quit(self):
         with w.locked(self.state.path/'runner.lock'):
             self.launch()

@@ -320,6 +320,7 @@ impl GitHubTransport {
             controller_token: String::new(),
             executor: Arc::new(execute),
             browser_executor: Arc::new(execute_browser),
+            cancelled: None,
         })
     }
 

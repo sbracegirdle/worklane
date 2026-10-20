@@ -57,7 +57,7 @@ class NativeCliTests(unittest.TestCase):
                     'driver':'test_native_cli.py','input_hashes':{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},
                     'results':cls.observations,'core_release_ready':False,'exhaustive_parity_complete':False,
                     'limits':['Controlled GitHub/provider responses; no live issue writes or provider turns.',
-                              'Native dashboard belongs to #52; installed cutover and end-to-end backlog validation belong to #53.',
+                              'Combined native dashboard/lifecycle evidence is recorded by tools/native_release.py; production cutover remains pending.',
                               'Line-oriented config replaces the terminal form in this CLI layer; exact help/error presentation parity remains advisory.']}
             Path(destination).write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n')
 
@@ -84,7 +84,7 @@ class NativeCliTests(unittest.TestCase):
     def test_offline_version_and_native_dashboard_boundary(self):
         self.observe(scenario('cli.native-identity',[
             {'argv':['--version','--repo','/missing/checkout'],'stdout_contains':['"runtime": "native"','"revision"','"executable"']},
-            {'argv':['tui'],'exit':1,'stderr_contains':['Native TUI','status, logs, config or start']},
+            {'argv':['tui'],'exit':1,'stderr_contains':['terminal']},
             {'argv':['logs','0'],'exit':2,'stderr_contains':['positive integer']},
         ],observe_files=['state/worklane/owner--repo/state.sqlite3']))
         with tempfile.TemporaryDirectory() as directory:

@@ -159,5 +159,7 @@ uv run --no-project python tools/port_gate.py /tmp/differential-cli.json /tmp/di
 - Fixture reports require a registered path, matching hash and case membership; CLI evidence cannot attest to runtime cases.
 - [Failure fixtures](../parity/fixtures/failures.json) inject controlled runtime faults and assert diagnostics, exits, persistence and side effects.
 
-The [native runtime](../runtime/) preserves SQLite v2 and committed turns; Python remains operational.
+The [native runtime](../runtime/) preserves SQLite v2 and committed turns; Python remains the development oracle.
 `uv run --no-project python tools/native_validate.py` gates core scenarios and records advisory unverified rows.
+
+`tools/native_release.py` binds combined installed CLI/PTY/lifecycle evidence to all fourteen core groups; production cutover remains operator-gated.

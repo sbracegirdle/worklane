@@ -1,6 +1,6 @@
 # Worklane
 
-A Python CLI that runs coding workers and an independent reviewer from a GitHub
+A native Rust CLI/TUI that runs coding workers and an independent reviewer from a GitHub
 project board, then hands passing work to a human.
 
 [Source repository](https://github.com/sbracegirdle/worklane) ·
@@ -8,7 +8,7 @@ project board, then hands passing work to a human.
 
 ## Install
 
-Requires Linux, Python 3.11+, [uv](https://docs.astral.sh/uv/getting-started/installation/),
+Requires Linux, Rust 1.85+,
 [GitHub CLI](https://cli.github.com/) and
 [Codex CLI](https://learn.chatgpt.com/docs/codex/cli) or [OpenCode 2.x](https://opencode.ai/docs/cli/).
 
@@ -16,10 +16,10 @@ Requires Linux, Python 3.11+, [uv](https://docs.astral.sh/uv/getting-started/ins
 gh auth login
 gh auth refresh -s project
 codex login # For OpenCode: opencode auth login
-uv tool install git+https://github.com/sbracegirdle/worklane.git
+cargo install --git https://github.com/sbracegirdle/worklane.git --bin worklane --bin worklane-tui --locked
 ```
 
-Make sure `~/.local/bin` is on your PATH.
+Put Cargo's bin directory on PATH; existing installations require the [drained cutover](docs/installation.md).
 
 ## Run
 
@@ -94,14 +94,14 @@ worklane add -t "Fix startup" --repo ~/code/another-project --project OWNER/NUMB
 
 ## Develop
 
-Install the local checkout in editable mode, then run validation:
+Build the native commands; Python/uv provide the pinned regression oracle:
 
 ```sh
 cd ~/code/worklane
-uv tool install --editable .
-uv run python -m unittest -v
-WORKLANE_TEST_INSTALL=1 uv run python -m unittest -v test_installation
-uv run worklane --help
+cargo build --locked
+cargo test --locked --offline
+WORKLANE_TEST_RUST=1 uv run --no-project python -m unittest -q
+target/debug/worklane --help
 ```
 
-Use `uv run worklane check --repo /path/to/project` for a read-only live board check.
+Use `target/debug/worklane check --repo /path/to/project` for a read-only live board check.

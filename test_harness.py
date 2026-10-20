@@ -295,6 +295,26 @@ class HarnessTests(unittest.TestCase):
                 self.backend(fd).run(stage, self.task, self.tree)
                 self.assertEqual(self.state.session(1, role)['session_id'], saved)
 
+    def test_successful_turns_clean_detached_descendants_before_replacing_owner(self):
+        addition = r"""
+pid = os.fork()
+if pid == 0:
+    os.setsid()
+    with (root / 'orphans').open('a') as handle:
+        handle.write(str(os.getpid()) + '\n')
+    fd = os.open('/dev/null', os.O_RDWR)
+    for target in (0, 1, 2): os.dup2(fd, target)
+    os.closerange(3, 1024)
+    time.sleep(60)
+    os._exit(0)
+"""
+        (self.bin / 'opencode').write_text(f'#!{sys.executable}\n' + FAKE_OPENCODE.replace("emit('step_start')", addition + "\nemit('step_start')", 1))
+        with w.locked(self.state.path / 'runner.lock') as fd:
+            for _ in range(2):
+                self.backend(fd).run('build', self.task, self.tree)
+                for pid in (self.root / 'orphans').read_text().splitlines():
+                    self.assertIsNone(w.process_identity(int(pid)))
+
     def test_timeout_retains_session_and_immediate_stop_starts_no_process(self):
         with w.locked(self.state.path / 'runner.lock') as fd:
             backend = self.backend(fd)

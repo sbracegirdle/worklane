@@ -31,7 +31,9 @@ def session_name(repo, number, role, task):
 
 
 def terminate(process):
-    terminate_owned([(process.pid, identity(process.pid))])
+    if process.poll() is not None:
+        return
+    terminate_owned([(process.pid, getattr(process, "worklane_identity", None) or identity(process.pid))])
     try:
         process.wait(timeout=2)
     except subprocess.TimeoutExpired:
@@ -53,6 +55,7 @@ class CodexAppServer:
             ["codex", "app-server", "--listen", "stdio://"], cwd=self.cwd,
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
             start_new_session=True)
+        self.process.worklane_identity = identity(self.process.pid)
         try:
             self.request("initialize", {
                 "clientInfo": {"name": "worklane", "version": "0.1.0"},

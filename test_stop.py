@@ -80,6 +80,45 @@ else:
         self.assertFalse(self.state.running())
         self.assertEqual(self.state.load(1)['phase'], 'building')  # Recovery belongs to next start.
 
+    def test_startup_stop_is_not_overwritten_after_blocking_auth(self):
+        ready, release, ran = (self.root / name for name in ('ready', 'release', 'ran'))
+        script = r"""
+import json, pathlib, sys, time
+from unittest.mock import Mock, patch
+import worklane as w
+root = pathlib.Path(sys.argv[1]); state = w.State('owner/repo', root)
+def command(args, **kwargs):
+ if args[:3] == ['gh', 'auth', 'setup-git']:
+  (root / 'ready').touch()
+  while not (root / 'release').exists(): time.sleep(.01)
+ return ''
+def run(self, stop): (root / 'ran').touch()
+board = Mock(); board.project = {'url':'fake'}
+with patch.object(w, 'repository', return_value=('owner/repo', root, 'main')), patch.object(w, 'State', return_value=state), patch.object(w, 'command', side_effect=command), patch.object(w, 'Board', return_value=board), patch.object(w.shutil, 'which', return_value='/fake'), patch.object(w.Runner, 'run', run), patch.object(w, 'installation_info', return_value={}):
+ raise SystemExit(w.main(['run', '--once']))
+"""
+        process = subprocess.Popen([sys.executable, '-c', script, str(self.root)], start_new_session=True,
+                                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        self.addCleanup(lambda: (release.touch(), terminate_owned([(process.pid, w.process_identity(process.pid))], grace=0), process.wait()))
+        deadline = time.monotonic() + 5
+        while not ready.exists() and time.monotonic() < deadline:
+            time.sleep(.01)
+        self.assertTrue(ready.exists())
+        with patch.object(w, 'repository', return_value=('owner/repo', self.root, 'main')), patch.object(w, 'State', return_value=self.state), redirect_stdout(io.StringIO()):
+            self.assertEqual(w.main(['stop', '--now']), 0)
+        process.wait(timeout=3)
+        self.assertFalse(ran.exists())
+        self.assertTrue(self.state.get_meta('shutdown')['immediate'])
+
+    def test_termination_wrapper_ignores_reaped_pid(self):
+        from worklane_harness import terminate
+        from unittest.mock import Mock
+        process = Mock(pid=os.getpid())
+        process.poll.return_value = 1
+        with patch('worklane_harness.terminate_owned') as cleanup:
+            terminate(process)
+        cleanup.assert_not_called()
+
 
 if __name__ == '__main__':
     unittest.main()

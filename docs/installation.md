@@ -73,3 +73,5 @@ stopped-controller state backup before testing schema changes.
 
 Native CLI preview: `cargo install --path runtime --bin worklane --locked --offline --root /tmp/worklane-cli`.
 Offline `config --show/--save` supports overrides; native dashboard (#52), cutover (#53), and exhaustive presentation parity remain deferred.
+`worklane_runtime::cli::main(Vec<String>) -> i32` takes argv without argv[0]; #53 replaces default/`tui`'s preview boundary with #52's UI, preserving native `run/start`.
+After drain and backup, #53 copies the staged reviewed-main ELF into `~/.local/bin/worklane` and `.venv/bin/worklane`; verify controller revision.

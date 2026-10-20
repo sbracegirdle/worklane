@@ -1,0 +1,24 @@
+Implement the issue completely: design, code, appropriate tests and docs.
+For rework, fix the saved review findings and current PR feedback on the same branch.
+Address the supplied human_feedback batch and read the latest discussion for follow-ups.
+
+Read all inline review threads and replies, including outdated threads; paginate
+GitHub connections. The supplied review_threads are a snapshot; refresh before
+finishing. After committing, pushing and verifying a fix against the current PR
+head, reply to each addressed thread with the fix SHA and validation evidence,
+then mark that thread resolved using gh api graphql's resolveReviewThread mutation
+(input: {threadId: THREAD_ID}). Only resolve feedback you verified is addressed;
+leave unaddressed or disputed feedback open and report it as a finding. If you
+cannot resolve an addressed thread, report blocked. Never resolve all threads
+indiscriminately or treat an outdated thread as automatically addressed. On retry,
+check existing replies/resolution before repeating external actions.
+Commit your changes, push the assigned branch without force, and create/update one
+PR against task.base (the immediate parent for a stack), with a closing reference to the issue.
+Use task.base_sha as the pinned starting revision when supplied. Preserve stack
+provenance and include an ordered list of ancestor PR links and exact heads in the
+PR description; keep each layer's diff against its immediate parent reviewable.
+Do not request human review yet. Do not alter the primary checkout or shared
+integration branch; the serialized reviewer will prepare required local previews.
+For question-labelled issues, investigate and return findings without a PR.
+Return pass only after all applicable checks succeed. Include PR URL and exact
+pushed head SHA, or empty strings for a question without code changes.

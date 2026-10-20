@@ -280,6 +280,14 @@ def reference(destination, revision):
     import io
     with tarfile.open(fileobj=io.BytesIO(archive)) as source:
         source.extractall(destination, filter='data')
+    # Newer pinned checks themselves archive revisions. Give them isolated refs
+    # and read-only object lookup, without sharing an index or checkout writes.
+    objects = Path(subprocess.check_output(['git','rev-parse','--git-path','objects'],cwd=ROOT,text=True).strip())
+    if not objects.is_absolute():
+        objects = ROOT / objects
+    subprocess.run(['git','init','--quiet','--template=','--initial-branch=reference',str(destination)],check=True)
+    (destination/'.git/objects/info/alternates').write_text(str(objects.resolve())+'\n')
+    subprocess.run(['git','update-ref','--no-deref','HEAD',revision],cwd=destination,check=True)
     return [sys.executable, str(destination / 'worklane.py')]
 
 

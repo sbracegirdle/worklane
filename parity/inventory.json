@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "revision": "5122d0abc1b60fa0110d9c90937c6ffa1ab73d3c",
+  "revision": "5b2e19c245af2a8b45b81706237cc6553c0d1bea",
   "planning_revision": "ed9b43bdb6ce25ce9339271ffa986446105f75dd",
   "language": "Rust",
-  "failure_proof_sha256": "12008c5d83ade881469c2f2f060a98e26c65303afb5a25e452e3251d5ea63ae8",
+  "failure_proof_sha256": "2784b2896cc98d02a10f2209fda58dc60889266d9af9206b0cf6aad8b1b8e237",
   "fixture_cases": {
     "parity/fixtures/cli.json": [
       "fixture:cli.help",
@@ -283,6 +283,25 @@
       "test_installation.InstallationTests.test_version_does_not_open_target_repo_state_or_network",
       "test_installation.PreviewInstallTests.test_editable_branch_refresh_pinned_commit_and_restore"
     ],
+    "test_port_parity": [
+      "test_port_parity.DifferentialTests.test_fetch_and_push_use_only_disposable_local_upstream",
+      "test_port_parity.DifferentialTests.test_identical_controlled_transport_and_literal_unicode_input",
+      "test_port_parity.DifferentialTests.test_missing_output_and_changed_failure_exit_are_rejected",
+      "test_port_parity.DifferentialTests.test_only_exact_sandbox_path_is_normalized",
+      "test_port_parity.DifferentialTests.test_pty_resize_unicode_and_signal_exit_are_observed",
+      "test_port_parity.DifferentialTests.test_suppressed_unscripted_transport_error_still_fails_fixture",
+      "test_port_parity.DifferentialTests.test_timeout_cleans_detached_descendant_after_parent_has_exited",
+      "test_port_parity.DifferentialTests.test_timeouts_clean_processes_and_fixture_paths_cannot_escape",
+      "test_port_parity.DifferentialTests.test_tui_uppercase_stop_uses_immediate_control_and_lowercase_drains",
+      "test_port_parity.DifferentialTests.test_unconsumed_and_unexpected_transport_calls_are_rejected",
+      "test_port_parity.EvidenceGateTests.test_fixture_identity_hash_and_case_membership_are_mandatory",
+      "test_port_parity.EvidenceGateTests.test_mixed_release_and_conflicting_check_results_block_cutover",
+      "test_port_parity.EvidenceGateTests.test_real_cli_report_cannot_cover_cases_without_fixture_identity",
+      "test_port_parity.EvidenceGateTests.test_reference_only_skips_or_missing_source_audits_never_establish_parity",
+      "test_port_parity.EvidenceGateTests.test_unknown_fixture_fields_and_bad_command_arrays_fail_closed",
+      "test_port_parity.FailureContractTests.test_every_failure_has_a_specific_deletion_detecting_acceptance_check",
+      "test_port_parity.FailureContractTests.test_terminal_initialization_fixture_rejects_suppressed_failure"
+    ],
     "test_sessions": [
       "test_sessions.SessionTests.test_all_agent_storage_is_sqlite_without_json_or_log_files",
       "test_sessions.SessionTests.test_ambiguous_projects_do_not_create_or_assign_an_arbitrary_project",
@@ -552,6 +571,19 @@
         "## State, recovery and limits"
       ]
     },
+    "docs/port.md": {
+      "sha256": "738ffea9101965a98398bad3439d11aba180b1cb6f39985436dc58cd0a1b1e84",
+      "headings": [
+        "# Rust CLI/TUI parity contract",
+        "## Executable reference",
+        "## Owning stages",
+        "## Command and terminal obligations",
+        "## Runtime invariants",
+        "## Frozen runtime boundary",
+        "## Differential harness",
+        "## Cutover evidence gate"
+      ]
+    },
     "docs/storage.md": {
       "sha256": "1f78af797e8987c8829b49973cfdcd68e7a7efa1f6a04dde93cb08d7e701a397",
       "headings": [
@@ -563,7 +595,7 @@
       ]
     },
     "docs/testing.md": {
-      "sha256": "8504f537018293b9e0096e5ffb54f9ff0d5534389c6865e070b447745d03e118",
+      "sha256": "078cbff9a0a64e5fd1da6806599ca1fdc8c5247eb301acea2613ca8423474b09",
       "headings": [
         "# Testing"
       ]
@@ -593,6 +625,9 @@
     "test_installation.py": {
       "sha256": "77700a2cffc64beb75d38913f49a2c05473224e577823b75f908ee72e19677b7"
     },
+    "test_port_parity.py": {
+      "sha256": "e16f18a2c380e4411f9167c61e2ee14464d6790476ffa7b18f0080edf2b0dd88"
+    },
     "test_sessions.py": {
       "sha256": "779d8b10ad101f299b9cc3ba810f96561b3d0e978b38a1a4b277822286354119"
     },
@@ -610,6 +645,184 @@
     },
     "test_worklane.py": {
       "sha256": "fbe8628b8158a33133e995e5b0a9b30e497720bee550dbfc92b36bb15798dacb"
+    },
+    "tools/parity_git.py": {
+      "sha256": "5b347550f001ba6660281480c9e6ec1ab458827e46f229ee78b5ba3b37e8491c",
+      "symbols": []
+    },
+    "tools/parity_tool.py": {
+      "sha256": "fb60b5f671154ee16f3c1cfd81ca86be6ef294ec05a89d7d42122e7ce6b7479e",
+      "symbols": []
+    },
+    "tools/port_checks.py": {
+      "sha256": "477d6e390762a315a259c0963b2e1d0dc7a30b3439a708035cb4e3e1abc88f36",
+      "symbols": [
+        {
+          "name": "main",
+          "line": 26,
+          "end": 41
+        }
+      ]
+    },
+    "tools/port_failure_audit.py": {
+      "sha256": "f930ee1b0a62a277a39abafd51389fc94fdb1dd0de29ce688b854243ac68d9dc",
+      "symbols": [
+        {
+          "name": "failure_sites",
+          "line": 23,
+          "end": 30
+        },
+        {
+          "name": "suppress",
+          "line": 33,
+          "end": 41
+        },
+        {
+          "name": "command",
+          "line": 44,
+          "end": 47
+        },
+        {
+          "name": "fixture_hits",
+          "line": 50,
+          "end": 69
+        },
+        {
+          "name": "mutation_checks",
+          "line": 116,
+          "end": 142
+        },
+        {
+          "name": "main",
+          "line": 145,
+          "end": 208
+        }
+      ]
+    },
+    "tools/port_failure_cases.py": {
+      "sha256": "b9c1b19a939a37fa515cfbe82bffb289b3870612449c574e0449657bf0bbd386",
+      "symbols": [
+        {
+          "name": "invoke",
+          "line": 17,
+          "end": 366
+        }
+      ]
+    },
+    "tools/port_gate.py": {
+      "sha256": "92cb049d1f5c7e3cf8b9c3514e0c6f45dd1c3ac1d6d6208b38aa680f98d6aea1",
+      "symbols": [
+        {
+          "name": "contract_hash",
+          "line": 11,
+          "end": 12
+        },
+        {
+          "name": "assess",
+          "line": 15,
+          "end": 66
+        },
+        {
+          "name": "main",
+          "line": 69,
+          "end": 78
+        }
+      ]
+    },
+    "tools/port_inventory.py": {
+      "sha256": "e49e304ec48b5deded92cc4b74ca725bc30b61e25466862a240c1b8f8a215297",
+      "symbols": [
+        {
+          "name": "git",
+          "line": 16,
+          "end": 17
+        },
+        {
+          "name": "build",
+          "line": 20,
+          "end": 138
+        },
+        {
+          "name": "build.suite",
+          "line": 59,
+          "end": 60
+        },
+        {
+          "name": "main",
+          "line": 141,
+          "end": 163
+        }
+      ]
+    },
+    "tools/port_parity.py": {
+      "sha256": "b3ae9e648010aee94e2e1b81dd5898458281885e617c603d3d57ca106a744b38",
+      "symbols": [
+        {
+          "name": "validate",
+          "line": 28,
+          "end": 60
+        },
+        {
+          "name": "command_array",
+          "line": 63,
+          "end": 69
+        },
+        {
+          "name": "command_hashes",
+          "line": 72,
+          "end": 73
+        },
+        {
+          "name": "expand",
+          "line": 76,
+          "end": 84
+        },
+        {
+          "name": "normalize",
+          "line": 87,
+          "end": 95
+        },
+        {
+          "name": "terminal",
+          "line": 98,
+          "end": 150
+        },
+        {
+          "name": "terminal.session",
+          "line": 102,
+          "end": 104
+        },
+        {
+          "name": "sandbox",
+          "line": 155,
+          "end": 186
+        },
+        {
+          "name": "execute",
+          "line": 189,
+          "end": 275
+        },
+        {
+          "name": "reference",
+          "line": 278,
+          "end": 283
+        },
+        {
+          "name": "main",
+          "line": 286,
+          "end": 331
+        }
+      ]
+    },
+    "tools/port_reference_driver.py": {
+      "sha256": "3d4419a794cf941ad13448f2f53c483b6ba0e08527fdacb5c7193648cab08518",
+      "symbols": [
+        {
+          "name": "main",
+          "line": 11,
+          "end": 96
+        }
+      ]
     },
     "uv.lock": {
       "sha256": "49c633a4d5acc02e0ac913677ef1d5857b4bef89fbf2928bd82e904fbc7cbab7",
@@ -2286,6 +2499,91 @@
       "source": "test_installation.py:151",
       "end": 162,
       "contract": "check reports cli without changing board"
+    },
+    "test_port_parity.DifferentialTests.test_identical_controlled_transport_and_literal_unicode_input": {
+      "source": "test_port_parity.py:17",
+      "end": 21,
+      "contract": "identical controlled transport and literal unicode input"
+    },
+    "test_port_parity.DifferentialTests.test_missing_output_and_changed_failure_exit_are_rejected": {
+      "source": "test_port_parity.py:23",
+      "end": 26,
+      "contract": "missing output and changed failure exit are rejected"
+    },
+    "test_port_parity.DifferentialTests.test_unconsumed_and_unexpected_transport_calls_are_rejected": {
+      "source": "test_port_parity.py:28",
+      "end": 33,
+      "contract": "unconsumed and unexpected transport calls are rejected"
+    },
+    "test_port_parity.DifferentialTests.test_suppressed_unscripted_transport_error_still_fails_fixture": {
+      "source": "test_port_parity.py:35",
+      "end": 38,
+      "contract": "suppressed unscripted transport error still fails fixture"
+    },
+    "test_port_parity.DifferentialTests.test_timeouts_clean_processes_and_fixture_paths_cannot_escape": {
+      "source": "test_port_parity.py:40",
+      "end": 45,
+      "contract": "timeouts clean processes and fixture paths cannot escape"
+    },
+    "test_port_parity.DifferentialTests.test_fetch_and_push_use_only_disposable_local_upstream": {
+      "source": "test_port_parity.py:47",
+      "end": 51,
+      "contract": "fetch and push use only disposable local upstream"
+    },
+    "test_port_parity.DifferentialTests.test_timeout_cleans_detached_descendant_after_parent_has_exited": {
+      "source": "test_port_parity.py:53",
+      "end": 66,
+      "contract": "timeout cleans detached descendant after parent has exited"
+    },
+    "test_port_parity.DifferentialTests.test_only_exact_sandbox_path_is_normalized": {
+      "source": "test_port_parity.py:68",
+      "end": 70,
+      "contract": "only exact sandbox path is normalized"
+    },
+    "test_port_parity.DifferentialTests.test_pty_resize_unicode_and_signal_exit_are_observed": {
+      "source": "test_port_parity.py:72",
+      "end": 75,
+      "contract": "pty resize unicode and signal exit are observed"
+    },
+    "test_port_parity.DifferentialTests.test_tui_uppercase_stop_uses_immediate_control_and_lowercase_drains": {
+      "source": "test_port_parity.py:77",
+      "end": 83,
+      "contract": "tui uppercase stop uses immediate control and lowercase drains"
+    },
+    "test_port_parity.FailureContractTests.test_every_failure_has_a_specific_deletion_detecting_acceptance_check": {
+      "source": "test_port_parity.py:87",
+      "end": 98,
+      "contract": "every failure has a specific deletion detecting acceptance check"
+    },
+    "test_port_parity.FailureContractTests.test_terminal_initialization_fixture_rejects_suppressed_failure": {
+      "source": "test_port_parity.py:100",
+      "end": 116,
+      "contract": "terminal initialization fixture rejects suppressed failure"
+    },
+    "test_port_parity.EvidenceGateTests.test_reference_only_skips_or_missing_source_audits_never_establish_parity": {
+      "source": "test_port_parity.py:129",
+      "end": 144,
+      "contract": "reference only skips or missing source audits never establish parity"
+    },
+    "test_port_parity.EvidenceGateTests.test_mixed_release_and_conflicting_check_results_block_cutover": {
+      "source": "test_port_parity.py:146",
+      "end": 153,
+      "contract": "mixed release and conflicting check results block cutover"
+    },
+    "test_port_parity.EvidenceGateTests.test_fixture_identity_hash_and_case_membership_are_mandatory": {
+      "source": "test_port_parity.py:155",
+      "end": 181,
+      "contract": "fixture identity hash and case membership are mandatory"
+    },
+    "test_port_parity.EvidenceGateTests.test_real_cli_report_cannot_cover_cases_without_fixture_identity": {
+      "source": "test_port_parity.py:183",
+      "end": 193,
+      "contract": "real cli report cannot cover cases without fixture identity"
+    },
+    "test_port_parity.EvidenceGateTests.test_unknown_fixture_fields_and_bad_command_arrays_fail_closed": {
+      "source": "test_port_parity.py:195",
+      "end": 201,
+      "contract": "unknown fixture fields and bad command arrays fail closed"
     },
     "test_sessions.SessionTests.test_live_input_runs_followup_in_exact_session_before_returning_result": {
       "source": "test_sessions.py:116",
@@ -4571,6 +4869,159 @@
       "source": "test_installation.py:151",
       "checks": [
         "test_installation.InstallationTests.test_check_reports_cli_without_changing_board"
+      ]
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_identical_controlled_transport_and_literal_unicode_input",
+      "surface": "identical controlled transport and literal unicode input",
+      "stage": "runtime",
+      "source": "test_port_parity.py:17",
+      "checks": [
+        "test_port_parity.DifferentialTests.test_identical_controlled_transport_and_literal_unicode_input"
+      ]
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_missing_output_and_changed_failure_exit_are_rejected",
+      "surface": "missing output and changed failure exit are rejected",
+      "stage": "runtime",
+      "source": "test_port_parity.py:23",
+      "checks": [
+        "test_port_parity.DifferentialTests.test_missing_output_and_changed_failure_exit_are_rejected"
+      ]
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_unconsumed_and_unexpected_transport_calls_are_rejected",
+      "surface": "unconsumed and unexpected transport calls are rejected",
+      "stage": "runtime",
+      "source": "test_port_parity.py:28",
+      "checks": [
+        "test_port_parity.DifferentialTests.test_unconsumed_and_unexpected_transport_calls_are_rejected"
+      ]
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_suppressed_unscripted_transport_error_still_fails_fixture",
+      "surface": "suppressed unscripted transport error still fails fixture",
+      "stage": "runtime",
+      "source": "test_port_parity.py:35",
+      "checks": [
+        "test_port_parity.DifferentialTests.test_suppressed_unscripted_transport_error_still_fails_fixture"
+      ]
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_timeouts_clean_processes_and_fixture_paths_cannot_escape",
+      "surface": "timeouts clean processes and fixture paths cannot escape",
+      "stage": "runtime",
+      "source": "test_port_parity.py:40",
+      "checks": [
+        "test_port_parity.DifferentialTests.test_timeouts_clean_processes_and_fixture_paths_cannot_escape"
+      ]
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_fetch_and_push_use_only_disposable_local_upstream",
+      "surface": "fetch and push use only disposable local upstream",
+      "stage": "runtime",
+      "source": "test_port_parity.py:47",
+      "checks": [
+        "test_port_parity.DifferentialTests.test_fetch_and_push_use_only_disposable_local_upstream"
+      ]
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_timeout_cleans_detached_descendant_after_parent_has_exited",
+      "surface": "timeout cleans detached descendant after parent has exited",
+      "stage": "runtime",
+      "source": "test_port_parity.py:53",
+      "checks": [
+        "test_port_parity.DifferentialTests.test_timeout_cleans_detached_descendant_after_parent_has_exited"
+      ]
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_only_exact_sandbox_path_is_normalized",
+      "surface": "only exact sandbox path is normalized",
+      "stage": "runtime",
+      "source": "test_port_parity.py:68",
+      "checks": [
+        "test_port_parity.DifferentialTests.test_only_exact_sandbox_path_is_normalized"
+      ]
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_pty_resize_unicode_and_signal_exit_are_observed",
+      "surface": "pty resize unicode and signal exit are observed",
+      "stage": "runtime",
+      "source": "test_port_parity.py:72",
+      "checks": [
+        "test_port_parity.DifferentialTests.test_pty_resize_unicode_and_signal_exit_are_observed"
+      ]
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_tui_uppercase_stop_uses_immediate_control_and_lowercase_drains",
+      "surface": "tui uppercase stop uses immediate control and lowercase drains",
+      "stage": "tui",
+      "source": "test_port_parity.py:77",
+      "checks": [
+        "test_port_parity.DifferentialTests.test_tui_uppercase_stop_uses_immediate_control_and_lowercase_drains"
+      ]
+    },
+    {
+      "id": "test_port_parity.FailureContractTests.test_every_failure_has_a_specific_deletion_detecting_acceptance_check",
+      "surface": "every failure has a specific deletion detecting acceptance check",
+      "stage": "runtime",
+      "source": "test_port_parity.py:87",
+      "checks": [
+        "test_port_parity.FailureContractTests.test_every_failure_has_a_specific_deletion_detecting_acceptance_check"
+      ]
+    },
+    {
+      "id": "test_port_parity.FailureContractTests.test_terminal_initialization_fixture_rejects_suppressed_failure",
+      "surface": "terminal initialization fixture rejects suppressed failure",
+      "stage": "runtime",
+      "source": "test_port_parity.py:100",
+      "checks": [
+        "test_port_parity.FailureContractTests.test_terminal_initialization_fixture_rejects_suppressed_failure"
+      ]
+    },
+    {
+      "id": "test_port_parity.EvidenceGateTests.test_reference_only_skips_or_missing_source_audits_never_establish_parity",
+      "surface": "reference only skips or missing source audits never establish parity",
+      "stage": "runtime",
+      "source": "test_port_parity.py:129",
+      "checks": [
+        "test_port_parity.EvidenceGateTests.test_reference_only_skips_or_missing_source_audits_never_establish_parity"
+      ]
+    },
+    {
+      "id": "test_port_parity.EvidenceGateTests.test_mixed_release_and_conflicting_check_results_block_cutover",
+      "surface": "mixed release and conflicting check results block cutover",
+      "stage": "runtime",
+      "source": "test_port_parity.py:146",
+      "checks": [
+        "test_port_parity.EvidenceGateTests.test_mixed_release_and_conflicting_check_results_block_cutover"
+      ]
+    },
+    {
+      "id": "test_port_parity.EvidenceGateTests.test_fixture_identity_hash_and_case_membership_are_mandatory",
+      "surface": "fixture identity hash and case membership are mandatory",
+      "stage": "runtime",
+      "source": "test_port_parity.py:155",
+      "checks": [
+        "test_port_parity.EvidenceGateTests.test_fixture_identity_hash_and_case_membership_are_mandatory"
+      ]
+    },
+    {
+      "id": "test_port_parity.EvidenceGateTests.test_real_cli_report_cannot_cover_cases_without_fixture_identity",
+      "surface": "real cli report cannot cover cases without fixture identity",
+      "stage": "cli",
+      "source": "test_port_parity.py:183",
+      "checks": [
+        "test_port_parity.EvidenceGateTests.test_real_cli_report_cannot_cover_cases_without_fixture_identity"
+      ]
+    },
+    {
+      "id": "test_port_parity.EvidenceGateTests.test_unknown_fixture_fields_and_bad_command_arrays_fail_closed",
+      "surface": "unknown fixture fields and bad command arrays fail closed",
+      "stage": "runtime",
+      "source": "test_port_parity.py:195",
+      "checks": [
+        "test_port_parity.EvidenceGateTests.test_unknown_fixture_fields_and_bad_command_arrays_fail_closed"
       ]
     },
     {
@@ -13832,6 +14283,7 @@
         "suite:test_harness",
         "suite:test_human_feedback",
         "suite:test_installation",
+        "suite:test_port_parity",
         "suite:test_sessions",
         "suite:test_stacking",
         "suite:test_stop",
@@ -13858,6 +14310,7 @@
         "suite:test_harness",
         "suite:test_human_feedback",
         "suite:test_installation",
+        "suite:test_port_parity",
         "suite:test_sessions",
         "suite:test_stacking",
         "suite:test_stop",
@@ -13884,6 +14337,7 @@
         "suite:test_harness",
         "suite:test_human_feedback",
         "suite:test_installation",
+        "suite:test_port_parity",
         "suite:test_sessions",
         "suite:test_stacking",
         "suite:test_stop",
@@ -13910,6 +14364,7 @@
         "suite:test_harness",
         "suite:test_human_feedback",
         "suite:test_installation",
+        "suite:test_port_parity",
         "suite:test_sessions",
         "suite:test_stacking",
         "suite:test_stop",
@@ -13936,6 +14391,7 @@
         "suite:test_harness",
         "suite:test_human_feedback",
         "suite:test_installation",
+        "suite:test_port_parity",
         "suite:test_sessions",
         "suite:test_stacking",
         "suite:test_stop",
@@ -13965,6 +14421,41 @@
         "suite:test_harness",
         "suite:test_human_feedback",
         "suite:test_installation",
+        "suite:test_port_parity",
+        "suite:test_sessions",
+        "suite:test_stacking",
+        "suite:test_stop",
+        "suite:test_tui",
+        "suite:test_tui_editing",
+        "suite:test_worklane"
+      ]
+    },
+    {
+      "id": "document.docs/port.md",
+      "surface": {
+        "sha256": "738ffea9101965a98398bad3439d11aba180b1cb6f39985436dc58cd0a1b1e84",
+        "headings": [
+          "# Rust CLI/TUI parity contract",
+          "## Executable reference",
+          "## Owning stages",
+          "## Command and terminal obligations",
+          "## Runtime invariants",
+          "## Frozen runtime boundary",
+          "## Differential harness",
+          "## Cutover evidence gate"
+        ]
+      },
+      "source": "docs/port.md",
+      "stage": "cutover",
+      "checks": [
+        "suite:test_add_issue",
+        "suite:test_api_budget",
+        "suite:test_config",
+        "suite:test_dependencies",
+        "suite:test_harness",
+        "suite:test_human_feedback",
+        "suite:test_installation",
+        "suite:test_port_parity",
         "suite:test_sessions",
         "suite:test_stacking",
         "suite:test_stop",
@@ -13995,6 +14486,7 @@
         "suite:test_harness",
         "suite:test_human_feedback",
         "suite:test_installation",
+        "suite:test_port_parity",
         "suite:test_sessions",
         "suite:test_stacking",
         "suite:test_stop",
@@ -14006,7 +14498,7 @@
     {
       "id": "document.docs/testing.md",
       "surface": {
-        "sha256": "8504f537018293b9e0096e5ffb54f9ff0d5534389c6865e070b447745d03e118",
+        "sha256": "078cbff9a0a64e5fd1da6806599ca1fdc8c5247eb301acea2613ca8423474b09",
         "headings": [
           "# Testing"
         ]
@@ -14021,6 +14513,7 @@
         "suite:test_harness",
         "suite:test_human_feedback",
         "suite:test_installation",
+        "suite:test_port_parity",
         "suite:test_sessions",
         "suite:test_stacking",
         "suite:test_stop",
@@ -14045,6 +14538,7 @@
         "suite:test_harness",
         "suite:test_human_feedback",
         "suite:test_installation",
+        "suite:test_port_parity",
         "suite:test_sessions",
         "suite:test_stacking",
         "suite:test_stop",
@@ -14069,6 +14563,7 @@
         "suite:test_harness",
         "suite:test_human_feedback",
         "suite:test_installation",
+        "suite:test_port_parity",
         "suite:test_sessions",
         "suite:test_stacking",
         "suite:test_stop",

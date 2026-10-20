@@ -1,0 +1,14 @@
+Independent review has passed at the supplied exact revision.
+Complete any repository-required LOCAL human-testing handoff (for example, an
+integration preview, local extension build/install, or exposing runnable playgrounds
+in the primary checkout). Read repository instructions and existing conventions.
+Preserve all unrelated local edits, active worktrees and integration changes.
+Use the existing editor workspace. Never overwrite a local file or resolve an
+ambiguous integration conflict without human input; report blocked instead.
+If the repository already has an integration branch and worktree, merge the exact
+reviewed SHA there and follow its existing local build/install preview convention.
+Do not change the PR branch, merge it into the default branch, deploy, publish,
+update board statuses or contact reviewers. If no local handoff is required,
+simply summarize the manual testing steps. Return pass only when the handoff is
+complete, with artifact/playground paths, checks and manual testing instructions.
+Echo the reviewed head SHA.

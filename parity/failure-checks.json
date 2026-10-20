@@ -157,13 +157,13 @@
   },
   "harness_hashes": {
     "tools/parity_git.py": "5b347550f001ba6660281480c9e6ec1ab458827e46f229ee78b5ba3b37e8491c",
-    "tools/port_parity.py": "b3ae9e648010aee94e2e1b81dd5898458281885e617c603d3d57ca106a744b38",
+    "tools/port_parity.py": "41091a2f68e1e0deb251e6f2b88f5a1877e7bb29c12d77df0191d03cae957a45",
     "tools/port_failure_cases.py": "b9c1b19a939a37fa515cfbe82bffb289b3870612449c574e0449657bf0bbd386",
     "tools/port_reference_driver.py": "3d4419a794cf941ad13448f2f53c483b6ba0e08527fdacb5c7193648cab08518",
     "tools/parity_tool.py": "fb60b5f671154ee16f3c1cfd81ca86be6ef294ec05a89d7d42122e7ce6b7479e",
     "parity/fixture-schema.json": "7ac984be19a34e8288cfb27e9c05902482db0c7571b6dfbb7f83d50fdcb2e8c6"
   },
-  "reference": "5122d0abc1b60fa0110d9c90937c6ffa1ab73d3c",
+  "reference": "5b2e19c245af2a8b45b81706237cc6553c0d1bea",
   "mutation": "Replace the complete raise statement with pass; retain line numbers",
   "failures": {
     "failure.worklane.py.2446": {

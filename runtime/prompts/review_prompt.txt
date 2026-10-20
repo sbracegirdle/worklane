@@ -1,0 +1,11 @@
+Independently review the supplied exact revision and issue acceptance criteria.
+Read the complete diff, issue/PR comments, and worker evidence. Inspect actual test
+assertions and run relevant checks yourself. Review correctness, regressions,
+security, documentation and repository-specific content/quality requirements.
+Read all inline review threads and replies, including outdated threads. Verify
+that resolved feedback is addressed at the supplied head; unresolved feedback must
+be reported as findings, even if a code fix exists but its thread remains open.
+Do not implement fixes or change the PR head. Return changes_requested with concrete
+file/line findings when needed, blocked when unable to assess, and pass only when
+all acceptance criteria and applicable checks pass. Echo the supplied head SHA.
+For a question without a PR, review the investigation and supporting evidence.

@@ -1,0 +1,75 @@
+{
+  "reference": "5b2e19c245af2a8b45b81706237cc6553c0d1bea",
+  "assigned_base": "f480886cf1deb37645ea2b8098523931b8e43ec5",
+  "runtime_diff_from_assigned_base": [],
+  "command": [
+    "uv",
+    "run",
+    "--no-project",
+    "python",
+    "tools/port_failure_audit.py",
+    "--revision",
+    "origin/main",
+    "--output",
+    "/tmp/worklane50-refreshed-failure-checks.json"
+  ],
+  "result": {
+    "exit": 0,
+    "detected": 168,
+    "total": 168,
+    "gaps": []
+  },
+  "proof_sha256": "2784b2896cc98d02a10f2209fda58dc60889266d9af9206b0cf6aad8b1b8e237",
+  "additional_commands": [
+    {
+      "command": [
+        "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13",
+        "tools/port_checks.py",
+        "--evidence",
+        "parity/evidence/reference-checks.json"
+      ],
+      "exit": 0,
+      "tail": "#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n----------------------------------------------------------------------\nRan 324 tests in 40.285s\n\nOK (skipped=2)\n{\"passed\": 322, \"total\": 324, \"reference\": \"5b2e19c245af2a8b45b81706237cc6553c0d1bea\", \"mode\": \"reference-only\"}"
+    },
+    {
+      "command": [
+        "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13",
+        "tools/port_parity.py",
+        "--candidate",
+        "[\"/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13\", \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/worklane.py\"]",
+        "--evidence",
+        "parity/evidence/cli-self-comparison.json"
+      ],
+      "exit": 0,
+      "tail": "{\"mode\": \"differential\", \"passed\": 39, \"total\": 39}"
+    },
+    {
+      "command": [
+        "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13",
+        "tools/port_parity.py",
+        "--fixtures",
+        "parity/fixtures/runtime.json",
+        "--candidate",
+        "[\"/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13\", \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/tools/port_reference_driver.py\", \"--source\", \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50\"]",
+        "--evidence",
+        "parity/evidence/runtime-self-comparison.json"
+      ],
+      "exit": 0,
+      "tail": "{\"mode\": \"differential\", \"passed\": 32, \"total\": 32}"
+    },
+    {
+      "command": [
+        "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13",
+        "tools/port_parity.py",
+        "--fixtures",
+        "parity/fixtures/failures.json",
+        "--candidate",
+        "[\"/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13\", \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/tools/port_reference_driver.py\", \"--source\", \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50\"]",
+        "--evidence",
+        "parity/evidence/failure-self-comparison.json"
+      ],
+      "exit": 0,
+      "tail": "{\"mode\": \"differential\", \"passed\": 83, \"total\": 83}"
+    }
+  ]
+}

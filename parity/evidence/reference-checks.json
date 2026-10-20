@@ -391,6 +391,74 @@
       "reason": "Set WORKLANE_TEST_INSTALL=1 to exercise isolated uv tool installs"
     },
     {
+      "id": "test_port_parity.DifferentialTests.test_fetch_and_push_use_only_disposable_local_upstream",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_identical_controlled_transport_and_literal_unicode_input",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_missing_output_and_changed_failure_exit_are_rejected",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_only_exact_sandbox_path_is_normalized",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_pty_resize_unicode_and_signal_exit_are_observed",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_suppressed_unscripted_transport_error_still_fails_fixture",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_timeout_cleans_detached_descendant_after_parent_has_exited",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_timeouts_clean_processes_and_fixture_paths_cannot_escape",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_tui_uppercase_stop_uses_immediate_control_and_lowercase_drains",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.DifferentialTests.test_unconsumed_and_unexpected_transport_calls_are_rejected",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.EvidenceGateTests.test_fixture_identity_hash_and_case_membership_are_mandatory",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.EvidenceGateTests.test_mixed_release_and_conflicting_check_results_block_cutover",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.EvidenceGateTests.test_real_cli_report_cannot_cover_cases_without_fixture_identity",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.EvidenceGateTests.test_reference_only_skips_or_missing_source_audits_never_establish_parity",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.EvidenceGateTests.test_unknown_fixture_fields_and_bad_command_arrays_fail_closed",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.FailureContractTests.test_every_failure_has_a_specific_deletion_detecting_acceptance_check",
+      "status": "pass"
+    },
+    {
+      "id": "test_port_parity.FailureContractTests.test_terminal_initialization_fixture_rejects_suppressed_failure",
+      "status": "pass"
+    },
+    {
       "id": "test_sessions.SessionTests.test_all_agent_storage_is_sqlite_without_json_or_log_files",
       "status": "pass"
     },
@@ -1231,8 +1299,8 @@
       "status": "pass"
     }
   ],
-  "passed": 305,
-  "total": 307,
-  "reference": "5122d0abc1b60fa0110d9c90937c6ffa1ab73d3c",
+  "passed": 322,
+  "total": 324,
+  "reference": "5b2e19c245af2a8b45b81706237cc6553c0d1bea",
   "mode": "reference-only"
 }

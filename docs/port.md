@@ -14,7 +14,7 @@ Choose **Rust** for the complete port. Python remains operational until stage 5 
 
 ## Executable reference
 
-- Pin: `5122d0abc1b60fa0110d9c90937c6ffa1ab73d3c`; planning baseline: `ed9b43bdb6ce25ce9339271ffa986446105f75dd`.
+- Pin: `5b2e19c245af2a8b45b81706237cc6553c0d1bea`; planning baseline: `ed9b43bdb6ce25ce9339271ffa986446105f75dd`.
 - Include merged OpenCode, process-tree stopping, pinned stacks and hard completion gates; reuse #30/#38 behavior without reimplementing those tickets.
 - [Inventory](../parity/inventory.json): all source/doc hashes, symbol spans, parser defaults/aliases, configuration, terminal branches and explicit failures.
 - [Matrix](../parity/matrix.md): individual executable behavioral checks and owning stages; the JSON also indexes implementation branches.
@@ -155,3 +155,6 @@ uv run --no-project python tools/port_gate.py /tmp/differential-cli.json /tmp/di
 
 - Fixture reports require a registered path, matching hash and case membership; CLI evidence cannot attest to runtime cases.
 - [Failure fixtures](../parity/fixtures/failures.json) inject controlled runtime faults and assert diagnostics, exits, persistence and side effects.
+
+The [native runtime](../runtime/) preserves SQLite v2 and committed turns; Python remains operational.
+`uv run --no-project python tools/native_validate.py` records differential evidence and explicitly lists unverified parity rows.

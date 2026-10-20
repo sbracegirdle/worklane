@@ -2034,7 +2034,7 @@ def main(argv=None):
                 if shutdown["immediate"]:
                     remaining = terminate_owned(roots, tokens)
                     deadline = time.monotonic() + 3
-                    while owned([controller]) and time.monotonic() < deadline:
+                    while (owned([controller]) or state.running()) and time.monotonic() < deadline:
                         time.sleep(.05)
                     remaining += terminate_owned([controller], tokens, grace=0, known=processes)
                     remaining = sorted(set(remaining) | set(owned(known=processes)))
@@ -2107,14 +2107,15 @@ def main(argv=None):
                 child_args.extend(["--" + name, str(getattr(args, name))])
             if args.once:
                 child_args.append("--once")
-            with locked(state.path / "launch.lock"), state.connect() as db:
-                db.execute("BEGIN IMMEDIATE")
-                shutdown = state._get(db, "meta:shutdown", {})
-                if shutdown.get("requested_at") != observed_shutdown.get("requested_at"):
-                    raise InterruptedRun("Start cancelled by a concurrent stop request.")
-                generation = uuid.uuid4().hex
-                state._put(db, "meta:shutdown", {"immediate": False, "generation": generation})
-                state._put(db, "meta:control", {"paused": False, "updated_at": now()})
+            with locked(state.path / "launch.lock"):
+                with state.connect() as db:
+                    db.execute("BEGIN IMMEDIATE")
+                    shutdown = state._get(db, "meta:shutdown", {})
+                    if shutdown.get("requested_at") != observed_shutdown.get("requested_at"):
+                        raise InterruptedRun("Start cancelled by a concurrent stop request.")
+                    generation = uuid.uuid4().hex
+                    state._put(db, "meta:shutdown", {"immediate": False, "generation": generation})
+                    state._put(db, "meta:control", {"paused": False, "updated_at": now()})
                 child_args.extend(["--generation", generation])
                 child = subprocess.Popen(child_args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
             for _ in range(100):

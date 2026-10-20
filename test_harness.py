@@ -105,7 +105,7 @@ class HarnessTests(unittest.TestCase):
     def test_queued_input_resumes_exact_opencode_conversation_for_every_role(self):
         for stage, role in w.ROLES.items():
             with self.subTest(role=role), w.locked(self.state.path / 'runner.lock') as fd, \
-                 patch.dict(os.environ, FAKE_DELAY='.2'), ThreadPoolExecutor(1) as pool:
+                 patch.dict(os.environ, FAKE_DELAY='.5'), ThreadPoolExecutor(1) as pool:
                 before = len(self.calls())
                 future = pool.submit(self.backend(fd).run, stage, self.task, self.tree)
                 deadline = time.monotonic() + 5

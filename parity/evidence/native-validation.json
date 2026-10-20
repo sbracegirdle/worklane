@@ -13,7 +13,7 @@
           "observation_ids": [
             "test_sessions.SessionTests.test_migration_from_sqlite_v1_imports_files_and_normalizes_payloads"
           ],
-          "report_sha256": "ed892dca0a1e7866c6350d4526c4e894ef4c95a0fa97d7042b34bae35b7c559d"
+          "report_sha256": "1ed98b49abcdcf09acde18446e7f4c4579d1d4a7e0600b36c75c0008b52098d0"
         },
         {
           "report": "parity/evidence/native-acceptance.json",
@@ -22,7 +22,7 @@
           "observation_ids": [
             "test_sessions.SessionTests.test_json_migration_is_atomic_idempotent_and_archives_originals_in_sqlite"
           ],
-          "report_sha256": "ed892dca0a1e7866c6350d4526c4e894ef4c95a0fa97d7042b34bae35b7c559d"
+          "report_sha256": "1ed98b49abcdcf09acde18446e7f4c4579d1d4a7e0600b36c75c0008b52098d0"
         },
         {
           "report": "parity/evidence/native-acceptance.json",
@@ -31,7 +31,7 @@
           "observation_ids": [
             "test_sessions.SessionTests.test_input_survives_failed_delivery_and_restarts_only_in_matching_role"
           ],
-          "report_sha256": "ed892dca0a1e7866c6350d4526c4e894ef4c95a0fa97d7042b34bae35b7c559d"
+          "report_sha256": "1ed98b49abcdcf09acde18446e7f4c4579d1d4a7e0600b36c75c0008b52098d0"
         },
         {
           "report": "parity/evidence/native-boundaries.json",
@@ -40,58 +40,58 @@
           "observation_ids": [
             "test_config.ConfigTests.test_invalid_config_has_path_and_never_silently_uses_defaults"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         },
         {
           "report": "cargo test",
           "id": "typed_state_preserves_empty_null_integer_boolean_and_float",
           "status": "pass",
-          "log_sha256": "5c4b65ede15619fa191b793ac2ffb74eb6e6ef142c8880bce35466b7be9ddb9f",
+          "log_sha256": "b59d9e938a55da89a1d46bd100fd4b1e585412daeaa2d849d4f21aebc11b7881",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "8a377cd084390f98c08629c0f552f96453073bdf2f94dfa949bd9b1b4fe6a64b",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "ba86f62641409737b5003c3140f81235ab2307839c082aa10f003bfb5b85eca8",
             "target/debug/deps/worklane-5af570f2de09c033": "17344e3c4c11fb17c8da07e01a29ddf7b9ec97df239b779ed614c87ed6dababd",
-            "target/debug/deps/controller-3cfc9f20c7e095f3": "db20d274a0e68913360edb24448323bc4a2b9aeb9e000352a110c6d42dba3e72",
-            "target/debug/deps/durability-36406b6eb0760257": "c6879b96612fc42d96fafce9c5b2b940ba6a36f16b2dc631e8067801f8733153"
+            "target/debug/deps/controller-3cfc9f20c7e095f3": "957746594b3cc3a11b8e10f1cb6352cccf911a7134f2e25b4415f2abfce54472",
+            "target/debug/deps/durability-36406b6eb0760257": "48d1a017945312ef8c4fdb670ba656a3ae6c5cdfbcd504d8b93e2b184893b448"
           }
         },
         {
           "report": "cargo test",
           "id": "future_schema_refusal_does_not_modify_database",
           "status": "pass",
-          "log_sha256": "5c4b65ede15619fa191b793ac2ffb74eb6e6ef142c8880bce35466b7be9ddb9f",
+          "log_sha256": "b59d9e938a55da89a1d46bd100fd4b1e585412daeaa2d849d4f21aebc11b7881",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "8a377cd084390f98c08629c0f552f96453073bdf2f94dfa949bd9b1b4fe6a64b",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "ba86f62641409737b5003c3140f81235ab2307839c082aa10f003bfb5b85eca8",
             "target/debug/deps/worklane-5af570f2de09c033": "17344e3c4c11fb17c8da07e01a29ddf7b9ec97df239b779ed614c87ed6dababd",
-            "target/debug/deps/controller-3cfc9f20c7e095f3": "db20d274a0e68913360edb24448323bc4a2b9aeb9e000352a110c6d42dba3e72",
-            "target/debug/deps/durability-36406b6eb0760257": "c6879b96612fc42d96fafce9c5b2b940ba6a36f16b2dc631e8067801f8733153"
+            "target/debug/deps/controller-3cfc9f20c7e095f3": "957746594b3cc3a11b8e10f1cb6352cccf911a7134f2e25b4415f2abfce54472",
+            "target/debug/deps/durability-36406b6eb0760257": "48d1a017945312ef8c4fdb670ba656a3ae6c5cdfbcd504d8b93e2b184893b448"
           }
         },
         {
           "report": "cargo test",
           "id": "wal_backup_restores_committed_events_and_pending_inputs",
           "status": "pass",
-          "log_sha256": "5c4b65ede15619fa191b793ac2ffb74eb6e6ef142c8880bce35466b7be9ddb9f",
+          "log_sha256": "b59d9e938a55da89a1d46bd100fd4b1e585412daeaa2d849d4f21aebc11b7881",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "8a377cd084390f98c08629c0f552f96453073bdf2f94dfa949bd9b1b4fe6a64b",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "ba86f62641409737b5003c3140f81235ab2307839c082aa10f003bfb5b85eca8",
             "target/debug/deps/worklane-5af570f2de09c033": "17344e3c4c11fb17c8da07e01a29ddf7b9ec97df239b779ed614c87ed6dababd",
-            "target/debug/deps/controller-3cfc9f20c7e095f3": "db20d274a0e68913360edb24448323bc4a2b9aeb9e000352a110c6d42dba3e72",
-            "target/debug/deps/durability-36406b6eb0760257": "c6879b96612fc42d96fafce9c5b2b940ba6a36f16b2dc631e8067801f8733153"
+            "target/debug/deps/controller-3cfc9f20c7e095f3": "957746594b3cc3a11b8e10f1cb6352cccf911a7134f2e25b4415f2abfce54472",
+            "target/debug/deps/durability-36406b6eb0760257": "48d1a017945312ef8c4fdb670ba656a3ae6c5cdfbcd504d8b93e2b184893b448"
           }
         },
         {
           "report": "cargo test",
           "id": "uncommitted_crash_is_not_visible_and_committed_event_survives",
           "status": "pass",
-          "log_sha256": "5c4b65ede15619fa191b793ac2ffb74eb6e6ef142c8880bce35466b7be9ddb9f",
+          "log_sha256": "b59d9e938a55da89a1d46bd100fd4b1e585412daeaa2d849d4f21aebc11b7881",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "8a377cd084390f98c08629c0f552f96453073bdf2f94dfa949bd9b1b4fe6a64b",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "ba86f62641409737b5003c3140f81235ab2307839c082aa10f003bfb5b85eca8",
             "target/debug/deps/worklane-5af570f2de09c033": "17344e3c4c11fb17c8da07e01a29ddf7b9ec97df239b779ed614c87ed6dababd",
-            "target/debug/deps/controller-3cfc9f20c7e095f3": "db20d274a0e68913360edb24448323bc4a2b9aeb9e000352a110c6d42dba3e72",
-            "target/debug/deps/durability-36406b6eb0760257": "c6879b96612fc42d96fafce9c5b2b940ba6a36f16b2dc631e8067801f8733153"
+            "target/debug/deps/controller-3cfc9f20c7e095f3": "957746594b3cc3a11b8e10f1cb6352cccf911a7134f2e25b4415f2abfce54472",
+            "target/debug/deps/durability-36406b6eb0760257": "48d1a017945312ef8c4fdb670ba656a3ae6c5cdfbcd504d8b93e2b184893b448"
           }
         }
       ]
@@ -104,13 +104,13 @@
           "report": "cargo test",
           "id": "bounded_workers_independent_reviewer_pause_and_drain_keep_pending_work",
           "status": "pass",
-          "log_sha256": "5c4b65ede15619fa191b793ac2ffb74eb6e6ef142c8880bce35466b7be9ddb9f",
+          "log_sha256": "b59d9e938a55da89a1d46bd100fd4b1e585412daeaa2d849d4f21aebc11b7881",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "8a377cd084390f98c08629c0f552f96453073bdf2f94dfa949bd9b1b4fe6a64b",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "ba86f62641409737b5003c3140f81235ab2307839c082aa10f003bfb5b85eca8",
             "target/debug/deps/worklane-5af570f2de09c033": "17344e3c4c11fb17c8da07e01a29ddf7b9ec97df239b779ed614c87ed6dababd",
-            "target/debug/deps/controller-3cfc9f20c7e095f3": "db20d274a0e68913360edb24448323bc4a2b9aeb9e000352a110c6d42dba3e72",
-            "target/debug/deps/durability-36406b6eb0760257": "c6879b96612fc42d96fafce9c5b2b940ba6a36f16b2dc631e8067801f8733153"
+            "target/debug/deps/controller-3cfc9f20c7e095f3": "957746594b3cc3a11b8e10f1cb6352cccf911a7134f2e25b4415f2abfce54472",
+            "target/debug/deps/durability-36406b6eb0760257": "48d1a017945312ef8c4fdb670ba656a3ae6c5cdfbcd504d8b93e2b184893b448"
           }
         },
         {
@@ -120,7 +120,7 @@
           "observation_ids": [
             "test_worklane.WorklaneTests.test_existing_linked_pr_not_implemented_twice"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         },
         {
           "report": "parity/evidence/native-storage.json",
@@ -129,7 +129,7 @@
           "observation_ids": [
             "test_worklane.WorklaneTests.test_duplicate_controller_is_locked"
           ],
-          "report_sha256": "b67429ebcd9c0251a1c4e9a049d434b1e86d8abb285118e3b833d4116630e642"
+          "report_sha256": "6e1101e40b87ac0ca9f1fb9db8b2a463dae7f0be6a6b308c5a9c931874c37b6b"
         }
       ]
     },
@@ -144,7 +144,7 @@
           "observation_ids": [
             "test_harness.HarnessTests.test_each_role_has_separate_named_session_and_persistent_wire_events"
           ],
-          "report_sha256": "ed892dca0a1e7866c6350d4526c4e894ef4c95a0fa97d7042b34bae35b7c559d"
+          "report_sha256": "1ed98b49abcdcf09acde18446e7f4c4579d1d4a7e0600b36c75c0008b52098d0"
         },
         {
           "report": "parity/evidence/native-acceptance.json",
@@ -153,7 +153,7 @@
           "observation_ids": [
             "test_harness.HarnessTests.test_queued_input_resumes_exact_opencode_conversation_for_every_role"
           ],
-          "report_sha256": "ed892dca0a1e7866c6350d4526c4e894ef4c95a0fa97d7042b34bae35b7c559d"
+          "report_sha256": "1ed98b49abcdcf09acde18446e7f4c4579d1d4a7e0600b36c75c0008b52098d0"
         },
         {
           "report": "parity/evidence/native-acceptance.json",
@@ -162,7 +162,7 @@
           "observation_ids": [
             "test_sessions.SessionTests.test_live_input_runs_followup_in_exact_session_before_returning_result"
           ],
-          "report_sha256": "ed892dca0a1e7866c6350d4526c4e894ef4c95a0fa97d7042b34bae35b7c559d"
+          "report_sha256": "1ed98b49abcdcf09acde18446e7f4c4579d1d4a7e0600b36c75c0008b52098d0"
         },
         {
           "report": "parity/evidence/native-acceptance.json",
@@ -171,7 +171,7 @@
           "observation_ids": [
             "test_harness.HarnessTests.test_missing_session_does_not_fall_back_to_new_conversation"
           ],
-          "report_sha256": "ed892dca0a1e7866c6350d4526c4e894ef4c95a0fa97d7042b34bae35b7c559d"
+          "report_sha256": "1ed98b49abcdcf09acde18446e7f4c4579d1d4a7e0600b36c75c0008b52098d0"
         },
         {
           "report": "parity/evidence/native-acceptance.json",
@@ -180,7 +180,7 @@
           "observation_ids": [
             "test_sessions.SessionTests.test_deleted_worktree_never_creates_replacement_session"
           ],
-          "report_sha256": "ed892dca0a1e7866c6350d4526c4e894ef4c95a0fa97d7042b34bae35b7c559d"
+          "report_sha256": "1ed98b49abcdcf09acde18446e7f4c4579d1d4a7e0600b36c75c0008b52098d0"
         },
         {
           "report": "parity/evidence/native-acceptance.json",
@@ -189,7 +189,7 @@
           "observation_ids": [
             "test_sessions.SessionTests.test_database_prevents_cross_role_session_reuse"
           ],
-          "report_sha256": "ed892dca0a1e7866c6350d4526c4e894ef4c95a0fa97d7042b34bae35b7c559d"
+          "report_sha256": "1ed98b49abcdcf09acde18446e7f4c4579d1d4a7e0600b36c75c0008b52098d0"
         },
         {
           "report": "parity/evidence/native-runtime.json",
@@ -198,7 +198,7 @@
           "observation_ids": [
             "runtime.session-codex"
           ],
-          "report_sha256": "a821208048b4c03c64cbe92814cc844af8e969bf7b925ba971989a1ca4ab498a"
+          "report_sha256": "f668693e80fe0f24626443b587475c1523774e0bfd740cb870807a9a281207a2"
         },
         {
           "report": "parity/evidence/native-runtime.json",
@@ -207,7 +207,7 @@
           "observation_ids": [
             "runtime.session-opencode"
           ],
-          "report_sha256": "a821208048b4c03c64cbe92814cc844af8e969bf7b925ba971989a1ca4ab498a"
+          "report_sha256": "f668693e80fe0f24626443b587475c1523774e0bfd740cb870807a9a281207a2"
         }
       ]
     },
@@ -223,7 +223,7 @@
             "test_native_lifecycle.NativeLifecycleTests.test_complete_build_review_and_handoff_promotes_only_drafts test_complete_build_review_and_handoff_promotes_only_drafts (test_native_lifecycle.NativeLifecycleTests.test_complete_build_review_and_handoff_promotes_only_drafts) (draft=False)",
             "test_native_lifecycle.NativeLifecycleTests.test_complete_build_review_and_handoff_promotes_only_drafts test_complete_build_review_and_handoff_promotes_only_drafts (test_native_lifecycle.NativeLifecycleTests.test_complete_build_review_and_handoff_promotes_only_drafts) (draft=True)"
           ],
-          "report_sha256": "acaad59ef610a05fef2d26ec9f9dfb98b8f12251a95ea61f1bb8287a13b61614"
+          "report_sha256": "96724ddf5b1f63d63c3c78166ae7b8ae77bcf7a63ed82fe99dc63d7c7b676c39"
         },
         {
           "report": "parity/evidence/native-lifecycle.json",
@@ -246,7 +246,7 @@
             "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='promotion-still-draft')",
             "test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff test_review_and_finalizer_failures_cannot_handoff (test_native_lifecycle.NativeLifecycleTests.test_review_and_finalizer_failures_cannot_handoff) (case='changed-before-promotion')"
           ],
-          "report_sha256": "acaad59ef610a05fef2d26ec9f9dfb98b8f12251a95ea61f1bb8287a13b61614"
+          "report_sha256": "96724ddf5b1f63d63c3c78166ae7b8ae77bcf7a63ed82fe99dc63d7c7b676c39"
         },
         {
           "report": "parity/evidence/native-lifecycle.json",
@@ -260,7 +260,7 @@
             "test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override test_conflicts_requeue_and_respect_round_limit_and_status_override (test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override) (late=True, change='limit')",
             "test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override test_conflicts_requeue_and_respect_round_limit_and_status_override (test_native_lifecycle.NativeLifecycleTests.test_conflicts_requeue_and_respect_round_limit_and_status_override) (late=True, change='human')"
           ],
-          "report_sha256": "acaad59ef610a05fef2d26ec9f9dfb98b8f12251a95ea61f1bb8287a13b61614"
+          "report_sha256": "96724ddf5b1f63d63c3c78166ae7b8ae77bcf7a63ed82fe99dc63d7c7b676c39"
         },
         {
           "report": "parity/evidence/native-boundaries.json",
@@ -269,7 +269,7 @@
           "observation_ids": [
             "test_worklane.WorklaneTests.test_explicit_retry_reviews_current_head"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         }
       ]
     },
@@ -281,39 +281,39 @@
           "report": "cargo test",
           "id": "bounded_workers_independent_reviewer_pause_and_drain_keep_pending_work",
           "status": "pass",
-          "log_sha256": "5c4b65ede15619fa191b793ac2ffb74eb6e6ef142c8880bce35466b7be9ddb9f",
+          "log_sha256": "b59d9e938a55da89a1d46bd100fd4b1e585412daeaa2d849d4f21aebc11b7881",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "8a377cd084390f98c08629c0f552f96453073bdf2f94dfa949bd9b1b4fe6a64b",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "ba86f62641409737b5003c3140f81235ab2307839c082aa10f003bfb5b85eca8",
             "target/debug/deps/worklane-5af570f2de09c033": "17344e3c4c11fb17c8da07e01a29ddf7b9ec97df239b779ed614c87ed6dababd",
-            "target/debug/deps/controller-3cfc9f20c7e095f3": "db20d274a0e68913360edb24448323bc4a2b9aeb9e000352a110c6d42dba3e72",
-            "target/debug/deps/durability-36406b6eb0760257": "c6879b96612fc42d96fafce9c5b2b940ba6a36f16b2dc631e8067801f8733153"
+            "target/debug/deps/controller-3cfc9f20c7e095f3": "957746594b3cc3a11b8e10f1cb6352cccf911a7134f2e25b4415f2abfce54472",
+            "target/debug/deps/durability-36406b6eb0760257": "48d1a017945312ef8c4fdb670ba656a3ae6c5cdfbcd504d8b93e2b184893b448"
           }
         },
         {
           "report": "cargo test",
           "id": "immediate_stop_never_waits_for_dispatch_or_downgrades",
           "status": "pass",
-          "log_sha256": "5c4b65ede15619fa191b793ac2ffb74eb6e6ef142c8880bce35466b7be9ddb9f",
+          "log_sha256": "b59d9e938a55da89a1d46bd100fd4b1e585412daeaa2d849d4f21aebc11b7881",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "8a377cd084390f98c08629c0f552f96453073bdf2f94dfa949bd9b1b4fe6a64b",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "ba86f62641409737b5003c3140f81235ab2307839c082aa10f003bfb5b85eca8",
             "target/debug/deps/worklane-5af570f2de09c033": "17344e3c4c11fb17c8da07e01a29ddf7b9ec97df239b779ed614c87ed6dababd",
-            "target/debug/deps/controller-3cfc9f20c7e095f3": "db20d274a0e68913360edb24448323bc4a2b9aeb9e000352a110c6d42dba3e72",
-            "target/debug/deps/durability-36406b6eb0760257": "c6879b96612fc42d96fafce9c5b2b940ba6a36f16b2dc631e8067801f8733153"
+            "target/debug/deps/controller-3cfc9f20c7e095f3": "957746594b3cc3a11b8e10f1cb6352cccf911a7134f2e25b4415f2abfce54472",
+            "target/debug/deps/durability-36406b6eb0760257": "48d1a017945312ef8c4fdb670ba656a3ae6c5cdfbcd504d8b93e2b184893b448"
           }
         },
         {
           "report": "cargo test",
           "id": "old_start_generation_cannot_clear_new_stop",
           "status": "pass",
-          "log_sha256": "5c4b65ede15619fa191b793ac2ffb74eb6e6ef142c8880bce35466b7be9ddb9f",
+          "log_sha256": "b59d9e938a55da89a1d46bd100fd4b1e585412daeaa2d849d4f21aebc11b7881",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "8a377cd084390f98c08629c0f552f96453073bdf2f94dfa949bd9b1b4fe6a64b",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "ba86f62641409737b5003c3140f81235ab2307839c082aa10f003bfb5b85eca8",
             "target/debug/deps/worklane-5af570f2de09c033": "17344e3c4c11fb17c8da07e01a29ddf7b9ec97df239b779ed614c87ed6dababd",
-            "target/debug/deps/controller-3cfc9f20c7e095f3": "db20d274a0e68913360edb24448323bc4a2b9aeb9e000352a110c6d42dba3e72",
-            "target/debug/deps/durability-36406b6eb0760257": "c6879b96612fc42d96fafce9c5b2b940ba6a36f16b2dc631e8067801f8733153"
+            "target/debug/deps/controller-3cfc9f20c7e095f3": "957746594b3cc3a11b8e10f1cb6352cccf911a7134f2e25b4415f2abfce54472",
+            "target/debug/deps/durability-36406b6eb0760257": "48d1a017945312ef8c4fdb670ba656a3ae6c5cdfbcd504d8b93e2b184893b448"
           }
         },
         {
@@ -323,7 +323,7 @@
           "observation_ids": [
             "test_stop.StopTests.test_detached_orphan_and_ignoring_descendant_die_without_touching_unrelated"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         },
         {
           "report": "parity/evidence/native-boundaries.json",
@@ -332,7 +332,7 @@
           "observation_ids": [
             "test_stop.StopTests.test_stale_pid_cannot_own_unrelated_process"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         },
         {
           "report": "parity/evidence/native-acceptance.json",
@@ -341,7 +341,7 @@
           "observation_ids": [
             "test_harness.HarnessTests.test_stop_request_interrupts_every_role_and_resumes_exact_session"
           ],
-          "report_sha256": "ed892dca0a1e7866c6350d4526c4e894ef4c95a0fa97d7042b34bae35b7c559d"
+          "report_sha256": "1ed98b49abcdcf09acde18446e7f4c4579d1d4a7e0600b36c75c0008b52098d0"
         }
       ]
     },
@@ -356,7 +356,7 @@
           "observation_ids": [
             "test_native_workflow.NativeWorkflowTests.test_remote_move_crash_recovers_saved_intent_and_does_not_duplicate_claim"
           ],
-          "report_sha256": "c6fdf0fc35f5d9c95b9f330df177ee46e1ae015ab39cfff53ea5feeedbd5408b"
+          "report_sha256": "506ec28836ce0060f364e89113007772ad7cb9c075ce761d57682320815a8dc3"
         },
         {
           "report": "parity/evidence/native-lifecycle.json",
@@ -365,7 +365,7 @@
           "observation_ids": [
             "test_native_lifecycle.NativeLifecycleTests.test_saved_handoff_retries_without_duplicate_turns_or_comments"
           ],
-          "report_sha256": "acaad59ef610a05fef2d26ec9f9dfb98b8f12251a95ea61f1bb8287a13b61614"
+          "report_sha256": "96724ddf5b1f63d63c3c78166ae7b8ae77bcf7a63ed82fe99dc63d7c7b676c39"
         },
         {
           "report": "parity/evidence/native-lifecycle.json",
@@ -375,7 +375,7 @@
             "test_native_lifecycle.NativeLifecycleTests.test_quota_retry_reuses_saved_turn_and_records_each_failure_once test_quota_retry_reuses_saved_turn_and_records_each_failure_once (test_native_lifecycle.NativeLifecycleTests.test_quota_retry_reuses_saved_turn_and_records_each_failure_once) (stage='build')",
             "test_native_lifecycle.NativeLifecycleTests.test_quota_retry_reuses_saved_turn_and_records_each_failure_once test_quota_retry_reuses_saved_turn_and_records_each_failure_once (test_native_lifecycle.NativeLifecycleTests.test_quota_retry_reuses_saved_turn_and_records_each_failure_once) (stage='review')"
           ],
-          "report_sha256": "acaad59ef610a05fef2d26ec9f9dfb98b8f12251a95ea61f1bb8287a13b61614"
+          "report_sha256": "96724ddf5b1f63d63c3c78166ae7b8ae77bcf7a63ed82fe99dc63d7c7b676c39"
         },
         {
           "report": "parity/evidence/native-acceptance.json",
@@ -384,7 +384,7 @@
           "observation_ids": [
             "test_harness.HarnessTests.test_signal_interruption_and_controller_restart_resume_exact_id"
           ],
-          "report_sha256": "ed892dca0a1e7866c6350d4526c4e894ef4c95a0fa97d7042b34bae35b7c559d"
+          "report_sha256": "1ed98b49abcdcf09acde18446e7f4c4579d1d4a7e0600b36c75c0008b52098d0"
         },
         {
           "report": "parity/evidence/native-acceptance.json",
@@ -393,19 +393,19 @@
           "observation_ids": [
             "test_sessions.SessionTests.test_input_survives_failed_delivery_and_restarts_only_in_matching_role"
           ],
-          "report_sha256": "ed892dca0a1e7866c6350d4526c4e894ef4c95a0fa97d7042b34bae35b7c559d"
+          "report_sha256": "1ed98b49abcdcf09acde18446e7f4c4579d1d4a7e0600b36c75c0008b52098d0"
         },
         {
           "report": "cargo test",
           "id": "abrupt_process_exit_preserves_committed_session_and_discards_inflight_transaction",
           "status": "pass",
-          "log_sha256": "5c4b65ede15619fa191b793ac2ffb74eb6e6ef142c8880bce35466b7be9ddb9f",
+          "log_sha256": "b59d9e938a55da89a1d46bd100fd4b1e585412daeaa2d849d4f21aebc11b7881",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "8a377cd084390f98c08629c0f552f96453073bdf2f94dfa949bd9b1b4fe6a64b",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "ba86f62641409737b5003c3140f81235ab2307839c082aa10f003bfb5b85eca8",
             "target/debug/deps/worklane-5af570f2de09c033": "17344e3c4c11fb17c8da07e01a29ddf7b9ec97df239b779ed614c87ed6dababd",
-            "target/debug/deps/controller-3cfc9f20c7e095f3": "db20d274a0e68913360edb24448323bc4a2b9aeb9e000352a110c6d42dba3e72",
-            "target/debug/deps/durability-36406b6eb0760257": "c6879b96612fc42d96fafce9c5b2b940ba6a36f16b2dc631e8067801f8733153"
+            "target/debug/deps/controller-3cfc9f20c7e095f3": "957746594b3cc3a11b8e10f1cb6352cccf911a7134f2e25b4415f2abfce54472",
+            "target/debug/deps/durability-36406b6eb0760257": "48d1a017945312ef8c4fdb670ba656a3ae6c5cdfbcd504d8b93e2b184893b448"
           }
         }
       ]
@@ -421,7 +421,7 @@
           "observation_ids": [
             "test_dependencies.DependencyTests.test_dependency_api_failure_or_hidden_issue_cannot_claim"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         },
         {
           "report": "parity/evidence/native-boundaries.json",
@@ -430,7 +430,7 @@
           "observation_ids": [
             "test_stacking.StackTests.test_exact_reviewed_parent_pins_child_base_and_provenance"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         },
         {
           "report": "parity/evidence/native-boundaries.json",
@@ -439,7 +439,7 @@
           "observation_ids": [
             "test_stacking.StackTests.test_all_desktop_edges_remain_hard_completion_dependencies"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         },
         {
           "report": "parity/evidence/native-boundaries.json",
@@ -448,7 +448,7 @@
           "observation_ids": [
             "test_stacking.StackTests.test_completion_gate_rejects_unreviewed_merged_head"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         },
         {
           "report": "parity/evidence/native-lifecycle.json",
@@ -460,7 +460,7 @@
             "test_native_lifecycle.NativeLifecycleTests.test_restack_merge_forward_recovery_preserves_history_and_fresh_review test_restack_merge_forward_recovery_preserves_history_and_fresh_review (test_native_lifecycle.NativeLifecycleTests.test_restack_merge_forward_recovery_preserves_history_and_fresh_review) (interruption='board')",
             "test_native_lifecycle.NativeLifecycleTests.test_restack_merge_forward_recovery_preserves_history_and_fresh_review test_restack_merge_forward_recovery_preserves_history_and_fresh_review (test_native_lifecycle.NativeLifecycleTests.test_restack_merge_forward_recovery_preserves_history_and_fresh_review) (interruption='merge-record')"
           ],
-          "report_sha256": "acaad59ef610a05fef2d26ec9f9dfb98b8f12251a95ea61f1bb8287a13b61614"
+          "report_sha256": "96724ddf5b1f63d63c3c78166ae7b8ae77bcf7a63ed82fe99dc63d7c7b676c39"
         },
         {
           "report": "parity/evidence/native-lifecycle.json",
@@ -472,7 +472,7 @@
             "test_native_lifecycle.NativeLifecycleTests.test_restack_dirty_conflicting_or_unrelated_changes_are_preserved test_restack_dirty_conflicting_or_unrelated_changes_are_preserved (test_native_lifecycle.NativeLifecycleTests.test_restack_dirty_conflicting_or_unrelated_changes_are_preserved) (case='changed-local')",
             "test_native_lifecycle.NativeLifecycleTests.test_restack_dirty_conflicting_or_unrelated_changes_are_preserved test_restack_dirty_conflicting_or_unrelated_changes_are_preserved (test_native_lifecycle.NativeLifecycleTests.test_restack_dirty_conflicting_or_unrelated_changes_are_preserved) (case='wrong-branch')"
           ],
-          "report_sha256": "acaad59ef610a05fef2d26ec9f9dfb98b8f12251a95ea61f1bb8287a13b61614"
+          "report_sha256": "96724ddf5b1f63d63c3c78166ae7b8ae77bcf7a63ed82fe99dc63d7c7b676c39"
         }
       ]
     },
@@ -487,7 +487,7 @@
           "observation_ids": [
             "runtime.security-safe-private"
           ],
-          "report_sha256": "2bef056f42d09bb612b47cb9b3651ae3a9d1f968a9348243a191824a736fc723"
+          "report_sha256": "18c78ca846b6cd36cf204a46237f29da452dfa96e443a7d3c4a83e8068156383"
         },
         {
           "report": "parity/evidence/native-security.json",
@@ -496,7 +496,7 @@
           "observation_ids": [
             "runtime.security-safe-public"
           ],
-          "report_sha256": "2bef056f42d09bb612b47cb9b3651ae3a9d1f968a9348243a191824a736fc723"
+          "report_sha256": "18c78ca846b6cd36cf204a46237f29da452dfa96e443a7d3c4a83e8068156383"
         },
         {
           "report": "parity/evidence/native-security.json",
@@ -505,7 +505,7 @@
           "observation_ids": [
             "runtime.security-safe-explicit-public"
           ],
-          "report_sha256": "2bef056f42d09bb612b47cb9b3651ae3a9d1f968a9348243a191824a736fc723"
+          "report_sha256": "18c78ca846b6cd36cf204a46237f29da452dfa96e443a7d3c4a83e8068156383"
         },
         {
           "report": "parity/evidence/native-security.json",
@@ -514,7 +514,7 @@
           "observation_ids": [
             "runtime.security-safe-project-denied"
           ],
-          "report_sha256": "2bef056f42d09bb612b47cb9b3651ae3a9d1f968a9348243a191824a736fc723"
+          "report_sha256": "18c78ca846b6cd36cf204a46237f29da452dfa96e443a7d3c4a83e8068156383"
         },
         {
           "report": "parity/evidence/native-security.json",
@@ -523,7 +523,7 @@
           "observation_ids": [
             "runtime.security-safe-read-only"
           ],
-          "report_sha256": "2bef056f42d09bb612b47cb9b3651ae3a9d1f968a9348243a191824a736fc723"
+          "report_sha256": "18c78ca846b6cd36cf204a46237f29da452dfa96e443a7d3c4a83e8068156383"
         },
         {
           "report": "parity/evidence/native-security.json",
@@ -532,7 +532,7 @@
           "observation_ids": [
             "runtime.security-safe-unknown"
           ],
-          "report_sha256": "2bef056f42d09bb612b47cb9b3651ae3a9d1f968a9348243a191824a736fc723"
+          "report_sha256": "18c78ca846b6cd36cf204a46237f29da452dfa96e443a7d3c4a83e8068156383"
         },
         {
           "report": "parity/evidence/native-security.json",
@@ -541,7 +541,7 @@
           "observation_ids": [
             "runtime.security-feedback-trusted-editor"
           ],
-          "report_sha256": "2bef056f42d09bb612b47cb9b3651ae3a9d1f968a9348243a191824a736fc723"
+          "report_sha256": "18c78ca846b6cd36cf204a46237f29da452dfa96e443a7d3c4a83e8068156383"
         },
         {
           "report": "parity/evidence/native-security.json",
@@ -550,7 +550,7 @@
           "observation_ids": [
             "runtime.security-feedback-revoked-editor"
           ],
-          "report_sha256": "2bef056f42d09bb612b47cb9b3651ae3a9d1f968a9348243a191824a736fc723"
+          "report_sha256": "18c78ca846b6cd36cf204a46237f29da452dfa96e443a7d3c4a83e8068156383"
         },
         {
           "report": "parity/evidence/native-security.json",
@@ -559,7 +559,7 @@
           "observation_ids": [
             "runtime.security-feedback-missing-provenance"
           ],
-          "report_sha256": "2bef056f42d09bb612b47cb9b3651ae3a9d1f968a9348243a191824a736fc723"
+          "report_sha256": "18c78ca846b6cd36cf204a46237f29da452dfa96e443a7d3c4a83e8068156383"
         },
         {
           "report": "parity/evidence/native-security.json",
@@ -568,7 +568,7 @@
           "observation_ids": [
             "runtime.security-deny-restack"
           ],
-          "report_sha256": "2bef056f42d09bb612b47cb9b3651ae3a9d1f968a9348243a191824a736fc723"
+          "report_sha256": "18c78ca846b6cd36cf204a46237f29da452dfa96e443a7d3c4a83e8068156383"
         },
         {
           "report": "parity/evidence/native-workflow.json",
@@ -577,7 +577,7 @@
           "observation_ids": [
             "test_native_workflow.NativeWorkflowTests.test_live_revocation_blocks_dispatch_until_author_and_editor_restored"
           ],
-          "report_sha256": "c6fdf0fc35f5d9c95b9f330df177ee46e1ae015ab39cfff53ea5feeedbd5408b"
+          "report_sha256": "506ec28836ce0060f364e89113007772ad7cb9c075ce761d57682320815a8dc3"
         },
         {
           "report": "parity/evidence/native-acceptance.json",
@@ -586,7 +586,7 @@
           "observation_ids": [
             "test_sessions.SessionTests.test_queued_followup_rechecks_security_before_resuming_agent"
           ],
-          "report_sha256": "ed892dca0a1e7866c6350d4526c4e894ef4c95a0fa97d7042b34bae35b7c559d"
+          "report_sha256": "1ed98b49abcdcf09acde18446e7f4c4579d1d4a7e0600b36c75c0008b52098d0"
         },
         {
           "report": "parity/evidence/native-lifecycle.json",
@@ -598,7 +598,7 @@
             "test_native_lifecycle.NativeLifecycleTests.test_saved_turn_rechecks_privacy_and_handoff_write_permissions test_saved_turn_rechecks_privacy_and_handoff_write_permissions (test_native_lifecycle.NativeLifecycleTests.test_saved_turn_rechecks_privacy_and_handoff_write_permissions) (stage='review', timing='before')",
             "test_native_lifecycle.NativeLifecycleTests.test_saved_turn_rechecks_privacy_and_handoff_write_permissions test_saved_turn_rechecks_privacy_and_handoff_write_permissions (test_native_lifecycle.NativeLifecycleTests.test_saved_turn_rechecks_privacy_and_handoff_write_permissions) (stage='review', timing='after-post')"
           ],
-          "report_sha256": "acaad59ef610a05fef2d26ec9f9dfb98b8f12251a95ea61f1bb8287a13b61614"
+          "report_sha256": "96724ddf5b1f63d63c3c78166ae7b8ae77bcf7a63ed82fe99dc63d7c7b676c39"
         }
       ]
     },
@@ -613,7 +613,7 @@
           "observation_ids": [
             "test_worklane.WorklaneTests.test_board_paginates_with_project_id_and_retains_all_issues"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         },
         {
           "report": "parity/evidence/native-boundaries.json",
@@ -622,7 +622,7 @@
           "observation_ids": [
             "test_worklane.WorklaneTests.test_review_threads_include_all_pages_and_replies"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         },
         {
           "report": "parity/evidence/native-boundaries.json",
@@ -631,7 +631,7 @@
           "observation_ids": [
             "test_worklane.WorklaneTests.test_incomplete_board_fails_closed"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         },
         {
           "report": "parity/evidence/native-boundaries.json",
@@ -640,7 +640,7 @@
           "observation_ids": [
             "test_worklane.WorklaneTests.test_review_thread_api_errors_fail_closed"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         },
         {
           "report": "parity/evidence/native-boundaries.json",
@@ -649,7 +649,7 @@
           "observation_ids": [
             "test_worklane.WorklaneTests.test_budget_shared_by_repositories_and_blocks_commands"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         },
         {
           "report": "parity/evidence/native-boundaries.json",
@@ -658,7 +658,7 @@
           "observation_ids": [
             "test_worklane.WorklaneTests.test_rate_limit_backoff_survives_new_runner_and_is_bounded"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         },
         {
           "report": "parity/evidence/native-boundaries.json",
@@ -667,19 +667,19 @@
           "observation_ids": [
             "test_worklane.GitHubErrorTests.test_header_reset_avoids_an_extra_probe"
           ],
-          "report_sha256": "bd871883e6b856c4f27a317f534fe0de19a50ebf1c2a0835fe96110eae6e3225"
+          "report_sha256": "a199a46cd5abc6808fbded8fc9cc33edd7fe43ae53ea785e13baeb4e0b9f366d"
         },
         {
           "report": "cargo test",
           "id": "quota_probe_failure_keeps_known_quota_and_shared_cooldown",
           "status": "pass",
-          "log_sha256": "5c4b65ede15619fa191b793ac2ffb74eb6e6ef142c8880bce35466b7be9ddb9f",
+          "log_sha256": "b59d9e938a55da89a1d46bd100fd4b1e585412daeaa2d849d4f21aebc11b7881",
           "test_binary_hashes": {
             "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "8a377cd084390f98c08629c0f552f96453073bdf2f94dfa949bd9b1b4fe6a64b",
             "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "ba86f62641409737b5003c3140f81235ab2307839c082aa10f003bfb5b85eca8",
             "target/debug/deps/worklane-5af570f2de09c033": "17344e3c4c11fb17c8da07e01a29ddf7b9ec97df239b779ed614c87ed6dababd",
-            "target/debug/deps/controller-3cfc9f20c7e095f3": "db20d274a0e68913360edb24448323bc4a2b9aeb9e000352a110c6d42dba3e72",
-            "target/debug/deps/durability-36406b6eb0760257": "c6879b96612fc42d96fafce9c5b2b940ba6a36f16b2dc631e8067801f8733153"
+            "target/debug/deps/controller-3cfc9f20c7e095f3": "957746594b3cc3a11b8e10f1cb6352cccf911a7134f2e25b4415f2abfce54472",
+            "target/debug/deps/durability-36406b6eb0760257": "48d1a017945312ef8c4fdb670ba656a3ae6c5cdfbcd504d8b93e2b184893b448"
           }
         }
       ]
@@ -715,14 +715,14 @@
     "Exhaustive source/failure/constant audits and unselected legacy parity assertions.",
     "CLI/TUI presentation, installed PTY/lifecycle and cutover remain gated by #51/#52/#53."
   ],
-  "candidate_revision": "4f567469eeb2413b19ea1689c1d067d282697501",
-  "candidate_inputs_sha256": "180421d79b44a04edc13212dcb6824230079adf2da6558a98c16ebf5336cf885",
+  "candidate_revision": "238405db8d4fdaa39fda4d3f9371026e7f356a69",
+  "candidate_inputs_sha256": "2f92521e148255516acd333cf684d8ccff009288a0af366c6ada5fef7dc4e83e",
   "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
-  "validation_base": "5cc71a5880dc77727987e4a496c53181f5e5d8f0",
+  "validation_base": "ecff48ec25f5a606d07822637da72217ca8f80e8",
   "current_main": "ecff48ec25f5a606d07822637da72217ca8f80e8",
   "upstream_drift": [],
   "candidate_hashes": {
-    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/target/debug/runtime-fixture-adapter": "6c6729881e32f574a0254cc10239e31f1819f33b3119d13245565baefbf9f227"
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/target/debug/runtime-fixture-adapter": "dfed4a10b60fd79da24ed4093fa4325f07d1552d57101a044507ee3dddb128e1"
   },
   "environment": {
     "UV_CACHE_DIR": "/tmp/worklane-50-uv",
@@ -756,8 +756,8 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-1.log",
-      "tail": "   Compiling worklane-runtime v0.1.0 (/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/runtime)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.97s",
-      "log_sha256": "5f4f42f0d1b9f4239d8267b3f314295add884f5c41ad6d40a4b7461c074242d9"
+      "tail": "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.05s",
+      "log_sha256": "ee1d3fffa2022e962e63e0dbe4d35c9c198450a20c29fc09030f635dbb38bfcd"
     },
     {
       "command": [
@@ -768,47 +768,48 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-2.log",
-      "tail": "test logs_are_keyset_paged_without_losing_history ... ok\n\ntest result: ok. 37 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.45s\n\n   Doc-tests worklane_runtime\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n",
-      "log_sha256": "5c4b65ede15619fa191b793ac2ffb74eb6e6ef142c8880bce35466b7be9ddb9f",
+      "tail": "test logs_are_keyset_paged_without_losing_history ... ok\n\ntest result: ok. 37 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.78s\n\n   Doc-tests worklane_runtime\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n",
+      "log_sha256": "b59d9e938a55da89a1d46bd100fd4b1e585412daeaa2d849d4f21aebc11b7881",
       "passed_tests": [
         "workflow::recovery_tests::finalizing_phase_cannot_recover_as_previous_reviewer_role",
         "workflow::recovery_tests::committed_turn_survives_crash_before_workflow_task_commit_without_another_agent_turn",
         "workflow::recovery_tests::malformed_saved_stack_cannot_skip_ancestry_or_launch_a_turn",
+        "shared_start_keeps_shutdown_snapshot_from_before_security_preflight",
         "bounded_workers_independent_reviewer_pause_and_drain_keep_pending_work",
         "config_errors_preserve_file_and_role_overrides",
         "child_inherits_controller_lock_after_parent_guard_closes",
         "failed_migration_rolls_back_and_keeps_original_bytes",
         "prepared_schema_is_in_memory_and_uses_the_shared_schema_argument",
-        "old_start_generation_cannot_clear_new_stop",
         "migration_cleanup_never_follows_replaced_parent_outside_state",
+        "controller_log_writer_flushes_without_persistent_log_files",
         "result_validation_rejects_extra_fields_and_false_findings",
-        "oversized_integers_cannot_silently_become_floats_or_erase_prior_values",
-        "stale_birth_cannot_claim_or_signal_unrelated_process",
         "immediate_stop_never_waits_for_dispatch_or_downgrades",
+        "stale_birth_cannot_claim_or_signal_unrelated_process",
+        "oversized_integers_cannot_silently_become_floats_or_erase_prior_values",
+        "old_start_generation_cannot_clear_new_stop",
+        "future_schema_refusal_does_not_modify_database",
         "abrupt_process_exit_preserves_committed_session_and_discards_inflight_transaction",
         "event_mapping_and_readable_log_rollback_as_one_unit",
-        "controller_log_writer_flushes_without_persistent_log_files",
-        "future_schema_refusal_does_not_modify_database",
         "unicode_decimal_issue_aliases_cannot_evade_cycles_or_completion_gates",
         "unicode_wrapping_retains_combining_wide_and_word_spaces",
         "saved_model_and_harness_win_new_role_configuration",
-        "injected_quota_is_journaled_once_and_stale_success_cannot_clear_new_failure",
         "fresh_assignment_cannot_reuse_previous_completed_turn_even_with_identical_clock",
-        "quota_probe_failure_keeps_known_quota_and_shared_cooldown",
-        "typed_state_preserves_empty_null_integer_boolean_and_float",
+        "injected_quota_is_journaled_once_and_stale_success_cannot_clear_new_failure",
         "bounded_writer_wait_and_rollback_leave_prior_commit",
+        "typed_state_preserves_empty_null_integer_boolean_and_float",
         "log_history_stops_at_its_initial_boundary_while_writers_append",
         "successful_probe_body_is_not_a_quota_error_or_persisted_diagnostic",
+        "quota_probe_failure_keeps_known_quota_and_shared_cooldown",
+        "successful_issue_body_cannot_publish_a_false_global_quota_cooldown",
         "python_completed_ledger_requires_exact_assignment_timing_and_session",
         "quota_uses_injected_clock_authoritative_headers_and_blocks_further_processes",
         "reopen_does_not_erase_normalized_sessions_on_stale_task_save",
-        "successful_issue_body_cannot_publish_a_false_global_quota_cooldown",
-        "successful_last_point_preserves_response_without_copying_body_into_cooldown_state",
         "cached_browser_launch_survives_helper_exit_without_controller_ownership_or_cooldown_changes",
         "literal_unicode_search_finds_historical_turn_and_bounds_context",
+        "successful_last_point_preserves_response_without_copying_body_into_cooldown_state",
+        "interrupted_delivery_survives_recovery_until_turn_commits",
         "uncommitted_crash_is_not_visible_and_committed_event_survives",
         "uniqueness_across_roles_is_database_enforced",
-        "interrupted_delivery_survives_recovery_until_turn_commits",
         "wal_backup_restores_committed_events_and_pending_inputs",
         "input_completion_and_submission_serialize",
         "logs_are_keyset_paged_without_losing_history"
@@ -817,8 +818,8 @@
         "target/debug/deps/worklane_runtime-89ec53b4f96b3c30": "8a377cd084390f98c08629c0f552f96453073bdf2f94dfa949bd9b1b4fe6a64b",
         "target/debug/deps/runtime_fixture_adapter-923c66b134684350": "ba86f62641409737b5003c3140f81235ab2307839c082aa10f003bfb5b85eca8",
         "target/debug/deps/worklane-5af570f2de09c033": "17344e3c4c11fb17c8da07e01a29ddf7b9ec97df239b779ed614c87ed6dababd",
-        "target/debug/deps/controller-3cfc9f20c7e095f3": "db20d274a0e68913360edb24448323bc4a2b9aeb9e000352a110c6d42dba3e72",
-        "target/debug/deps/durability-36406b6eb0760257": "c6879b96612fc42d96fafce9c5b2b940ba6a36f16b2dc631e8067801f8733153"
+        "target/debug/deps/controller-3cfc9f20c7e095f3": "957746594b3cc3a11b8e10f1cb6352cccf911a7134f2e25b4415f2abfce54472",
+        "target/debug/deps/durability-36406b6eb0760257": "48d1a017945312ef8c4fdb670ba656a3ae6c5cdfbcd504d8b93e2b184893b448"
       }
     },
     {
@@ -833,8 +834,8 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-3.log",
-      "tail": "#1 blocked: Completed implementation expected Agent review; board is done. Check project automations/manual edits, then run worklane retry 1 to revalidate the saved build. Board status was preserved.\n#1 completion unavailable: 'headRefName'\n#1 blocked: Completed implementation expected Agent review; board is missing/closed. Check project automations/manual edits, then run worklane retry 1 to revalidate the saved build. Board status was preserved.\nreviewer: #1 Issue\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n----------------------------------------------------------------------\nRan 536 tests in 184.101s\n\nOK (skipped=2)",
-      "log_sha256": "0478caacf1a949ebe29c136606237c8fca8f2ae468c1d6eb15fc6b7dc9a993c7"
+      "tail": "#1 blocked: Completed implementation expected Agent review; board is done. Check project automations/manual edits, then run worklane retry 1 to revalidate the saved build. Board status was preserved.\n#1 completion unavailable: 'headRefName'\n#1 blocked: Completed implementation expected Agent review; board is missing/closed. Check project automations/manual edits, then run worklane retry 1 to revalidate the saved build. Board status was preserved.\nreviewer: #1 Issue\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n----------------------------------------------------------------------\nRan 537 tests in 190.825s\n\nOK (skipped=2)",
+      "log_sha256": "6546e00cc09809fff9204603f43956755e7ae6a58ec48910cd9e4b0f20b9e4e7"
     },
     {
       "command": [
@@ -907,8 +908,8 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-7.log",
-      "tail": "----------------------------------------------------------------------\nRan 10 tests in 31.904s\n\nOK",
-      "log_sha256": "b476a05ec9b91215720d88f4dc6c4058a1b07670e8e7842a67052f7643875844"
+      "tail": "----------------------------------------------------------------------\nRan 10 tests in 31.018s\n\nOK",
+      "log_sha256": "5a1f5d4997e429a8cd9a1b9398232706f18fb324f46a44470a60233e5e04c238"
     },
     {
       "command": [
@@ -957,13 +958,13 @@
     "parity/inventory.json": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
     "runtime/Cargo.toml": "05ca5a0504a553726570b7572d0ee1d19f63559962134e62bd39ffe653821fd8",
     "runtime/build.rs": "82d37305953ff3b4eafee52c417649c76699d5ba64d75537d922ddb6feb26331",
-    "runtime/src/actions.rs": "91f734d2a5f59c392e29e2292b640ac3ac158e94154f0b223266c4f780ba89b8",
+    "runtime/src/actions.rs": "f9b9185ce706a39e4029eb94adbbc9525e55551bdf61fde16ef7b7f34479ad36",
     "runtime/src/api.rs": "4675f64bd8f3e8f60ecc16e1bec266d4890dad782cb431149576f6fbf2803610",
     "runtime/src/bin/runtime-fixture-adapter/guards.rs": "d5e5963bdec2ee75081c42631aaba565a8f2ae0379eeb8610ccac84be23d7972",
     "runtime/src/bin/runtime-fixture-adapter.rs": "92acb9b5f726390d6f80ead6c8ef4ce84bd5945e81a76d858558561bb9c069ab",
     "runtime/src/bin/worklane.rs": "07a8b2f04d277d5ecdd092741b68c1da11c5c7088baf5d71f5132c7fec6aad86",
     "runtime/src/board.rs": "120e796a042b4bdb0dd9490922e4384ae7bd5eb12451b003e7d04b0ee98ee524",
-    "runtime/src/cli.rs": "98cb2e811753d6a66d01e5eef2df5652c46762d2c2446bd8f4ceede80fccbd17",
+    "runtime/src/cli.rs": "8b3e82abc38a6ee11dab38b6d9114477c8ee37ad793c8258001d5fbfd785d24c",
     "runtime/src/config.rs": "f8ce6e1c03674c21506a7f1b040d82e73ac2865f912805c835e8070711217bb3",
     "runtime/src/controller.rs": "91e112db2599c258ca44bf2199406a011dc16fd6bf558c9c95e4481eee8d1a2c",
     "runtime/src/harness.rs": "da9e7d7f6abc3dc1c8b7773315a0ca34338973b051ced7eb2dcd7c6ecb05dc28",
@@ -975,7 +976,7 @@
     "runtime/src/transport.rs": "2023217f4015c2bf438b4176253a08020f2169e311315a4c8e41a549f1dd44f3",
     "runtime/src/unicode.rs": "57da5d8f1646d69eae3aa6b4bfef7592cc135cd8ecfd5f1c764b00c32bbc65a8",
     "runtime/src/workflow.rs": "1295aa69ce505ee4753b03588f62a5d6a7b66d10e16c0a8da1f0aeb3b9a070c8",
-    "runtime/tests/controller.rs": "cfbc5bf8b4fb9d2ef595e6483a7394ac8e09f3acc88fe56e2bc7b1eefad64b06",
+    "runtime/tests/controller.rs": "2d37fdfa597d029b91d74db28f0b8c839a1e34be5c38d86414e7d9b98b9773d8",
     "runtime/tests/durability.rs": "6649ea0f4380757bd3a198b4c1c353a263f8f5de268b802130e7ff014d60be57",
     "test_add_issue.py": "71c37e00775f8098b95c826cd5ec8e1bcf8e362f8760db96d286875dc4f5cac2",
     "test_api_budget.py": "3eae8acec5bc5c36391902cf78dc651c98e11b3051df152e776ac3d05ef7c0a6",
@@ -986,7 +987,7 @@
     "test_installation.py": "d5bb96bd5e53c01d6b8536100e6fdde1068b97404be675bda9c7bc1af48b7cd4",
     "test_native_actions.py": "662d432848e7d8509803d21d3c0d424a32a1e46c9675625a11142e15469ba77d",
     "test_native_boundaries.py": "7f3cce639cbebdbe970645f6b9f6e239682f26157efeba928ed3361c7aa41f8c",
-    "test_native_cli.py": "de6ba703e3804b147d6c28dd0522f46028108024171f7c425c6d4e14cc31e62f",
+    "test_native_cli.py": "9e047aa65ca7423a9f03581ddec14b6813b8901b10208beee177d132207609da",
     "test_native_core.py": "80d68e68f4878565a14b3dd1ceeb2bebe68eea3977731df849c72659e28deb5e",
     "test_native_gate.py": "e2160ab317be94bee871213790e6d3dd2237b848026c20f1b36704018f54af8f",
     "test_native_lifecycle.py": "27941cfbf890ece9611e4c06e74d2135a48217ba67c06cb507b74149d7098d12",

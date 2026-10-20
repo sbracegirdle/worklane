@@ -149,6 +149,10 @@ class NativeTuiTests(unittest.TestCase):
         self.send('\x15Updated 界\t\x15Line one\nLiteral $HOME `code`\x13'); self.until('Saved https://')
         saved=json.loads((self.root/'issue.json').read_text())
         self.assertEqual(saved['title'], 'Updated 界'); self.assertEqual(saved['body'], 'Line one\nLiteral $HOME `code`')
+        # Reopen/save immediately after each completion: never reject a completed worker as busy.
+        for _ in range(3):
+            self.send('e'); self.until('Title: Updated')
+            self.send('\x13'); self.until('Saved https://')
         self.send('e'); self.until('Title: Updated')
         changed=dict(saved, title='Concurrent change'); (self.root/'issue.json').write_text(json.dumps(changed))
         self.send('!\x13'); self.until('Issue changed on GitHub')

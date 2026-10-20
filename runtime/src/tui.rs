@@ -62,7 +62,15 @@ enum Editor {
     Search(String),
     Input(String),
 }
+#[derive(Clone, Copy)]
+enum Lane {
+    Action,
+    Read,
+    Control,
+}
 enum Update {
+    Done(Lane, Box<Result<Update>>),
+    EditorError(Box<Editor>, String),
     Snapshot(Value),
     Page(View, Value, String),
     Search(Value),
@@ -161,85 +169,104 @@ pub fn run(options: Options) -> Result<()> {
 }
 
 impl Dashboard {
-    fn launch(&mut self, f: impl FnOnce() -> Result<Update> + Send + 'static) {
-        if self.action_job.is_some() {
+    fn job(&mut self, lane: Lane) -> &mut Option<Job> {
+        match lane {
+            Lane::Action => &mut self.action_job,
+            Lane::Read => &mut self.read_job,
+            Lane::Control => &mut self.control_job,
+        }
+    }
+    fn launch_in(&mut self, lane: Lane, f: impl FnOnce() -> Result<Update> + Send + 'static) {
+        if self.job(lane).is_some() {
             self.message = "An action is already running; please wait.".into();
             return;
         }
         let tx = self.tx.clone();
         self.message = "Working… (navigation and quit remain available)".into();
-        self.action_job = Some(thread::spawn(move || {
-            let _ = tx.send(f());
+        *self.job(lane) = Some(thread::spawn(move || {
+            let result =
+                std::panic::catch_unwind(std::panic::AssertUnwindSafe(f)).unwrap_or_else(|_| {
+                    Err(Error::new(
+                        "blocked",
+                        "Background action failed; saved state retained.",
+                    ))
+                });
+            let _ = tx.send(Ok(Update::Done(lane, Box::new(result))));
         }));
     }
+    fn launch(&mut self, f: impl FnOnce() -> Result<Update> + Send + 'static) {
+        self.launch_in(Lane::Action, f);
+    }
     fn launch_read(&mut self, f: impl FnOnce() -> Result<Update> + Send + 'static) {
-        if self.read_job.is_some() {
-            self.message = "An action is already running; please wait.".into();
-            return;
+        self.launch_in(Lane::Read, f);
+    }
+    fn receive(&mut self, update: Result<Update>) {
+        match update {
+            Ok(Update::Done(lane, result)) => {
+                // The result is the worker's final operation; join before showing completion.
+                if let Some(job) = self.job(lane).take() {
+                    let _ = job.join();
+                }
+                self.receive(*result);
+            }
+            Ok(Update::EditorError(editor, error)) => {
+                self.editor = Some(*editor);
+                self.field = 0;
+                self.message = error;
+            }
+            Err(e) => self.message = e.to_string(),
+            Ok(Update::Snapshot(s)) => {
+                self.snapshot = s;
+                // Retain the selected issue/role when refreshed rows reorder.
+                let rows = self.visible();
+                if let Some((n, role)) = &self.chosen {
+                    if let Some(i) = rows
+                        .iter()
+                        .position(|r| r["number"] == *n && string(r, "role") == *role)
+                    {
+                        self.selected = i;
+                    }
+                }
+                self.selected = self.selected.min(rows.len().saturating_sub(1));
+            }
+            Ok(Update::Page(view, value, error)) => {
+                if self.view == view {
+                    self.page = value;
+                }
+                self.message = error;
+            }
+            Ok(Update::Search(value)) => {
+                self.results = value["results"].as_array().cloned().unwrap_or_default();
+                self.selected = 0;
+                self.message = if value["truncated"] == true {
+                    "First 100 matches".into()
+                } else {
+                    format!("{} matches", self.results.len())
+                };
+            }
+            Ok(Update::Editor(editor)) => {
+                self.editor = Some(*editor);
+                self.field = 0;
+                self.message.clear();
+            }
+            Ok(Update::Saved(message)) => {
+                self.editor = None;
+                self.view = View::Overview;
+                self.page = Value::Null;
+                self.message = message;
+                self.next_refresh = Instant::now();
+            }
+            Ok(Update::Message(message)) => {
+                self.message = message;
+                self.next_refresh = Instant::now();
+            }
         }
-        let tx = self.tx.clone();
-        self.message = "Working… (navigation and quit remain available)".into();
-        self.read_job = Some(thread::spawn(move || {
-            let _ = tx.send(f());
-        }));
     }
     fn poll(&mut self) {
         while let Ok(update) = self.rx.try_recv() {
-            match update {
-                Err(e) => self.message = e.to_string(),
-                Ok(Update::Snapshot(s)) => {
-                    self.snapshot = s;
-                    // Retain the selected issue/role when refreshed rows reorder.
-                    let rows = self.visible();
-                    if let Some((n, role)) = &self.chosen {
-                        if let Some(i) = rows
-                            .iter()
-                            .position(|r| r["number"] == *n && string(r, "role") == *role)
-                        {
-                            self.selected = i;
-                        }
-                    }
-                    self.selected = self.selected.min(rows.len().saturating_sub(1));
-                }
-                Ok(Update::Page(view, value, error)) => {
-                    if self.view == view {
-                        self.page = value;
-                    }
-                    self.message = error;
-                }
-                Ok(Update::Search(value)) => {
-                    self.results = value["results"].as_array().cloned().unwrap_or_default();
-                    self.selected = 0;
-                    self.message = if value["truncated"] == true {
-                        "First 100 matches".into()
-                    } else {
-                        format!("{} matches", self.results.len())
-                    };
-                }
-                Ok(Update::Editor(editor)) => {
-                    self.editor = Some(*editor);
-                    self.field = 0;
-                    self.message.clear();
-                }
-                Ok(Update::Saved(message)) => {
-                    self.editor = None;
-                    self.view = View::Overview;
-                    self.page = Value::Null;
-                    self.message = message;
-                    self.next_refresh = Instant::now();
-                }
-                Ok(Update::Message(message)) => {
-                    self.message = message;
-                    self.next_refresh = Instant::now();
-                }
-            }
+            self.receive(update);
         }
-        for job in [
-            &mut self.action_job,
-            &mut self.refresh_job,
-            &mut self.read_job,
-            &mut self.control_job,
-        ] {
+        for job in [&mut self.refresh_job] {
             if job.as_ref().is_some_and(Job::is_finished) && job.take().unwrap().join().is_err() {
                 self.message = "Background action failed; saved state retained.".into();
             }
@@ -603,10 +630,7 @@ impl Dashboard {
         let mut controller = self.options.controller.clone();
         let project = self.options.invocation.project.clone();
         let local = matches!(key, Key::Char('x' | 'X' | 'z'));
-        if local {
-            std::mem::swap(&mut self.action_job, &mut self.control_job);
-        }
-        self.launch(move || {
+        self.launch_in(if local {Lane::Control} else {Lane::Action}, move || {
             let message = match key {
                 Key::Char('x' | 'X') => {
                     actions.stop(key == Key::Char('X'))?;
@@ -637,9 +661,6 @@ impl Dashboard {
             };
             Ok(Update::Message(message.into()))
         });
-        if local {
-            std::mem::swap(&mut self.action_job, &mut self.control_job);
-        }
     }
     fn edit_key(&mut self, key: Key) {
         if key == Key::Escape {
@@ -725,11 +746,12 @@ impl Dashboard {
                 let actions = self.actions.clone();
                 let row = self.session();
                 let id = string(&row["run"], "id");
-                let tx = self.tx.clone();
                 self.launch(move || {
                     if let Err(error) = actions.queue_input(&id, &text) {
-                        let _ = tx.send(Ok(Update::Editor(Box::new(Editor::Input(text)))));
-                        return Err(error);
+                        return Ok(Update::EditorError(
+                            Box::new(Editor::Input(text)),
+                            error.to_string(),
+                        ));
                     }
                     Ok(Update::Message(
                         "Input queued for the saved session.".into(),
@@ -761,26 +783,21 @@ impl Dashboard {
             Editor::Issue(draft) => {
                 let actions = self.actions.clone();
                 let mut draft = *draft;
-                let tx = self.tx.clone();
-                self.message = "Saving…".into();
-                self.action_job = Some(thread::spawn(move || {
-                    match actions.save_editor(&mut draft) {
-                        Ok(url) => {
-                            let _ = actions.state.set_meta("tui:board", &json!({}));
-                            if let Some(number) = draft.number {
-                                let _ = actions
-                                    .state
-                                    .set_meta(&format!("tui:issue:{number}"), &json!({}));
-                            }
-                            let _ = tx.send(Ok(Update::Saved(format!("Saved {url}"))));
+                self.launch(move || match actions.save_editor(&mut draft) {
+                    Ok(url) => {
+                        let _ = actions.state.set_meta("tui:board", &json!({}));
+                        if let Some(number) = draft.number {
+                            let _ = actions
+                                .state
+                                .set_meta(&format!("tui:issue:{number}"), &json!({}));
                         }
-                        Err(e) => {
-                            let _ = tx
-                                .send(Ok(Update::Editor(Box::new(Editor::Issue(Box::new(draft))))));
-                            let _ = tx.send(Err(e));
-                        }
+                        Ok(Update::Saved(format!("Saved {url}")))
                     }
-                }));
+                    Err(e) => Ok(Update::EditorError(
+                        Box::new(Editor::Issue(Box::new(draft))),
+                        e.to_string(),
+                    )),
+                });
             }
         }
     }

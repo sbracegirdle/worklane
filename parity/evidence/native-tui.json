@@ -1,0 +1,1111 @@
+{
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
+  "runtime_parent": "5cc71a5880dc77727987e4a496c53181f5e5d8f0",
+  "candidate_source_revision": "52a4375ddab8067e49ba5c7957fef703aa4ba922",
+  "candidate": "/tmp/worklane-52-install/bin/worklane-tui",
+  "candidate_sha256": "c4938007d286067e25ce966436fa11456fe2f5473095268ca6c1c18d2107cb58",
+  "controller_probe": "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/52/target/debug/examples/tui-controller-probe",
+  "controller_probe_sha256": "d295de364c7ec58c6d4b144581832beb8cfb765d21b6e5de05bc5a0a17c60383",
+  "driver": "test_native_tui.py",
+  "input_hashes": {
+    "Cargo.lock": "2283a444cf375ca62a020cc7b49fb781eb2226500d7bc01cdf1a4cf37aae8d98",
+    "Cargo.toml": "630e2c4d08521765a4da7d6d51786c31224fcf7f0f1764f0205f811f37393496",
+    "runtime/Cargo.toml": "05ca5a0504a553726570b7572d0ee1d19f63559962134e62bd39ffe653821fd8",
+    "runtime/examples/tui-controller-probe.rs": "574aa1e2c5ab0efd5b10cca5e91f684cd39394b7a0d708c88828c1eda6d1a97d",
+    "runtime/src/actions.rs": "91f734d2a5f59c392e29e2292b640ac3ac158e94154f0b223266c4f780ba89b8",
+    "runtime/src/api.rs": "4675f64bd8f3e8f60ecc16e1bec266d4890dad782cb431149576f6fbf2803610",
+    "runtime/src/bin/runtime-fixture-adapter/guards.rs": "d5e5963bdec2ee75081c42631aaba565a8f2ae0379eeb8610ccac84be23d7972",
+    "runtime/src/bin/runtime-fixture-adapter.rs": "92acb9b5f726390d6f80ead6c8ef4ce84bd5945e81a76d858558561bb9c069ab",
+    "runtime/src/bin/worklane-tui.rs": "17a353b94fc4caf789498a115e86825b4f131809a6f228f2ff5a81eab25405da",
+    "runtime/src/board.rs": "120e796a042b4bdb0dd9490922e4384ae7bd5eb12451b003e7d04b0ee98ee524",
+    "runtime/src/config.rs": "f8ce6e1c03674c21506a7f1b040d82e73ac2865f912805c835e8070711217bb3",
+    "runtime/src/controller.rs": "91e112db2599c258ca44bf2199406a011dc16fd6bf558c9c95e4481eee8d1a2c",
+    "runtime/src/harness.rs": "da9e7d7f6abc3dc1c8b7773315a0ca34338973b051ced7eb2dcd7c6ecb05dc28",
+    "runtime/src/lib.rs": "11a32c10b3b2b6691d4d07291970b6733f2640f0ede1f3a6e1fd4e97f0c01636",
+    "runtime/src/process.rs": "7a62f5d0f989a7ddd199cb9cc5b2896a7ec7ddbec3221efe782a0ad05c3b7302",
+    "runtime/src/queries.rs": "940f625231472bb93b876871cbca4d33a5c971bbd16b3deb66d81a6674f77020",
+    "runtime/src/read_model.rs": "406d210329daa8e8a34500a020e739d8823f6a313bc9014f82201ec1281e11e5",
+    "runtime/src/state.rs": "c7d3bf17f66b4e97602b67dbf11d5d6449aa2273a7b377304c0f459f1a8dc987",
+    "runtime/src/transport.rs": "e653173bcdbfed7b0fe985f91522c1718318b32e2d83fccdde6fbd2c6a8e3d84",
+    "runtime/src/tui/terminal.rs": "34aca0995f8b80af2088777203dc8897cdb07bb4c10ea2fa38631949bd3e2962",
+    "runtime/src/tui.rs": "32c061ec9de3443393ec4087ada80004e46e66f6f7580845d38c30d785aa3283",
+    "runtime/src/unicode.rs": "57da5d8f1646d69eae3aa6b4bfef7592cc135cd8ecfd5f1c764b00c32bbc65a8",
+    "runtime/src/workflow.rs": "1295aa69ce505ee4753b03588f62a5d6a7b66d10e16c0a8da1f0aeb3b9a070c8",
+    "runtime/tests/controller.rs": "cfbc5bf8b4fb9d2ef595e6483a7394ac8e09f3acc88fe56e2bc7b1eefad64b06",
+    "runtime/tests/durability.rs": "6649ea0f4380757bd3a198b4c1c353a263f8f5de268b802130e7ff014d60be57",
+    "test_native_tui.py": "9f676141cffaf9a88986f858ec465e3c894b8d0593063cdce6acacb0b3664558",
+    "tools/fixtures/tui_gh.py": "4f859d15969b2b88d6a5708760f29954755c75c7cdd5b47981ff4ab343e192a3",
+    "tools/native_tui.py": "d05a46b73e78d3a1d570df3a44186c7c38f0679fc65e81acc89594d2589720dc",
+    "worklane.py": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64"
+  },
+  "command": [
+    "uv",
+    "run",
+    "--no-project",
+    "python",
+    "tools/native_tui.py",
+    "parity/evidence/native-tui.json"
+  ],
+  "environment": {
+    "WORKLANE_TUI_BIN": "/tmp/worklane-52-install/bin/worklane-tui",
+    "WORKLANE_TEST_RUST": "1"
+  },
+  "results": [
+    {
+      "id": "test_native_tui.NativeTuiTests.test_group11_held_github_budget_lock_still_quits_and_restores_terminal",
+      "status": "pass",
+      "scenario": 11,
+      "observations": {
+        "saved_worker_session": "a7f747b3-dc10-4ea8-b839-6f2cae04e26f",
+        "expected_worker_session": "a7f747b3-dc10-4ea8-b839-6f2cae04e26f",
+        "saved_phase": "building",
+        "pending_worker_input": [],
+        "gh_commands": [],
+        "terminal_restored": true,
+        "exit": 0,
+        "terminal_sha256": "b8d60ef7370154d0b801f86dd9f0089ce3852def16189e3577c91da4d14509f4",
+        "observed_terminal_tokens": [
+          "Overview"
+        ]
+      }
+    },
+    {
+      "id": "test_native_tui.NativeTuiTests.test_group11_live_refresh_unicode_navigation_resize_search_details_quit",
+      "status": "pass",
+      "scenario": 11,
+      "observations": {
+        "saved_worker_session": "843c7489-a303-44fa-b8f0-6df231d98625",
+        "expected_worker_session": "843c7489-a303-44fa-b8f0-6df231d98625",
+        "saved_phase": "building",
+        "pending_worker_input": [],
+        "gh_commands": [
+          [
+            "issue",
+            "view",
+            "1",
+            "--repo",
+            "owner/repo",
+            "--json",
+            "number,title,body,state,url"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ]
+        ],
+        "terminal_restored": true,
+        "exit": 0,
+        "terminal_sha256": "1f2fb8368ffbbf4bdec5e6b46e0be6ca805e68e100c8261896edbfc1825ae239",
+        "observed_terminal_tokens": [
+          "Overview",
+          "Logs #1",
+          "Fresh output after refresh",
+          "Second paginated comment"
+        ]
+      }
+    },
+    {
+      "id": "test_native_tui.NativeTuiTests.test_group11_redirected_and_invalid_refresh_refused",
+      "status": "pass",
+      "scenario": 11,
+      "observations": {
+        "saved_worker_session": "7c0439ad-aa5a-4d8d-a5a8-ecad08236ea0",
+        "expected_worker_session": "7c0439ad-aa5a-4d8d-a5a8-ecad08236ea0",
+        "saved_phase": "building",
+        "pending_worker_input": [],
+        "gh_commands": []
+      }
+    },
+    {
+      "id": "test_native_tui.NativeTuiTests.test_group11_slow_network_stop_quit_cancels_only_owned_requests",
+      "status": "pass",
+      "scenario": 11,
+      "observations": {
+        "saved_worker_session": "3eda2fe1-fd24-494b-8e56-e5ae24ddaf02",
+        "expected_worker_session": "3eda2fe1-fd24-494b-8e56-e5ae24ddaf02",
+        "saved_phase": "building",
+        "pending_worker_input": [],
+        "gh_commands": [
+          [
+            "issue",
+            "view",
+            "1",
+            "--repo",
+            "owner/repo",
+            "--json",
+            "number,title,body,state,url"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ]
+        ],
+        "terminal_restored": true,
+        "exit": 0,
+        "terminal_sha256": "b50e40d57c11484372b4313b7e2582fe0768cf9201f93745d211988638cdeea4",
+        "observed_terminal_tokens": [
+          "Overview",
+          "Stop requested"
+        ]
+      }
+    },
+    {
+      "id": "test_native_tui.NativeTuiTests.test_group12_config_cancel_validation_save_no_controller",
+      "status": "pass",
+      "scenario": 12,
+      "observations": {
+        "saved_worker_session": "1f671c7c-1d04-4cba-b83f-85b510927184",
+        "expected_worker_session": "1f671c7c-1d04-4cba-b83f-85b510927184",
+        "saved_phase": "building",
+        "pending_worker_input": [],
+        "gh_commands": [],
+        "terminal_restored": true,
+        "exit": 0,
+        "terminal_sha256": "70f3fead19b774c8d0a3c1f133b0f9928a05ae50e461e132bf47103d03a7ecc1",
+        "observed_terminal_tokens": [
+          "Overview",
+          "Configuration saved",
+          "Cancelled"
+        ]
+      }
+    },
+    {
+      "id": "test_native_tui.NativeTuiTests.test_group12_create_issue_board_browser_pr",
+      "status": "pass",
+      "scenario": 12,
+      "observations": {
+        "saved_worker_session": "e7343e4f-4c3e-4d72-bc5d-530a91c628b1",
+        "expected_worker_session": "e7343e4f-4c3e-4d72-bc5d-530a91c628b1",
+        "saved_phase": "building",
+        "pending_worker_input": [],
+        "gh_commands": [
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "field-list",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "issue",
+            "create",
+            "--repo",
+            "owner/repo",
+            "--title",
+            "Created \u754c",
+            "--body-file",
+            "-"
+          ],
+          [
+            "project",
+            "item-add",
+            "2",
+            "--owner",
+            "owner",
+            "--url",
+            "https://github.com/owner/repo/issues/1",
+            "--format",
+            "json"
+          ],
+          [
+            "project",
+            "item-edit",
+            "--id",
+            "item",
+            "--project-id",
+            "project",
+            "--field-id",
+            "status",
+            "--single-select-option-id",
+            "ready"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "pr",
+            "view",
+            "https://github.com/owner/repo/pull/12",
+            "--repo",
+            "owner/repo",
+            "--json",
+            "number,url,state,isDraft"
+          ],
+          [
+            "pr",
+            "view",
+            "https://github.com/owner/repo/pull/12",
+            "--repo",
+            "owner/repo",
+            "--web"
+          ],
+          [
+            "issue",
+            "view",
+            "1",
+            "--repo",
+            "owner/repo",
+            "--json",
+            "number,title,body,state,url"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "issue",
+            "view",
+            "1",
+            "--repo",
+            "owner/repo",
+            "--web"
+          ],
+          [
+            "pr",
+            "view",
+            "https://github.com/owner/repo/pull/99",
+            "--repo",
+            "owner/repo",
+            "--json",
+            "number,url,state,isDraft"
+          ],
+          [
+            "pr",
+            "view",
+            "https://github.com/owner/repo/pull/12",
+            "--repo",
+            "owner/repo",
+            "--web"
+          ]
+        ],
+        "terminal_restored": true,
+        "exit": 0,
+        "terminal_sha256": "fe59ff8cbd8f389fc6a2de578480d76750cc23506216afd61ce13abb122714fa",
+        "observed_terminal_tokens": [
+          "Overview",
+          "Second paginated comment"
+        ]
+      }
+    },
+    {
+      "id": "test_native_tui.NativeTuiTests.test_group12_input_cancel_queue_exact_session_and_stopped_refusal",
+      "status": "pass",
+      "scenario": 12,
+      "observations": {
+        "saved_worker_session": "12253af7-5954-4296-b9c5-2568afefc368",
+        "expected_worker_session": "12253af7-5954-4296-b9c5-2568afefc368",
+        "saved_phase": "building",
+        "pending_worker_input": [
+          "Follow up \u754c"
+        ],
+        "gh_commands": [
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ]
+        ],
+        "terminal_restored": true,
+        "exit": 0,
+        "terminal_sha256": "4a111aac83876379cc3941a48033a05518d6bfb8febffd05479341ad20104dce",
+        "observed_terminal_tokens": [
+          "Logs #1",
+          "Input queued",
+          "Cancelled"
+        ]
+      }
+    },
+    {
+      "id": "test_native_tui.NativeTuiTests.test_group12_interactive_resume_exact_role_terminal_and_missing_worktree",
+      "status": "pass",
+      "scenario": 12,
+      "observations": {
+        "saved_worker_session": "644e1ab3-5155-439c-b2a7-4956ff6b6c06",
+        "expected_worker_session": "644e1ab3-5155-439c-b2a7-4956ff6b6c06",
+        "saved_phase": "building",
+        "pending_worker_input": [],
+        "gh_commands": [
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ]
+        ],
+        "terminal_restored": true,
+        "exit": 0,
+        "terminal_sha256": "8b37a408a5cb0b0a2313caf0731a0c58e471f856374ac8c10f7a056f978d462a",
+        "observed_terminal_tokens": [
+          "Overview",
+          "Logs #1",
+          "Session returned"
+        ]
+      }
+    },
+    {
+      "id": "test_native_tui.NativeTuiTests.test_group12_issue_editor_cancel_edit_conflict_and_revocation",
+      "status": "pass",
+      "scenario": 12,
+      "observations": {
+        "saved_worker_session": "3cc22094-6b0c-4066-b9e4-191bf4961089",
+        "expected_worker_session": "3cc22094-6b0c-4066-b9e4-191bf4961089",
+        "saved_phase": "building",
+        "pending_worker_input": [],
+        "gh_commands": [
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "field-list",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "field-list",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "issue",
+            "view",
+            "1",
+            "--repo",
+            "owner/repo",
+            "--json",
+            "title,body,state,url"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "issue",
+            "edit",
+            "1",
+            "--repo",
+            "owner/repo",
+            "--title",
+            "Updated \u754c",
+            "--body-file",
+            "-"
+          ],
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "field-list",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "issue",
+            "view",
+            "1",
+            "--repo",
+            "owner/repo",
+            "--json",
+            "title,body,state,url"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "field-list",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "issue",
+            "view",
+            "1",
+            "--repo",
+            "owner/repo",
+            "--json",
+            "title,body,state,url"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "field-list",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "issue",
+            "view",
+            "1",
+            "--repo",
+            "owner/repo",
+            "--json",
+            "title,body,state,url"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "field-list",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "issue",
+            "view",
+            "1",
+            "--repo",
+            "owner/repo",
+            "--json",
+            "title,body,state,url"
+          ],
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "field-list",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ]
+        ],
+        "terminal_restored": true,
+        "exit": 0,
+        "terminal_sha256": "852ea6b1303bb143a1742c4524e4c1368732cfadeeab1002eb9237c0122d666e",
+        "observed_terminal_tokens": [
+          "Overview",
+          "Cancelled",
+          "security preflight refused"
+        ]
+      }
+    },
+    {
+      "id": "test_native_tui.NativeTuiTests.test_group12_native_lifecycle_detached_start_pause_resume_drain_immediate",
+      "status": "pass",
+      "scenario": 12,
+      "observations": {
+        "saved_worker_session": "72e689b7-3087-4faa-b0b1-49232462f291",
+        "expected_worker_session": "72e689b7-3087-4faa-b0b1-49232462f291",
+        "saved_phase": "building",
+        "pending_worker_input": [],
+        "gh_commands": [
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ]
+        ],
+        "terminal_restored": true,
+        "exit": 0,
+        "terminal_sha256": "e9932a157c009b7964df4ccc61170b08d651edbdd609eb48103fa82f30b99dda",
+        "observed_terminal_tokens": [
+          "Overview",
+          "Controller started",
+          "Stop requested"
+        ]
+      }
+    },
+    {
+      "id": "test_native_tui.NativeTuiTests.test_group12_public_guard_retry_and_signal_restore",
+      "status": "pass",
+      "scenario": 12,
+      "observations": {
+        "saved_worker_session": "ddca3eb3-e11d-4803-b343-5941163469c0",
+        "expected_worker_session": "ddca3eb3-e11d-4803-b343-5941163469c0",
+        "saved_phase": "retry",
+        "pending_worker_input": [],
+        "gh_commands": [
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ]
+        ],
+        "terminal_restored": true,
+        "exit": 0,
+        "terminal_sha256": "ab45f2083b247515bc3537ee6b16520589fe67e98a52b1b7932c7b72950eb37d",
+        "observed_terminal_tokens": [
+          "Overview",
+          "security preflight refused",
+          "Retry saved"
+        ]
+      }
+    },
+    {
+      "id": "test_native_tui.NativeTuiTests.test_group12_reviewer_input_and_resume_keep_exact_role",
+      "status": "pass",
+      "scenario": 12,
+      "observations": {
+        "saved_worker_session": "dba169c5-bdcd-4fae-96a7-22ac8cf5afd6",
+        "expected_worker_session": "dba169c5-bdcd-4fae-96a7-22ac8cf5afd6",
+        "saved_phase": "building",
+        "pending_worker_input": [],
+        "gh_commands": [
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ]
+        ],
+        "terminal_restored": true,
+        "exit": 0,
+        "terminal_sha256": "f0df19be24112a007bc085ab3401a56741050eb39fa606fb355c794d82f1b9e0",
+        "observed_terminal_tokens": [
+          "Overview",
+          "Logs #1",
+          "Input queued",
+          "Session returned"
+        ]
+      }
+    }
+  ],
+  "tests_run": 12,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "core_tui_ready": true,
+  "core_runtime_ready": null,
+  "core_runtime_evidence": "Parent core groups 1\u20139 independently reviewed at runtime_parent; current regression results recorded in PR.",
+  "core_release_ready": false,
+  "exhaustive_parity_complete": false,
+  "independent_review": "pending serialized reviewer",
+  "limits": [
+    "Disposable installation only; active installations preserved.",
+    "Controlled gh/provider commands, real PTYs and native owned controller probe; no live GitHub writes or provider turns.",
+    "#53 owns combined CLI/TUI integration, drained installed cutover and full backlog lifecycle.",
+    "Deferred richer colors, first-use walkthrough, cursor editing, PR badges and fuzzy search."
+  ],
+  "validation": [
+    {
+      "command": "cargo fmt --all --check",
+      "exit": 0
+    },
+    {
+      "command": "cargo clippy --all-targets --locked --offline -- -D warnings",
+      "exit": 0
+    },
+    {
+      "command": "cargo test --locked --offline",
+      "exit": 0,
+      "passed": 42,
+      "log_sha256": "9d8ceee9c89171ad0b81539b7203fe0ec8720d97aaa75790c5ff0f5af0cb32ab"
+    },
+    {
+      "command": "cargo install --path runtime --bin worklane-tui --root /tmp/worklane-52-install --debug --locked --offline",
+      "exit": 0,
+      "version": "worklane-tui 0.1.0"
+    },
+    {
+      "command": "UV_CACHE_DIR=/tmp/worklane-52-uv WORKLANE_TEST_RUST=1 WORKLANE_TEST_INSTALL=0 WORKLANE_TEST_OPENCODE=0 WORKLANE_TUI_BIN=/tmp/worklane-52-install/bin/worklane-tui uv run --no-project python -m unittest -q",
+      "exit": 0,
+      "tests_run": 538,
+      "skipped": 2,
+      "result": "OK (skipped=2)",
+      "source_revision": "52a4375ddab8067e49ba5c7957fef703aa4ba922",
+      "log_sha256": "01c47eb173645ae00b923735e4ea7069abfe4c060b560d083d37685ca4ab683f"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --cached --check",
+      "exit": 0
+    }
+  ],
+  "previous_attempts": [
+    {
+      "source_revision": "9db4e3f21c173617239900a05412ef5d1a6e8f89",
+      "command": "UV_CACHE_DIR=/tmp/worklane-52-uv WORKLANE_TEST_RUST=1 WORKLANE_TEST_INSTALL=0 WORKLANE_TEST_OPENCODE=0 WORKLANE_TUI_BIN=/tmp/worklane-52-install/bin/worklane-tui uv run --no-project python -m unittest -q",
+      "exit": 1,
+      "result": "538 tests; one unchanged Python timing failure, two optional skips",
+      "failure": "test_sessions.SessionTests.test_session_is_committed_before_turn_finishes: no saved session within 3 seconds"
+    },
+    {
+      "command": "UV_CACHE_DIR=/tmp/worklane-52-uv uv run --no-project python -m unittest -v test_sessions.SessionTests.test_session_is_committed_before_turn_finishes",
+      "exit": 0,
+      "passed": 1
+    },
+    {
+      "source_revision": "43303e08823b1e97cb6e02206777e4c2f1773b7f",
+      "command": "UV_CACHE_DIR=/tmp/worklane-52-uv WORKLANE_TEST_RUST=1 WORKLANE_TEST_INSTALL=0 WORKLANE_TEST_OPENCODE=0 WORKLANE_TUI_BIN=/tmp/worklane-52-install/bin/worklane-tui uv run --no-project python -m unittest -q",
+      "exit": 1,
+      "result": "538 tests; one native TUI completion race, two optional skips",
+      "fix_revision": "52a4375ddab8067e49ba5c7957fef703aa4ba922",
+      "fix": "Join each bounded action before applying its completion; rapid repeated editor saves now pass."
+    }
+  ]
+}

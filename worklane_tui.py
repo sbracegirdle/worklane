@@ -105,6 +105,22 @@ def save_editor(repo, editor):
     return current["url"]
 
 
+def pr_key(task):
+    reference = task.get("pr_url") or task.get("branch")
+    return f"pr:{reference}" if reference else None
+
+
+def pr_view(repo, task):
+    fields = "number,url,state,isDraft"
+    if task.get("pr_url"):
+        return worklane.gh("pr", "view", task["pr_url"], "--repo", repo, "--json", fields)
+    if task.get("branch"):
+        prs = worklane.gh("pr", "list", "--repo", repo, "--head", task["branch"],
+                          "--state", "all", "--limit", "1", "--json", fields)
+        return prs[0] if prs else None
+    return None
+
+
 def controller_action(action, root, options):
     """Use the same CLI safeguards as commands entered in another terminal."""
     args = [sys.executable, str(Path(worklane.__file__).resolve()), action, "--repo", str(root)]
@@ -449,6 +465,7 @@ class Dashboard:
         self.selected, self.detail, self.offset = None, False, 0
         self.no_color = no_color
         self.focus, self.expanded = None, None
+        self.visible_issues = []
         self.message = ""
         self.colors = {}
         self.searching, self.editing = False, False
@@ -627,7 +644,7 @@ class Dashboard:
         if editor.get("uncertain"):
             self.put(screen, bottom + 1, "  Creation uncertain; Esc and inspect the board.", c.A_BOLD)
 
-    def submit(self, loader, done, *, channel="view"):
+    def submit(self, loader, done, *, channel="view", quiet=False):
         if channel in self.jobs:
             self.message = "An action is still running; wait for its result."
             return False
@@ -640,7 +657,8 @@ class Dashboard:
                 future.set_exception(error)
         # A slow GitHub request must not hold the terminal open after quitting.
         threading.Thread(target=work, daemon=True).start()
-        self.message = "Working…"
+        if not quiet:
+            self.message = "Working…"
         return True
 
     def poll(self):
@@ -689,6 +707,47 @@ class Dashboard:
             return
         self.submit(lambda: controller_action(action, self.root, self.settings()),
                     lambda result: setattr(self, "message", result), channel="control")
+
+    def refresh_prs(self, issues):
+        if "prs" in self.jobs:
+            return
+        pending = [(pr_key(issue["task"]), issue["task"]) for issue in issues
+                   if pr_key(issue["task"]) and time.time() >= self.cache.saved(pr_key(issue["task"])).get("retry_at", 0)]
+        if pending:
+            def load():
+                for key, task in pending:
+                    self.cache.read(key, lambda: pr_view(self.repo, task))
+            self.submit(load, lambda _: None, channel="prs", quiet=True)
+
+    def pr_status(self, task):
+        key = pr_key(task)
+        if not key:
+            return "PR none"
+        saved = self.cache.saved(key)
+        pr = saved.get("value")
+        if pr:
+            status = "draft" if pr["state"] == "OPEN" and pr["isDraft"] else pr["state"].lower()
+            label = f"PR #{pr['number']} {status}"
+        else:
+            label = "PR none" if "value" in saved else "PR unknown"
+        if saved.get("error") or (saved and time.time() >= saved.get("retry_at", 0)):
+            label += " (stale)"
+        return label
+
+    def open_pr(self, task):
+        key = pr_key(task)
+        if not key:
+            self.message = "No PR for the selected issue."
+            return
+        def launch():
+            pr, error = self.cache.read(key, lambda: pr_view(self.repo, task))
+            if not pr:
+                if error:
+                    raise RuntimeError(error)
+                return "No PR for the selected issue."
+            worklane.command(["gh", "pr", "view", pr["url"], "--repo", self.repo, "--web"], cwd=self.root)
+            return f"Opened PR #{pr['number']} in browser." + (" Using saved PR details." if error else "")
+        self.submit(launch, lambda result: setattr(self, "message", result), channel="browser")
 
     def draw_page(self, screen, bottom):
         page, c = self.page, self.curses
@@ -780,7 +839,9 @@ class Dashboard:
                 expanded = issue["number"] in self.expanded
                 lines.append([(" › " if selected else "   ", self.colors.get("live", 0) | c.A_BOLD),
                               ("▾ " if expanded else "▸ ", self.tone(issue["status"])),
-                              (f"#{issue['number']}  {issue['title']}", c.A_BOLD if selected else 0),
+                              (f"#{issue['number']}  ", c.A_BOLD if selected else 0),
+                              (self.pr_status(issue["task"]) + "  ·  ", muted),
+                              (issue['title'], c.A_BOLD if selected else 0),
                               (f"  {len(issue['sessions'])} session{'s' if len(issue['sessions']) != 1 else ''}", muted)])
             else:
                 selected = key == self.focus
@@ -802,6 +863,7 @@ class Dashboard:
             if start > parent_line:
                 start = parent_line
         visible = lines[start:start + capacity]
+        self.visible_issues = [issue for issue in issues if start <= parent_lines[issue["number"]] < start + capacity]
         self.put(screen, 3, "  ISSUES & SESSIONS", c.A_BOLD)
         for y, spans in enumerate(visible, 4):
             self.paint(screen, y, spans)
@@ -957,11 +1019,13 @@ class Dashboard:
         if self.searching and not self.detail:
             controls = "Enter search   Backspace edit   Esc cancel" if self.editing else "↑↓/jk select  Enter open  / edit  b/Esc/q back"
         elif not self.detail:
-            controls = "s start x stop c config i issue B board q quit"
+            controls = "s start x stop i issue B board p PR q quit"
             if width >= 70:
-                controls = "s start x stop c config i issue B board n new e edit q quit"
+                controls = "s start x stop c config i issue B board p PR n new e edit q quit"
             if width >= 100:
-                controls = "s start x stop c config i issue B board n new e edit / search ↑↓ select Enter open a resume q quit"
+                controls = "s start x stop c config i issue B board p PR n new e edit / search Enter open a resume q quit"
+        if not self.detail and not self.searching and not self.page and not self.editor and width < 100:
+            self.put(screen, bottom, "  " + ("c config  / search" if width < 70 else "/ search  ↑↓ select  Enter open  a resume"), c.A_DIM)
         if self.page:
             controls = "↑↓/jk select Enter/i issue n new e edit r refresh Esc back" if self.page["kind"] == "board" else "↑↓/PgUp/PgDn scroll e edit r refresh Esc back"
         if self.composing:
@@ -1012,6 +1076,8 @@ class Dashboard:
                     data["selected"] = chosen
                 self.selected = chosen["key"] if chosen else None
                 self.draw(screen, data)
+                if not self.editor and not self.page and not self.detail and not self.searching:
+                    self.refresh_prs(self.visible_issues)
             except sqlite3.Error as error:
                 self.message = f"Database temporarily unavailable: {error}"
                 self.put(screen, screen.getmaxyx()[0] - 2, self.message, self.colors.get("bad", 0))
@@ -1145,6 +1211,9 @@ class Dashboard:
                 continue
             if key == ord("i") and chosen:
                 self.open_page("issue", number=chosen["number"], fallback=chosen["task"].get("issue") or chosen["task"].get("item", {}).get("content"))
+                continue
+            if key == ord("p") and chosen:
+                self.open_pr(chosen["task"])
                 continue
             if key in (27, ord("b"), ord("q"), 8, 127, c.KEY_BACKSPACE):
                 if self.detail:

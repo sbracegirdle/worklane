@@ -358,13 +358,16 @@ class TuiTests(unittest.TestCase):
 
     def test_small_terminal_and_monochrome_and_unicode_clipping(self):
         dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1)
-        for size in ((1, 1), (5, 30), (12, 50), (28, 110)):
+        for size in ((1, 1), (5, 30), (12, 50), (28, 70), (28, 100), (28, 110)):
             screen = Screen(size=size)
             dashboard.draw(screen, tui.snapshot(self.state))
             self.assertTrue(screen.frames)
             if size[0] >= 12 and size[1] >= 50:
-                for control in ("s start", "x stop", "i issue", "B board", "q quit"):
+                for control in ("s start", "x stop", "c config", "i issue", "B board", "p PR", "q quit"):
                     self.assertIn(control, screen.frames[-1])
+                if size[1] >= 70:
+                    for control in ("n new", "e edit", "/ search"):
+                        self.assertIn(control, screen.frames[-1])
         self.assertEqual(tui.clipped("你好world", 5), "你好w")
         paragraph = "Inspecting source before running tests"
         self.assertEqual("".join(tui.wrapped(paragraph, 20)), paragraph)
@@ -392,6 +395,11 @@ class TuiTests(unittest.TestCase):
         self.state.set_meta("tui:issue:1", {"value": issue, "retry_at": time.time() + 60})
         self.state.set_meta("tui:board:auto", {"value": {"url": "board-url", "items": [
             {"status": "In Progress", "title": "Task 1", "content": issue}]}, "retry_at": time.time() + 60})
+        task = self.state.load(1)
+        task["pr_url"] = "https://github.com/owner/repo/pull/12"
+        self.state.save(task)
+        pr = {"number": 12, "url": task["pr_url"], "state": "OPEN", "isDraft": False}
+        self.state.set_meta("tui:" + tui.pr_key(task), {"value": pr, "retry_at": time.time() + 60})
         master, slave = pty.openpty()
         self.addCleanup(os.close, master)
         self.addCleanup(os.close, slave)
@@ -427,6 +435,9 @@ class TuiTests(unittest.TestCase):
             self.assertTrue((self.tree / w.CONFIG_FILE).exists())
             self.assertIn(b"WORKLANE", output)
             self.assertIn(b"[36m", output)  # Cyan activity indicators in a colour terminal.
+            self.assertIn(b"PR #12 open", output)
+            self.state.set_meta("tui:" + tui.pr_key(task), {"value": dict(pr, state="MERGED"), "retry_at": time.time() + 60})
+            until(b"merged")
             os.write(master, b"B")
             until(b"PROJECT BOARD")
             os.write(master, b"\n")
@@ -647,7 +658,7 @@ class TuiTests(unittest.TestCase):
             frame = screen.frames[-1]
             self.assertIn("RUNNING  ·  1 issue", frame)
             self.assertIn("BLOCKED  ·  1 issue", frame)
-            self.assertEqual(sum("#1  Task 1" in line for y, line in screen.lines.items() if y < 24), 1)
+            self.assertEqual(sum("#1  PR none  ·  Task 1" in line for y, line in screen.lines.items() if y < 24), 1)
             self.assertIn("├─ worker", frame)
             self.assertIn("└─ reviewer", frame)
             self.assertNotIn("Session:", frame)
@@ -656,7 +667,7 @@ class TuiTests(unittest.TestCase):
             dashboard.focus = (1, "reviewer")
             screen = Screen(size=(12, 50))
             dashboard.draw(screen, data)
-            self.assertTrue(any("#1  Task 1" in line for y, line in screen.lines.items() if 4 <= y < 8))
+            self.assertTrue(any("#1  PR none  ·  Task 1" in line for y, line in screen.lines.items() if 4 <= y < 8))
             self.assertTrue(any("reviewer" in line for y, line in screen.lines.items() if 4 <= y < 8))
 
     def test_issue_expand_collapse_and_session_navigation_open_the_correct_logs(self):
@@ -780,6 +791,221 @@ class TuiTests(unittest.TestCase):
             dashboard.poll()
             time.sleep(.005)
         self.assertFalse(dashboard.jobs, "background action did not complete")
+
+    def test_pr_lookup_prefers_saved_url_and_discovers_unsaved_pr_by_branch(self):
+        pr = {"number": 12, "url": "https://github.com/owner/repo/pull/12", "state": "OPEN", "isDraft": False}
+        task = {"pr_url": pr["url"], "branch": "codex/1"}
+        with patch.object(w, "gh", return_value=pr) as gh:
+            self.assertEqual(tui.pr_view("owner/repo", task), pr)
+        gh.assert_called_once_with("pr", "view", pr["url"], "--repo", "owner/repo", "--json", "number,url,state,isDraft")
+        with patch.object(w, "gh", side_effect=[[pr], []]) as gh:
+            self.assertEqual(tui.pr_view("owner/repo", {"branch": "codex/1"}), pr)
+            self.assertIsNone(tui.pr_view("owner/repo", {"branch": "codex/1"}))
+        self.assertEqual(gh.call_args.args, ("pr", "list", "--repo", "owner/repo", "--head", "codex/1",
+                                            "--state", "all", "--limit", "1", "--json", "number,url,state,isDraft"))
+        with patch.object(w, "gh") as gh:
+            self.assertIsNone(tui.pr_view("owner/repo", {}))
+        gh.assert_not_called()
+
+    def test_overview_pr_states_remain_visible_with_long_titles_in_small_terminals(self):
+        task = {"number": 1, "phase": "building", "branch": "codex/1", "issue": {"title": "Long title " * 20}}
+        self.state.save(task)
+        before = self.state.load(1)
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        cases = [(None, "PR none"), ({"state": "OPEN", "isDraft": False}, "PR #12 open"),
+                 ({"state": "OPEN", "isDraft": True}, "PR #12 draft"),
+                 ({"state": "CLOSED", "isDraft": True}, "PR #12 closed"),
+                 ({"state": "MERGED", "isDraft": False}, "PR #12 merged")]
+        for pr, label in cases:
+            with self.subTest(label=label):
+                value = dict(pr, number=12) if pr else None
+                self.state.set_meta("tui:" + tui.pr_key(task), {"value": value, "retry_at": time.time() + 60})
+                screen = Screen(size=(12, 50))
+                dashboard.draw(screen, tui.snapshot(self.state))
+                self.assertIn(label, screen.frames[-1])
+        self.assertEqual(self.state.load(1), before)
+
+    def test_pr_refresh_caches_absence_expires_and_switches_to_saved_url(self):
+        task = {"number": 1, "phase": "building", "branch": "codex/1"}
+        self.state.save(task)
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        issues = tui.issue_groups(tui.snapshot(self.state)["rows"])
+        self.assertEqual(dashboard.pr_status(task), "PR unknown")
+        pr = {"number": 12, "url": "https://github.com/owner/repo/pull/12", "state": "OPEN", "isDraft": True}
+        with patch.object(tui, "pr_view", side_effect=[None, pr, dict(pr, state="MERGED")]) as view:
+            with patch.object(tui.time, "time", return_value=1000):
+                dashboard.refresh_prs(issues)
+                self.wait_jobs(dashboard)
+                self.assertEqual(dashboard.pr_status(task), "PR none")
+                dashboard.refresh_prs(issues)
+                self.assertFalse(dashboard.jobs)
+            with patch.object(tui.time, "time", return_value=1060):
+                self.assertEqual(dashboard.pr_status(task), "PR none (stale)")
+                dashboard.refresh_prs(issues)
+                self.wait_jobs(dashboard)
+                self.assertEqual(dashboard.pr_status(task), "PR #12 draft")
+                task["pr_url"] = pr["url"]
+                issues[0]["task"] = task
+                dashboard.refresh_prs(issues)
+                self.wait_jobs(dashboard)
+                self.assertEqual(dashboard.pr_status(task), "PR #12 merged")
+        self.assertEqual(view.call_count, 3)
+        self.assertEqual(dashboard.message, "")
+        self.assertNotIn("pr_url", self.state.load(1))
+
+    def test_pr_refresh_failure_marks_saved_data_stale_and_respects_shared_cooldown(self):
+        task = {"number": 1, "phase": "building", "branch": "codex/1"}
+        self.state.save(task)
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        issues = tui.issue_groups(tui.snapshot(self.state)["rows"])
+        budget = w.GitHubBudget(self.state)
+        budget.record(w.GitHubRateLimit("rate limit exhausted", time.time() + 300))
+        with patch.object(w, "raw_command") as transport:
+            dashboard.refresh_prs(issues)
+            self.wait_jobs(dashboard)
+        transport.assert_not_called()
+        self.assertEqual(dashboard.pr_status(task), "PR unknown (stale)")
+        self.assertIn("rate limit", dashboard.cache.saved(tui.pr_key(task))["error"])
+        pr = {"number": 12, "url": "https://github.com/owner/repo/pull/12", "state": "CLOSED", "isDraft": False}
+        self.state.set_meta("tui:" + tui.pr_key(task), {"value": pr, "retry_at": 0})
+        dashboard.refresh_prs(issues)
+        self.wait_jobs(dashboard)
+        self.assertEqual(dashboard.pr_status(task), "PR #12 closed (stale)")
+
+    def test_overview_refreshes_only_visible_prs_and_loads_more_after_scrolling(self):
+        for number in range(1, 31):
+            self.state.save({"number": number, "branch": f"codex/{number}", "phase": "building"})
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        first_visible = []
+        def keys():
+            self.wait_jobs(dashboard)
+            first_visible.extend(issue["number"] for issue in dashboard.visible_issues)
+            yield -1
+            for _ in range(15):
+                yield ord("j")
+                self.wait_jobs(dashboard)
+            yield ord("q")
+        with patch.object(tui, "pr_view", return_value=None) as view, \
+             patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+            dashboard.run(Screen(keys(), size=(12, 50)))
+            self.wait_jobs(dashboard)
+        loaded = [call.args[1]["number"] for call in view.call_args_list]
+        self.assertTrue(first_visible)
+        self.assertLess(len(first_visible), len(loaded))
+        self.assertLess(len(loaded), 30)
+        self.assertEqual(len(loaded), len(set(loaded)))
+        self.assertTrue(set(first_visible).issubset(loaded))
+        self.assertTrue({issue["number"] for issue in dashboard.visible_issues}.issubset(loaded))
+
+    def test_pr_shortcut_opens_focused_issue_and_session_using_gh(self):
+        for number in (1, 2):
+            self.run_record(number)
+            task = self.state.load(number)
+            task["branch"] = f"codex/{number}"
+            self.state.save(task)
+            pr = {"number": number + 10, "url": f"https://github.com/owner/repo/pull/{number + 10}",
+                  "state": "OPEN", "isDraft": False}
+            self.state.set_meta("tui:" + tui.pr_key(task), {"value": pr, "retry_at": time.time() + 60})
+        before = self.state.all()
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1, root=self.tree)
+        def keys():
+            yield ord("j")  # Issue one's worker.
+            yield ord("j")  # Issue two, collapsed.
+            yield ord("p")
+            self.wait_jobs(dashboard)
+            yield 10  # Expand issue two.
+            yield ord("j")
+            yield ord("p")
+            self.wait_jobs(dashboard)
+            yield ord("q")
+        with patch.object(w, "command", return_value="") as command, \
+             patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+            screen = Screen(keys())
+            dashboard.run(screen)
+        self.assertEqual(command.call_count, 2)
+        for call in command.call_args_list:
+            self.assertEqual(call.args[0], ["gh", "pr", "view", "https://github.com/owner/repo/pull/12",
+                                            "--repo", "owner/repo", "--web"])
+            self.assertEqual(call.kwargs["cwd"], self.tree)
+        self.assertTrue(any("Opened PR #12 in browser." in frame for frame in screen.frames))
+        self.assertEqual(self.state.all(), before)
+
+    def test_pr_shortcut_is_literal_in_editor_and_resumes_after_cancel(self):
+        self.run_record()
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        editor = {"number": None, "title": "", "body": "", "field": 0, "cursor": 0, "status": "Draft"}
+        dashboard.editor = editor
+        dashboard.open_pr = Mock()
+        dashboard.refresh_prs = Mock()
+        def keys():
+            yield ord("p")
+            yield ord("q")
+            self.assertEqual(editor["title"], "pq")
+            dashboard.open_pr.assert_not_called()
+            dashboard.refresh_prs.assert_not_called()
+            yield 27
+            yield ord("p")
+            yield ord("q")
+        with patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+            dashboard.run(Screen(keys()))
+        dashboard.open_pr.assert_called_once()
+        self.assertEqual(dashboard.open_pr.call_args.args[0]["number"], 1)
+        dashboard.refresh_prs.assert_called()
+
+    def test_open_pr_handles_absence_offline_saved_pr_and_browser_failure(self):
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1, root=self.tree)
+        task = {"branch": "codex/1"}
+        with patch.object(w, "command") as command:
+            dashboard.open_pr({})
+            self.assertIn("No PR", dashboard.message)
+            with patch.object(tui, "pr_view", return_value=None):
+                dashboard.open_pr(task)
+                self.wait_jobs(dashboard)
+            self.assertIn("No PR", dashboard.message)
+        command.assert_not_called()
+        for saved in ({}, {"value": {"number": 12, "url": "https://github.com/owner/repo/pull/12",
+                                     "state": "MERGED", "isDraft": False}}):
+            with self.subTest(saved=saved):
+                self.state.set_meta("tui:" + tui.pr_key(task), saved)
+                with patch.object(tui, "pr_view", side_effect=RuntimeError("GitHub offline")), \
+                     patch.object(w, "command", return_value="") as command:
+                    dashboard.open_pr(task)
+                    self.wait_jobs(dashboard)
+                if saved:
+                    command.assert_called_once()
+                    self.assertIn("Using saved PR details", dashboard.message)
+                else:
+                    command.assert_not_called()
+                    self.assertEqual(dashboard.message, "GitHub offline")
+        with patch.object(w, "command", side_effect=RuntimeError("browser unavailable")):
+            dashboard.open_pr(task)
+            self.wait_jobs(dashboard)
+        self.assertEqual(dashboard.message, "browser unavailable")
+
+    def test_slow_pr_refresh_does_not_block_stop_navigation_or_quit(self):
+        self.state.save({"number": 1, "branch": "codex/1", "phase": "building"})
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", .1)
+        entered, release = threading.Event(), threading.Event()
+        def slow_pr(*_):
+            entered.set()
+            release.wait(5)
+            return None
+        def keys():
+            self.assertTrue(entered.wait(2))
+            yield ord("x")
+            yield ord("j")
+            yield ord("q")
+        with patch.object(tui, "pr_view", side_effect=slow_pr), \
+             patch.object(tui, "controller_action", return_value="Stopping") as control, \
+             patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
+            try:
+                dashboard.run(Screen(keys()))
+                self.assertFalse(release.is_set())
+                self.assertEqual(dashboard.focus, (1, "worker"))
+            finally:
+                release.set()
+                self.wait_jobs(dashboard)
+        control.assert_called_once()
 
     def test_view_cache_persists_expires_and_retains_stale_content_on_failure(self):
         loader = Mock(return_value={"body": "Saved description"})

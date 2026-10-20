@@ -16,6 +16,7 @@ Run `worklane tui` alongside the controller to view local SQLite state. Use
 | `s` / `x` | Start / gracefully stop Worklane from the overview |
 | `c` | Reopen the configuration walkthrough |
 | `i` / `B` | Read the selected issue / browse open repository issues on the board |
+| `p` | Open the selected issue's PR in your browser |
 | `r` | Refresh an issue or board after its 60-second cache expires |
 | `n` / `e` | Create from overview/board; edit the selected overview/board issue or open issue |
 | Tab / Shift-Tab, F2, Esc | Editor: change fields, save, cancel; arrows select status; Enter adds description lines |
@@ -23,6 +24,7 @@ Run `worklane tui` alongside the controller to view local SQLite state. Use
 | `q` in the overview or Ctrl-C | Quit the dashboard |
 
 Views cache across restarts; failed refreshes retain saved content. Board Enter opens issues; issue arrows scroll descriptions and comments.
+Visible PR states refresh every 60 seconds; unknown or stale states indicate unavailable GitHub data.
 Start uses [checkout configuration](configuration.md), then explicit CLI overrides; older runtime settings provide fallback. Stop drains active jobs.
 Search is literal and case-insensitive, including older invocations; results show up to 100 matches with bounded transcript context.
 

@@ -37,7 +37,8 @@ class EvidenceResult(unittest.TextTestResult):
                 exit=test.process.returncode, terminal_sha256=hashlib.sha256(test.output).hexdigest(),
                 observed_terminal_tokens=[token for token in ['Overview','Logs #1','Fresh output after refresh',
                     'Second paginated comment','Input queued','Configuration saved','Cancelled',
-                    'security preflight refused','Controller started','Stop requested','Session returned','Retry saved']
+                    'security preflight refused','Controller started','Stop requested','Session returned','Retry saved',
+                    'Needle A','Needle B','Needle C','VISIBLE_TYPED_TAIL']
                     if token.encode() in test.output])
         return observations
     def addSuccess(self, test):

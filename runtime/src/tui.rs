@@ -217,21 +217,24 @@ impl Dashboard {
             Err(e) => self.message = e.to_string(),
             Ok(Update::Snapshot(s)) => {
                 self.snapshot = s;
-                // Retain the selected issue/role when refreshed rows reorder.
-                let rows = self.visible();
-                if let Some((n, role)) = &self.chosen {
-                    if let Some(i) = rows
-                        .iter()
-                        .position(|r| r["number"] == *n && string(r, "role") == *role)
-                    {
-                        self.selected = i;
+                // Only the overview uses the saved issue/role to restore selection.
+                if self.view == View::Overview {
+                    let rows = self.visible();
+                    if let Some((n, role)) = &self.chosen {
+                        if let Some(i) = rows
+                            .iter()
+                            .position(|r| r["number"] == *n && string(r, "role") == *role)
+                        {
+                            self.selected = i;
+                        }
                     }
                 }
-                self.selected = self.selected.min(rows.len().saturating_sub(1));
+                self.bound_selection();
             }
             Ok(Update::Page(view, value, error)) => {
                 if self.view == view {
                     self.page = value;
+                    self.bound_selection();
                 }
                 self.message = error;
             }
@@ -526,6 +529,19 @@ impl Dashboard {
             }
         }
     }
+    fn selection_len(&self) -> Option<usize> {
+        match self.view {
+            View::Overview => Some(self.visible().len()),
+            View::Search => Some(self.results.len()),
+            View::Board => Some(self.page.as_array().map_or(0, Vec::len)),
+            View::Logs | View::Issue => None,
+        }
+    }
+    fn bound_selection(&mut self) {
+        if let Some(len) = self.selection_len() {
+            self.selected = self.selected.min(len.saturating_sub(1));
+        }
+    }
     fn navigate(&mut self, delta: isize) {
         if matches!(self.view, View::Logs | View::Issue) {
             self.scroll = self
@@ -537,11 +553,7 @@ impl Dashboard {
                 });
             return;
         }
-        let len = match self.view {
-            View::Search => self.results.len(),
-            View::Board => self.page.as_array().map_or(0, Vec::len),
-            _ => self.visible().len(),
-        };
+        let len = self.selection_len().unwrap_or(0);
         self.selected = self
             .selected
             .saturating_add_signed(delta)
@@ -828,6 +840,7 @@ impl Dashboard {
                 Editor::Search(text) => vec![format!("Search (Enter): {text}")],
                 Editor::Input(text) => vec![format!("Input (Enter queues): {text}")],
             };
+            let mut insertion_row = 0;
             for (i, field) in fields.iter().enumerate() {
                 let prefix = if i == self.field { "> " } else { "  " };
                 let mut lines = Vec::new();
@@ -835,19 +848,13 @@ impl Dashboard {
                     lines.extend(wrap(&format!("{prefix}{line}"), width));
                 }
                 body.extend(lines);
+                if i == self.field {
+                    insertion_row = body.len().saturating_sub(1);
+                }
             }
-            // Keep the active field/end of long text visible.
+            // Fields are append-only: keep their actual wrapped insertion row visible.
             if body.len() > body_height {
-                let before = fields
-                    .iter()
-                    .take(self.field)
-                    .map(|f| {
-                        f.split('\n')
-                            .map(|s| wrap(&format!("  {s}"), width).len())
-                            .sum::<usize>()
-                    })
-                    .sum::<usize>();
-                let start = before.min(body.len().saturating_sub(body_height));
+                let start = insertion_row.saturating_sub(body_height.saturating_sub(1));
                 body = body.into_iter().skip(start).collect();
             }
         } else {

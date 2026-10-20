@@ -2,6 +2,7 @@
 
 Native preview: `cargo run --locked --offline --bin worklane-tui -- --repo PATH`; #53 owns installation cutover.
 Native additions: `z/u` pause/resume, `X` immediate stop, `t` retry, `o` browser; configuration fields use JSON values.
+Refresh preserves selection within each view; editors follow appended text across wrapping and resizing.
 
 Run `worklane tui` alongside the controller to view local SQLite state. Use
 `--repo PATH` for another checkout and `--refresh 0.5` to change the refresh period

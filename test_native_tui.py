@@ -82,6 +82,16 @@ class NativeTuiTests(unittest.TestCase):
                 break
         self.fail(f'PTY missing {token!r}, exit={self.process.poll()}: {output[-7000:]!r}')
 
+    def frame(self, seconds=.35):
+        output=b''; deadline=time.monotonic()+seconds
+        while time.monotonic()<deadline:
+            if select.select([self.master], [], [], .02)[0]:
+                chunk=os.read(self.master, 65536); output+=chunk
+                self.output=(self.output+chunk)[-200000:]
+        frames=[frame for frame in output.split(b'\x1b[H')[1:] if b'\x1b[J' in frame]
+        self.assertTrue(frames, f'No complete terminal frame: {output[-3000:]!r}')
+        return frames[-1].split(b'\x1b[J', 1)[0]
+
     def wait_for(self, predicate):
         deadline=time.monotonic()+6
         while time.monotonic()<deadline:
@@ -125,6 +135,38 @@ class NativeTuiTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 with w.locked(self.state.path/'runner.lock', blocking=False): pass
         self.assertEqual(self.state.load(1)['phase'], 'building')
+
+    def test_group11_search_selection_survives_overview_refresh(self):
+        for text in ['Needle A', 'Needle B', 'Needle C']:
+            self.state.append_log(self.run_id, 'agent', text)
+        self.launch(); self.logs(); self.send('b/Needle\n'); self.until('matches')
+        self.assertIn(b'> Needle C', self.frame())
+        self.send('j'); self.assertIn(b'> Needle B', self.frame())
+        self.send('jr'); self.assertIn(b'> Needle A', self.frame())
+        self.send('k'); self.assertIn(b'> Needle B', self.frame())
+        self.send('\n'); self.until('Logs #1'); self.quit()
+
+    def test_group11_board_selection_after_logs_survives_refresh(self):
+        self.launch(); self.logs(); self.send('bB'); self.until('Board ·')
+        self.assertIn('> #1 Task 界'.encode(), self.frame())
+        self.send('r'); self.assertIn('> #1 Task 界'.encode(), self.frame())
+        self.send('\n'); self.until('Issue #1'); self.until('Second paginated comment')
+        self.quit()
+
+    def test_group12_editor_follows_multiline_wrapped_tail_and_resize(self):
+        body='\n'.join(f'body line {i:02}' for i in range(35))+'\n'+'界 é '*120+'ORIGINAL_TAIL'
+        self.issue['body']=body
+        (self.root/'issue.json').write_text(json.dumps(self.issue))
+        self.launch(); self.send('e'); self.until('Title: Task'); self.send('\t')
+        self.assertIn(b'ORIGINAL_TAIL', self.frame())
+        tail='VISIBLE_TYPED_TAIL 界 é'
+        self.send('\n'+tail); self.assertIn(tail.encode(), self.frame())
+        self.resize(12, 50); self.assertIn(tail.encode(), self.frame())
+        self.send('\x1b[Z'); self.assertIn(b'> Title: Task', self.frame())
+        self.send('\t'); self.assertIn(tail.encode(), self.frame())
+        self.send('\x13'); self.until('Saved https://')
+        self.assertEqual(json.loads((self.root/'issue.json').read_text())['body'], body+'\n'+tail)
+        self.quit()
 
     def test_group12_config_cancel_validation_save_no_controller(self):
         self.launch('--no-color')

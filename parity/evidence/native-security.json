@@ -7,12 +7,12 @@
   "fixtures_path": "parity/fixtures/security.json",
   "fixtures_sha256": "e24469f3c3a5cb32fa1ddcba7909df09714810ba250912a440ced940b5ef06f8",
   "candidate": [
-    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/target/debug/runtime-fixture-adapter"
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/53/target/debug/runtime-fixture-adapter"
   ],
   "candidate_hashes": {
-    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/51/target/debug/runtime-fixture-adapter": "dfed4a10b60fd79da24ed4093fa4325f07d1552d57101a044507ee3dddb128e1"
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/53/target/debug/runtime-fixture-adapter": "5d4872a431d939ed64fbe79180b86efd66cb1678ca3886c750dabb3e0b03af28"
   },
-  "release_sha256": "dfed4a10b60fd79da24ed4093fa4325f07d1552d57101a044507ee3dddb128e1",
+  "release_sha256": "5d4872a431d939ed64fbe79180b86efd66cb1678ca3886c750dabb3e0b03af28",
   "results": [
     {
       "id": "runtime.security-report-private",

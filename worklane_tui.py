@@ -122,7 +122,9 @@ def pr_view(repo, task):
 
 def controller_action(action, root, options):
     """Use the same CLI safeguards as commands entered in another terminal."""
-    args = [sys.executable, str(Path(worklane.__file__).resolve()), action, "--repo", str(root)]
+    args = [sys.executable, str(Path(worklane.__file__).resolve()), "stop" if action == "stop-now" else action, "--repo", str(root)]
+    if action == "stop-now":
+        args.append("--now")
     if action == "start":
         for name in ("project", "model", "interval", "workers", "effort", *[key for key in worklane.harness_option_names() if key != "model"]):
             if options.get(name) is not None:
@@ -996,7 +998,7 @@ class Dashboard:
         limit = (self.state.get_meta("runtime", {}) if data["busy"] else self.settings()).get("workers", 3)
         self.paint(screen, 1, [("  Workers ", c.A_DIM),
                               (f"{'●' * workers}{'○' * max(0, limit - workers)} {workers}/{limit}", self.colors.get("live", 0)),
-                              ("    Review ", c.A_DIM), (f"{'●' if reviews else '○'} {reviews}/1", self.colors.get("agent", 0))])
+                              ("    Review ", c.A_DIM), (f"{'●' if reviews else '○'} {reviews}/1", self.colors.get("agent", 0)), ("  X kill", c.A_DIM)])
         issues = issue_groups(data["rows"])
         bottom = height - (6 if self.detail and not self.editor else 4)
         if self.editor:
@@ -1197,8 +1199,8 @@ class Dashboard:
                     self.composing, self.draft, self.input_run = True, "", chosen["run"]["id"]
                     self.message = "Input for this session's next turn. /help lists basic commands."
                 continue
-            if not self.detail and key in (ord("s"), ord("x")):
-                self.control("start" if key == ord("s") else "stop")
+            if not self.detail and key in (ord("s"), ord("x"), ord("X")):
+                self.control("start" if key == ord("s") else "stop-now" if key == ord("X") else "stop")
                 continue
             if not self.detail and key == ord("c"):
                 if self.jobs:

@@ -279,6 +279,22 @@ class HarnessTests(unittest.TestCase):
         self.assertEqual(reopened.session(1, 'worker')['session_id'], session)
         self.assertEqual([r['status'] for r in reopened.runs(1)], ['interrupted', 'completed'])
 
+    def test_stop_request_interrupts_every_role_and_resumes_exact_session(self):
+        for stage, role in w.ROLES.items():
+            with self.subTest(role=role), w.locked(self.state.path / 'runner.lock') as fd:
+                with patch.dict(os.environ, FAKE_DELAY='30'), ThreadPoolExecutor(1) as pool:
+                    future = pool.submit(self.backend(fd).run, stage, self.task, self.tree)
+                    deadline = time.monotonic() + 5
+                    while not self.state.session(1, role) and time.monotonic() < deadline:
+                        time.sleep(.01)
+                    saved = self.state.session(1, role)['session_id']
+                    self.state.request_stop(True)
+                    with self.assertRaises(w.InterruptedRun):
+                        future.result(timeout=5)
+                self.state.set_meta('shutdown', {'immediate': False})
+                self.backend(fd).run(stage, self.task, self.tree)
+                self.assertEqual(self.state.session(1, role)['session_id'], saved)
+
     def test_timeout_retains_session_and_immediate_stop_starts_no_process(self):
         with w.locked(self.state.path / 'runner.lock') as fd:
             backend = self.backend(fd)

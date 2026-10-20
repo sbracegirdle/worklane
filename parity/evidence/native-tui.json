@@ -1,11 +1,11 @@
 {
   "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
   "runtime_parent": "5cc71a5880dc77727987e4a496c53181f5e5d8f0",
-  "candidate_source_revision": "52a4375ddab8067e49ba5c7957fef703aa4ba922",
-  "candidate": "/tmp/worklane-52-install/bin/worklane-tui",
-  "candidate_sha256": "c4938007d286067e25ce966436fa11456fe2f5473095268ca6c1c18d2107cb58",
+  "candidate_source_revision": "cc8fc2d53046679640b25f1b2b206414e7e9df7f",
+  "candidate": "/tmp/worklane-52-rework-install/bin/worklane-tui",
+  "candidate_sha256": "0dbd4471e323bd9f38d8684970d58474fb10d73a9ce73bdb4ff8b87c943b0d8b",
   "controller_probe": "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/52/target/debug/examples/tui-controller-probe",
-  "controller_probe_sha256": "d295de364c7ec58c6d4b144581832beb8cfb765d21b6e5de05bc5a0a17c60383",
+  "controller_probe_sha256": "784287984981da68e0ea0fdccc1e5e7154a48c8841365590fb3bb9287def4942",
   "driver": "test_native_tui.py",
   "input_hashes": {
     "Cargo.lock": "2283a444cf375ca62a020cc7b49fb781eb2226500d7bc01cdf1a4cf37aae8d98",
@@ -28,14 +28,14 @@
     "runtime/src/state.rs": "c7d3bf17f66b4e97602b67dbf11d5d6449aa2273a7b377304c0f459f1a8dc987",
     "runtime/src/transport.rs": "e653173bcdbfed7b0fe985f91522c1718318b32e2d83fccdde6fbd2c6a8e3d84",
     "runtime/src/tui/terminal.rs": "34aca0995f8b80af2088777203dc8897cdb07bb4c10ea2fa38631949bd3e2962",
-    "runtime/src/tui.rs": "32c061ec9de3443393ec4087ada80004e46e66f6f7580845d38c30d785aa3283",
+    "runtime/src/tui.rs": "61734af9240f40ad1f711dee85b743a12a683e6612c643d64fdebd91c619ba64",
     "runtime/src/unicode.rs": "57da5d8f1646d69eae3aa6b4bfef7592cc135cd8ecfd5f1c764b00c32bbc65a8",
     "runtime/src/workflow.rs": "1295aa69ce505ee4753b03588f62a5d6a7b66d10e16c0a8da1f0aeb3b9a070c8",
     "runtime/tests/controller.rs": "cfbc5bf8b4fb9d2ef595e6483a7394ac8e09f3acc88fe56e2bc7b1eefad64b06",
     "runtime/tests/durability.rs": "6649ea0f4380757bd3a198b4c1c353a263f8f5de268b802130e7ff014d60be57",
-    "test_native_tui.py": "9f676141cffaf9a88986f858ec465e3c894b8d0593063cdce6acacb0b3664558",
+    "test_native_tui.py": "19e1c25cc2bf3b357427b63188b3a51f83657b87a7bbe861d477afef27906c8d",
     "tools/fixtures/tui_gh.py": "4f859d15969b2b88d6a5708760f29954755c75c7cdd5b47981ff4ab343e192a3",
-    "tools/native_tui.py": "d05a46b73e78d3a1d570df3a44186c7c38f0679fc65e81acc89594d2589720dc",
+    "tools/native_tui.py": "283950fd78a9adbddd112a635a46db6cccde7bc069a74ad1a713aa1b321513fa",
     "worklane.py": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64"
   },
   "command": [
@@ -44,20 +44,87 @@
     "--no-project",
     "python",
     "tools/native_tui.py",
-    "parity/evidence/native-tui.json"
+    "/tmp/worklane-52-rework-pty.json"
   ],
   "environment": {
-    "WORKLANE_TUI_BIN": "/tmp/worklane-52-install/bin/worklane-tui",
+    "WORKLANE_TUI_BIN": "/tmp/worklane-52-rework-install/bin/worklane-tui",
     "WORKLANE_TEST_RUST": "1"
   },
   "results": [
+    {
+      "id": "test_native_tui.NativeTuiTests.test_group11_board_selection_after_logs_survives_refresh",
+      "status": "pass",
+      "scenario": 11,
+      "observations": {
+        "saved_worker_session": "ed914fe6-30c8-4fa8-bea2-01589d97bd1a",
+        "expected_worker_session": "ed914fe6-30c8-4fa8-bea2-01589d97bd1a",
+        "saved_phase": "building",
+        "pending_worker_input": [],
+        "gh_commands": [
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "issue",
+            "view",
+            "1",
+            "--repo",
+            "owner/repo",
+            "--json",
+            "number,title,body,state,url"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ]
+        ],
+        "terminal_restored": true,
+        "exit": 0,
+        "terminal_sha256": "e2710670cf5e5b43cd0def3abd0eeae69007109784d5b95e2d7758ab49a33f0c",
+        "observed_terminal_tokens": [
+          "Overview",
+          "Logs #1",
+          "Second paginated comment"
+        ]
+      }
+    },
     {
       "id": "test_native_tui.NativeTuiTests.test_group11_held_github_budget_lock_still_quits_and_restores_terminal",
       "status": "pass",
       "scenario": 11,
       "observations": {
-        "saved_worker_session": "a7f747b3-dc10-4ea8-b839-6f2cae04e26f",
-        "expected_worker_session": "a7f747b3-dc10-4ea8-b839-6f2cae04e26f",
+        "saved_worker_session": "34b69460-a415-470c-9eaf-3676f6aca609",
+        "expected_worker_session": "34b69460-a415-470c-9eaf-3676f6aca609",
         "saved_phase": "building",
         "pending_worker_input": [],
         "gh_commands": [],
@@ -74,8 +141,8 @@
       "status": "pass",
       "scenario": 11,
       "observations": {
-        "saved_worker_session": "843c7489-a303-44fa-b8f0-6df231d98625",
-        "expected_worker_session": "843c7489-a303-44fa-b8f0-6df231d98625",
+        "saved_worker_session": "528b8382-a7ea-413c-8db1-a990ccabde26",
+        "expected_worker_session": "528b8382-a7ea-413c-8db1-a990ccabde26",
         "saved_phase": "building",
         "pending_worker_input": [],
         "gh_commands": [
@@ -105,7 +172,7 @@
         ],
         "terminal_restored": true,
         "exit": 0,
-        "terminal_sha256": "1f2fb8368ffbbf4bdec5e6b46e0be6ca805e68e100c8261896edbfc1825ae239",
+        "terminal_sha256": "69e8a036a32b5dfc4652a81d68e3c92bc66e7237de3c0cb77c6cedd1f8c618c8",
         "observed_terminal_tokens": [
           "Overview",
           "Logs #1",
@@ -119,11 +186,33 @@
       "status": "pass",
       "scenario": 11,
       "observations": {
-        "saved_worker_session": "7c0439ad-aa5a-4d8d-a5a8-ecad08236ea0",
-        "expected_worker_session": "7c0439ad-aa5a-4d8d-a5a8-ecad08236ea0",
+        "saved_worker_session": "944d05de-eb31-4200-a8bf-e92056c9e95a",
+        "expected_worker_session": "944d05de-eb31-4200-a8bf-e92056c9e95a",
         "saved_phase": "building",
         "pending_worker_input": [],
         "gh_commands": []
+      }
+    },
+    {
+      "id": "test_native_tui.NativeTuiTests.test_group11_search_selection_survives_overview_refresh",
+      "status": "pass",
+      "scenario": 11,
+      "observations": {
+        "saved_worker_session": "e2ae4d01-75b2-4ede-98c7-bdf701f45ac1",
+        "expected_worker_session": "e2ae4d01-75b2-4ede-98c7-bdf701f45ac1",
+        "saved_phase": "building",
+        "pending_worker_input": [],
+        "gh_commands": [],
+        "terminal_restored": true,
+        "exit": 0,
+        "terminal_sha256": "3aed25215d35b133d0b5d1755ca6a719b5292a72334770d0efd80e1bd94a96a2",
+        "observed_terminal_tokens": [
+          "Overview",
+          "Logs #1",
+          "Needle A",
+          "Needle B",
+          "Needle C"
+        ]
       }
     },
     {
@@ -131,8 +220,8 @@
       "status": "pass",
       "scenario": 11,
       "observations": {
-        "saved_worker_session": "3eda2fe1-fd24-494b-8e56-e5ae24ddaf02",
-        "expected_worker_session": "3eda2fe1-fd24-494b-8e56-e5ae24ddaf02",
+        "saved_worker_session": "3ebe9e92-f465-4802-8e84-83160abb693d",
+        "expected_worker_session": "3ebe9e92-f465-4802-8e84-83160abb693d",
         "saved_phase": "building",
         "pending_worker_input": [],
         "gh_commands": [
@@ -155,7 +244,7 @@
         ],
         "terminal_restored": true,
         "exit": 0,
-        "terminal_sha256": "b50e40d57c11484372b4313b7e2582fe0768cf9201f93745d211988638cdeea4",
+        "terminal_sha256": "cd8ac3e2ada804972ff691d7759045b6a6b8a0e8ab6e9bcf3a265721c42d8b27",
         "observed_terminal_tokens": [
           "Overview",
           "Stop requested"
@@ -167,8 +256,8 @@
       "status": "pass",
       "scenario": 12,
       "observations": {
-        "saved_worker_session": "1f671c7c-1d04-4cba-b83f-85b510927184",
-        "expected_worker_session": "1f671c7c-1d04-4cba-b83f-85b510927184",
+        "saved_worker_session": "4715ad21-71bd-45a2-a48f-a2586168deda",
+        "expected_worker_session": "4715ad21-71bd-45a2-a48f-a2586168deda",
         "saved_phase": "building",
         "pending_worker_input": [],
         "gh_commands": [],
@@ -187,8 +276,8 @@
       "status": "pass",
       "scenario": 12,
       "observations": {
-        "saved_worker_session": "e7343e4f-4c3e-4d72-bc5d-530a91c628b1",
-        "expected_worker_session": "e7343e4f-4c3e-4d72-bc5d-530a91c628b1",
+        "saved_worker_session": "f7a21a71-3efe-40eb-b593-f897c20648d4",
+        "expected_worker_session": "f7a21a71-3efe-40eb-b593-f897c20648d4",
         "saved_phase": "building",
         "pending_worker_input": [],
         "gh_commands": [
@@ -369,10 +458,96 @@
         ],
         "terminal_restored": true,
         "exit": 0,
-        "terminal_sha256": "fe59ff8cbd8f389fc6a2de578480d76750cc23506216afd61ce13abb122714fa",
+        "terminal_sha256": "0c0a926a7ffdf0069e99c787ce3bc2b6abc593ebc20452a106a1755bb1bf1047",
         "observed_terminal_tokens": [
           "Overview",
           "Second paginated comment"
+        ]
+      }
+    },
+    {
+      "id": "test_native_tui.NativeTuiTests.test_group12_editor_follows_multiline_wrapped_tail_and_resize",
+      "status": "pass",
+      "scenario": 12,
+      "observations": {
+        "saved_worker_session": "d6a67d80-6952-48a4-ba9d-cb06cda278dd",
+        "expected_worker_session": "d6a67d80-6952-48a4-ba9d-cb06cda278dd",
+        "saved_phase": "building",
+        "pending_worker_input": [],
+        "gh_commands": [
+          [
+            "project",
+            "view",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "project",
+            "field-list",
+            "2",
+            "--owner",
+            "owner",
+            "--format",
+            "json"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "issue",
+            "view",
+            "1",
+            "--repo",
+            "owner/repo",
+            "--json",
+            "title,body,state,url"
+          ],
+          [
+            "api",
+            "-i",
+            "graphql",
+            "--input",
+            "-"
+          ],
+          [
+            "issue",
+            "edit",
+            "1",
+            "--repo",
+            "owner/repo",
+            "--title",
+            "Task \u754c e\u0301",
+            "--body-file",
+            "-"
+          ]
+        ],
+        "terminal_restored": true,
+        "exit": 0,
+        "terminal_sha256": "3ddfa9f832c08bf82842f3effe1c3696dc52d68e6d94a1648da4b56fc097fc5c",
+        "observed_terminal_tokens": [
+          "Overview",
+          "VISIBLE_TYPED_TAIL"
         ]
       }
     },
@@ -381,8 +556,8 @@
       "status": "pass",
       "scenario": 12,
       "observations": {
-        "saved_worker_session": "12253af7-5954-4296-b9c5-2568afefc368",
-        "expected_worker_session": "12253af7-5954-4296-b9c5-2568afefc368",
+        "saved_worker_session": "320dce1b-b296-458d-a73d-4bbfd6ce3d7c",
+        "expected_worker_session": "320dce1b-b296-458d-a73d-4bbfd6ce3d7c",
         "saved_phase": "building",
         "pending_worker_input": [
           "Follow up \u754c"
@@ -423,7 +598,7 @@
         ],
         "terminal_restored": true,
         "exit": 0,
-        "terminal_sha256": "4a111aac83876379cc3941a48033a05518d6bfb8febffd05479341ad20104dce",
+        "terminal_sha256": "b52ece9b46ad6d2b2967167c35f2683b8021fffd5471254facb9eaab963ba2d2",
         "observed_terminal_tokens": [
           "Logs #1",
           "Input queued",
@@ -436,8 +611,8 @@
       "status": "pass",
       "scenario": 12,
       "observations": {
-        "saved_worker_session": "644e1ab3-5155-439c-b2a7-4956ff6b6c06",
-        "expected_worker_session": "644e1ab3-5155-439c-b2a7-4956ff6b6c06",
+        "saved_worker_session": "9c90b125-aab1-4318-92f6-6e5c35e5d25a",
+        "expected_worker_session": "9c90b125-aab1-4318-92f6-6e5c35e5d25a",
         "saved_phase": "building",
         "pending_worker_input": [],
         "gh_commands": [
@@ -460,7 +635,7 @@
         ],
         "terminal_restored": true,
         "exit": 0,
-        "terminal_sha256": "8b37a408a5cb0b0a2313caf0731a0c58e471f856374ac8c10f7a056f978d462a",
+        "terminal_sha256": "0bcc7b875a30dd8f72a991b98a8247bbc088e2b4aef29e7b8cd19e73c18e8920",
         "observed_terminal_tokens": [
           "Overview",
           "Logs #1",
@@ -473,8 +648,8 @@
       "status": "pass",
       "scenario": 12,
       "observations": {
-        "saved_worker_session": "3cc22094-6b0c-4066-b9e4-191bf4961089",
-        "expected_worker_session": "3cc22094-6b0c-4066-b9e4-191bf4961089",
+        "saved_worker_session": "fa2dac0b-50ae-4a29-be8f-f6f1927f1a61",
+        "expected_worker_session": "fa2dac0b-50ae-4a29-be8f-f6f1927f1a61",
         "saved_phase": "building",
         "pending_worker_input": [],
         "gh_commands": [
@@ -831,7 +1006,7 @@
         ],
         "terminal_restored": true,
         "exit": 0,
-        "terminal_sha256": "852ea6b1303bb143a1742c4524e4c1368732cfadeeab1002eb9237c0122d666e",
+        "terminal_sha256": "112f85dac20db9e27cc118996e3ed54b2a4f32a1919f750a337bb86927e6cc8a",
         "observed_terminal_tokens": [
           "Overview",
           "Cancelled",
@@ -844,8 +1019,8 @@
       "status": "pass",
       "scenario": 12,
       "observations": {
-        "saved_worker_session": "72e689b7-3087-4faa-b0b1-49232462f291",
-        "expected_worker_session": "72e689b7-3087-4faa-b0b1-49232462f291",
+        "saved_worker_session": "17925048-4c67-4ab7-869b-82956aa887f5",
+        "expected_worker_session": "17925048-4c67-4ab7-869b-82956aa887f5",
         "saved_phase": "building",
         "pending_worker_input": [],
         "gh_commands": [
@@ -900,7 +1075,7 @@
         ],
         "terminal_restored": true,
         "exit": 0,
-        "terminal_sha256": "e9932a157c009b7964df4ccc61170b08d651edbdd609eb48103fa82f30b99dda",
+        "terminal_sha256": "fea0b1c05ce4b158ae8183a15cef8e57642a23876f503ada2cca9ac31770832f",
         "observed_terminal_tokens": [
           "Overview",
           "Controller started",
@@ -913,8 +1088,8 @@
       "status": "pass",
       "scenario": 12,
       "observations": {
-        "saved_worker_session": "ddca3eb3-e11d-4803-b343-5941163469c0",
-        "expected_worker_session": "ddca3eb3-e11d-4803-b343-5941163469c0",
+        "saved_worker_session": "94e27a32-56a5-4ba8-83db-f0902d7dfc5a",
+        "expected_worker_session": "94e27a32-56a5-4ba8-83db-f0902d7dfc5a",
         "saved_phase": "retry",
         "pending_worker_input": [],
         "gh_commands": [
@@ -969,7 +1144,7 @@
         ],
         "terminal_restored": true,
         "exit": 0,
-        "terminal_sha256": "ab45f2083b247515bc3537ee6b16520589fe67e98a52b1b7932c7b72950eb37d",
+        "terminal_sha256": "c43a2e1bc479a5161edfccb5eb768f85b064faf589fc3f0bcfb6d7f30c79eaf7",
         "observed_terminal_tokens": [
           "Overview",
           "security preflight refused",
@@ -982,8 +1157,8 @@
       "status": "pass",
       "scenario": 12,
       "observations": {
-        "saved_worker_session": "dba169c5-bdcd-4fae-96a7-22ac8cf5afd6",
-        "expected_worker_session": "dba169c5-bdcd-4fae-96a7-22ac8cf5afd6",
+        "saved_worker_session": "4bd695d7-6d1d-466d-adb2-51e1b8ff0bc8",
+        "expected_worker_session": "4bd695d7-6d1d-466d-adb2-51e1b8ff0bc8",
         "saved_phase": "building",
         "pending_worker_input": [],
         "gh_commands": [
@@ -1022,7 +1197,7 @@
         ],
         "terminal_restored": true,
         "exit": 0,
-        "terminal_sha256": "f0df19be24112a007bc085ab3401a56741050eb39fa606fb355c794d82f1b9e0",
+        "terminal_sha256": "48c275026450495391ae25bef379179e17c8ed30242741012b87ca65c39ede8d",
         "observed_terminal_tokens": [
           "Overview",
           "Logs #1",
@@ -1032,7 +1207,7 @@
       }
     }
   ],
-  "tests_run": 12,
+  "tests_run": 15,
   "failures": 0,
   "errors": 0,
   "skipped": 0,
@@ -1061,21 +1236,20 @@
       "command": "cargo test --locked --offline",
       "exit": 0,
       "passed": 42,
-      "log_sha256": "9d8ceee9c89171ad0b81539b7203fe0ec8720d97aaa75790c5ff0f5af0cb32ab"
+      "log_sha256": "3574fc41bfaac61719c897b9ebf45c7d80391b99a634d1fc62350bb3cd6aae61"
     },
     {
-      "command": "cargo install --path runtime --bin worklane-tui --root /tmp/worklane-52-install --debug --locked --offline",
-      "exit": 0,
-      "version": "worklane-tui 0.1.0"
+      "command": "cargo install --path runtime --bin worklane-tui --root /tmp/worklane-52-rework-install --debug --locked --offline",
+      "exit": 0
     },
     {
-      "command": "UV_CACHE_DIR=/tmp/worklane-52-uv WORKLANE_TEST_RUST=1 WORKLANE_TEST_INSTALL=0 WORKLANE_TEST_OPENCODE=0 WORKLANE_TUI_BIN=/tmp/worklane-52-install/bin/worklane-tui uv run --no-project python -m unittest -q",
+      "command": "UV_CACHE_DIR=/tmp/worklane-52-uv WORKLANE_TEST_RUST=1 WORKLANE_TEST_INSTALL=0 WORKLANE_TEST_OPENCODE=0 WORKLANE_TUI_BIN=/tmp/worklane-52-rework-install/bin/worklane-tui uv run --no-project python -m unittest -q",
       "exit": 0,
-      "tests_run": 538,
+      "tests_run": 541,
       "skipped": 2,
       "result": "OK (skipped=2)",
-      "source_revision": "52a4375ddab8067e49ba5c7957fef703aa4ba922",
-      "log_sha256": "01c47eb173645ae00b923735e4ea7069abfe4c060b560d083d37685ca4ab683f"
+      "source_revision": "cc8fc2d53046679640b25f1b2b206414e7e9df7f",
+      "log_sha256": "2a708a56ed51140047b970eb290562bed8194e851da9c77cd7857263d36b8142"
     },
     {
       "command": "git diff --check",
@@ -1084,6 +1258,27 @@
     {
       "command": "git diff --cached --check",
       "exit": 0
+    }
+  ],
+  "review_fixes": [
+    {
+      "finding": "Preserve selection within the current view",
+      "reviewed_head": "d3036d93cd3314e075158ccc406c1fee78e5abd3",
+      "fix_source_revision": "cc8fc2d53046679640b25f1b2b206414e7e9df7f",
+      "validation": [
+        "test_native_tui.NativeTuiTests.test_group11_search_selection_survives_overview_refresh",
+        "test_native_tui.NativeTuiTests.test_group11_board_selection_after_logs_survives_refresh"
+      ],
+      "result": "Overview snapshots no longer reset search/board positions; active collections bound their own selection."
+    },
+    {
+      "finding": "Keep appended editor text visible",
+      "reviewed_head": "d3036d93cd3314e075158ccc406c1fee78e5abd3",
+      "fix_source_revision": "cc8fc2d53046679640b25f1b2b206414e7e9df7f",
+      "validation": [
+        "test_native_tui.NativeTuiTests.test_group12_editor_follows_multiline_wrapped_tail_and_resize"
+      ],
+      "result": "Viewport follows the actual wrapped insertion row; Unicode/multiline tails remain visible through field changes and resize, and save losslessly."
     }
   ],
   "previous_attempts": [
@@ -1106,6 +1301,14 @@
       "result": "538 tests; one native TUI completion race, two optional skips",
       "fix_revision": "52a4375ddab8067e49ba5c7957fef703aa4ba922",
       "fix": "Join each bounded action before applying its completion; rapid repeated editor saves now pass."
+    },
+    {
+      "source_revision": "d3036d93cd3314e075158ccc406c1fee78e5abd3",
+      "command": "UV_CACHE_DIR=/tmp/worklane-52-uv WORKLANE_TEST_RUST=1 uv run --no-project python -m unittest -q test_native_tui.NativeTuiTests.test_group11_search_selection_survives_overview_refresh test_native_tui.NativeTuiTests.test_group11_board_selection_after_logs_survives_refresh test_native_tui.NativeTuiTests.test_group12_editor_follows_multiline_wrapped_tail_and_resize",
+      "exit": 1,
+      "result": "Three new PTY regression assertions failed on the reviewed candidate before fixes.",
+      "log_sha256": "c0322a4651d33846fab6ef17e11285bc386bcde77a354806f1cd42059de75a93"
     }
-  ]
+  ],
+  "supersedes_evidence_source": "52a4375ddab8067e49ba5c7957fef703aa4ba922"
 }

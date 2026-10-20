@@ -10,7 +10,7 @@ Run `worklane tui` alongside the controller to view local SQLite state. Use
 | Enter | Expand/collapse an issue; open a session transcript |
 | Right / Left or `l` / `h` | Expand / collapse to the issue |
 | Page Up / Page Down / End | Scroll the tail / return to following output |
-| `a` | Resume the selected saved Codex conversation after stopping Worklane |
+| `a` | Resume the selected saved agent conversation after stopping Worklane |
 | `m` in a live transcript | Compose input; Enter queues, Esc cancels, Ctrl-U clears |
 | `/` | Search session details and readable history; Enter searches, then opens a result |
 | `s` / `x` | Start / gracefully stop Worklane from the overview |
@@ -38,8 +38,8 @@ Transcripts colour activity and hide protocol noise; `logs NUMBER --raw` shows o
 Input waits for the current turn, then resumes the same session before handoff; interrupted requests retry and may repeat actions.
 `/run COMMAND` requests execution under existing safeguards; `/help` lists commands. To resume a conversation interactively,
 run `worklane stop` and wait for jobs to finish before pressing `a`; pausing alone
-is insufficient. Resume uses the exact role's saved ID and worktree, workspace
-sandboxing and on-request approvals. The controller lock remains held throughout.
-Missing sessions/worktrees and live orphaned agents are refused. Leaving Codex
+is insufficient. Resume uses the exact role's saved ID, worktree and harness.
+Codex retains workspace sandboxing and on-request approvals; the controller lock remains held throughout.
+Missing sessions/worktrees and live orphaned agents are refused. Leaving the harness
 returns to the dashboard; inspect manual changes before restarting Worklane and
 use the [retry workflow](operations.md#state-recovery-and-limits) when needed.

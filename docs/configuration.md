@@ -5,17 +5,18 @@ Enter advances, Ctrl-U clears, Esc cancels; final confirmation atomically saves 
 
 | Setting | Default | Values |
 | --- | --- | --- |
-| `harness` | `"codex"` | Codex only initially |
+| `harness` | `"codex"` | `codex` or `opencode` (OpenCode 2.x) |
 | `workers` | `3` | 1–16 coding workers; one separate reviewer/finalizer slot |
-| `model` | `"gpt-6.1-sol"` | Model available through your authenticated Codex CLI |
-| `effort` | `"high"` | `low`, `medium`, `high`, `xhigh`; model must support the chosen effort |
+| `model` | `""` | Empty uses the harness default; otherwise an authenticated model name |
+| `effort` | `"high"` | Codex: `low`, `medium`, `high`, `xhigh`; OpenCode uses its own settings |
 | `interval` | `60` | Integer polling seconds, minimum 10 |
 | `project` | `""` | Automatic discovery, or `OWNER/NUMBER` |
+| `worker_*`, `reviewer_*`, `finalizer_*` | `""` | Role `harness` and `model` overrides; empty inherits global settings |
 
 ```toml
 harness = "codex"
 workers = 2
-model = "gpt-6.1-sol"
+model = ""
 effort = "high"
 interval = 60
 project = ""

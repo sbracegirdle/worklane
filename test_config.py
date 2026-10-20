@@ -43,7 +43,7 @@ class ConfigTests(unittest.TestCase):
     def test_invalid_config_has_path_and_never_silently_uses_defaults(self):
         invalid = ['workers = true', 'workers = 0', 'workers = 17', 'workers = "2"',
                    'interval = 9', 'interval = 10.5', 'interval = false',
-                   'model = ""', 'model = "a b"', 'model = 3', 'harness = "other"',
+                   'model = "a b"', 'model = 3', 'harness = "other"',
                    'effort = "automatic"', 'project = "bad"', 'project = "owner/0"',
                    'project = []', 'unknown = 1', '[nested]\nworkers = 2', 'workers = [']
         for source in invalid:
@@ -131,16 +131,17 @@ class ConfigTests(unittest.TestCase):
     def test_walkthrough_validates_each_answer_and_saves_only_at_confirmation(self):
         keys = ["\n", "\x15", "0", "\n", "\x15", "2", "\n",
                 "\x15", *"custom-model", "\n", "\x15", *"medium", "\n",
-                "\x15", *"20", "\n", *"owner/7", "\n", "\n"]
+                "\x15", *"20", "\n", *"owner/7", "\n", *["\n"] * 7]
         screen = SetupScreen(keys)
         with patch.object(curses, "curs_set"):
             self.assertTrue(tui.config_walkthrough(curses, screen, self.root))
         settings = w.load_config(self.root)
         self.assertEqual(settings, {"workers": 2, "model": "custom-model", "effort": "medium",
-                                    "interval": 20, "project": "owner/7", "harness": "codex"})
+                                    "interval": 20, "project": "owner/7", "harness": "codex",
+                                    **{f"{role}_{option}": "" for role in w.ROLES.values() for option in ("harness", "model")}})
         self.assertTrue(any("between 1 and 16" in frame for frame in screen.frames))
-        for index in range(1, 7):
-            self.assertTrue(any(f"{index}/6" in frame for frame in screen.frames))
+        for index in range(1, 13):
+            self.assertTrue(any(f"{index}/12" in frame for frame in screen.frames))
         self.assertIn("Save these settings?", screen.frames[-1])
 
     def test_cancellation_at_every_step_leaves_existing_and_missing_files_unchanged(self):
@@ -148,13 +149,55 @@ class ConfigTests(unittest.TestCase):
             if exists:
                 w.save_config(self.root, {"workers": 4})
             before = self.path.read_bytes() if exists else None
-            for step in range(7):
+            for step in range(13):
                 with patch.object(curses, "curs_set"):
                     self.assertFalse(tui.config_walkthrough(curses, SetupScreen(["\n"] * step + ["\x1b"]), self.root))
                 self.assertEqual(self.path.read_bytes() if self.path.exists() else None, before)
 
+    def test_opencode_setup_role_overrides_and_small_confirmation_are_reviewable(self):
+        keys = ["\x15", *"opencode", "\n", *["\n"] * 7,
+                *"codex", "\n", *"review-model", "\n", "\n", "\n",
+                curses.KEY_NPAGE, curses.KEY_NPAGE, "\n"]
+        screen = SetupScreen(keys, size=(12, 50))
+        with patch.object(curses, "curs_set"):
+            self.assertTrue(tui.config_walkthrough(curses, screen, self.root))
+        settings = w.load_config(self.root)
+        self.assertEqual(settings["harness"], "opencode")
+        self.assertEqual(settings["model"], "")
+        self.assertEqual(settings["reviewer_harness"], "codex")
+        self.assertEqual(settings["reviewer_model"], "review-model")
+        self.assertTrue(any("finalizer_model:" in frame for frame in screen.frames))
+        self.assertTrue(any("reviewer_model: review-model" in frame for frame in screen.frames))
+
+    def test_saved_role_settings_cli_clears_and_background_start_roundtrip(self):
+        w.save_config(self.root, {"harness": "opencode", "model": "provider/default",
+                                 "reviewer_harness": "codex", "reviewer_model": "saved-review"})
+        child = Mock(pid=123, poll=Mock(return_value=None))
+        self.state.set_meta("runtime", {"pid": child.pid})
+        flags = ["--model", "", "--reviewer-harness", "", "--reviewer-model", ""]
+        with patch.object(w, "Board") as board, patch.object(w.subprocess, "Popen", return_value=child) as popen:
+            board.return_value.owner, board.return_value.number = "owner", 7
+            self.assertEqual(self.cli(["start", *flags])[0], 0)
+        argv = popen.call_args.args[0]
+        for flag in flags[::2]:
+            self.assertEqual(argv[argv.index(flag) + 1], "")
+        forwarded = w.parser().parse_args(argv[2:])
+        backend = w.HarnessBackend(forwarded, self.root, self.state, 0)
+        self.assertEqual(backend.selection("reviewer"), ("opencode", ""))
+        self.assertEqual(w.load_config(self.root)["reviewer_harness"], "codex")
+
+    def test_tui_start_forwards_saved_role_settings_and_capacity(self):
+        w.save_config(self.root, {"harness": "opencode", "workers": 5,
+                                 "reviewer_harness": "codex", "reviewer_model": "review-model"})
+        dashboard = tui.Dashboard(curses, self.state, "owner/repo", 1, root=self.root)
+        with patch.object(w, "command", return_value="Started") as command:
+            tui.controller_action("start", self.root, dashboard.settings())
+        options = w.parser().parse_args(command.call_args.args[0][2:])
+        self.assertEqual((options.harness, options.workers, options.reviewer_harness, options.reviewer_model),
+                         ("opencode", 5, "codex", "review-model"))
+
     def test_tui_prompts_once_per_folder_and_config_key_reopens_walkthrough(self):
-        keys = ["\n"] * 7 + ["c", "\x1b", "q"]
+        keys = ["\n"] * 13 + ["c", "\x1b", "q"]
         screen = SetupScreen(keys)
         with patch.object(tui.sys.stdin, "isatty", return_value=True), \
              patch.object(tui.sys.stdout, "isatty", return_value=True), \
@@ -162,7 +205,7 @@ class ConfigTests(unittest.TestCase):
              patch.object(curses, "curs_set"), patch.object(curses, "has_colors", return_value=False):
             tui.run_tui(self.state, "owner/repo", root=self.root)
         self.assertTrue(self.path.exists())
-        self.assertEqual(sum("1/6" in frame for frame in screen.frames), 2)
+        self.assertEqual(sum("1/12  Which agent harness?" in frame for frame in screen.frames), 2)
         self.assertTrue(any("Setup cancelled" in frame for frame in screen.frames))
         with patch.object(tui.sys.stdin, "isatty", return_value=True), \
              patch.object(tui.sys.stdout, "isatty", return_value=True), \

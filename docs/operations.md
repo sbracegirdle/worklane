@@ -1,12 +1,7 @@
 # Operations
 
-Currently uses your authenticated **Codex CLI**, with **`gpt-6.1-sol`** and high
-reasoning effort by default. The backend boundary is separate from queue handling
-so another CLI, such as OpenCode, can be added later. There are no Python runtime
-dependencies. Linux and Python 3.11+ are currently supported.
-
-No API key is needed when Codex is already authenticated through your ChatGPT
-account. Worklane never stores access tokens.
+Uses authenticated [Codex or OpenCode harnesses](harnesses.md), with global defaults and per-role overrides.
+Linux and Python 3.11+ are supported; no Python runtime dependencies or stored access tokens.
 
 See the [README](../README.md#run) for basic usage and controller commands.
 
@@ -169,18 +164,18 @@ worklane start
 Already-owned In Progress/Agent review tickets can continue in place. A changed PR
 head needs a fresh review turn in the same reviewer conversation. Worktrees and logs are retained
 for recovery; cleanup is manual, using `git worktree remove` once changes are safe.
-Codex runs have an eight-hour timeout. Worklane uses Codex's workspace sandbox and
+Agent runs have an eight-hour timeout. Worklane uses Codex's workspace sandbox and
 automatic approval review (`--approve-for-me`), retaining the installed CLI's
 approval rules. It disables Codex subagents; the default is three worker CLI
 processes and one reviewer CLI process. These agents can write code, run commands
 and create GitHub comments/PRs within the authorized task; inspect your queue before
 starting. Account usage limits can block a run, in which case retry explicitly.
 
-If a previously launched role has no recoverable session ID, or Codex cannot resume
+If a previously launched role has no recoverable session ID, or its harness cannot resume
 the saved ID, Worklane blocks rather than silently starting a new conversation.
 The `thread.started` event and its session mapping are committed in one transaction.
 A crash before any recoverable ID was committed needs manual
-inspection. Deleting Codex history or a session worktree also requires recovery;
+inspection. Deleting harness history or a session worktree also requires recovery;
 Worklane does not substitute another session or checkout.
 
 Optional flags:

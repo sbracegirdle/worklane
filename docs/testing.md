@@ -30,3 +30,7 @@ Issue-creation tests cover literal multiline descriptions, destination validatio
 Draft/Shaping selection, concurrent controller pickup, and recovery guidance after
 partial failure. GitHub writes are mocked; live issue creation and board placement
 require a disposable repository and board for manual validation.
+
+OpenCode subprocess fixtures cover role routing, JSON events, interrupted resumes, missing history, permissions, and TUI/background options.
+Live OpenCode provider turns remain manual; automated tests use temporary state and fake CLIs.
+`WORKLANE_TEST_OPENCODE=1 uv run python -m unittest -v test_harness.InstalledOpenCodeTests` probes installed-CLI isolation without provider turns.

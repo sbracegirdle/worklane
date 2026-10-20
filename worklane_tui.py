@@ -12,7 +12,6 @@ import sys
 import threading
 import time
 import unicodedata
-import uuid
 
 import worklane
 from worklane import ROLES, locked, process_identity, readable_log
@@ -125,9 +124,9 @@ def controller_action(action, root, options):
     """Use the same CLI safeguards as commands entered in another terminal."""
     args = [sys.executable, str(Path(worklane.__file__).resolve()), action, "--repo", str(root)]
     if action == "start":
-        for name in ("project", "model", "interval", "harness", "workers", "effort"):
+        for name in ("project", "model", "interval", "workers", "effort", *[key for key in worklane.harness_option_names() if key != "model"]):
             if options.get(name) is not None:
-                args.extend(["--" + name, str(options[name])])
+                args.extend(["--" + name.replace("_", "-"), str(options[name])])
         if options.get("once"):
             args.append("--once")
     return worklane.command(args, cwd=root, timeout=120)
@@ -234,21 +233,20 @@ def resume_session(state, number, role, *, invoke=None):
         session = state.session(number, role)
         if not session:
             raise RuntimeError("No saved session yet. Enter follows live logs as soon as they arrive.")
-        session_id = str(uuid.UUID(session["session_id"]))
-        if session.get("backend", "codex") != "codex":
-            raise RuntimeError("Interactive resume is supported only for Codex sessions.")
+        harness = worklane.HARNESSES[session.get("backend", "codex")]
         tree = Path(session["worktree"])
         if not tree.is_dir():
             raise RuntimeError("Saved session worktree is missing; inspect it before resuming.")
         for run in state.runs():
             if run.get("pid") and run.get("identity") and process_identity(run["pid"]) == run["identity"]:
                 raise RuntimeError("An agent process is still alive. Stop Worklane and wait before resuming.")
-        if not shutil.which("codex"):
-            raise RuntimeError("Required command missing: codex")
-        result = invoke(["codex", "resume", session_id, "--sandbox", "workspace-write", "--ask-for-approval", "on-request",
-                         "--disable", "multi_agent"], cwd=tree, pass_fds=(fd,))
+        if not shutil.which(harness.name):
+            raise RuntimeError(f"Required command missing: {harness.name}")
+        environment = harness.environment()
+        kwargs = {"env": environment} if environment is not None else {}
+        result = invoke(harness.resume_args(session), cwd=tree, pass_fds=(fd,), **kwargs)
         if result.returncode:
-            raise RuntimeError(f"Codex resume exited {result.returncode}; saved session retained.")
+            raise RuntimeError(f"{harness.name} resume exited {result.returncode}; saved session retained.")
 
 
 def search_sessions(state, query, rows, limit=100):
@@ -388,14 +386,17 @@ def config_walkthrough(c, screen, root, options=None):
     values.update({key: value for key, value in (options or {}).items()
                    if key in worklane.CONFIG_DEFAULTS and value is not None})
     questions = (
-        ("harness", "Which agent harness?", "codex is the only supported harness currently."),
+        ("harness", "Which agent harness?", "codex or opencode (OpenCode 2.x)."),
         ("workers", "How many coding workers?", "1 to 16 concurrent workers, plus one independent reviewer."),
-        ("model", "Which agent model?", "Enter a model available to your authenticated Codex CLI."),
-        ("effort", "Which reasoning effort?", "low, medium, high or xhigh"),
+        ("model", "Which agent model?", "Model name, or empty for the selected harness default."),
+        ("effort", "Which reasoning effort?", "Codex: low, medium, high or xhigh; OpenCode uses its own settings."),
         ("interval", "How many seconds between board polls?", "Minimum 10 seconds."),
         ("project", "Which GitHub project board?", "OWNER/NUMBER, or leave empty for automatic discovery."),
-    )
-    step, error = 0, ""
+    ) + tuple(question for role in worklane.ROLES.values() for question in (
+        (role + "_harness", f"Which harness for {role}?", "Empty inherits the default; codex or opencode overrides it."),
+        (role + "_model", f"Which model for {role}?", "Empty inherits the default model; otherwise enter a model name."),
+    ))
+    step, error, summary_offset = 0, "", 0
     text = str(values[questions[step][0]])
     screen.keypad(True)
     screen.timeout(100)
@@ -419,8 +420,11 @@ def config_walkthrough(c, screen, root, options=None):
             put(3, "Enlarge terminal to at least 50×12; Esc cancels.")
         elif confirming:
             put(3, "Save these settings?", c.A_BOLD)
-            for y, (key, value) in enumerate(values.items(), 4):
-                put(y, f"{key}: {value or 'auto'}")
+            summary = [f"{key}: {value or 'default'}" for key, value in values.items()]
+            capacity = max(1, height - 6)
+            summary_offset = min(summary_offset, max(0, len(summary) - capacity))
+            for y, line in enumerate(summary[summary_offset:summary_offset + capacity], 4):
+                put(y, line)
         else:
             _, question, hint = questions[step]
             put(3, f"{step + 1}/{len(questions)}  {question}", c.A_BOLD)
@@ -428,7 +432,7 @@ def config_walkthrough(c, screen, root, options=None):
                 put(y, line)
             put(8, "> " + clipped(text, max(1, width - 7)) + "_", c.A_REVERSE)
         put(height - 2, error, c.A_BOLD)
-        put(height - 1, "Enter save · Esc cancel" if confirming else "Enter next · Ctrl-U clear · Esc cancel", c.A_DIM)
+        put(height - 1, "↑↓ review · Enter save · Esc cancel" if confirming else "Enter next · Ctrl-U clear · Esc cancel", c.A_DIM)
         screen.refresh()
         try:
             key = screen.get_wch()
@@ -437,6 +441,10 @@ def config_walkthrough(c, screen, root, options=None):
         if key in ("\x1b", 27):
             return False
         if height < 12 or width < 50:
+            continue
+        if confirming and key in (c.KEY_DOWN, c.KEY_UP, c.KEY_NPAGE, c.KEY_PPAGE):
+            direction = 1 if key in (c.KEY_DOWN, c.KEY_NPAGE) else -1
+            summary_offset = max(0, summary_offset + direction * (capacity if key in (c.KEY_NPAGE, c.KEY_PPAGE) else 1))
             continue
         if key in ("\n", "\r", c.KEY_ENTER):
             try:
@@ -675,7 +683,8 @@ class Dashboard:
     def settings(self):
         runtime = self.state.get_meta("runtime", {})
         saved = worklane.load_config(self.root) if (self.root / worklane.CONFIG_FILE).exists() else {}
-        return {**{key: runtime[key] for key in (*worklane.CONFIG_DEFAULTS, "once") if key in runtime}, **saved,
+        return {**{key: runtime[key] for key in (*worklane.CONFIG_DEFAULTS, "once") if key in runtime},
+                **runtime.get("harness_options", {}), **saved,
                 **{key: value for key, value in self.options.items() if value is not None}}
 
     def open_page(self, kind, *, number=None, fallback=None):
@@ -1265,7 +1274,7 @@ class Dashboard:
                 c.endwin()
                 try:
                     resume_session(self.state, chosen["number"], chosen["role"])
-                    self.message = "Returned from Codex. Worklane was not started; inspect changes before restarting."
+                    self.message = "Returned from the agent. Worklane was not started; inspect changes before restarting."
                 except (RuntimeError, OSError, ValueError) as error:
                     self.message = str(error)
                 finally:

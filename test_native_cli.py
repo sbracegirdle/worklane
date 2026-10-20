@@ -127,6 +127,17 @@ class NativeCliTests(unittest.TestCase):
             {'path':'state/worklane/owner--repo/state.sqlite3','query':'SELECT count(*) FROM migration_archive'},
         ]),lambda r:self.assertEqual(r['sqlite'][0],[['worker',session]]))
 
+    def test_emergency_controls_do_not_open_github_budget_state(self):
+        # An unusable shared transport store must not prevent stopping owned processes.
+        self.observe(scenario('cli.native-emergency-budget-isolation',[
+            {'argv':['pause'],'stdout_contains':['Paused']},
+            {'argv':['stop'],'stdout_contains':['Stop requested']},
+            {'argv':['stop','--now'],'stdout_contains':['no owned processes remain']},
+            {'argv':['status'],'stdout_contains':['"paused": true','"running": false']},
+        ],files={'state/worklane/_github/tasks/1.json':'invalid transport migration'},
+           observe_files=['state/worklane/_github/state.sqlite3']),
+           lambda r:self.assertIsNone(r['files']['state/worklane/_github/state.sqlite3']))
+
     def test_public_board_refusal_and_invocation_only_consent(self):
         rules=board_prefix(public=True)
         rules+=board_prefix(public=True)+[{'argv':['project','view','2','--owner','owner','--web']}]

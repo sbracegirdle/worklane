@@ -529,22 +529,19 @@ fn run(options: &Options) -> Result<i32> {
         )?;
         return Ok(0);
     }
-    let actions = actions(&state, root, &settings, invocation.clone())?;
     match action {
-        "pause" | "resume" => {
-            actions.pause(action == "pause")?;
-            println!(
-                "{}",
-                if action == "pause" {
-                    "Paused: active jobs finish; no new jobs start."
-                } else {
-                    "Resumed intake. Run worklane start if the controller is stopped."
-                }
-            );
+        "pause" => {
+            state.pause(true)?;
+            println!("Paused: active jobs finish; no new jobs start.");
+            return Ok(0);
+        }
+        "resume" => {
+            actions(&state, root, &settings, invocation.clone())?.pause(false)?;
+            println!("Resumed intake. Run worklane start if the controller is stopped.");
             return Ok(0);
         }
         "stop" => {
-            actions.stop(options.now)?;
+            Controller::stop(&state, options.now)?;
             println!(
                 "{}",
                 if state.get_meta("shutdown", json!({}))?["immediate"] == true {
@@ -556,7 +553,7 @@ fn run(options: &Options) -> Result<i32> {
             return Ok(0);
         }
         "retry" => {
-            actions.retry(options.number.unwrap())?;
+            actions(&state, root, &settings, invocation.clone())?.retry(options.number.unwrap())?;
             println!(
                 "Retry enabled using the saved session. Start Worklane; existing In Progress/Agent review assignments can continue without moving tickets."
             );
@@ -682,7 +679,7 @@ fn run(options: &Options) -> Result<i32> {
             if options.once {
                 argv.push("--once".into());
             }
-            let pid = actions.start(&argv)?;
+            let pid = actions(&state, root, &settings, invocation.clone())?.start(&argv)?;
             println!(
                 "Started {} (PID {pid}); use worklane logs to inspect SQLite logs.",
                 repository.repo

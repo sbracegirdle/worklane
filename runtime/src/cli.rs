@@ -24,7 +24,7 @@ pub const HELP: &str =
     "Worklane: coding workers and one independent reviewer for a GitHub project board.
 Usage: worklane [COMMAND] [NUMBER] [OPTIONS]
 Commands: run start check board status logs config pause resume stop retry add stack tui
-Default: tui (native dashboard supplied by #52).
+Default: tui (native dashboard).
   run / start          Foreground / detached controller
   check                Read-only board, dependency and stack readiness
   board                Open project board with gh
@@ -80,6 +80,8 @@ pub struct Options {
     pub save: bool,
     pub help: bool,
     pub version: bool,
+    pub refresh: Option<Duration>,
+    pub no_color: bool,
 }
 fn usage(message: impl Into<String>) -> Error {
     Error::new("usage", message)
@@ -137,7 +139,7 @@ impl Options {
                 "--shaping" => options.shaping = true,
                 "--show" => options.show = true,
                 "--save" => options.save = true,
-                "--no-color" => {}
+                "--no-color" => options.no_color = true,
                 _ if flag.starts_with('-') => {
                     let key = flag.trim_start_matches('-').replace('-', "_");
                     let known = ConfigStore::defaults().get(&key).is_some()
@@ -181,6 +183,7 @@ impl Options {
                                     "--refresh must be 0.1 to 60 seconds.",
                                 ));
                             }
+                            options.refresh = Some(Duration::from_secs_f64(n));
                         }
                         _ => {
                             options.overrides[&key] =
@@ -407,6 +410,43 @@ fn run(options: &Options) -> Result<i32> {
         print_json(&installation_info())?;
         return Ok(0);
     }
+    if options.action == "tui" {
+        let root = std::fs::canonicalize(&options.repo)?;
+        let mut dashboard = crate::tui::Options::new(root.clone());
+        dashboard.invocation = Invocation {
+            project: options.overrides["project"]
+                .as_str()
+                .filter(|s| !s.is_empty())
+                .map(str::to_owned),
+            dangerously_allow_public_board: options.public,
+        };
+        dashboard.overrides = options.overrides.clone();
+        dashboard.no_color = options.no_color || std::env::var_os("NO_COLOR").is_some();
+        if let Some(refresh) = options.refresh {
+            dashboard.refresh = refresh;
+        }
+        dashboard.controller = vec![
+            std::env::current_exe()?.to_string_lossy().into_owned(),
+            "run".into(),
+            "--repo".into(),
+            root.to_string_lossy().into_owned(),
+            "--background".into(),
+        ];
+        for (key, value) in options.overrides.as_object().unwrap() {
+            dashboard.controller.extend([
+                format!("--{}", key.replace('_', "-")),
+                value
+                    .as_str()
+                    .map(str::to_owned)
+                    .unwrap_or_else(|| value.to_string()),
+            ]);
+        }
+        if options.once {
+            dashboard.controller.push("--once".into());
+        }
+        crate::tui::run(dashboard)?;
+        return Ok(0);
+    }
     let repository = RepositoryLocator::locate(&options.repo)?;
     let root = &repository.root;
     let action = options.action.as_str();
@@ -419,12 +459,6 @@ fn run(options: &Options) -> Result<i32> {
     if action == "config" {
         config(options, root, settings)?;
         return Ok(0);
-    }
-    if action == "tui" {
-        return Err(Error::new(
-            "unavailable",
-            "Native TUI is delivered by #52; use status, logs, config or start in this CLI preview.",
-        ));
     }
     let invocation = Invocation {
         project: settings["project"]

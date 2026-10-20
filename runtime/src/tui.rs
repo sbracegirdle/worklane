@@ -35,6 +35,7 @@ pub struct Options {
     /// Native executable followed by its `run` command and explicit invocation options.
     pub controller: Vec<String>,
     pub no_color: bool,
+    pub overrides: Value,
 }
 impl Options {
     pub fn new(root: PathBuf) -> Self {
@@ -44,6 +45,7 @@ impl Options {
             invocation: Invocation::default(),
             controller: Vec::new(),
             no_color: false,
+            overrides: json!({}),
         }
     }
 }
@@ -111,7 +113,7 @@ pub fn run(options: Options) -> Result<()> {
     // Validate TTY before opening/migrating any state.
     Terminal::check()?;
     let repository = RepositoryLocator::locate(&options.root)?;
-    let config = ConfigStore::resolve(&repository.root, &json!({}))?;
+    let config = ConfigStore::resolve(&repository.root, &options.overrides)?;
     let mut state = StateStore::open(&repository.repo, None)?;
     state.busy_timeout = Duration::from_millis(250);
     let cancelled = Arc::new(AtomicBool::new(false));

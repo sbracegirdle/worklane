@@ -1,80 +1,56 @@
-# Test unmerged CLI changes locally
+# Native installation
 
-Native TUI preview: `cargo install --path runtime --bin worklane-tui --root /tmp/worklane-52-install --debug --locked --offline`.
-#53 wires `worklane`/`tui` to `worklane_runtime::tui::run(Options)`; `~/.local/bin/worklane`, `.venv/bin/worklane`, and controller must match reviewed-main native binaries.
+`worklane` and `worklane tui` run Rust; Python remains a development oracle, never a production fallback.
 
-The CLI's source and the repository it manages are separate. A local integration
-checkout, draft PR branch, or exact commit can supply the CLI while `--repo`
-continues to select the project being managed. No merge into `main` or release is
-needed. Installation commands below replace only your local Worklane tool.
-
-Before changing an installed CLI (including edits to an editable checkout), stop
-and drain each controller using it with `worklane stop --repo /path/to/project`.
-Use `worklane status --repo /path/to/project` until `running` is false. Reinstalling
-does not replace a running controller's code; `resume` does not restart it.
-
-For an existing local integration or PR checkout, install it in editable mode:
+## Stage a candidate
 
 ```sh
-uv tool install --force --editable /absolute/path/to/worklane-integration
-worklane --version
-worklane check --repo /absolute/path/to/target-project
+cargo install --path runtime --bin worklane --bin worklane-tui --locked --offline --root /tmp/worklane-native
+/tmp/worklane-native/bin/worklane --version
+file /tmp/worklane-native/bin/worklane
+WORKLANE_TEST_RUST=1 WORKLANE_TEST_CLI_BINARY=/tmp/worklane-native/bin/worklane uv run --no-project python -m unittest -q test_native_cli test_native_integration
 ```
 
-Subsequent source edits are picked up by new CLI processes. If package metadata
-or dependencies change, repeat the install. Keep that checkout available while
-the editable tool is installed. This does not switch branches in the primary
-checkout or merge anything into the integration branch.
+Installed PTY evidence: `WORKLANE_TUI_BIN=/tmp/worklane-native/bin/worklane-tui uv run --no-project python tools/native_tui.py REPORT.json`.
+Stages preserve production installations; #53 stays open and desktop #40–#48 remain blocked until actual cutover verification.
 
-To install a remote branch without a local checkout:
+## Operator cutover after independent review and merge
+
+Stop every managed repository with its current command; wait until `status` reports `running=false` before merging/installing.
+Back up provider histories and referenced worktrees separately; the installer preserves them in place.
 
 ```sh
+worklane stop --repo /path/to/project
+worklane status --repo /path/to/project
+# After the reviewed merge, use a clean checkout at freshly fetched origin/main:
 gh auth setup-git --hostname github.com
-uv tool install --force --refresh 'git+https://github.com/sbracegirdle/worklane.git@integration'
-worklane --version
+git fetch origin main
+git rev-parse HEAD origin/main
+cargo install --path runtime --bin worklane --bin worklane-tui --locked --offline --root /tmp/worklane-native-main
+uv run --no-project python tools/install_native.py \
+  --staged /tmp/worklane-native-main/bin/worklane --revision "$(git rev-parse origin/main)" \
+  --backup /absolute/path/to/new-private-backup --repo /path/to/project
 ```
 
-Replace `integration` with the draft PR's head branch or a full commit SHA. The
-branch must be pushed to that repository; for fork PRs, use the fork's URL. Repeat
-the command to pick up new branch commits; `--refresh` avoids a cached branch
-resolution, and a full SHA selects a reproducible revision.
+Repeat `--repo` for every managed checkout; defaults replace `~/.local/bin/worklane` and this checkout's `.venv/bin/worklane` atomically per path.
+Use repeated `--destination` for installations elsewhere, including the primary checkout; no checkout or integration branch changes automatically.
 
-For a temporary invocation that keeps the installed `worklane` command intact:
+The installer requires clean reviewed-main identity, locks stopped controllers/launches, backs up SQLite WAL/config/commands, and rolls back partial replacements.
+Backup `manifest.json` records identities and original paths; `production_verified=false` requires the remaining operator checks.
 
 ```sh
-uv run --project /absolute/path/to/worklane-integration worklane --version
-uv run --project /absolute/path/to/worklane-integration worklane check --repo /absolute/path/to/target-project
+hash -r
+command -v worklane
+readlink -f ~/.local/bin/worklane /path/to/primary/.venv/bin/worklane
+file ~/.local/bin/worklane /path/to/primary/.venv/bin/worklane
+~/.local/bin/worklane --version
+/path/to/primary/.venv/bin/worklane --version
+worklane check --repo /path/to/project
+worklane tui --repo /path/to/project
+# Navigate logs/search, resize, cancel configuration, then q; verify terminal restoration.
+worklane start --repo /path/to/project
+worklane status --repo /path/to/project
 ```
 
-`--version` works offline and outside a project checkout. It prints the package
-version, loaded module path, full source revision, local branch and tracked-file
-dirty state. Remote Git installs report the resolved commit from their install
-metadata; their branch and dirty state are `null`. Ordinary wheels without Git
-metadata have a `null` revision. A source checkout without installed package
-metadata reports version `uninstalled`. `check` also shows this CLI information;
-`status` includes the CLI information captured when the controller started under
-`runtime.cli` (older controllers may lack it).
-
-Run the tests below and use `check` for a read-only board smoke check. Once ready
-to exercise real work, explicitly start the selected CLI with
-`worklane start --repo /absolute/path/to/target-project` (prepend
-`uv run --project /absolute/path/to/worklane-integration` for a temporary
-invocation). All installs/checkouts share the usual
-per-repository state and controller lock; a preview uses the real queue and saved
-sessions. Stop the controller again before switching back. To restore the default
-branch installation:
-
-```sh
-uv tool install --force --refresh 'git+https://github.com/sbracegirdle/worklane.git@main'
-worklane --version
-```
-
-Alternatively, restore your previous editable source with `uv tool install
---force --editable /path/to/previous-checkout`. Switching CLI versions preserves
-state and sessions, but an older CLI can refuse a newer database schema; keep a
-stopped-controller state backup before testing schema changes.
-
-Native CLI preview: `cargo install --path runtime --bin worklane --locked --offline --root /tmp/worklane-cli`.
-Offline `config --show/--save` supports overrides; native dashboard (#52), cutover (#53), and exhaustive presentation parity remain deferred.
-`worklane_runtime::cli::main(Vec<String>) -> i32` takes argv without argv[0]; #53 replaces default/`tui`'s preview boundary with #52's UI, preserving native `run/start`.
-After drain and backup, #53 copies the staged reviewed-main ELF into `~/.local/bin/worklane` and `.venv/bin/worklane`; verify controller revision.
+Both ELF revisions and restarted `runtime.cli.revision` must equal freshly fetched `origin/main`; verify the controlled backlog and preserved sessions/input.
+Record results before closing #53; `resume` never restarts an old controller. No automatic merge, release, or desktop unblock occurs.

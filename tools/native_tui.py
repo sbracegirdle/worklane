@@ -56,7 +56,8 @@ if __name__ == '__main__':
     source=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     reference=json.loads((ROOT/'parity/inventory.json').read_text())['revision']
     assert digest(BINARY)==binary_hash, 'Candidate changed during PTY checks'
-    assert digest(ROOT/'target/debug/worklane-tui')==binary_hash, 'Installed debug candidate differs from current native build'
+    builds=[ROOT/'target'/profile/'worklane-tui' for profile in ('debug','release')]
+    assert any(p.exists() and digest(p)==binary_hash for p in builds), 'Installed candidate differs from current native builds'
     report={'reference':reference,'runtime_parent':'5cc71a5880dc77727987e4a496c53181f5e5d8f0',
         'candidate_source_revision':source,'candidate':str(BINARY.resolve()),'candidate_sha256':binary_hash,
         'controller_probe':str(PROBE),'controller_probe_sha256':digest(PROBE),
@@ -70,7 +71,7 @@ if __name__ == '__main__':
         'core_release_ready':False,'exhaustive_parity_complete':False,'independent_review':'pending serialized reviewer',
         'limits':['Disposable installation only; active installations preserved.',
                   'Controlled gh/provider commands, real PTYs and native owned controller probe; no live GitHub writes or provider turns.',
-                  '#53 owns combined CLI/TUI integration, drained installed cutover and full backlog lifecycle.',
+                  'Combined installed CLI/lifecycle evidence is recorded by tools/native_release.py; production cutover remains pending.',
                   'Deferred richer colors, first-use walkthrough, cursor editing, PR badges and fuzzy search.']}
     Path(sys.argv[1]).write_text(json.dumps(report,indent=2)+'\n')
     raise SystemExit(0 if report['core_tui_ready'] else 1)

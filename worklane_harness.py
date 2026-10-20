@@ -114,6 +114,7 @@ class CodexAppServer:
 
 class CodexHarness:
     name = "codex"
+    effort = "high"
     auth_command = ["codex", "login", "status"]
 
     def __init__(self, model, root, state):
@@ -156,7 +157,7 @@ class CodexHarness:
         os.write(schema_fd, json.dumps(schema).encode())
         os.lseek(schema_fd, 0, os.SEEK_SET)
         args = ["codex", "exec", "--approve-for-me", "--cd", str(worktree),
-                "--config", 'model_reasoning_effort="high"', "--config", "features.multi_agent=false"]
+                "--config", f'model_reasoning_effort="{self.effort}"', "--config", "features.multi_agent=false"]
         if stage == "finalize":
             args += ["--add-dir", str(self.root)]
         if session:

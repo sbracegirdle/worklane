@@ -102,6 +102,43 @@ class HarnessTests(unittest.TestCase):
         file = self.root / 'opencode-calls.jsonl'
         return [json.loads(line) for line in file.read_text().splitlines()] if file.exists() else []
 
+    def test_queued_input_resumes_exact_opencode_conversation_for_every_role(self):
+        for stage, role in w.ROLES.items():
+            with self.subTest(role=role), w.locked(self.state.path / 'runner.lock') as fd, \
+                 patch.dict(os.environ, FAKE_DELAY='.2'), ThreadPoolExecutor(1) as pool:
+                before = len(self.calls())
+                future = pool.submit(self.backend(fd).run, stage, self.task, self.tree)
+                deadline = time.monotonic() + 5
+                while not self.state.session(1, role) and time.monotonic() < deadline:
+                    time.sleep(.005)
+                session = self.state.session(1, role)
+                self.assertIsNotNone(session)
+                run = self.state.load(1)['active_run_id']
+                self.state.queue_input(run, 'Check Unicode 界 before handoff')
+                output = future.result(timeout=5)
+                calls = self.calls()[before:]
+                self.assertEqual(len(calls), 2)
+                self.assertEqual(calls[1]['args'][calls[1]['args'].index('--session') + 1], session['session_id'])
+                self.assertIn('Check Unicode 界 before handoff', calls[1]['prompt'])
+                self.assertEqual(self.state.session(1, role)['session_id'], session['session_id'])
+                self.assertEqual(self.state.advance_run(run, output), [])
+
+    def test_failed_opencode_queued_input_is_retried_with_saved_session(self):
+        with w.locked(self.state.path / 'runner.lock') as fd:
+            self.backend(fd).run('build', self.task, self.tree)
+            session = self.state.session(1, 'worker')
+            run = self.state.begin_run(self.task, 'build', self.tree)
+            self.state.queue_input(run, 'Retry this input')
+            self.state.advance_run(run)
+            self.state.finish_run(run, 'interrupted')
+            with patch.dict(os.environ, FAKE_FAIL='1'), self.assertRaisesRegex(RuntimeError, 'exited'):
+                self.backend(fd).run('build', self.task, self.tree)
+            self.backend(fd).run('build', self.task, self.tree)
+            calls = self.calls()
+            for call in calls[1:]:
+                self.assertEqual(call['args'][call['args'].index('--session') + 1], session['session_id'])
+                self.assertIn('Retry this input', call['prompt'])
+
     def test_inherited_pwd_cannot_redirect_runs_exports_or_interactive_resume(self):
         for stage, role in w.ROLES.items():
             with self.subTest(role=role):

@@ -43,6 +43,9 @@ class FakeBoard:
     def items(self):
         return copy.deepcopy(self.queue)
 
+    def dependencies_ready(self, selected):
+        return not selected.get("blocked_by_count", 0)
+
     def item_status(self, selected):
         target = next((i for i in self.queue if i["id"] == selected["id"]), None)
         return target["status"].casefold() if target else None
@@ -215,6 +218,7 @@ class WorklaneTests(unittest.TestCase):
         return {"id": f"item-{number}", "fieldValueByName": {"name": w.READY},
                 "links": {"pullRequests": {"nodes": [{"url": "https://github.com/owner/repo/pull/9"}],
                           "pageInfo": {"hasNextPage": False}}}, "content": {
+            "issueDependenciesSummary": {"blockedBy": 0},
             "number": number, "title": "Issue", "body": "Description", "url": "https://example.com/issue",
             "repository": {"nameWithOwner": repo}}}
 

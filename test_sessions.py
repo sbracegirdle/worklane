@@ -67,6 +67,8 @@ if os.environ.get("FAKE_FAIL"):
     sys.exit(1)
 value = {"verdict": "pass", "head_sha": "a" * 40, "pr_url": "https://github.com/owner/repo/pull/9",
          "summary": "Checks passed", "findings": []}
+if "Additional user requests from the Worklane TUI" in prompt:
+    value["summary"] = "Handled queued input"
 pathlib.Path(args[args.index("--output-last-message") + 1]).write_text(json.dumps(value))
 print(json.dumps({"type": "turn.completed"}), flush=True)
 '''
@@ -102,6 +104,102 @@ class SessionTests(unittest.TestCase):
         file = self.root / "calls.jsonl"
         return [json.loads(line) for line in file.read_text().splitlines()] if file.exists() else []
 
+    def wait_for_session(self, role="worker"):
+        deadline = time.monotonic() + 5
+        while time.monotonic() < deadline:
+            session = self.state.session(1, role)
+            if session:
+                return session
+            time.sleep(.005)
+        self.fail("Agent did not save its session")
+
+    def test_live_input_runs_followup_in_exact_session_before_returning_result(self):
+        with w.locked(self.state.path / "runner.lock") as fd, \
+             patch.dict(os.environ, {"FAKE_DELAY": ".3"}), ThreadPoolExecutor(1) as pool:
+            future = pool.submit(self.backend(fd).run, "build", self.task, self.tree)
+            session = self.wait_for_session()
+            run = self.state.runs(1)[0]
+            self.state.queue_input(run["id"], "Please check Unicode 界 too")
+            self.state.queue_input(run["id"], "Run the focused tests")
+            self.assertFalse(future.done())
+            output = future.result(timeout=5)
+            with self.assertRaisesRegex(RuntimeError, "no longer accepting"):
+                self.state.queue_input(run["id"], "Too late")
+        calls = self.calls()
+        self.assertEqual(len(calls), 2)
+        self.assertIn("resume", calls[1]["args"])
+        self.assertEqual(calls[1]["args"][-2], session["session_id"])
+        self.assertEqual(calls[1]["cwd"], str(self.tree))
+        self.assertIn("Please check Unicode 界 too", calls[1]["prompt"])
+        self.assertIn("Run the focused tests", calls[1]["prompt"])
+        self.assertEqual(output["summary"], "Handled queued input")
+        self.assertEqual(self.state.runs(1)[0]["result"], output)
+        logs = self.state.log_entries(1)
+        self.assertEqual(len([log for log in logs if log["stream"] == "user"]), 2)
+        self.assertTrue(any(log["content"] == "Queued input turn completed." for log in logs))
+
+    def test_input_survives_failed_delivery_and_restarts_only_in_matching_role(self):
+        with w.locked(self.state.path / "runner.lock") as fd:
+            backend = self.backend(fd)
+            backend.run("build", self.task, self.tree)
+            session = self.state.session(1, "worker")
+            run = self.state.begin_run(self.task, "build", self.tree)
+            self.state.queue_input(run, "Check the interrupted request")
+            self.state.advance_run(run)  # Simulate failure after handing input to Codex.
+            self.state.finish_run(run, "interrupted")
+            backend.run("review", self.task, self.tree)
+            reopened = w.State("owner/repo", self.root)
+            with patch.dict(os.environ, {"FAKE_FAIL": "1"}):
+                with self.assertRaisesRegex(RuntimeError, "Codex exited"):
+                    self.backend(fd, reopened).run("build", self.task, self.tree)
+            self.backend(fd, reopened).run("build", self.task, self.tree)
+            self.backend(fd, reopened).run("build", self.task, self.tree)
+        calls = self.calls()
+        self.assertNotIn("Check the interrupted request", calls[1]["prompt"])
+        for call in calls[2:4]:
+            self.assertEqual(call["args"][-2], session["session_id"])
+            self.assertIn("Check the interrupted request", call["prompt"])
+        self.assertNotIn("Check the interrupted request", calls[4]["prompt"])
+
+    def test_input_completion_serializes_with_new_submissions_and_bounds_queue(self):
+        with w.locked(self.state.path / "runner.lock") as fd:
+            self.backend(fd).run("build", self.task, self.tree)
+            run = self.state.begin_run(self.task, "build", self.tree)
+            for text in ("", " " * 4, "x" * 8001):
+                with self.assertRaisesRegex(RuntimeError, "8000"):
+                    self.state.queue_input(run, text)
+            for index in range(20):
+                self.state.queue_input(run, f"Request {index}")
+            with self.assertRaisesRegex(RuntimeError, "queue is full"):
+                self.state.queue_input(run, "Overflow")
+            self.assertEqual(len(self.state.advance_run(run, result())), 20)
+            self.assertEqual(self.state.advance_run(run, result()), [])
+            run = self.state.begin_run(self.task, "build", self.tree)
+            self.state.queue_input(run, "First")
+            self.assertEqual(self.state.advance_run(run, result()), ["First"])
+            self.state.queue_input(run, "Arrived during followup")
+            self.assertEqual(self.state.advance_run(run, result()), ["Arrived during followup"])
+            self.assertEqual(self.state.advance_run(run, result()), [])
+            barrier = threading.Barrier(2)
+            run = self.state.begin_run(self.task, "build", self.tree)
+            def send():
+                barrier.wait()
+                try:
+                    self.state.queue_input(run, "Racing submission")
+                    return True
+                except RuntimeError:
+                    return False
+            with ThreadPoolExecutor(1) as pool:
+                future = pool.submit(send)
+                barrier.wait()
+                inputs = self.state.advance_run(run, result())
+                accepted = future.result(timeout=5)
+            self.assertEqual(inputs, ["Racing submission"] if accepted else [])
+            if accepted:
+                self.state.advance_run(run, result())
+        with self.assertRaisesRegex(RuntimeError, "stopped"):
+            self.state.queue_input(run, "No controller")
+
     def metadata_calls(self, method):
         file = self.root / "metadata.jsonl"
         calls = [json.loads(line) for line in file.read_text().splitlines()] if file.exists() else []
@@ -109,6 +207,21 @@ class SessionTests(unittest.TestCase):
 
     def backend(self, fd, state=None):
         return w.CodexBackend(w.MODEL, self.tree, state or self.state, fd)
+
+    def test_configured_model_and_effort_reach_every_role_and_resume_exact_session(self):
+        with w.locked(self.state.path / "runner.lock") as fd:
+            backend = w.CodexBackend("configured-model", self.tree, self.state, fd, effort="medium")
+            for stage in ("build", "review", "finalize"):
+                backend.run(stage, self.task, self.tree)
+            original = self.state.session(1, "worker")["session_id"]
+            backend.run("build", self.task, self.tree)
+        for call in self.calls():
+            args = call["args"]
+            self.assertEqual(args[args.index("--model") + 1], "configured-model")
+            self.assertIn('model_reasoning_effort="medium"', args)
+        self.assertIn("resume", self.calls()[-1]["args"])
+        self.assertEqual(self.calls()[-1]["args"][-2], original)
+        self.assertEqual(self.state.session(1, "worker")["session_id"], original)
 
     def test_session_names_include_repository_issue_role_and_clean_title(self):
         self.task["issue"] = {"title": "  Support\n pleasant\t names 🐍  "}

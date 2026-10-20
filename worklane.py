@@ -25,8 +25,10 @@ import signal
 import sqlite3
 import subprocess
 import sys
+import tempfile
 import threading
 import time
+import tomllib
 import uuid
 
 from worklane_harness import HARNESSES, MODEL, CodexAppServer, terminate, validate_session_id
@@ -36,6 +38,64 @@ REVIEWER = "reviewer"
 READY, PROGRESS, REVIEW, HUMAN = "Ready for work", "In Progress", "Agent review", "Human review"
 ACTIVE = {"building", "reviewing", "finalizing", "claiming"}
 ROLES = {"build": "worker", "review": "reviewer", "finalize": "finalizer"}
+CONFIG_FILE = ".worklane.toml"
+CONFIG_DEFAULTS = {"harness": "codex", "workers": 3, "model": "",
+                   "effort": "high", "interval": 60, "project": "",
+                   **{f"{role}_{option}": "" for role in ROLES.values() for option in ("harness", "model")}}
+
+
+def validate_config(values):
+    unknown = values.keys() - CONFIG_DEFAULTS.keys()
+    if unknown:
+        raise ValueError(f"Unknown configuration setting: {', '.join(sorted(unknown))}")
+    config = {**CONFIG_DEFAULTS, **values}
+    if not isinstance(config["harness"], str) or config["harness"] not in HARNESSES:
+        raise ValueError("harness must be codex or opencode.")
+    for role in ROLES.values():
+        if config[role + "_harness"] not in ("", *HARNESSES):
+            raise ValueError(f"{role}_harness must be codex, opencode or empty to inherit.")
+    if type(config["workers"]) is not int or not 1 <= config["workers"] <= 16:
+        raise ValueError("workers must be an integer between 1 and 16.")
+    for key in ("model", *[role + "_model" for role in ROLES.values()]):
+        if not isinstance(config[key], str) or any(c.isspace() for c in config[key]):
+            raise ValueError(f"{key} must be a model name without whitespace, or empty for the harness default.")
+    if config["effort"] not in ("low", "medium", "high", "xhigh"):
+        raise ValueError("effort must be low, medium, high or xhigh.")
+    if type(config["interval"]) is not int or config["interval"] < 10:
+        raise ValueError("interval must be an integer of at least 10 seconds.")
+    if not isinstance(config["project"], str) or (config["project"] and not re.fullmatch(r"[\w-]+/[1-9]\d*", config["project"])):
+        raise ValueError("project must be OWNER/NUMBER, or empty for automatic discovery.")
+    return config
+
+
+def load_config(root):
+    path = Path(root) / CONFIG_FILE
+    try:
+        with path.open("rb") as source:
+            return validate_config(tomllib.load(source))
+    except FileNotFoundError:
+        return dict(CONFIG_DEFAULTS)
+    except ValueError as error:
+        raise ValueError(f"{path}: {error}") from error
+
+
+def save_config(root, values):
+    config = validate_config(values)
+    path = Path(root) / CONFIG_FILE
+    # Replace only after a complete, validated write; cancellation never calls this.
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=root, prefix=".worklane-", delete=False) as target:
+            temporary = Path(target.name)
+            for key, value in config.items():
+                target.write(f"{key} = {json.dumps(value, ensure_ascii=False)}\n")
+            target.flush()
+            os.fsync(target.fileno())
+        temporary.replace(path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+    return config
 
 
 class GitHubRateLimit(RuntimeError):
@@ -608,6 +668,51 @@ class State:
             if result is not None:
                 self._put(db, "result:" + run_id, result)
 
+    def queue_input(self, run_id, text):
+        """Accept input only for the displayed, still-active saved conversation."""
+        text = text.strip()
+        if not text or len(text) > 8000:
+            raise RuntimeError("Enter between 1 and 8000 characters.")
+        if not self.running():
+            raise RuntimeError("Worklane is stopped; use a to resume the saved conversation.")
+        with self.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            run = db.execute("SELECT * FROM runs WHERE id=?", (run_id,)).fetchone()
+            task = self._get(db, f"task:{run['number']}", {}) if run else {}
+            if (not run or run["status"] not in {"starting", "running"}
+                    or not run["session_id"] or task.get("active_run_id") != run_id):
+                raise RuntimeError("Session is no longer accepting input; refresh or use a after stopping Worklane.")
+            owner = "input:" + run["session_id"]
+            inputs = self._get(db, owner, [])
+            if len(inputs) >= 20:
+                raise RuntimeError("Session input queue is full; wait for the next turn.")
+            inputs.append({"text": text, "status": "pending"})
+            self._put(db, owner, inputs)
+            self._log(db, run_id, "user", text)
+            self._log(db, run_id, "input", "Input queued for the next turn, before workflow handoff.")
+
+    def advance_run(self, run_id, result=None):
+        """Take pending input or finish atomically with respect to new submissions."""
+        with self.connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            run = db.execute("SELECT * FROM runs WHERE id=?", (run_id,)).fetchone()
+            owner = "input:" + run["session_id"] if run["session_id"] else None
+            inputs = self._get(db, owner, []) if owner else []
+            if result is not None:
+                if any(value["status"] == "sending" for value in inputs):
+                    self._log(db, run_id, "input", "Queued input turn completed.")
+                inputs = [value for value in inputs if value["status"] != "sending"]
+            if inputs:
+                for value in inputs:
+                    value["status"] = "sending"
+                self._log(db, run_id, "input", f"Delivering {len(inputs)} queued request(s) to the saved session.")
+            elif result is not None:
+                db.execute("UPDATE runs SET status='completed',finished_at=? WHERE id=?", (now(), run_id))
+                self._put(db, "result:" + run_id, result)
+            if owner:
+                self._put(db, owner, inputs)
+            return [value["text"] for value in inputs]
+
     def recover_runs(self):
         for run in self.runs():
             if run["status"] in {"starting", "running"}:
@@ -694,6 +799,13 @@ class DatabaseLogWriter:
 
     def isatty(self):
         return False
+
+
+def dependency_count(issue):
+    count = (issue.get("issueDependenciesSummary") or {}).get("blockedBy")
+    if type(count) is not int or count < 0:
+        raise RuntimeError("GitHub dependency status is unavailable; refusing assignment.")
+    return count
 
 
 class Board:
@@ -827,6 +939,7 @@ class Board:
                   }
                 } content { ... on Issue {
                   number title body url state repository { nameWithOwner }
+                  issueDependenciesSummary { blockedBy }
                 } } }
               } } }
             }""", {"id": self.project["id"], "cursor": cursor})
@@ -845,12 +958,26 @@ class Board:
                 links = (node.get("links") or {}).get("pullRequests")
                 items.append({"id": node["id"], "status": (node.get("fieldValueByName") or {}).get("name", ""),
                               "title": issue["title"], "content": content,
+                              "blocked_by_count": dependency_count(issue),
                               "linked pull requests": self.linked_prs(node["id"], links)})
             cursor = self.next_cursor(connection["pageInfo"], seen)
             if cursor is None:
                 if count != connection["totalCount"]:
                     raise RuntimeError("GitHub returned incomplete board pagination.")
                 return items
+
+    def dependencies_ready(self, item):
+        if item.get("blocked_by_count", 0):
+            return False
+        owner, name = self.repo.split("/")
+        data = graphql("""query($owner:String!, $name:String!, $number:Int!) {
+          repository(owner:$owner, name:$name) { issue(number:$number) {
+            issueDependenciesSummary { blockedBy }
+          } }
+        }""", {"owner": owner, "name": name, "number": item["content"]["number"]})
+        issue = (data.get("repository") or {}).get("issue") or {}
+        item["blocked_by_count"] = dependency_count(issue)
+        return item["blocked_by_count"] == 0
 
     def item_status(self, item):
         data = graphql("""query($id:ID!) { node(id:$id) { ... on ProjectV2Item {
@@ -875,10 +1002,12 @@ class Board:
 
 class AgentBackend:
     """Shared lifecycle for any harness: isolated sessions, durable events and recovery."""
-    def __init__(self, model, root, state, runner_fd, harness="codex"):
+    def __init__(self, model, root, state, runner_fd, harness="codex", effort="high"):
         self.model, self.root, self.state, self.runner_fd = model, root, state, runner_fd
+        self.effort = effort
         self.timeout = 8 * 3600
         self.harness = HARNESSES[harness](model, root, state)
+        self.harness.effort = effort
         self.model = self.harness.model
 
     terminate = staticmethod(terminate)
@@ -904,15 +1033,36 @@ class AgentBackend:
         # descriptors satisfy that protocol without creating any persistent files.
         schema_fd, result_fd = memory_fd("worklane-schema"), memory_fd("worklane-result")
         try:
-            args, prompt, env, turn = self.harness.prepare(
-                stage, task, worktree, session, prompt, RESULT_SCHEMA, schema_fd, result_fd)
-            return self._invoke(args, prompt, stage, task, worktree, schema_fd, result_fd, env, turn)
+            run_id = self.state.begin_run(task, stage, worktree)
+            try:
+                inputs = self.state.advance_run(run_id)
+                while True:
+                    if self.state.get_meta("shutdown", {}).get("immediate"):
+                        raise InterruptedRun("Immediate stop requested before the next agent turn.")
+                    turn_prompt = prompt
+                    if inputs:
+                        turn_prompt += ("\nAdditional user requests from the Worklane TUI (JSON):\n"
+                                        + json.dumps(inputs, ensure_ascii=False)
+                                        + "\nHandle these within the assigned task and existing safeguards. "
+                                        "Inspect prior actions before retrying an interrupted request; return the required structured result.\n")
+                    for descriptor in (schema_fd, result_fd):
+                        os.ftruncate(descriptor, 0)
+                        os.lseek(descriptor, 0, os.SEEK_SET)
+                    args, turn_prompt, env, turn = self.harness.prepare(
+                        stage, task, worktree, session, turn_prompt, RESULT_SCHEMA, schema_fd, result_fd)
+                    output = self._invoke(args, turn_prompt, stage, task, worktree, schema_fd, result_fd, env, turn, run_id)
+                    inputs = self.state.advance_run(run_id, output)
+                    if not inputs:
+                        return output
+                    session = self.state.session(task["number"], role)
+            except BaseException as error:
+                self.state.finish_run(run_id, "interrupted" if isinstance(error, InterruptedRun) else "failed", str(error))
+                raise
         finally:
             os.close(schema_fd)
             os.close(result_fd)
 
-    def _invoke(self, args, prompt, stage, task, worktree, schema_fd, result_fd, env, turn):
-        run_id = self.state.begin_run(task, stage, worktree)
+    def _invoke(self, args, prompt, stage, task, worktree, schema_fd, result_fd, env, turn, run_id):
         process = None
         observed_id, turn_completed, turn_failed = None, False, False
         def received(stream, line):
@@ -986,7 +1136,7 @@ class AgentBackend:
             if process.returncode < 0:
                 raise InterruptedRun(f"{self.harness.name} interrupted by signal {-process.returncode}; session retained.")
             if process.returncode:
-                raise RuntimeError(f"{self.harness.name} exited {process.returncode}; see worklane logs {task['number']} (run {run_id}).")
+                raise RuntimeError(f"{self.harness.name.capitalize()} exited {process.returncode}; see worklane logs {task['number']} (run {run_id}).")
             if not observed_id or not turn_completed or turn_failed:
                 raise RuntimeError(f"{self.harness.name} did not report a successful turn with a session ID; see worklane logs {task['number']}.")
             output = turn.result()
@@ -998,12 +1148,10 @@ class AgentBackend:
                 raise RuntimeError("Invalid result field types.")
             if not isinstance(output["findings"], list) or not all(isinstance(value, str) for value in output["findings"]):
                 raise RuntimeError("Invalid review findings.")
-            self.state.finish_run(run_id, "completed", result=output)
             return output
         except BaseException as error:
             if process:
                 self.terminate(process)
-            self.state.finish_run(run_id, "interrupted" if isinstance(error, InterruptedRun) else "failed", str(error))
             raise
         finally:
             if process:
@@ -1034,7 +1182,7 @@ class HarnessBackend:
         name, model = self.selection(role, self.state.session(task["number"], role))
         with self.lock:
             if (name, model) not in self.backends:
-                self.backends[name, model] = AgentBackend(model, self.root, self.state, self.runner_fd, name)
+                self.backends[name, model] = AgentBackend(model, self.root, self.state, self.runner_fd, name, effort=getattr(self.args, "effort", None) or "high")
             backend = self.backends[name, model]
         return backend.run(stage, task, worktree, extra)
 
@@ -1042,6 +1190,7 @@ class HarnessBackend:
 class Runner:
     def __init__(self, args, repo, root, state, board, backend):
         self.args, self.repo, self.root, self.state, self.board, self.backend = args, repo, root, state, board, backend
+        self.workers = tuple(f"worker-{i + 1}" for i in range(getattr(args, "workers", len(WORKERS))))
         self.budget = GitHubBudget(state)
 
     def issue(self, number):
@@ -1502,6 +1651,8 @@ class Runner:
                 task.update(phase="blocked", error="Saved item is no longer on this board.")
                 self.state.save(task)
                 continue
+            if not self.board.dependencies_ready(current):
+                continue
             status = current.get("status", "").casefold()
             expected = PROGRESS if stage == "build" else REVIEW
             if stage == "build" and status == READY.casefold():
@@ -1550,6 +1701,8 @@ class Runner:
         previous = self.state.load(number)
         review = slot == REVIEWER
         if previous.get("phase") in {"done", "blocked", "interrupted"} or previous.get("phase") in ACTIVE:
+            return None
+        if not self.board.dependencies_ready(item):
             return None
         if not review and previous.get("human_feedback_pending"):
             if (number in getattr(self, "feedback_unavailable", set())
@@ -1606,11 +1759,11 @@ class Runner:
     def run(self, stop):
         futures = {}
         assignments = {}
-        with ThreadPoolExecutor(max_workers=4) as pool:
+        with ThreadPoolExecutor(max_workers=len(self.workers) + 1) as pool:
             while not stop.is_set():
                 futures = {slot: f for slot, f in futures.items() if not f.done()}
                 backoff = self.budget.snapshot()
-                if not self.state.paused() and time.time() >= backoff.get("until", 0) and len(futures) < 4:
+                if not self.state.paused() and time.time() >= backoff.get("until", 0) and len(futures) < len(self.workers) + 1:
                     try:
                         items = self.board.items()
                         with locked(self.state.path / "dispatch.lock"):
@@ -1618,7 +1771,7 @@ class Runner:
                                 self.reconcile_completed(items, {assignments[slot] for slot in futures})
                                 self.reconcile_waiting(items, {assignments[slot] for slot in futures})
                                 self.poll_human_feedback(items, {assignments[slot] for slot in futures})
-                        for slot in (*WORKERS, REVIEWER):
+                        for slot in (*self.workers, REVIEWER):
                             if slot in futures or stop.is_set() or self.state.paused():
                                 continue
                             self.budget.check()
@@ -1719,8 +1872,8 @@ def harness_flags(options):
 
 
 def parser():
-    p = argparse.ArgumentParser(description="Three workers and one independent reviewer for a GitHub project board.")
-    p.add_argument("action", nargs="?", default="tui", choices=["run", "start", "check", "board", "status", "logs", "tui", "pause", "resume", "stop", "retry", "add"],
+    p = argparse.ArgumentParser(description="Configurable workers and one independent reviewer for a GitHub project board.")
+    p.add_argument("action", nargs="?", default="tui", choices=["run", "start", "check", "board", "status", "logs", "tui", "config", "pause", "resume", "stop", "retry", "add"],
                    help="Command to run; board opens the project board in your browser (default: tui)")
     p.add_argument("number", nargs="?", type=int, help="Issue number for retry or logs")
     p.add_argument("--repo", default=".", help="Local repository checkout (default: current directory)")
@@ -1733,8 +1886,10 @@ def parser():
     p.add_argument("--harness", choices=HARNESSES, help="Default harness (default: codex)")
     p.add_argument("--model", help=f"Default model override (Codex: {MODEL}; OpenCode: configured default)")
     for role in ROLES.values():
-        p.add_argument(f"--{role}-harness", choices=HARNESSES, help=f"Harness override for {role}")
+        p.add_argument(f"--{role}-harness", choices=("", *HARNESSES), help=f"Harness override for {role}; empty inherits default")
         p.add_argument(f"--{role}-model", help=f"Model override for {role}")
+    p.add_argument("--workers", type=int, help="Concurrent coding workers (1 to 16; default 3); one independent reviewer")
+    p.add_argument("--effort", choices=["low", "medium", "high", "xhigh"], help="Reasoning effort (default high)")
     p.add_argument("--interval", type=int, help="Polling seconds (minimum 10; default 60)")
     p.add_argument("--once", action="store_true", help="Dispatch one batch, wait for it, then exit")
     p.add_argument("--now", action="store_true", help="With stop: terminate active agents as well")
@@ -1750,11 +1905,8 @@ def main(argv=None):
     args = parser().parse_args(argv)
     tui_options = {"project": args.project, "model": args.model, "interval": args.interval,
                    "once": True if args.once else None}
-    tui_options.update({name: getattr(args, name) for name in harness_option_names()
+    tui_options.update({name: getattr(args, name) for name in (*harness_option_names(), "workers", "effort")
                         if getattr(args, name) is not None})
-    args.harness = args.harness or "codex"
-    harness_options = {name: getattr(args, name) for name in harness_option_names()}
-    args.interval = args.interval if args.interval is not None else 60
     original_stdout, original_stderr = sys.stdout, sys.stderr
     output_redirected = False
     budget_token = None
@@ -1762,8 +1914,6 @@ def main(argv=None):
         if args.version:
             print(json.dumps(installation_info(), indent=2))
             return 0
-        if args.interval < 10:
-            raise RuntimeError("--interval must be at least 10 seconds.")
         if args.now and args.action != "stop":
             raise RuntimeError("--now is only valid with stop.")
         if args.action != "add" and (args.title is not None or args.description is not None or args.draft or args.shaping):
@@ -1771,6 +1921,17 @@ def main(argv=None):
         if args.action == "add" and (not args.title or not args.title.strip() or args.number is not None):
             raise RuntimeError("Use worklane add --title TITLE [--description DESCRIPTION] [--draft | --shaping].")
         repo, root, base = repository(Path(args.repo).expanduser())
+        if args.action in {"tui", "config", "run", "start", "check", "board", "add"}:
+            settings = validate_config({**load_config(root), **{key: value for key, value in tui_options.items()
+                                                               if key in CONFIG_DEFAULTS and value is not None}})
+            for key, value in settings.items():
+                setattr(args, key, value)
+            args.project = args.project or None
+        harness_options = {name: getattr(args, name) for name in harness_option_names()}
+        if args.action == "config":
+            from worklane_tui import run_config
+            run_config(root, no_color=args.no_color, options=tui_options)
+            return 0
         if args.action == "add":
             if not shutil.which("gh"):
                 raise RuntimeError("Required command missing: gh")
@@ -1851,7 +2012,7 @@ def main(argv=None):
             print("Retry enabled using the saved session. Start Worklane; existing In Progress/Agent review assignments can continue without moving tickets.")
             return 0
         harnesses = {getattr(args, role + "_harness") or args.harness for role in ROLES.values()}
-        harnesses.update(session.get("backend", "codex") for task in state.all() if task.get("phase") != "completed" for session in task.get("sessions", {}).values())
+        harnesses.update(session.get("backend", "codex") for task in state.all() if task.get("phase") not in {"done", "completed"} for session in task.get("sessions", {}).values())
         for binary in ("gh", *sorted(harnesses)):
             if not shutil.which(binary):
                 raise RuntimeError(f"Required command missing: {binary}")
@@ -1861,12 +2022,16 @@ def main(argv=None):
         board = Board(repo, root, args.project)
         if args.action == "check":
             items = board.items()
+            ready = [i for i in items if i.get("status", "").casefold() == READY.casefold()]
             print(json.dumps({"repository": repo, "board": board.project["url"], "model": args.model or (MODEL if args.harness == "codex" else "harness default"), "harness_options": harness_options,
                               "cli": installation_info(),
-                              "workers": 3, "reviewers": 1,
+                              "harness": args.harness, "effort": args.effort,
+                              "workers": args.workers, "reviewers": 1,
                               "will_add_agent_review": REVIEW.casefold() not in board.options,
-                              "ready": [i["content"]["number"] for i in items if i.get("status", "").casefold() == READY.casefold()],
-                              "agent_review": [i["content"]["number"] for i in items if i.get("status", "").casefold() == REVIEW.casefold()]}, indent=2))
+                              "ready": [i["content"]["number"] for i in ready if i["blocked_by_count"] == 0],
+                              "dependency_blocked": {str(i["content"]["number"]): i["blocked_by_count"]
+                                                     for i in items if i["blocked_by_count"]},
+                              "agent_review": [i["content"]["number"] for i in items if i.get("status", "").casefold() == REVIEW.casefold() and i["blocked_by_count"] == 0]}, indent=2))
             return 0
         if args.action == "start":
             with locked(state.path / "runner.lock", blocking=False):
@@ -1875,6 +2040,8 @@ def main(argv=None):
             child_args = [sys.executable, str(Path(__file__).resolve()), "run", "--repo", str(root),
                           "--project", f"{board.owner}/{board.number}", "--interval", str(args.interval), "--background"]
             child_args += harness_flags(harness_options)
+            for name in ("workers", "effort"):
+                child_args.extend(["--" + name, str(getattr(args, name))])
             if args.once:
                 child_args.append("--once")
             child = subprocess.Popen(child_args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
@@ -1894,7 +2061,8 @@ def main(argv=None):
                 command(HARNESSES[name].auth_command)
             state.set_meta("runtime", {"pid": os.getpid(), "identity": process_identity(os.getpid()),
                        "started_at": now(), "checkout": str(root), "project": f"{board.owner}/{board.number}", "model": args.model or (MODEL if args.harness == "codex" else "harness default"), "harness_options": harness_options,
-                       "interval": args.interval, "once": args.once, "cli": installation_info()})
+                       "interval": args.interval, "once": args.once, "cli": installation_info(),
+                       "harness": args.harness, "workers": args.workers, "effort": args.effort})
             state.set_meta("shutdown", {"immediate": False})
             stop = threading.Event()
             def stop_handler(_signum, _frame):
@@ -1902,7 +2070,7 @@ def main(argv=None):
                 stop.set()
             signal.signal(signal.SIGTERM, stop_handler)
             signal.signal(signal.SIGINT, stop_handler)
-            print(f"Worklane: {repo}; 3 workers, 1 reviewer; {args.harness} {args.model or 'default model'}; board {board.project['url']}", flush=True)
+            print(f"Worklane: {repo}; {args.workers} workers, 1 reviewer; {args.harness} {args.model or 'default model'}; board {board.project['url']}", flush=True)
             print(f"State/logs: {state.path}; intake {'paused' if state.paused() else 'running'}", flush=True)
             backend = HarnessBackend(args, root, state, runner_fd)
             runner = Runner(args, repo, root, state, board, backend)

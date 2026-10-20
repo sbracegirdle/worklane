@@ -14,7 +14,7 @@ import time
 import unicodedata
 
 import worklane
-from worklane import ROLES, WORKERS, locked, process_identity, readable_log
+from worklane import ROLES, locked, process_identity, readable_log
 
 
 GROUP_ORDER = ("running", "blocked", "failed", "interrupted", "retry", "awaiting_review", "human_review", "completed", "queued")
@@ -55,14 +55,76 @@ def issue_view(repo, number):
 
 def board_view(repo, root, project):
     board = worklane.Board(repo, root, project, load_fields=False)
-    return {"url": board.project["url"], "items": board.items()}
+    return {"url": board.project["url"], "project": f"{board.owner}/{board.number}", "items": board.items()}
+
+
+def load_editor(repo, root, project, number=None):
+    board = worklane.Board(repo, root, project, required_statuses=())
+    statuses = [option["name"] for option in board.field["options"]]
+    if not statuses:
+        raise RuntimeError("The board has no Status options.")
+    item = None
+    if number is not None:
+        item = next((item for item in board.items() if item["content"]["number"] == number), None)
+        if item is None:
+            raise RuntimeError("This open issue is no longer on the selected board.")
+    original = dict(item["content"]) if item else {"title": "", "body": ""}
+    status = item["status"] if item else next((s for s in statuses if s.casefold() == worklane.READY.casefold()), statuses[0])
+    return {"board": board, "number": number, "item": item, "original": original,
+            "title": original["title"], "body": original.get("body") or "",
+            "status": status, "statuses": ([""] if item and not status else []) + statuses,
+            "field": 0, "cursor": len(original["title"])}
+
+
+def save_editor(repo, editor):
+    """Preflight stale selections and preserve partial-write recovery information."""
+    board, item = editor["board"], editor["item"]
+    title, body, status = editor["title"].strip(), editor["body"], editor["status"]
+    if not title:
+        raise ValueError("Title is required.")
+    if item is None:
+        return board.add_issue(title, body, status)
+    current = worklane.gh("issue", "view", str(editor["number"]), "--repo", repo,
+                          "--json", "title,body,state,url")
+    if current["state"] != "OPEN" or any(current.get(key) != editor["original"].get(key) for key in ("title", "body")):
+        raise RuntimeError("Issue changed on GitHub; cancel and reopen the editor before saving.")
+    if board.item_status(item) != item["status"].casefold():
+        raise RuntimeError("Board status changed; cancel and reopen the editor before saving.")
+    text_changed = (title, body) != (current["title"], current.get("body") or "")
+    if text_changed:
+        worklane.command(["gh", "issue", "edit", str(editor["number"]), "--repo", repo,
+                          "--title", title, "--body-file", "-"], stdin=body)
+        # A later status failure can be retried without overwriting external text edits.
+        editor["original"].update(title=title, body=body)
+    try:
+        if status != item["status"]:
+            board.move(item, status, item["status"])
+    except (RuntimeError, OSError, ValueError, KeyError, subprocess.TimeoutExpired) as error:
+        raise RuntimeError(f"Issue text saved; board status was not confirmed: {error}" if text_changed else str(error)) from error
+    return current["url"]
+
+
+def pr_key(task):
+    reference = task.get("pr_url") or task.get("branch")
+    return f"pr:{reference}" if reference else None
+
+
+def pr_view(repo, task):
+    fields = "number,url,state,isDraft"
+    if task.get("pr_url"):
+        return worklane.gh("pr", "view", task["pr_url"], "--repo", repo, "--json", fields)
+    if task.get("branch"):
+        prs = worklane.gh("pr", "list", "--repo", repo, "--head", task["branch"],
+                          "--state", "all", "--limit", "1", "--json", fields)
+        return prs[0] if prs else None
+    return None
 
 
 def controller_action(action, root, options):
     """Use the same CLI safeguards as commands entered in another terminal."""
     args = [sys.executable, str(Path(worklane.__file__).resolve()), action, "--repo", str(root)]
     if action == "start":
-        for name in ("project", "model", "interval", *[key for key in worklane.harness_option_names() if key != "model"]):
+        for name in ("project", "model", "interval", "workers", "effort", *[key for key in worklane.harness_option_names() if key != "model"]):
             if options.get(name) is not None:
                 args.extend(["--" + name.replace("_", "-"), str(options[name])])
         if options.get("once"):
@@ -318,12 +380,100 @@ def clipped(value, width):
     return "".join(result)
 
 
+def config_walkthrough(c, screen, root, options=None):
+    """Collect a complete configuration without writing until confirmation."""
+    values = worklane.load_config(root)
+    values.update({key: value for key, value in (options or {}).items()
+                   if key in worklane.CONFIG_DEFAULTS and value is not None})
+    questions = (
+        ("harness", "Which agent harness?", "codex or opencode (OpenCode 2.x)."),
+        ("workers", "How many coding workers?", "1 to 16 concurrent workers, plus one independent reviewer."),
+        ("model", "Which agent model?", "Model name, or empty for the selected harness default."),
+        ("effort", "Which reasoning effort?", "Codex: low, medium, high or xhigh; OpenCode uses its own settings."),
+        ("interval", "How many seconds between board polls?", "Minimum 10 seconds."),
+        ("project", "Which GitHub project board?", "OWNER/NUMBER, or leave empty for automatic discovery."),
+    ) + tuple(question for role in worklane.ROLES.values() for question in (
+        (role + "_harness", f"Which harness for {role}?", "Empty inherits the default; codex or opencode overrides it."),
+        (role + "_model", f"Which model for {role}?", "Empty inherits the default model; otherwise enter a model name."),
+    ))
+    step, error, summary_offset = 0, "", 0
+    text = str(values[questions[step][0]])
+    screen.keypad(True)
+    screen.timeout(100)
+    try:
+        c.curs_set(0)
+    except c.error:
+        pass
+    while True:
+        height, width = screen.getmaxyx()
+        screen.erase()
+        def put(y, line, style=0):
+            if 0 <= y < height:
+                try:
+                    screen.addstr(y, 0, clipped("  " + line, max(0, width - 1)), style)
+                except c.error:
+                    pass
+        confirming = step == len(questions)
+        put(0, "WORKLANE SETUP", c.A_BOLD)
+        put(1, str(Path(root) / worklane.CONFIG_FILE), c.A_DIM)
+        if height < 12 or width < 50:
+            put(3, "Enlarge terminal to at least 50×12; Esc cancels.")
+        elif confirming:
+            put(3, "Save these settings?", c.A_BOLD)
+            summary = [f"{key}: {value or 'default'}" for key, value in values.items()]
+            capacity = max(1, height - 6)
+            summary_offset = min(summary_offset, max(0, len(summary) - capacity))
+            for y, line in enumerate(summary[summary_offset:summary_offset + capacity], 4):
+                put(y, line)
+        else:
+            _, question, hint = questions[step]
+            put(3, f"{step + 1}/{len(questions)}  {question}", c.A_BOLD)
+            for y, line in enumerate(wrapped(hint, width - 4), 5):
+                put(y, line)
+            put(8, "> " + clipped(text, max(1, width - 7)) + "_", c.A_REVERSE)
+        put(height - 2, error, c.A_BOLD)
+        put(height - 1, "↑↓ review · Enter save · Esc cancel" if confirming else "Enter next · Ctrl-U clear · Esc cancel", c.A_DIM)
+        screen.refresh()
+        try:
+            key = screen.get_wch()
+        except c.error:
+            continue
+        if key in ("\x1b", 27):
+            return False
+        if height < 12 or width < 50:
+            continue
+        if confirming and key in (c.KEY_DOWN, c.KEY_UP, c.KEY_NPAGE, c.KEY_PPAGE):
+            direction = 1 if key in (c.KEY_DOWN, c.KEY_NPAGE) else -1
+            summary_offset = max(0, summary_offset + direction * (capacity if key in (c.KEY_NPAGE, c.KEY_PPAGE) else 1))
+            continue
+        if key in ("\n", "\r", c.KEY_ENTER):
+            try:
+                if confirming:
+                    worklane.save_config(root, values)
+                    return True
+                name = questions[step][0]
+                value = int(text) if name in {"workers", "interval"} else text.strip()
+                values = worklane.validate_config({**values, name: value})
+                step += 1
+                text = "" if step == len(questions) else str(values[questions[step][0]])
+                error = ""
+            except (ValueError, OSError) as problem:
+                error = str(problem)
+        elif key in ("\x15", 21):
+            text = ""
+        elif key in ("\b", "\x7f", c.KEY_BACKSPACE):
+            text = text[:-1]
+        elif isinstance(key, str) and key.isprintable() and not confirming:
+            text += key
+
+
 class Dashboard:
     def __init__(self, curses, state, repo, refresh, *, no_color=False, root=None, options=None):
         self.curses, self.state, self.repo, self.refresh = curses, state, repo, refresh
         self.selected, self.detail, self.offset = None, False, 0
         self.no_color = no_color
         self.focus, self.expanded = None, None
+        self.visible_issues = []
         self.message = ""
         self.colors = {}
         self.searching, self.editing = False, False
@@ -333,8 +483,176 @@ class Dashboard:
         self.search_origin, self.open_result, self.anchor_log = None, None, None
         self.root, self.options = Path(root or ".").resolve(), options or {}
         self.cache, self.page, self.jobs = ViewCache(state), None, {}
+        self.editor = None
+        self.composing, self.draft, self.input_run = False, "", None
 
-    def submit(self, loader, done, *, channel="view"):
+    def send_input(self):
+        text = self.draft.strip()
+        if text == "/help":
+            self.message = "Text sends a message; /run COMMAND requests execution; /clear clears; Esc cancels. Delivery waits for the next turn."
+            self.draft = ""
+            return
+        if text == "/clear":
+            self.draft = ""
+            return
+        if text.startswith("/run ") and text[5:].strip():
+            text = "Run this command in the assigned session worktree, within existing safeguards:\n" + text[5:]
+        elif text.startswith("//"):
+            text = text[1:]
+        elif text.startswith("/"):
+            self.message = "Unknown or incomplete command. Use /help; // sends a literal slash."
+            return
+        try:
+            self.state.queue_input(self.input_run, text)
+        except (RuntimeError, sqlite3.Error) as error:
+            self.message = str(error)
+            return  # Keep the draft, including after a stale selection or database error.
+        self.composing, self.draft = False, ""
+        self.message = "Input queued for the selected session's next turn, before workflow handoff."
+
+    def github(self, loader):
+        token = worklane.GITHUB_BUDGET.set(worklane.GitHubBudget(self.state))
+        try:
+            return loader()
+        finally:
+            worklane.GITHUB_BUDGET.reset(token)
+
+    def open_editor(self, number=None):
+        if "view" in self.jobs:
+            self.message = "Wait for the current GitHub action before editing."
+            return
+        editor = {"loading": True}
+        self.editor = editor
+        project = self.page.get("project") if self.page else self.settings().get("project")
+        def done(value):
+            if self.editor is editor:
+                self.editor = value
+                self.message = "Tab changes fields; F2 saves; Esc cancels."
+        def load():
+            try:
+                return self.github(lambda: load_editor(self.repo, self.root, project, number))
+            except (RuntimeError, OSError, ValueError, KeyError, subprocess.TimeoutExpired):
+                editor["loading"] = False
+                editor["failed"] = True
+                raise
+        self.submit(load, done)
+
+    def save_issue(self):
+        editor = self.editor
+        if not editor["title"].strip():
+            self.message = "Title is required."
+            return
+        if editor.get("saving") or editor.get("uncertain") or "view" in self.jobs:
+            return
+        editor["saving"] = True
+        def write():
+            try:
+                return self.github(lambda: save_editor(self.repo, editor))
+            except (RuntimeError, OSError, ValueError, KeyError, subprocess.TimeoutExpired) as error:
+                if editor["item"] is None:
+                    editor["uncertain"] = True
+                    raise RuntimeError(f"{error} Creation may have reached GitHub; inspect the board before adding again.") from error
+                raise
+            finally:
+                editor["saving"] = False
+        def done(url):
+            # A confirmed write stays complete even if local cache cleanup fails.
+            self.editor = None
+            self.message = f"Saved {url}"
+            # Invalidate all persisted board/issue variants after a successful write.
+            try:
+                with self.state.connect() as db:
+                    db.execute("DELETE FROM state_values WHERE owner LIKE 'meta:tui:board:%' OR owner LIKE 'meta:tui:issue:%'")
+            except sqlite3.Error as error:
+                self.message += f"; cache refresh failed: {error}"
+                return
+            page = self.page
+            while page:
+                page["pending"] = True
+                page = page.get("parent")
+        self.submit(write, done)
+
+    def editor_key(self, key, text):
+        c, editor = self.curses, self.editor
+        if key == 27 and not editor.get("saving"):
+            self.editor = None
+            self.message = "Editor closed."
+            return
+        if editor.get("loading") or editor.get("failed") or editor.get("saving"):
+            return
+        if key == c.KEY_F2:
+            self.save_issue()
+            return
+        fields = ("title", "body", "status")
+        field = fields[editor["field"]]
+        if key in (9, c.KEY_BTAB):
+            editor["field"] = (editor["field"] + (1 if key == 9 else -1)) % 3
+            editor["cursor"] = len(editor[fields[editor["field"]]])
+            return
+        if field == "status":
+            if key in (c.KEY_LEFT, c.KEY_UP, c.KEY_RIGHT, c.KEY_DOWN, ord(" ")):
+                choices = editor["statuses"]
+                editor["status"] = choices[(choices.index(editor["status"]) + (-1 if key in (c.KEY_LEFT, c.KEY_UP) else 1)) % len(choices)]
+            return
+        value, cursor = editor[field], editor["cursor"]
+        if key in (c.KEY_LEFT, c.KEY_RIGHT):
+            cursor = max(0, min(len(value), cursor + (-1 if key == c.KEY_LEFT else 1)))
+        elif key in (c.KEY_HOME, c.KEY_END):
+            cursor = value.rfind("\n", 0, cursor) + 1 if key == c.KEY_HOME else (value.find("\n", cursor) if "\n" in value[cursor:] else len(value))
+        elif key in (c.KEY_UP, c.KEY_DOWN) and field == "body":
+            start = value.rfind("\n", 0, cursor) + 1
+            column = cursor - start
+            if key == c.KEY_UP and start:
+                previous = value.rfind("\n", 0, start - 1) + 1
+                cursor = min(previous + column, start - 1)
+            elif key == c.KEY_DOWN and "\n" in value[cursor:]:
+                following = value.find("\n", cursor) + 1
+                end = value.find("\n", following)
+                cursor = min(following + column, end if end >= 0 else len(value))
+        elif key in (8, 127, c.KEY_BACKSPACE):
+            value, cursor = value[:max(0, cursor - 1)] + value[cursor:], max(0, cursor - 1)
+        elif key == c.KEY_DC:
+            value = value[:cursor] + value[cursor + 1:]
+        elif key in (10, 13, c.KEY_ENTER) and field == "title":
+            editor["field"], editor["cursor"] = 1, len(editor["body"])
+            return
+        elif text.isprintable() or (key in (10, 13, c.KEY_ENTER) and field == "body"):
+            insert = "\n" if key in (10, 13, c.KEY_ENTER) else text
+            value, cursor = value[:cursor] + insert + value[cursor:], cursor + len(insert)
+        editor[field], editor["cursor"] = value, cursor
+
+    def draw_editor(self, screen, bottom):
+        editor, c = self.editor, self.curses
+        self.put(screen, 2, "  ISSUE EDITOR", c.A_BOLD)
+        if editor.get("loading") or editor.get("failed"):
+            self.put(screen, 3, "  Loading board fields…" if editor.get("loading") else "  Could not load editor; Esc returns.")
+            return
+        self.put(screen, 2, f"  {'NEW ISSUE' if editor['number'] is None else 'EDIT ISSUE #' + str(editor['number'])} · Title", c.A_BOLD)
+        def marked(field):
+            value = editor[field]
+            if ("title", "body", "status")[editor["field"]] == field:
+                cursor = editor["cursor"]
+                return value[:cursor] + "▏" + value[cursor:]
+            return value
+        title = marked("title")
+        width = max(1, screen.getmaxyx()[1] - 4)
+        # Keep the insertion point visible even for long titles in small terminals.
+        title_rows = wrapped(title, width)
+        title_index = next((i for i, row in enumerate(title_rows) if "▏" in row), 0)
+        self.put(screen, 3, "  " + title_rows[title_index], c.A_REVERSE if editor["field"] == 0 else 0)
+        self.put(screen, 4, "  Description (Enter adds a line)", c.A_BOLD if editor["field"] == 1 else c.A_DIM)
+        lines = [part for line in marked("body").split("\n") for part in wrapped(line, width)]
+        capacity = max(1, bottom - 6)
+        cursor_line = next((i for i, line in enumerate(lines) if "▏" in line), 0)
+        start = max(0, cursor_line - capacity + 1)
+        for y, line in enumerate(lines[start:start + capacity], 5):
+            self.put(screen, y, "  " + line)
+        self.put(screen, bottom - 1, "  Status: " + (editor["status"] or "No status") + "  ←/→",
+                 c.A_REVERSE if editor["field"] == 2 else 0)
+        if editor.get("uncertain"):
+            self.put(screen, bottom + 1, "  Creation uncertain; Esc and inspect the board.", c.A_BOLD)
+
+    def submit(self, loader, done, *, channel="view", quiet=False):
         if channel in self.jobs:
             self.message = "An action is still running; wait for its result."
             return False
@@ -347,7 +665,8 @@ class Dashboard:
                 future.set_exception(error)
         # A slow GitHub request must not hold the terminal open after quitting.
         threading.Thread(target=work, daemon=True).start()
-        self.message = "Working…"
+        if not quiet:
+            self.message = "Working…"
         return True
 
     def poll(self):
@@ -358,13 +677,14 @@ class Dashboard:
                     done(future.result())
                 except (RuntimeError, OSError, ValueError, KeyError, sqlite3.Error, subprocess.TimeoutExpired) as error:
                     self.message = str(error)
-        if self.page and self.page.get("pending") and "view" not in self.jobs:
+        if not self.editor and self.page and self.page.get("pending") and "view" not in self.jobs:
             self.refresh_page(self.page)
 
     def settings(self):
         runtime = self.state.get_meta("runtime", {})
-        return {**{key: runtime[key] for key in ("project", "interval", "once") if key in runtime},
-                **runtime.get("harness_options", {key: runtime[key] for key in ("model",) if key in runtime}),
+        saved = worklane.load_config(self.root) if (self.root / worklane.CONFIG_FILE).exists() else {}
+        return {**{key: runtime[key] for key in (*worklane.CONFIG_DEFAULTS, "once") if key in runtime},
+                **runtime.get("harness_options", {}), **saved,
                 **{key: value for key, value in self.options.items() if value is not None}}
 
     def open_page(self, kind, *, number=None, fallback=None):
@@ -385,6 +705,8 @@ class Dashboard:
             value, error = result
             if value is not None:
                 page["value"] = value
+                if value.get("project"):
+                    page["project"] = value["project"]
             self.message = ("Showing saved content. " if page["value"] else "") + error if error else "Cached for 60s; r checks for updates after expiry."
         page["pending"] = not self.submit(lambda: self.cache.read(page["key"], loader), done)
 
@@ -394,6 +716,47 @@ class Dashboard:
             return
         self.submit(lambda: controller_action(action, self.root, self.settings()),
                     lambda result: setattr(self, "message", result), channel="control")
+
+    def refresh_prs(self, issues):
+        if "prs" in self.jobs:
+            return
+        pending = [(pr_key(issue["task"]), issue["task"]) for issue in issues
+                   if pr_key(issue["task"]) and time.time() >= self.cache.saved(pr_key(issue["task"])).get("retry_at", 0)]
+        if pending:
+            def load():
+                for key, task in pending:
+                    self.cache.read(key, lambda: pr_view(self.repo, task))
+            self.submit(load, lambda _: None, channel="prs", quiet=True)
+
+    def pr_status(self, task):
+        key = pr_key(task)
+        if not key:
+            return "PR none"
+        saved = self.cache.saved(key)
+        pr = saved.get("value")
+        if pr:
+            status = "draft" if pr["state"] == "OPEN" and pr["isDraft"] else pr["state"].lower()
+            label = f"PR #{pr['number']} {status}"
+        else:
+            label = "PR none" if "value" in saved else "PR unknown"
+        if saved.get("error") or (saved and time.time() >= saved.get("retry_at", 0)):
+            label += " (stale)"
+        return label
+
+    def open_pr(self, task):
+        key = pr_key(task)
+        if not key:
+            self.message = "No PR for the selected issue."
+            return
+        def launch():
+            pr, error = self.cache.read(key, lambda: pr_view(self.repo, task))
+            if not pr:
+                if error:
+                    raise RuntimeError(error)
+                return "No PR for the selected issue."
+            worklane.command(["gh", "pr", "view", pr["url"], "--repo", self.repo, "--web"], cwd=self.root)
+            return f"Opened PR #{pr['number']} in browser." + (" Using saved PR details." if error else "")
+        self.submit(launch, lambda result: setattr(self, "message", result), channel="browser")
 
     def draw_page(self, screen, bottom):
         page, c = self.page, self.curses
@@ -407,8 +770,9 @@ class Dashboard:
             start = max(0, page["index"] - capacity + 1)
             for i in range(start, min(len(items), start + capacity)):
                 item = items[i]
+                blocked = f" (blocked by {item['blocked_by_count']})" if item.get("blocked_by_count") else ""
                 self.put(screen, 4 + i - start,
-                         f" {'›' if i == page['index'] else ' '} {item['status'] or 'No status'}  ·  #{item['content']['number']}  {item['title']}",
+                         f" {'›' if i == page['index'] else ' '} {item['status'] or 'No status'}{blocked}  ·  #{item['content']['number']}  {item['title']}",
                          c.A_REVERSE if i == page["index"] else 0)
             if value and not items:
                 self.put(screen, 4, "  No open issues on this board for this repository.", c.A_DIM)
@@ -485,7 +849,9 @@ class Dashboard:
                 expanded = issue["number"] in self.expanded
                 lines.append([(" › " if selected else "   ", self.colors.get("live", 0) | c.A_BOLD),
                               ("▾ " if expanded else "▸ ", self.tone(issue["status"])),
-                              (f"#{issue['number']}  {issue['title']}", c.A_BOLD if selected else 0),
+                              (f"#{issue['number']}  ", c.A_BOLD if selected else 0),
+                              (self.pr_status(issue["task"]) + "  ·  ", muted),
+                              (issue['title'], c.A_BOLD if selected else 0),
                               (f"  {len(issue['sessions'])} session{'s' if len(issue['sessions']) != 1 else ''}", muted)])
             else:
                 selected = key == self.focus
@@ -507,6 +873,7 @@ class Dashboard:
             if start > parent_line:
                 start = parent_line
         visible = lines[start:start + capacity]
+        self.visible_issues = [issue for issue in issues if start <= parent_lines[issue["number"]] < start + capacity]
         self.put(screen, 3, "  ISSUES & SESSIONS", c.A_BOLD)
         for y, spans in enumerate(visible, 4):
             self.paint(screen, y, spans)
@@ -561,7 +928,11 @@ class Dashboard:
         for log in data["logs"]:
             content = log["content"]
             stream = log.get("stream", "agent")
-            if content.startswith("$ "):
+            if stream == "user":
+                speaker, kind = "YOU", "good"
+            elif stream == "input":
+                speaker, kind = "INPUT", "live"
+            elif content.startswith("$ "):
                 speaker, kind = "COMMAND", "live"
             elif content.startswith("Files:"):
                 speaker, kind = "FILES", "files"
@@ -622,12 +993,15 @@ class Dashboard:
         active = [row for row in data["rows"] if row["active"]]
         workers = sum(row["role"] == "worker" for row in active)
         reviews = sum(row["role"] in {"reviewer", "finalizer"} for row in active)
+        limit = (self.state.get_meta("runtime", {}) if data["busy"] else self.settings()).get("workers", 3)
         self.paint(screen, 1, [("  Workers ", c.A_DIM),
-                              (f"{'●' * workers}{'○' * max(0, len(WORKERS) - workers)} {workers}/3", self.colors.get("live", 0)),
+                              (f"{'●' * workers}{'○' * max(0, limit - workers)} {workers}/{limit}", self.colors.get("live", 0)),
                               ("    Review ", c.A_DIM), (f"{'●' if reviews else '○'} {reviews}/1", self.colors.get("agent", 0))])
         issues = issue_groups(data["rows"])
-        bottom = height - (6 if self.detail else 4)
-        if self.page:
+        bottom = height - (6 if self.detail and not self.editor else 4)
+        if self.editor:
+            self.draw_editor(screen, bottom)
+        elif self.page:
             self.draw_page(screen, bottom)
         elif self.detail:
             self.draw_transcript(screen, data, bottom)
@@ -637,26 +1011,37 @@ class Dashboard:
             self.draw_overview(screen, data, issues, bottom)
         self.put(screen, bottom, "  " + "─" * max(0, width - 5), c.A_DIM)
         chosen = data["selected"]
-        if self.detail and chosen and not self.page:
+        if self.detail and chosen and not self.page and not self.editor:
             session, run = chosen["session"], chosen["run"]
             self.paint(screen, bottom + 1, [(f"  #{chosen['number']}  ", c.A_BOLD), (chosen["title"], 0)])
             self.put(screen, bottom + 2, f"  {chosen['role'].upper()}  ·  Session {session.get('session_id', 'not saved yet')}", c.A_DIM)
             self.put(screen, bottom + 3, f"  {session.get('worktree') or run.get('worktree', 'Worktree not created yet')}", c.A_DIM)
-        elif chosen and not self.page:
+            if self.composing:
+                draft = wrapped(self.draft, max(1, width - 6))[-1]
+                self.put(screen, bottom + 3, "  > " + draft + "▏", c.A_BOLD)
+        elif chosen and not self.page and not self.editor:
             self.paint(screen, bottom + 1, [(f"  #{chosen['number']}  ", c.A_BOLD),
                                            (chosen["title"], 0), (f"  /  {chosen['role']}", self.colors.get("agent", 0))])
         error = chosen["task"].get("error") if chosen and not self.page and not self.jobs else None
         self.put(screen, height - 2, "  " + (self.message or error or "Select an issue to see sessions; Enter on a session opens its transcript."),
                  self.colors.get("warn", 0) if error and not self.message else c.A_DIM)
-        controls = "b / Esc / Enter / q back   PgUp / PgDn scroll   / search   End " + ("context" if self.searching else "follow")
+        controls = "m message  b/Esc/q back  PgUp/PgDn scroll  / search  End " + ("context" if self.searching else "follow")
         if self.searching and not self.detail:
             controls = "Enter search   Backspace edit   Esc cancel" if self.editing else "↑↓/jk select  Enter open  / edit  b/Esc/q back"
         elif not self.detail:
-            controls = "s start x stop i issue B board / search q quit"
+            controls = "s start x stop i issue B board p PR q quit"
+            if width >= 70:
+                controls = "s start x stop c config i issue B board p PR n new e edit q quit"
             if width >= 100:
-                controls = "s start  x stop  i issue  B board  / search  ↑↓/jk select  Enter open  a resume  q quit"
+                controls = "s start x stop c config i issue B board p PR n new e edit / search Enter open a resume q quit"
+        if not self.detail and not self.searching and not self.page and not self.editor and width < 100:
+            self.put(screen, bottom, "  " + ("c config  / search" if width < 70 else "/ search  ↑↓ select  Enter open  a resume"), c.A_DIM)
         if self.page:
-            controls = "↑↓/jk select  Enter/i issue  r refresh  b/Esc/q back" if self.page["kind"] == "board" else "↑↓/jk/PgUp/PgDn scroll  Home/End  r refresh  b/Esc/q back"
+            controls = "↑↓/jk select Enter/i issue n new e edit r refresh Esc back" if self.page["kind"] == "board" else "↑↓/PgUp/PgDn scroll e edit r refresh Esc back"
+        if self.composing:
+            controls = "Enter queue  Esc cancel  Ctrl-U clear  /help  /run COMMAND"
+        if self.editor:
+            controls = "Tab field  ←/→ status  F2 save  Esc cancel"
         self.put(screen, height - 1, "  " + controls, self.colors.get("live", 0))
         screen.refresh()
 
@@ -701,6 +1086,8 @@ class Dashboard:
                     data["selected"] = chosen
                 self.selected = chosen["key"] if chosen else None
                 self.draw(screen, data)
+                if not self.editor and not self.page and not self.detail and not self.searching:
+                    self.refresh_prs(self.visible_issues)
             except sqlite3.Error as error:
                 self.message = f"Database temporarily unavailable: {error}"
                 self.put(screen, screen.getmaxyx()[0] - 2, self.message, self.colors.get("bad", 0))
@@ -712,12 +1099,37 @@ class Dashboard:
             text_key = key if isinstance(key, str) else ""
             if isinstance(key, str) and len(key) == 1 and ord(key) < 256:
                 key = ord(key)
+            if self.composing:
+                if key == 27:
+                    self.composing, self.draft = False, ""
+                    self.message = "Input cancelled."
+                elif key in (10, 13, c.KEY_ENTER):
+                    self.send_input()
+                elif key in (8, 127, c.KEY_BACKSPACE):
+                    self.draft = self.draft[:-1]
+                elif key == 21:
+                    self.draft = ""
+                elif text_key and text_key.isprintable() and len(self.draft) < 8000:
+                    self.draft += text_key
+                continue
+            if self.editor:
+                self.editor_key(key, text_key)
+                continue
             if self.page:
                 page = self.page
                 if key in (27, ord("b"), ord("q"), 8, 127, c.KEY_BACKSPACE):
                     self.page = page.get("parent")
                 elif key == ord("r"):
                     self.refresh_page(page)
+                elif key == ord("n") and page["kind"] == "board":
+                    self.open_editor()
+                elif key == ord("e"):
+                    if page["kind"] == "issue":
+                        self.open_editor(page["number"])
+                    else:
+                        items = sorted((page["value"] or {}).get("items", []), key=lambda item: (item["status"], item["content"]["number"]))
+                        if items:
+                            self.open_editor(items[min(page["index"], len(items) - 1)]["content"]["number"])
                 elif page["kind"] == "board":
                     items = sorted((page["value"] or {}).get("items", []), key=lambda item: (item["status"], item["content"]["number"]))
                     if key in (c.KEY_DOWN, ord("j"), c.KEY_UP, ord("k")) and items:
@@ -726,6 +1138,7 @@ class Dashboard:
                         item = items[page["index"]]["content"]
                         self.open_page("issue", number=item["number"], fallback=item)
                         self.page["parent"] = page
+                        self.page["project"] = page["project"]
                 else:
                     step = max(1, screen.getmaxyx()[0] - 8)
                     if key in (c.KEY_DOWN, ord("j"), c.KEY_NPAGE):
@@ -775,14 +1188,42 @@ class Dashboard:
                 self.searching, self.editing, self.detail = True, True, False
                 self.open_result = None
                 continue
+            if key == ord("m") and self.detail:
+                if self.searching:
+                    self.message = "Return to the live transcript to send input."
+                elif not chosen or not chosen["active"] or not chosen["session"]:
+                    self.message = "Open an active saved session to send input; use a after stopping Worklane."
+                else:
+                    self.composing, self.draft, self.input_run = True, "", chosen["run"]["id"]
+                    self.message = "Input for this session's next turn. /help lists basic commands."
+                continue
             if not self.detail and key in (ord("s"), ord("x")):
                 self.control("start" if key == ord("s") else "stop")
+                continue
+            if not self.detail and key == ord("c"):
+                if self.jobs:
+                    self.message = "Wait for the current action before configuring Worklane."
+                    continue
+                try:
+                    saved = config_walkthrough(c, screen, self.root, self.options)
+                    self.message = "Configuration saved; applies on next start. CLI overrides remain active." if saved else "Setup cancelled; settings unchanged."
+                except (ValueError, OSError) as error:
+                    self.message = str(error)
+                finally:
+                    screen.timeout(max(1, int(self.refresh * 1000)))
+                continue
+            if not self.detail and not self.searching and key in (ord("n"), ord("e")):
+                if key == ord("n") or chosen:
+                    self.open_editor(None if key == ord("n") else chosen["number"])
                 continue
             if key == ord("B"):
                 self.open_page("board")
                 continue
             if key == ord("i") and chosen:
                 self.open_page("issue", number=chosen["number"], fallback=chosen["task"].get("issue") or chosen["task"].get("item", {}).get("content"))
+                continue
+            if key == ord("p") and chosen:
+                self.open_pr(chosen["task"])
                 continue
             if key in (27, ord("b"), ord("q"), 8, 127, c.KEY_BACKSPACE):
                 if self.detail:
@@ -848,14 +1289,28 @@ class Dashboard:
 def run_tui(state, repo, refresh=1, *, no_color=False, root=None, options=None):
     if not math.isfinite(refresh) or not .1 <= refresh <= 60:
         raise RuntimeError("--refresh must be between 0.1 and 60 seconds.")
+    def show(curses, screen):
+        dashboard = Dashboard(curses, state, repo, refresh, no_color=no_color, root=root, options=options)
+        if not (dashboard.root / worklane.CONFIG_FILE).exists():
+            saved = config_walkthrough(curses, screen, dashboard.root, options)
+            dashboard.message = "Configuration saved; s starts Worklane." if saved else "Setup cancelled; using defaults and CLI overrides. c reopens setup."
+        dashboard.run(screen)
+    terminal_ui(show)
+
+
+def run_config(root, *, no_color=False, options=None):
+    terminal_ui(lambda c, screen: config_walkthrough(c, screen, root, options))
+
+
+def terminal_ui(callback):
     if not sys.stdin.isatty() or not sys.stdout.isatty():
-        raise RuntimeError("worklane tui requires an interactive terminal; use worklane status or worklane logs for redirected output.")
+        raise RuntimeError("Worklane setup/TUI requires an interactive terminal; use worklane status or worklane logs for redirected output.")
     try:
         import curses
     except ImportError:
         raise RuntimeError("This Python build has no curses support; use worklane status or worklane logs.") from None
     try:
-        curses.wrapper(Dashboard(curses, state, repo, refresh, no_color=no_color, root=root, options=options).run)
+        curses.wrapper(lambda screen: callback(curses, screen))
     except KeyboardInterrupt:
         pass  # Quitting a view must never stop the controller.
     except curses.error as error:

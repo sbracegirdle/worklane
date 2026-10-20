@@ -11,15 +11,21 @@ Run `worklane tui` alongside the controller to view local SQLite state. Use
 | Right / Left or `l` / `h` | Expand / collapse to the issue |
 | Page Up / Page Down / End | Scroll the tail / return to following output |
 | `a` | Resume the selected saved agent conversation after stopping Worklane |
+| `m` in a live transcript | Compose input; Enter queues, Esc cancels, Ctrl-U clears |
 | `/` | Search session details and readable history; Enter searches, then opens a result |
 | `s` / `x` | Start / gracefully stop Worklane from the overview |
+| `c` | Reopen the configuration walkthrough |
 | `i` / `B` | Read the selected issue / browse open repository issues on the board |
+| `p` | Open the selected issue's PR in your browser |
 | `r` | Refresh an issue or board after its 60-second cache expires |
+| `n` / `e` | Create from overview/board; edit the selected overview/board issue or open issue |
+| Tab / Shift-Tab, F2, Esc | Editor: change fields, save, cancel; arrows select status; Enter adds description lines |
 | `b`, Esc, Backspace or `q` | Return from logs to the overview |
 | `q` in the overview or Ctrl-C | Quit the dashboard |
 
 Views cache across restarts; failed refreshes retain saved content. Board Enter opens issues; issue arrows scroll descriptions and comments.
-Start reuses saved controller settings; `--project`, `--model`, `--interval` and `--once` override them. Stop drains active jobs.
+Visible PR states refresh every 60 seconds; unknown or stale states indicate unavailable GitHub data.
+Start uses [checkout configuration](configuration.md), then explicit CLI overrides; older runtime settings provide fallback. Stop drains active jobs.
 Search is literal and case-insensitive, including older invocations; results show up to 100 matches with bounded transcript context.
 
 The log view shows the latest 40 readable entries from the role's latest invocation; use
@@ -29,7 +35,8 @@ Use an interactive terminal of at least 50 columns and 12 rows with Python curse
 use `--no-color` or `NO_COLOR=1` for monochrome. Redirected output should use `status` or `logs`.
 Transcripts colour activity and hide protocol noise; `logs NUMBER --raw` shows original records.
 
-Running agents cannot accept interactive input while running. To resume a conversation,
+Input waits for the current turn, then resumes the same session before handoff; interrupted requests retry and may repeat actions.
+`/run COMMAND` requests execution under existing safeguards; `/help` lists commands. To resume a conversation interactively,
 run `worklane stop` and wait for jobs to finish before pressing `a`; pausing alone
 is insufficient. Resume uses the exact role's saved ID, worktree and harness.
 Codex retains workspace sandboxing and on-request approvals; the controller lock remains held throughout.

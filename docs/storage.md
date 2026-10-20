@@ -1,4 +1,4 @@
-# Storage decision: SQLite for all Worklane data
+# Storage decision: SQLite for Worklane runtime data
 
 Worklane uses SQLite for all of its durable runtime data, including controller
 output, agent events, results, issue/PR details and session mappings. There are no
@@ -12,7 +12,7 @@ the implementation uses Python's standard-library `sqlite3` module.
 | SQLite | Transactions, constraints, indexed run history, concurrent readers, short queued writes | A database migration is needed; live backups must include pending WAL data |
 | PostgreSQL or another server | Appropriate for distributed controllers and many concurrent writers | Requires a service and configuration that this local tool does not need |
 
-SQLite fits the current workload: one controller per repository, three workers and
+SQLite fits the current workload: one controller per repository, bounded workers and
 one reviewer slot, with short metadata writes. SQLite's own guidance recommends it
 for device-local storage with low writer concurrency; it allows one writer at a
 time, with writers taking turns. This is a design judgment for this tool, not a
@@ -26,7 +26,7 @@ claim that SQLite would coordinate multiple distributed queue owners.
   keys and scalar types are preserved without serializing JSON blobs.
 - `sessions`: issue, role, exact session ID, backend/model, stable worktree and
   timestamps. `(issue, role)` is unique, and a session ID cannot belong to two roles.
-- `runs`: one invocation per row, including role/stage, session ID, process identity,
+- `runs`: one agent run per row, including role/stage, session ID, process identity,
   status, timing, worktree and error. Results reference typed database values.
 - `run_events`: event identity, invocation, type and timestamp; all event fields
   are stored as typed database values.
@@ -38,6 +38,8 @@ claim that SQLite would coordinate multiple distributed queue owners.
 Runtime settings use typed database values too. The schema version is SQLite's
 `user_version`. Empty process-lock files and Git worktrees remain on disk as
 operational resources; they are not parallel state/log stores.
+Session input queues use typed values; completion and new submissions serialize transactionally before workflow handoff.
+User configuration lives separately in [`.worklane.toml`](configuration.md); SQLite retains the running controller's settings snapshot.
 
 Human feedback uses nested task values: the acknowledged comment/review snapshot,
 the pending batch, its latest observation time and its handoff generation. New

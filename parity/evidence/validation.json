@@ -1,0 +1,63 @@
+{
+  "reference": "5122d0abc1b60fa0110d9c90937c6ffa1ab73d3c",
+  "scope": "Stage 1 Python reference and harness validation; no Rust implementation or cutover claim",
+  "checks": [
+    {
+      "command": "UV_CACHE_DIR=/tmp/worklane-49-uv-cache uv run --no-project python -m unittest -q",
+      "exit": 0,
+      "result": "Ran 320 tests in 40.345s; OK (skipped=2)"
+    },
+    {
+      "command": "UV_CACHE_DIR=/tmp/worklane-49-uv-cache uv run --no-project python -m unittest -q test_port_parity",
+      "exit": 0,
+      "result": "13 infrastructure tests passed"
+    },
+    {
+      "command": "UV_CACHE_DIR=/tmp/worklane-49-uv-cache uv run --no-project python tools/port_checks.py --evidence /tmp/worklane49-checks.json",
+      "exit": 0,
+      "result": "Pinned archive: 307 tests, 305 passed, 2 opt-in skips"
+    },
+    {
+      "command": "WORKLANE_TEST_OPENCODE=1 UV_CACHE_DIR=/tmp/worklane-49-uv-cache uv run --no-project python -m unittest -q test_harness.InstalledOpenCodeTests",
+      "exit": 0,
+      "result": "1 installed-CLI isolation test passed outside sandbox; no provider turn"
+    },
+    {
+      "command": "UV_CACHE_DIR=/tmp/worklane-49-uv-cache uv run --no-project python tools/port_inventory.py",
+      "exit": 0,
+      "result": "27 source/doc/package paths, 307 checks, 899 matrix rows; no reference drift"
+    },
+    {
+      "command": "UV_CACHE_DIR=/tmp/worklane-49-uv-cache uv run --no-project python tools/port_parity.py --candidate '[\"/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13\", \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/49/worklane.py\"]' --evidence parity/evidence/cli-self-comparison.json",
+      "exit": 0,
+      "result": "39/39 pinned Python/current Python CLI scenarios match"
+    },
+    {
+      "command": "UV_CACHE_DIR=/tmp/worklane-49-uv-cache uv run --no-project python tools/port_parity.py --fixtures parity/fixtures/runtime.json --candidate '[\"/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13\", \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/49/tools/port_reference_driver.py\", \"--source\", \"/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/49\"]' --evidence parity/evidence/runtime-self-comparison.json",
+      "exit": 0,
+      "result": "29/29 runtime scenarios match, including controlled agent subprocesses and controller question workflow"
+    },
+    {
+      "command": "UV_CACHE_DIR=/tmp/worklane-49-uv-cache uv run --no-project python tools/port_gate.py parity/evidence/cli-self-comparison.json parity/evidence/runtime-self-comparison.json --evidence /tmp/worklane49-cutover-negative.json",
+      "exit": 1,
+      "expected_exit": 1,
+      "result": "Correctly denied cutover: 831/899 rows lack candidate/source audit evidence"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0,
+      "result": "No whitespace errors"
+    }
+  ],
+  "limits": [
+    "Default suite skips isolated package-install and installed OpenCode opt-ins; OpenCode opt-in was run separately and passed.",
+    "Package-install opt-in and authenticated live provider/full workflow were not run; cutover requires them.",
+    "Sandbox blocks the installed OpenCode private server; the same isolated test passes outside it.",
+    "Default uv cache is read-only and project build dependency download is unavailable in sandbox; standard-library tests use task-local UV_CACHE_DIR and --no-project."
+  ],
+  "evidence": [
+    "reference-checks.json",
+    "cli-self-comparison.json",
+    "runtime-self-comparison.json"
+  ]
+}

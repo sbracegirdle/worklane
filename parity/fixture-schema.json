@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Worklane portable differential fixtures",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "scenarios"],
+  "properties": {
+    "schema": {"const": 1},
+    "reference_kind": {"enum": ["cli", "runtime"]},
+    "scenarios": {"type": "array", "items": {"$ref": "#/$defs/scenario"}}
+  },
+  "$defs": {
+    "scenario": {
+      "type": "object", "additionalProperties": false, "required": ["id", "steps"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "steps": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/step"}},
+        "env": {"type": "object", "additionalProperties": {"type": "string"}},
+        "files": {"type": "object", "additionalProperties": {"type": "string"}},
+        "observe_files": {"type": "array", "items": {"type": "string"}},
+        "transport": {"type": "object", "additionalProperties": false, "properties": {
+          "gh": {"type": "array", "items": {"$ref": "#/$defs/response"}},
+          "codex": {"type": "array", "items": {"$ref": "#/$defs/response"}},
+          "opencode": {"type": "array", "items": {"$ref": "#/$defs/response"}}
+        }},
+        "sqlite": {"type": "array", "items": {"type": "object", "additionalProperties": false,
+          "required": ["path", "query"], "properties": {"path": {"type": "string"}, "query": {"type": "string"}}}}
+      }
+    },
+    "step": {
+      "type": "object", "additionalProperties": false,
+      "properties": {
+        "argv": {"type": "array", "items": {"type": "string"}},
+        "stdin": {"type": "string"}, "exit": {"type": "integer"}, "timeout": {"type": "number", "exclusiveMinimum": 0},
+        "stdout_contains": {"type": "array", "items": {"type": "string"}},
+        "stderr_contains": {"type": "array", "items": {"type": "string"}},
+        "size": {"$ref": "#/$defs/size"},
+        "terminal": {"type": "array", "items": {"type": "object", "additionalProperties": false,
+          "properties": {"after": {"type": "string"}, "send": {"type": "string"}, "delay": {"type": "number"},
+            "size": {"$ref": "#/$defs/size"}, "signal": {"enum": ["SIGINT", "SIGTERM", "SIGKILL", "SIGWINCH"]}}}}
+      }
+    },
+    "size": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer", "minimum": 1}},
+    "response": {"type": "object", "additionalProperties": false,
+      "properties": {
+        "argv": {"type": "array", "items": {"type": "string"}}, "prefix": {"type": "array", "items": {"type": "string"}},
+        "stdin_contains": {"type": "array", "items": {"type": "string"}},
+        "stdout": {"type": "string"}, "stderr": {"type": "string"}, "exit": {"type": "integer"},
+        "write_flags": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    }
+  }
+}

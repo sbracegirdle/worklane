@@ -1,0 +1,1079 @@
+{
+  "schema": 1,
+  "scenarios": [
+    {
+      "id": "cli.help",
+      "steps": [
+        {
+          "argv": [
+            "--help"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "--worker-harness",
+            "--finalizer-model",
+            "stack",
+            "--raw"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.unknown-command",
+      "steps": [
+        {
+          "argv": [
+            "wat"
+          ],
+          "exit": 2,
+          "stderr_contains": [
+            "invalid choice"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.unknown-flag",
+      "steps": [
+        {
+          "argv": [
+            "status",
+            "--wat"
+          ],
+          "exit": 2,
+          "stderr_contains": [
+            "unrecognized arguments"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.bad-number",
+      "steps": [
+        {
+          "argv": [
+            "logs",
+            "界"
+          ],
+          "exit": 2,
+          "stderr_contains": [
+            "invalid int value"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.bad-workers-type",
+      "steps": [
+        {
+          "argv": [
+            "check",
+            "--workers",
+            "three"
+          ],
+          "exit": 2,
+          "stderr_contains": [
+            "invalid int value"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.bad-harness",
+      "steps": [
+        {
+          "argv": [
+            "check",
+            "--harness",
+            "other"
+          ],
+          "exit": 2,
+          "stderr_contains": [
+            "invalid choice"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.bad-effort",
+      "steps": [
+        {
+          "argv": [
+            "check",
+            "--effort",
+            "max"
+          ],
+          "exit": 2,
+          "stderr_contains": [
+            "invalid choice"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.bad-destination",
+      "steps": [
+        {
+          "argv": [
+            "add",
+            "-t",
+            "title",
+            "--draft",
+            "--shaping"
+          ],
+          "exit": 2,
+          "stderr_contains": [
+            "not allowed"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.now-scope",
+      "steps": [
+        {
+          "argv": [
+            "status",
+            "--now"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "only valid with stop"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.title-scope",
+      "steps": [
+        {
+          "argv": [
+            "status",
+            "-t",
+            "title"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "only valid with add"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.missing-title",
+      "steps": [
+        {
+          "argv": [
+            "add"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "Use worklane add"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.empty-title",
+      "steps": [
+        {
+          "argv": [
+            "add",
+            "-t",
+            " "
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "Use worklane add"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.add-number",
+      "steps": [
+        {
+          "argv": [
+            "add",
+            "1",
+            "-t",
+            "title"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "Use worklane add"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.retry-number",
+      "steps": [
+        {
+          "argv": [
+            "retry"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "Use worklane retry"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.retry-unknown",
+      "steps": [
+        {
+          "argv": [
+            "retry",
+            "7"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "No saved task"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.workers-range",
+      "steps": [
+        {
+          "argv": [
+            "check",
+            "--workers",
+            "0"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "workers must"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.interval-range",
+      "steps": [
+        {
+          "argv": [
+            "check",
+            "--interval",
+            "9"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "interval must"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.invalid-project",
+      "steps": [
+        {
+          "argv": [
+            "check",
+            "--project",
+            "owner/0"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "project must"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.tui-redirect",
+      "steps": [
+        {
+          "argv": [],
+          "exit": 1,
+          "stderr_contains": [
+            "requires an interactive terminal"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.config-redirect",
+      "steps": [
+        {
+          "argv": [
+            "config"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "requires an interactive terminal"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.tui-refresh",
+      "steps": [
+        {
+          "argv": [
+            "tui",
+            "--refresh",
+            "nan"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "--refresh must"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.tui-refresh-low",
+      "steps": [
+        {
+          "argv": [
+            "tui",
+            "--refresh",
+            "0.09"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "--refresh must"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.tui-refresh-high",
+      "steps": [
+        {
+          "argv": [
+            "tui",
+            "--refresh",
+            "61"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "--refresh must"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cli.offline-controls",
+      "steps": [
+        {
+          "argv": [
+            "status"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "\"running\": false",
+            "\"tasks\": []"
+          ]
+        },
+        {
+          "argv": [
+            "pause"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "Paused:"
+          ]
+        },
+        {
+          "argv": [
+            "status"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "\"paused\": true"
+          ]
+        },
+        {
+          "argv": [
+            "resume"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "Resumed intake"
+          ]
+        },
+        {
+          "argv": [
+            "logs"
+          ],
+          "exit": 0
+        },
+        {
+          "argv": [
+            "logs",
+            "7",
+            "--raw"
+          ],
+          "exit": 0
+        },
+        {
+          "argv": [
+            "stop"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "Stop requested:"
+          ]
+        },
+        {
+          "argv": [
+            "stop",
+            "--now"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "no owned processes remain"
+          ]
+        },
+        {
+          "argv": [
+            "stop"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "no owned processes remain"
+          ]
+        }
+      ],
+      "sqlite": [
+        {
+          "path": "state/worklane/owner--repo/state.sqlite3",
+          "query": "PRAGMA user_version"
+        },
+        {
+          "path": "state/worklane/owner--repo/state.sqlite3",
+          "query": "SELECT count(*) FROM tasks"
+        }
+      ]
+    },
+    {
+      "id": "cli.stack-policy",
+      "steps": [
+        {
+          "argv": [
+            "stack"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "\"2:1\"",
+            "53",
+            "\"stack\": []"
+          ]
+        }
+      ],
+      "files": {
+        "repo/.worklane.toml": "stack_dependencies = [\"2:1\"]\ncompletion_gates = [53]\n"
+      }
+    },
+    {
+      "id": "cli.invalid-config",
+      "steps": [
+        {
+          "argv": [
+            "check"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "workers must"
+          ]
+        },
+        {
+          "argv": [
+            "pause"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "Paused:"
+          ]
+        }
+      ],
+      "files": {
+        "repo/.worklane.toml": "workers = true\n"
+      }
+    },
+    {
+      "id": "cli.unknown-config",
+      "steps": [
+        {
+          "argv": [
+            "check"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "Unknown configuration"
+          ]
+        },
+        {
+          "argv": [
+            "pause"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "Paused:"
+          ]
+        }
+      ],
+      "files": {
+        "repo/.worklane.toml": "surprise = 1\n"
+      }
+    },
+    {
+      "id": "cli.stack-cycle",
+      "steps": [
+        {
+          "argv": [
+            "check"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "cycle"
+          ]
+        },
+        {
+          "argv": [
+            "pause"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "Paused:"
+          ]
+        }
+      ],
+      "files": {
+        "repo/.worklane.toml": "stack_dependencies = [\"2:1\", \"1:2\"]\n"
+      }
+    },
+    {
+      "id": "cli.hard-gate",
+      "steps": [
+        {
+          "argv": [
+            "check"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "cannot be stackable"
+          ]
+        },
+        {
+          "argv": [
+            "pause"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "Paused:"
+          ]
+        }
+      ],
+      "files": {
+        "repo/.worklane.toml": "stack_dependencies = [\"2:53\"]\ncompletion_gates = [53]\n"
+      }
+    },
+    {
+      "id": "cli.board-browser",
+      "steps": [
+        {
+          "argv": [
+            "board",
+            "--project",
+            "owner/2"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "Opened project board:"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "project",
+              "view"
+            ],
+            "stdout": "{\"id\": \"project-id\", \"number\": 2, \"title\": \"repo\", \"closed\": false, \"url\": \"https://github.com/users/owner/projects/2\", \"owner\": {\"login\": \"owner\"}}"
+          },
+          {
+            "argv": [
+              "project",
+              "view",
+              "2",
+              "--owner",
+              "owner",
+              "--web"
+            ]
+          }
+        ]
+      },
+      "observe_files": [
+        "state/worklane/owner--repo/state.sqlite3"
+      ]
+    },
+    {
+      "id": "cli.board-offline",
+      "steps": [
+        {
+          "argv": [
+            "board",
+            "--project",
+            "owner/2"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "network unavailable"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "project",
+              "view"
+            ],
+            "exit": 1,
+            "stderr": "network unavailable"
+          }
+        ]
+      }
+    },
+    {
+      "id": "cli.add-ready",
+      "steps": [
+        {
+          "argv": [
+            "add",
+            "--project",
+            "owner/2",
+            "-t",
+            "界 `literal` $(no-shell)",
+            "--body",
+            "first\nsecond"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "issues/42",
+            "Ready for work"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "project",
+              "view"
+            ],
+            "stdout": "{\"id\": \"project-id\", \"number\": 2, \"title\": \"repo\", \"closed\": false, \"url\": \"https://github.com/users/owner/projects/2\", \"owner\": {\"login\": \"owner\"}}"
+          },
+          {
+            "prefix": [
+              "project",
+              "field-list"
+            ],
+            "stdout": "{\"fields\": [{\"id\": \"status-id\", \"name\": \"Status\", \"options\": [{\"id\": \"ready-for-work\", \"name\": \"Ready for work\"}, {\"id\": \"in-progress\", \"name\": \"In Progress\"}, {\"id\": \"agent-review\", \"name\": \"Agent review\"}, {\"id\": \"human-review\", \"name\": \"Human review\"}, {\"id\": \"draft\", \"name\": \"Draft\"}, {\"id\": \"shaping\", \"name\": \"Shaping\"}]}]}"
+          },
+          {
+            "prefix": [
+              "issue",
+              "create"
+            ],
+            "stdin_contains": [
+              "first\nsecond"
+            ],
+            "stdout": "https://github.com/owner/repo/issues/42"
+          },
+          {
+            "prefix": [
+              "project",
+              "item-add"
+            ],
+            "stdout": "{\"id\": \"item-id\"}"
+          },
+          {
+            "prefix": [
+              "project",
+              "item-edit"
+            ]
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"items\": {\"nodes\": [{\"id\": \"item-id\", \"fieldValueByName\": {\"name\": \"Ready for work\"}, \"content\": {\"state\": \"OPEN\", \"number\": 42, \"title\": \"\\u754c `literal` $(no-shell)\", \"body\": \"first\\nsecond\", \"url\": \"https://github.com/owner/repo/issues/42\", \"repository\": {\"nameWithOwner\": \"owner/repo\"}, \"issueDependenciesSummary\": {\"blockedBy\": 0}}}], \"totalCount\": 1, \"pageInfo\": {\"hasNextPage\": false, \"endCursor\": null}}}}}",
+            "stdin_contains": [
+              "items(first:100"
+            ]
+          }
+        ]
+      },
+      "observe_files": [
+        "state/worklane/owner--repo/state.sqlite3"
+      ]
+    },
+    {
+      "id": "cli.add-draft",
+      "steps": [
+        {
+          "argv": [
+            "add",
+            "--project",
+            "owner/2",
+            "-t",
+            "界 `literal` $(no-shell)",
+            "--body",
+            "first\nsecond",
+            "--draft"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "issues/42",
+            "Draft"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "project",
+              "view"
+            ],
+            "stdout": "{\"id\": \"project-id\", \"number\": 2, \"title\": \"repo\", \"closed\": false, \"url\": \"https://github.com/users/owner/projects/2\", \"owner\": {\"login\": \"owner\"}}"
+          },
+          {
+            "prefix": [
+              "project",
+              "field-list"
+            ],
+            "stdout": "{\"fields\": [{\"id\": \"status-id\", \"name\": \"Status\", \"options\": [{\"id\": \"ready-for-work\", \"name\": \"Ready for work\"}, {\"id\": \"in-progress\", \"name\": \"In Progress\"}, {\"id\": \"agent-review\", \"name\": \"Agent review\"}, {\"id\": \"human-review\", \"name\": \"Human review\"}, {\"id\": \"draft\", \"name\": \"Draft\"}, {\"id\": \"shaping\", \"name\": \"Shaping\"}]}]}"
+          },
+          {
+            "prefix": [
+              "issue",
+              "create"
+            ],
+            "stdin_contains": [
+              "first\nsecond"
+            ],
+            "stdout": "https://github.com/owner/repo/issues/42"
+          },
+          {
+            "prefix": [
+              "project",
+              "item-add"
+            ],
+            "stdout": "{\"id\": \"item-id\"}"
+          },
+          {
+            "prefix": [
+              "project",
+              "item-edit"
+            ]
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"items\": {\"nodes\": [{\"id\": \"item-id\", \"fieldValueByName\": {\"name\": \"Draft\"}, \"content\": {\"state\": \"OPEN\", \"number\": 42, \"title\": \"\\u754c `literal` $(no-shell)\", \"body\": \"first\\nsecond\", \"url\": \"https://github.com/owner/repo/issues/42\", \"repository\": {\"nameWithOwner\": \"owner/repo\"}, \"issueDependenciesSummary\": {\"blockedBy\": 0}}}], \"totalCount\": 1, \"pageInfo\": {\"hasNextPage\": false, \"endCursor\": null}}}}}",
+            "stdin_contains": [
+              "items(first:100"
+            ]
+          }
+        ]
+      },
+      "observe_files": [
+        "state/worklane/owner--repo/state.sqlite3"
+      ]
+    },
+    {
+      "id": "cli.add-shaping",
+      "steps": [
+        {
+          "argv": [
+            "add",
+            "--project",
+            "owner/2",
+            "-t",
+            "界 `literal` $(no-shell)",
+            "--body",
+            "first\nsecond",
+            "--shaping"
+          ],
+          "exit": 0,
+          "stdout_contains": [
+            "issues/42",
+            "Shaping"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "project",
+              "view"
+            ],
+            "stdout": "{\"id\": \"project-id\", \"number\": 2, \"title\": \"repo\", \"closed\": false, \"url\": \"https://github.com/users/owner/projects/2\", \"owner\": {\"login\": \"owner\"}}"
+          },
+          {
+            "prefix": [
+              "project",
+              "field-list"
+            ],
+            "stdout": "{\"fields\": [{\"id\": \"status-id\", \"name\": \"Status\", \"options\": [{\"id\": \"ready-for-work\", \"name\": \"Ready for work\"}, {\"id\": \"in-progress\", \"name\": \"In Progress\"}, {\"id\": \"agent-review\", \"name\": \"Agent review\"}, {\"id\": \"human-review\", \"name\": \"Human review\"}, {\"id\": \"draft\", \"name\": \"Draft\"}, {\"id\": \"shaping\", \"name\": \"Shaping\"}]}]}"
+          },
+          {
+            "prefix": [
+              "issue",
+              "create"
+            ],
+            "stdin_contains": [
+              "first\nsecond"
+            ],
+            "stdout": "https://github.com/owner/repo/issues/42"
+          },
+          {
+            "prefix": [
+              "project",
+              "item-add"
+            ],
+            "stdout": "{\"id\": \"item-id\"}"
+          },
+          {
+            "prefix": [
+              "project",
+              "item-edit"
+            ]
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"items\": {\"nodes\": [{\"id\": \"item-id\", \"fieldValueByName\": {\"name\": \"Shaping\"}, \"content\": {\"state\": \"OPEN\", \"number\": 42, \"title\": \"\\u754c `literal` $(no-shell)\", \"body\": \"first\\nsecond\", \"url\": \"https://github.com/owner/repo/issues/42\", \"repository\": {\"nameWithOwner\": \"owner/repo\"}, \"issueDependenciesSummary\": {\"blockedBy\": 0}}}], \"totalCount\": 1, \"pageInfo\": {\"hasNextPage\": false, \"endCursor\": null}}}}}",
+            "stdin_contains": [
+              "items(first:100"
+            ]
+          }
+        ]
+      },
+      "observe_files": [
+        "state/worklane/owner--repo/state.sqlite3"
+      ]
+    },
+    {
+      "id": "cli.add-partial-failure",
+      "steps": [
+        {
+          "argv": [
+            "add",
+            "--project",
+            "owner/2",
+            "-t",
+            "title"
+          ],
+          "exit": 1,
+          "stderr_contains": [
+            "Issue created: https://github.com/owner/repo/issues/42",
+            "do not rerun add"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "project",
+              "view"
+            ],
+            "stdout": "{\"id\": \"project-id\", \"number\": 2, \"title\": \"repo\", \"closed\": false, \"url\": \"https://github.com/users/owner/projects/2\", \"owner\": {\"login\": \"owner\"}}"
+          },
+          {
+            "prefix": [
+              "project",
+              "field-list"
+            ],
+            "stdout": "{\"fields\": [{\"id\": \"status-id\", \"name\": \"Status\", \"options\": [{\"id\": \"ready-for-work\", \"name\": \"Ready for work\"}, {\"id\": \"in-progress\", \"name\": \"In Progress\"}, {\"id\": \"agent-review\", \"name\": \"Agent review\"}, {\"id\": \"human-review\", \"name\": \"Human review\"}, {\"id\": \"draft\", \"name\": \"Draft\"}, {\"id\": \"shaping\", \"name\": \"Shaping\"}]}]}"
+          },
+          {
+            "prefix": [
+              "issue",
+              "create"
+            ],
+            "stdout": "https://github.com/owner/repo/issues/42"
+          },
+          {
+            "prefix": [
+              "project",
+              "item-add"
+            ],
+            "exit": 1,
+            "stderr": "network unavailable"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tui.default-quit",
+      "steps": [
+        {
+          "argv": [
+            "--no-color"
+          ],
+          "exit": 0,
+          "terminal": [
+            {
+              "after": "WORKLANE",
+              "send": "q"
+            }
+          ],
+          "stdout_contains": [
+            "WORKLANE"
+          ]
+        }
+      ],
+      "files": {
+        "repo/.worklane.toml": "workers = 3\n"
+      }
+    },
+    {
+      "id": "tui.first-run-cancel",
+      "steps": [
+        {
+          "argv": [
+            "--no-color"
+          ],
+          "exit": 0,
+          "terminal": [
+            {
+              "after": "WORKLANE SETUP",
+              "send": "\u001b"
+            },
+            {
+              "after": "Setup cancelled",
+              "send": "q"
+            }
+          ],
+          "stdout_contains": [
+            "WORKLANE SETUP",
+            "Setup cancelled"
+          ]
+        }
+      ],
+      "observe_files": [
+        "repo/.worklane.toml"
+      ]
+    },
+    {
+      "id": "cli.empty-queue-run",
+      "steps": [
+        {
+          "argv": [
+            "run",
+            "--once",
+            "--project",
+            "owner/2"
+          ],
+          "stdout_contains": [
+            "Worklane: owner/repo",
+            "3 workers, 1 reviewer"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "project",
+              "view"
+            ],
+            "stdout": "{\"id\": \"project-id\", \"number\": 2, \"title\": \"repo\", \"url\": \"https://github.com/users/owner/projects/2\", \"owner\": {\"login\": \"owner\"}}"
+          },
+          {
+            "prefix": [
+              "project",
+              "field-list"
+            ],
+            "stdout": "{\"fields\": [{\"id\": \"status-id\", \"name\": \"Status\", \"options\": [{\"id\": \"0\", \"name\": \"Ready for work\"}, {\"id\": \"1\", \"name\": \"In Progress\"}, {\"id\": \"2\", \"name\": \"Agent review\"}, {\"id\": \"3\", \"name\": \"Human review\"}]}]}"
+          },
+          {
+            "argv": [
+              "auth",
+              "setup-git",
+              "--hostname",
+              "github.com"
+            ]
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "items(first:100"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"items\": {\"nodes\": [], \"totalCount\": 0, \"pageInfo\": {\"hasNextPage\": false, \"endCursor\": null}}}}}"
+          }
+        ],
+        "codex": [
+          {
+            "argv": [
+              "login",
+              "status"
+            ]
+          }
+        ]
+      },
+      "sqlite": [
+        {
+          "path": "state/worklane/owner--repo/state.sqlite3",
+          "query": "SELECT count(*) FROM tasks"
+        }
+      ]
+    },
+    {
+      "id": "tui.uppercase-stop-now",
+      "files": {
+        "repo/.worklane.toml": "workers = 3\n"
+      },
+      "steps": [
+        {
+          "argv": [
+            "--no-color"
+          ],
+          "terminal": [
+            {
+              "after": "WORKLANE",
+              "send": "X"
+            },
+            {
+              "after": "no owned processes remain",
+              "send": "q"
+            }
+          ],
+          "stdout_contains": [
+            "no owned processes remain"
+          ]
+        }
+      ],
+      "sqlite": [
+        {
+          "path": "state/worklane/owner--repo/state.sqlite3",
+          "query": "SELECT count(*) FROM state_values WHERE owner='meta:stop_result' AND key='running' AND integer_value=0"
+        }
+      ]
+    }
+  ]
+}

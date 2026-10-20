@@ -1,0 +1,1238 @@
+{
+  "checks": [
+    {
+      "id": "test_add_issue.AddIssueTests.test_ambiguous_board_never_creates_issue",
+      "status": "pass"
+    },
+    {
+      "id": "test_add_issue.AddIssueTests.test_concurrent_pickup_of_ready_issue_succeeds_without_resetting_status",
+      "status": "pass"
+    },
+    {
+      "id": "test_add_issue.AddIssueTests.test_default_creates_issue_with_literal_multiline_description_and_ready_status",
+      "status": "pass"
+    },
+    {
+      "id": "test_add_issue.AddIssueTests.test_draft_and_shaping_cannot_be_combined",
+      "status": "pass"
+    },
+    {
+      "id": "test_add_issue.AddIssueTests.test_invalid_add_input_never_reaches_github",
+      "status": "pass"
+    },
+    {
+      "id": "test_add_issue.AddIssueTests.test_issue_creation_failure_does_not_add_board_item",
+      "status": "pass"
+    },
+    {
+      "id": "test_add_issue.AddIssueTests.test_missing_gh_does_not_create_issue",
+      "status": "pass"
+    },
+    {
+      "id": "test_add_issue.AddIssueTests.test_missing_item_cannot_report_success",
+      "status": "pass"
+    },
+    {
+      "id": "test_add_issue.AddIssueTests.test_missing_status_field_never_creates_issue",
+      "status": "pass"
+    },
+    {
+      "id": "test_add_issue.AddIssueTests.test_missing_target_status_never_creates_issue_or_edits_fields",
+      "status": "pass"
+    },
+    {
+      "id": "test_add_issue.AddIssueTests.test_modifiers_select_existing_status_case_insensitively",
+      "status": "pass"
+    },
+    {
+      "id": "test_add_issue.AddIssueTests.test_partial_failures_retain_issue_url_and_warn_against_duplicate_creation",
+      "status": "pass"
+    },
+    {
+      "id": "test_add_issue.AddIssueTests.test_repo_and_explicit_project_are_honored",
+      "status": "pass"
+    },
+    {
+      "id": "test_add_issue.AddIssueTests.test_tui_default_preserves_explicit_commands_and_issue_numbers",
+      "status": "pass"
+    },
+    {
+      "id": "test_add_issue.AddIssueTests.test_workflow_progress_does_not_verify_draft_or_shaping_placement",
+      "status": "pass"
+    },
+    {
+      "id": "test_api_budget.ApiBudgetTests.test_three_workers_and_review_request_budget",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_atomic_save_failure_preserves_previous_file_and_cleans_temporary",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_cancellation_at_every_step_leaves_existing_and_missing_files_unchanged",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_check_uses_saved_settings_and_explicit_flags_override_without_saving",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_config_and_issue_editor_shortcuts_coexist_after_returning_from_setup",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_config_command_is_offline_and_creates_no_runtime_state",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_defaults_are_read_only_and_config_is_per_checkout",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_detached_start_passes_all_effective_settings_to_child",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_dispatch_uses_configured_workers_and_keeps_one_reviewer",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_invalid_config_has_path_and_never_silently_uses_defaults",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_invalid_settings_fail_before_board_access_but_controls_still_work",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_opencode_setup_role_overrides_and_small_confirmation_are_reviewable",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_saved_role_settings_cli_clears_and_background_start_roundtrip",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_saved_settings_override_stale_runtime_and_reach_tui_start_and_capacity",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_tui_prompts_once_per_folder_and_config_key_reopens_walkthrough",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_tui_start_forwards_saved_role_settings_and_capacity",
+      "status": "pass"
+    },
+    {
+      "id": "test_config.ConfigTests.test_walkthrough_validates_each_answer_and_saves_only_at_confirmation",
+      "status": "pass"
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_blocked_intake_and_rework_leave_slots_for_independent_work",
+      "status": "pass"
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_blocked_review_is_not_assigned",
+      "status": "pass"
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_check_distinguishes_ready_from_dependency_blocked",
+      "status": "pass"
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_closing_or_removing_final_blocker_allows_next_poll_without_retry",
+      "status": "pass"
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_dependency_api_failure_or_hidden_issue_cannot_claim",
+      "status": "pass"
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_fresh_blocker_overrides_unblocked_snapshot_before_claim",
+      "status": "pass"
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_interrupted_and_retry_stages_remain_untouched_while_blocked",
+      "status": "pass"
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_known_blockers_do_not_make_per_slot_requests",
+      "status": "pass"
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_missing_or_malformed_summary_fails_closed",
+      "status": "pass"
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_summary_counts_only_open_blockers_and_has_no_pagination_limit",
+      "status": "pass"
+    },
+    {
+      "id": "test_dependencies.DependencyTests.test_tui_board_explains_blocked_ready_issue",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_background_start_forwards_role_options",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_check_requires_only_selected_binaries_and_reports_configuration",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_deleted_controller_pwd_does_not_prevent_worker_start",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_deleted_session_blocks_before_starting_new_turn",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_each_role_has_separate_named_session_and_persistent_wire_events",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_failed_opencode_queued_input_is_retried_with_saved_session",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_global_default_role_overrides_and_models",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_incomplete_failed_and_invalid_results_never_pass",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_inherited_pwd_cannot_redirect_runs_exports_or_interactive_resume",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_interactive_resume_uses_saved_harness_with_lock_and_checks_missing_history",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_mismatched_session_rolls_back_raw_event_and_mapping",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_missing_session_does_not_fall_back_to_new_conversation",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_permissions_disable_subagents_and_preserve_user_denials",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_queued_input_resumes_exact_opencode_conversation_for_every_role",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_rejects_wrong_worktree_and_harness",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_resume_after_failure_preserves_session_and_feedback",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_saved_harness_and_model_survive_configuration_changes",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_signal_interruption_and_controller_restart_resume_exact_id",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_stop_request_interrupts_every_role_and_resumes_exact_session",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_successful_turns_clean_detached_descendants_before_replacing_owner",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_timeout_retains_session_and_immediate_stop_starts_no_process",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_tool_steps_do_not_complete_turn_or_pollute_result",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.HarnessTests.test_tui_restart_preserves_all_harness_options_and_explicit_overrides",
+      "status": "pass"
+    },
+    {
+      "id": "test_harness.InstalledOpenCodeTests.test_inherited_pwd_does_not_override_subprocess_worktree",
+      "status": "skip",
+      "reason": "Set WORKLANE_TEST_OPENCODE=1 for the installed CLI empty-input probe"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_active_finalizer_cannot_race_with_feedback_state",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_batch_waits_for_quiet_and_survives_restart",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_closed_changed_or_retargeted_pr_is_not_reworked",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_deleted_pending_feedback_does_not_start_worker",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_edited_comments_are_new_feedback",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_existing_task_baseline_keeps_feedback_since_handoff",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_failed_api_read_does_not_dispatch_stale_batch",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_feedback_cutoff_survives_review_assignment_and_restart",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_feedback_quota_failure_stops_before_other_tasks",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_first_handoff_does_not_acknowledge_feedback_received_during_work",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_first_worker_records_feedback_cutoff_before_turn",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_handoff_preserves_unconsumed_followups",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_idle_feedback_reads_twelve_times_per_hour_and_survives_restart",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_inline_position_changes_do_not_replay_feedback",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_later_comment_during_work_is_not_acknowledged",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_manual_status_closed_issue_and_unowned_items_are_preserved",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_pause_prevents_feedback_poll_and_dispatch",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_question_feedback_uses_issue_without_a_pr",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_question_handoff_comments_are_unique_across_human_batches",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_queued_batch_extends_when_all_workers_busy",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_reads_all_pages_and_kinds_ignoring_bots_markers_and_approvals",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_run_dispatches_human_rework_once",
+      "status": "pass"
+    },
+    {
+      "id": "test_human_feedback.HumanFeedbackTests.test_transition_reconciles_crash_after_remote_move",
+      "status": "pass"
+    },
+    {
+      "id": "test_installation.InstallationTests.test_check_reports_cli_without_changing_board",
+      "status": "pass"
+    },
+    {
+      "id": "test_installation.InstallationTests.test_local_branch_dirty_edits_and_detached_revision",
+      "status": "pass"
+    },
+    {
+      "id": "test_installation.InstallationTests.test_plain_wheel_and_missing_distribution_have_unknown_revision",
+      "status": "pass"
+    },
+    {
+      "id": "test_installation.InstallationTests.test_untracked_script_does_not_inherit_enclosing_git_revision",
+      "status": "pass"
+    },
+    {
+      "id": "test_installation.InstallationTests.test_vcs_install_uses_resolved_commit_without_git",
+      "status": "pass"
+    },
+    {
+      "id": "test_installation.InstallationTests.test_version_does_not_open_target_repo_state_or_network",
+      "status": "pass"
+    },
+    {
+      "id": "test_installation.PreviewInstallTests.test_editable_branch_refresh_pinned_commit_and_restore",
+      "status": "skip",
+      "reason": "Set WORKLANE_TEST_INSTALL=1 to exercise isolated uv tool installs"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_all_agent_storage_is_sqlite_without_json_or_log_files",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_ambiguous_projects_do_not_create_or_assign_an_arbitrary_project",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_app_server_transport_timeout_eof_and_initialize_error",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_cli_stop_now_then_run_resumes_saved_session",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_concurrent_sessions_create_one_project",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_configured_model_and_effort_reach_every_role_and_resume_exact_session",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_conflict_rework_resumes_original_worker_with_findings",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_controller_output_is_logged_in_database",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_database_prevents_cross_role_session_reuse",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_deleted_worktree_never_creates_replacement_session",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_existing_project_is_matched_by_root_across_pages_not_name",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_feedback_and_reopen_resume_exact_worker_session",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_four_concurrent_writers_and_reopen",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_human_feedback_dispatch_resumes_original_worker_with_batch",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_input_completion_serializes_with_new_submissions_and_bounds_queue",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_input_survives_failed_delivery_and_restarts_only_in_matching_role",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_interrupted_finalizer_skips_repeat_review",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_invalid_session_event_rolls_back_event_and_log",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_json_migration_is_atomic_idempotent_and_archives_originals_in_sqlite",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_json_migration_recovers_known_session_from_legacy_log",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_live_input_runs_followup_in_exact_session_before_returning_result",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_memory_backed_protocol_supports_managed_python_without_os_helper",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_metadata_failure_is_logged_and_resume_retries_same_session",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_migration_from_sqlite_v1_imports_files_and_normalizes_payloads",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_mismatched_resume_id_is_rejected",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_missing_id_never_falls_back_to_new_session",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_project_uses_primary_checkout_and_preserves_execution_worktree",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_provider_failure_keeps_session_for_explicit_retry",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_recovery_respects_human_board_override",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_resume_updates_name_and_reuses_project_after_controller_restart",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_reviewer_reuses_worktree_across_changed_pr_heads",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_session_event_and_mapping_commit_together_before_crash",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_session_is_committed_before_turn_finishes",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_session_names_include_repository_issue_role_and_clean_title",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_signal_interruption_and_restart_keep_same_conversation",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_stale_task_save_cannot_erase_session",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_timeout_retains_session",
+      "status": "pass"
+    },
+    {
+      "id": "test_sessions.SessionTests.test_worker_reviewer_and_finalizer_are_separate_and_resumable",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.RestackTests.test_child_ancestry_rejects_unrelated_remote_branch",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.RestackTests.test_conflicting_restack_aborts_without_losing_original_work",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.RestackTests.test_dirty_worktree_or_changed_merged_revision_preserves_child",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.RestackTests.test_interrupted_retarget_reuses_recorded_merge_and_push",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.RestackTests.test_lost_board_transition_response_recovers_without_duplicate_history",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.RestackTests.test_pre_pr_interruption_keeps_the_worker_stage_after_parent_merge",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.RestackTests.test_squash_parent_merge_restacks_without_rewriting_and_requires_review",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.StackTests.test_active_handoff_revalidates_draft_conflict_and_board_withdrawal",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.StackTests.test_all_desktop_edges_remain_hard_completion_dependencies",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.StackTests.test_changed_heads_feedback_drafts_and_missing_review_block",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.StackTests.test_closed_completion_gate_still_requires_verified_merged_handoff",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.StackTests.test_completion_gate_rejects_unreviewed_merged_head",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.StackTests.test_exact_reviewed_parent_pins_child_base_and_provenance",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.StackTests.test_fan_in_blocks_visibly_instead_of_dropping_an_edge",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.StackTests.test_incomplete_native_list_fails_closed_and_cycles_are_rejected",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.StackTests.test_interrupted_child_keeps_pinned_revision_and_original_assignment",
+      "status": "pass"
+    },
+    {
+      "id": "test_stacking.StackTests.test_unlisted_hard_gate_and_external_dependencies_never_stack",
+      "status": "pass"
+    },
+    {
+      "id": "test_stop.StopTests.test_detached_orphan_and_ignoring_descendant_die_without_touching_unrelated",
+      "status": "pass"
+    },
+    {
+      "id": "test_stop.StopTests.test_immediate_stop_kills_live_worker_and_reports_stopped",
+      "status": "pass"
+    },
+    {
+      "id": "test_stop.StopTests.test_stale_pid_cannot_own_unrelated_process",
+      "status": "pass"
+    },
+    {
+      "id": "test_stop.StopTests.test_startup_stop_is_not_overwritten_after_blocking_auth",
+      "status": "pass"
+    },
+    {
+      "id": "test_stop.StopTests.test_stop_bypasses_blocked_dispatch_and_repeated_requests_keep_immediate",
+      "status": "pass"
+    },
+    {
+      "id": "test_stop.StopTests.test_termination_wrapper_ignores_reaped_pid",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_back_keys_restore_overview_even_during_database_errors",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_background_github_does_not_block_stop_navigation_or_quit",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_board_issue_navigation_scrolling_cache_and_offline_fallback",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_board_view_is_read_only_and_uses_existing_paginated_intake",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_cli_routes_offline_and_rejects_non_terminal_and_invalid_refresh",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_completed_issue_updates_all_role_rows_without_rewriting_history",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_composer_preserves_draft_on_late_submission_and_pins_original_run",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_composer_refuses_historical_and_stopped_sessions",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_controller_controls_reuse_cli_settings_and_preserve_graceful_stop",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_detail_wraps_by_terminal_cells_without_losing_unicode",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_empty_and_pre_session_assignments_and_blockers",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_event_summaries_include_commands_file_changes_and_errors",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_explicit_monochrome_does_not_initialize_colours",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_interactive_resume_returns_to_overview_and_restores_keypad",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_issue_editor_and_session_composer_keep_input_separate",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_issue_expand_collapse_and_session_navigation_open_the_correct_logs",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_issue_tree_groups_each_issue_once_with_role_sessions_underneath",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_latest_invocation_only_and_bounded_tail",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_logs_default_to_readable_output_with_raw_opt_in",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_message_composer_handles_unicode_commands_and_cancel_without_shortcuts",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_no_color_environment_does_not_initialize_colours",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_open_pr_handles_absence_offline_saved_pr_and_browser_failure",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_overview_pr_states_remain_visible_with_long_titles_in_small_terminals",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_overview_refreshes_only_visible_prs_and_loads_more_after_scrolling",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_pr_lookup_prefers_saved_url_and_discovers_unsaved_pr_by_branch",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_pr_refresh_caches_absence_expires_and_switches_to_saved_url",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_pr_refresh_failure_marks_saved_data_stale_and_respects_shared_cooldown",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_pr_shortcut_is_literal_in_editor_and_resumes_after_cancel",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_pr_shortcut_opens_focused_issue_and_session_using_gh",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_protocol_and_mcp_noise_do_not_replace_activity_or_fill_tail",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_readers_can_follow_concurrent_committed_output",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_real_curses_terminal_refresh_resize_logs_and_quit",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_resume_missing_session_missing_worktree_and_failed_cli",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_resume_refuses_controller_race_or_orphan_process",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_resume_uses_exact_role_session_and_holds_inherited_lock",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_search_boundary_match_is_visible_in_small_terminals",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_search_finds_metadata_and_historical_text_outside_latest_tail",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_search_input_and_historical_transcript_do_not_control_runner",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_search_input_navigation_historical_context_and_back",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_search_is_literal_unicode_readable_and_bounded",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_search_metadata_results_open_selected_session_and_scroll",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_search_no_matches_edit_cancel_and_restore_transcript",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_search_opens_match_inside_long_wrapped_log",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_slow_pr_refresh_does_not_block_stop_navigation_or_quit",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_small_terminal_and_monochrome_and_unicode_clipping",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_snapshot_tracks_live_changes_and_separate_roles_without_writing",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_start_key_reports_errors_and_issue_view_reads_saved_task_comments",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_structured_results_render_as_summary_and_findings_without_json",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_terminal_rendering_navigation_and_quitting_do_not_control_runner",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_transcript_uses_coloured_speakers_commands_errors_and_verdicts",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_view_cache_persists_expires_and_retains_stale_content_on_failure",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui.TuiTests.test_views_share_controller_github_cooldown_and_paginate_comments",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui_editing.IssueEditorTests.test_cache_failure_after_confirmed_creation_cannot_repeat_the_write",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui_editing.IssueEditorTests.test_cancel_loading_and_error_retain_responsive_terminal",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui_editing.IssueEditorTests.test_create_from_empty_overview_multiline_unicode_status_and_cache_invalidation",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui_editing.IssueEditorTests.test_create_supports_custom_boards_and_case_insensitive_ready_default",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui_editing.IssueEditorTests.test_edit_board_item_and_issue_page_return_refresh_and_project_selection",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui_editing.IssueEditorTests.test_failed_creation_keeps_draft_and_blocks_duplicate_save",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui_editing.IssueEditorTests.test_input_navigation_preserves_unicode_newlines_and_literal_hotkeys",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui_editing.IssueEditorTests.test_load_failure_and_budget_cooldown_do_not_write",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui_editing.IssueEditorTests.test_noop_and_status_only_edits_do_not_rewrite_issue_text",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui_editing.IssueEditorTests.test_partial_edit_failure_preserves_saved_text_and_draft_for_safe_retry",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui_editing.IssueEditorTests.test_real_terminal_create_unicode_multiline_status_resize_and_save",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui_editing.IssueEditorTests.test_save_runs_once_and_cannot_be_cancelled_while_in_flight",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui_editing.IssueEditorTests.test_small_terminal_long_title_multiline_body_and_empty_status",
+      "status": "pass"
+    },
+    {
+      "id": "test_tui_editing.IssueEditorTests.test_stale_text_closed_issue_status_drift_or_removed_item_never_write",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.BoardCommandTests.test_browser_failure_is_reported",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.BoardCommandTests.test_controller_board_still_loads_workflow_fields_by_default",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.BoardCommandTests.test_explicit_project_and_checkout",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.BoardCommandTests.test_falls_back_to_owner_projects",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.BoardCommandTests.test_github_lookup_failure_is_reported",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.BoardCommandTests.test_missing_github_cli_is_reported",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.BoardCommandTests.test_no_board_or_ambiguous_board_does_not_open_browser",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.BoardCommandTests.test_opens_inferred_board_without_codex_or_workflow_fields",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.BoardCommandTests.test_prefers_linked_board_matching_repository_name",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.GitHubErrorTests.test_graphql_error_body_is_classified_even_with_success_exit",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.GitHubErrorTests.test_header_reset_avoids_an_extra_probe",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.GitHubErrorTests.test_primary_reset_and_secondary_retry_after_headers",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.GitHubErrorTests.test_probe_timeout_keeps_known_quota_failure",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.GitHubErrorTests.test_project_owner_error_reports_underlying_rate_limit",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.GitHubErrorTests.test_rate_limit_is_distinguished_from_other_errors",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.GitHubErrorTests.test_real_owner_error_is_not_misreported_as_rate_limit",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_blocked_task_never_auto_restarts",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_board_and_link_cursor_cycles_fail_closed",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_board_excludes_other_repos_and_non_issues",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_board_paginates_linked_pr_field_without_closing_reference",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_board_paginates_with_project_id_and_retains_all_issues",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_board_rejects_stuck_cursor",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_board_status_ids_are_preserved_when_review_is_added",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_budget_serializes_calls_across_repository_instances",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_budget_shared_by_repositories_and_blocks_commands",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_caps_three_workers_one_reviewer_and_only_authorized_statuses",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_changed_pr_before_promotion_blocks_human_review",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_claim_failures_increase_backoff_after_successful_board_reads",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_claim_quota_failure_recovers_before_and_after_status_write",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_closed_issues_are_never_claimed",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_closed_unmerged_or_retargeted_pr_does_not_complete_task",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_completed_build_retries_verification_without_another_agent_turn",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_completed_review_and_finalizer_survive_quota_failure",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_completion_api_failure_preserves_task_and_rate_limit",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_completion_checks_are_bounded_without_changing_feedback_cutoff",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_completion_does_not_touch_live_assignments_or_completed_tasks",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_concurrent_failure_stops_remaining_claims_and_survives_clear",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_conflict_during_finalizer_never_advances_to_human",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_conflicts_respect_round_limit_and_human_board_edits",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_cross_repository_pr_is_rejected",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_duplicate_controller_is_locked",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_exhausted_quota_does_not_poll_every_loop",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_existing_linked_pr_not_implemented_twice",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_explicit_retry_reviews_current_head",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_failed_handoff_does_not_move_to_human",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_failed_or_unverified_draft_promotion_blocks_human_review",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_human_handoff_verifies_ready_pr_and_only_promotes_drafts",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_human_status_override_is_respected",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_idle_hour_and_exhausted_hour_have_bounded_request_counts",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_incomplete_board_fails_closed",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_lock_is_retained_by_child_after_parent_closes",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_merge_conflict_requeues_worker_without_launching_reviewer",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_merged_pr_completes_missing_board_task_before_drift_checks",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_merged_task_cannot_be_dispatched_from_stale_ready_board_status",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_open_threads_block_passing_review_even_when_outdated",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_pass_with_findings_is_blocked",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_passing_review_and_handoff_required_for_human",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_pause_prevents_dispatch",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_pr_head_changes_require_fresh_review",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_question_review_does_not_fetch_pr_threads",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_rate_limit_backoff_survives_new_runner_and_is_bounded",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_rate_limit_during_claim_does_not_try_remaining_slots",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_repository_case_uses_same_controller_lock",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_resolved_threads_are_supplied_to_reviewer_and_allow_handoff",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_retry_status_drift_reuses_completed_build",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_review_changes_return_to_ready",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_review_thread_and_reply_cursor_cycles_fail_closed",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_review_thread_api_errors_fail_closed",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_review_thread_lookup_rejects_other_repositories",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_review_thread_pagination_cannot_silently_truncate",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_review_threads_include_all_pages_and_replies",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_stale_review_never_moves_to_human",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_status_and_pause_do_not_need_github",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_success_exhausting_last_point_defers_next_request",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_thread_fetch_failure_never_advances_worker_or_reviewer",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_thread_opened_during_handoff_blocks_human_review",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_three_failed_reviews_require_inspection",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_unknown_mergeability_retries_saved_handoff_without_another_turn",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_waiting_review_drift_is_visible_and_preserves_external_status",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_waiting_review_reconciliation_skips_active_assignments",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_waiting_review_uses_direct_status_when_listing_lags",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_worker_pass_with_open_thread_does_not_advance",
+      "status": "pass"
+    },
+    {
+      "id": "test_worklane.WorklaneTests.test_worker_receives_threads_and_must_resolve_them_before_completion",
+      "status": "pass"
+    }
+  ],
+  "passed": 305,
+  "total": 307,
+  "reference": "5122d0abc1b60fa0110d9c90937c6ffa1ab73d3c",
+  "mode": "reference-only"
+}

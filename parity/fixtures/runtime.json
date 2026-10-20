@@ -1,0 +1,569 @@
+{
+  "schema": 1,
+  "reference_kind": "runtime",
+  "scenarios": [
+    {
+      "id": "runtime.config-defaults",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"config.validate\", \"values\": {}}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.config-roles",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"config.validate\", \"values\": {\"harness\": \"opencode\", \"worker_harness\": \"codex\", \"reviewer_model\": \"provider/model\", \"workers\": 16, \"effort\": \"xhigh\"}}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.invalid-workers-True",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"config.validate\", \"values\": {\"workers\": true}}",
+          "exit": 1,
+          "stdout_contains": [
+            "\"error\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.invalid-workers-17",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"config.validate\", \"values\": {\"workers\": 17}}",
+          "exit": 1,
+          "stdout_contains": [
+            "\"error\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.invalid-interval-9",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"config.validate\", \"values\": {\"interval\": 9}}",
+          "exit": 1,
+          "stdout_contains": [
+            "\"error\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.invalid-model-with space",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"config.validate\", \"values\": {\"model\": \"with space\"}}",
+          "exit": 1,
+          "stdout_contains": [
+            "\"error\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.invalid-harness-bad",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"config.validate\", \"values\": {\"harness\": \"bad\"}}",
+          "exit": 1,
+          "stdout_contains": [
+            "\"error\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.invalid-completion_gates-[0]",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"config.validate\", \"values\": {\"completion_gates\": [0]}}",
+          "exit": 1,
+          "stdout_contains": [
+            "\"error\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.invalid-stack_dependencies-['2:2']",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"config.validate\", \"values\": {\"stack_dependencies\": [\"2:2\"]}}",
+          "exit": 1,
+          "stdout_contains": [
+            "\"error\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.unicode-1",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"text.wrap\", \"value\": \"界é🙂 tabs\\t\\nStraße\", \"width\": 1}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.unicode-2",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"text.wrap\", \"value\": \"界é🙂 tabs\\t\\nStraße\", \"width\": 2}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.unicode-5",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"text.wrap\", \"value\": \"界é🙂 tabs\\t\\nStraße\", \"width\": 5}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.unicode-20",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"text.wrap\", \"value\": \"界é🙂 tabs\\t\\nStraße\", \"width\": 20}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.session-codex",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"session.validate\", \"backend\": \"codex\", \"id\": \"00000000-0000-0000-0000-000000000042\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.session-opencode",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"session.validate\", \"backend\": \"opencode\", \"id\": \"ses_exact-42\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.session-bad-codex",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"session.validate\", \"backend\": \"codex\", \"id\": \"--last\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "\"error\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.session-bad-opencode",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"session.validate\", \"backend\": \"opencode\", \"id\": \"../../session\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "\"error\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.log-noise",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"log.readable\", \"stream\": \"stderr\", \"content\": \"2026-10-19T10:05:00Z WARN codex_mcp::client: hidden diagnostic\\nimportant error\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.log-protocol",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"log.readable\", \"stream\": \"agent\", \"content\": \"thread.started\\n界 preserved\\nturn.completed\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.log-verdict",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"log.readable\", \"stream\": \"agent\", \"content\": \"{\\\"verdict\\\": \\\"pass\\\", \\\"summary\\\": \\\"checks passed\\\", \\\"findings\\\": []}\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.queued-input-restart",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"state.trace\", \"actions\": [{\"kind\": \"session\", \"id\": \"00000000-0000-0000-0000-000000000042\"}, {\"kind\": \"queue\", \"text\": \"/run echo 界\"}, {\"kind\": \"advance\"}, {\"kind\": \"reopen\"}, {\"kind\": \"advance\"}, {\"kind\": \"advance\", \"result\": {\"verdict\": \"pass\"}}, {\"kind\": \"snapshot\"}]}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.interrupted-session",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"state.trace\", \"stage\": \"finalize\", \"actions\": [{\"kind\": \"session\", \"id\": \"00000000-0000-0000-0000-000000000042\"}, {\"kind\": \"recover\"}, {\"kind\": \"reopen\"}, {\"kind\": \"snapshot\"}]}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.mismatched-session",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"state.trace\", \"actions\": [{\"kind\": \"session\", \"id\": \"00000000-0000-0000-0000-000000000042\"}, {\"kind\": \"session\", \"id\": \"00000000-0000-0000-0000-000000000043\"}]}",
+          "exit": 1,
+          "stdout_contains": [
+            "\"error\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.agent-opencode-build",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"agent.run\", \"stage\": \"build\", \"backend\": \"opencode\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ],
+      "transport": {
+        "opencode": [
+          {
+            "prefix": [
+              "run"
+            ],
+            "stdin_contains": [
+              "Assigned task (JSON):",
+              "\"number\": 1"
+            ],
+            "stdout": "{\"type\": \"step_start\", \"sessionID\": \"ses_fixture42\"}\n{\"type\": \"text\", \"sessionID\": \"ses_fixture42\", \"part\": {\"text\": \"{\\\"verdict\\\": \\\"pass\\\", \\\"pr_url\\\": \\\"https://github.com/owner/repo/pull/9\\\", \\\"head_sha\\\": \\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\", \\\"summary\\\": \\\"fixture passed\\\", \\\"findings\\\": []}\"}}\n{\"type\": \"step_finish\", \"sessionID\": \"ses_fixture42\", \"part\": {\"reason\": \"stop\"}}\n"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.agent-opencode-review",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"agent.run\", \"stage\": \"review\", \"backend\": \"opencode\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ],
+      "transport": {
+        "opencode": [
+          {
+            "prefix": [
+              "run"
+            ],
+            "stdin_contains": [
+              "Assigned task (JSON):",
+              "\"number\": 1"
+            ],
+            "stdout": "{\"type\": \"step_start\", \"sessionID\": \"ses_fixture42\"}\n{\"type\": \"text\", \"sessionID\": \"ses_fixture42\", \"part\": {\"text\": \"{\\\"verdict\\\": \\\"pass\\\", \\\"pr_url\\\": \\\"https://github.com/owner/repo/pull/9\\\", \\\"head_sha\\\": \\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\", \\\"summary\\\": \\\"fixture passed\\\", \\\"findings\\\": []}\"}}\n{\"type\": \"step_finish\", \"sessionID\": \"ses_fixture42\", \"part\": {\"reason\": \"stop\"}}\n"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.agent-opencode-finalize",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"agent.run\", \"stage\": \"finalize\", \"backend\": \"opencode\"}",
+          "exit": 0,
+          "stdout_contains": [
+            "\"ok\""
+          ]
+        }
+      ],
+      "transport": {
+        "opencode": [
+          {
+            "prefix": [
+              "run"
+            ],
+            "stdin_contains": [
+              "Assigned task (JSON):",
+              "\"number\": 1"
+            ],
+            "stdout": "{\"type\": \"step_start\", \"sessionID\": \"ses_fixture42\"}\n{\"type\": \"text\", \"sessionID\": \"ses_fixture42\", \"part\": {\"text\": \"{\\\"verdict\\\": \\\"pass\\\", \\\"pr_url\\\": \\\"https://github.com/owner/repo/pull/9\\\", \\\"head_sha\\\": \\\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\\\", \\\"summary\\\": \\\"fixture passed\\\", \\\"findings\\\": []}\"}}\n{\"type\": \"step_finish\", \"sessionID\": \"ses_fixture42\", \"part\": {\"reason\": \"stop\"}}\n"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.agent-opencode-incomplete",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"agent.run\", \"stage\": \"build\", \"backend\": \"opencode\"}",
+          "exit": 1,
+          "stdout_contains": [
+            "\"error\""
+          ]
+        }
+      ],
+      "transport": {
+        "opencode": [
+          {
+            "prefix": [
+              "run"
+            ],
+            "stdout": "{\"type\": \"step_start\", \"sessionID\": \"ses_fixture42\"}\n"
+          }
+        ]
+      }
+    },
+    {
+      "id": "runtime.pinned-stack-reopen",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"state.trace\", \"task\": {\"number\": 1, \"phase\": \"interrupted\", \"resume_stage\": \"build\", \"branch\": \"codex/1-worklane\", \"base\": \"parent\", \"base_sha\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"stack\": [{\"number\": 2, \"branch\": \"parent\", \"base\": \"main\", \"head_sha\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"reviewed_head\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\", \"pr_url\": \"https://github.com/owner/repo/pull/2\"}]}, \"actions\": [{\"kind\": \"session\", \"id\": \"00000000-0000-0000-0000-000000000042\"}, {\"kind\": \"recover\"}, {\"kind\": \"reopen\"}, {\"kind\": \"snapshot\"}]}",
+          "stdout_contains": [
+            "\"base_sha\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"",
+            "\"phase\": \"interrupted\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "runtime.controller-question-build",
+      "steps": [
+        {
+          "stdin": "{\"op\": \"controller.run\", \"argv\": [\"run\", \"--once\", \"--project\", \"owner/2\", \"--workers\", \"1\", \"--harness\", \"opencode\"]}",
+          "stdout_contains": [
+            "Worklane: owner/repo",
+            "worker-1: #42 Question 界",
+            "\"ok\": 0"
+          ]
+        }
+      ],
+      "transport": {
+        "gh": [
+          {
+            "prefix": [
+              "project",
+              "view"
+            ],
+            "stdout": "{\"id\": \"project-id\", \"number\": 2, \"title\": \"repo\", \"closed\": false, \"url\": \"https://github.com/users/owner/projects/2\", \"owner\": {\"login\": \"owner\"}}"
+          },
+          {
+            "prefix": [
+              "project",
+              "field-list"
+            ],
+            "stdout": "{\"fields\": [{\"id\": \"status-id\", \"name\": \"Status\", \"options\": [{\"id\": \"ready-for-work\", \"name\": \"Ready for work\"}, {\"id\": \"in-progress\", \"name\": \"In Progress\"}, {\"id\": \"agent-review\", \"name\": \"Agent review\"}, {\"id\": \"human-review\", \"name\": \"Human review\"}, {\"id\": \"draft\", \"name\": \"Draft\"}, {\"id\": \"shaping\", \"name\": \"Shaping\"}]}]}"
+          },
+          {
+            "argv": [
+              "auth",
+              "setup-git",
+              "--hostname",
+              "github.com"
+            ]
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"items\": {\"nodes\": [{\"id\": \"item-id\", \"fieldValueByName\": {\"name\": \"Ready for work\"}, \"content\": {\"state\": \"OPEN\", \"number\": 42, \"title\": \"Question \\u754c\", \"body\": \"Investigate only\", \"url\": \"https://github.com/owner/repo/issues/42\", \"repository\": {\"nameWithOwner\": \"owner/repo\"}, \"issueDependenciesSummary\": {\"blockedBy\": 0}}}], \"totalCount\": 1, \"pageInfo\": {\"hasNextPage\": false, \"endCursor\": null}}}}}",
+            "stdin_contains": [
+              "items(first:100"
+            ]
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdout": "{\"data\": {\"repository\": {\"issue\": {\"issueDependenciesSummary\": {\"blockedBy\": 0}}}}}",
+            "stdin_contains": [
+              "issueDependenciesSummary"
+            ]
+          },
+          {
+            "prefix": [
+              "issue",
+              "view"
+            ],
+            "stdout": "{\"state\": \"OPEN\", \"number\": 42, \"title\": \"Question \\u754c\", \"body\": \"Investigate only\", \"url\": \"https://github.com/owner/repo/issues/42\", \"repository\": {\"nameWithOwner\": \"owner/repo\"}, \"issueDependenciesSummary\": {\"blockedBy\": 0}, \"labels\": [{\"name\": \"question\"}], \"comments\": []}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"project\": {\"id\": \"project-id\"}, \"fieldValueByName\": {\"name\": \"Ready for work\"}}}}",
+            "stdin_contains": [
+              "ProjectV2Item"
+            ]
+          },
+          {
+            "prefix": [
+              "project",
+              "item-edit"
+            ]
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"project\": {\"id\": \"project-id\"}, \"fieldValueByName\": {\"name\": \"In Progress\"}}}}",
+            "stdin_contains": [
+              "ProjectV2Item"
+            ]
+          },
+          {
+            "prefix": [
+              "issue",
+              "view"
+            ],
+            "stdout": "{\"comments\": []}"
+          },
+          {
+            "prefix": [
+              "issue",
+              "comment"
+            ],
+            "stdin_contains": [
+              "Investigated"
+            ]
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"project\": {\"id\": \"project-id\"}, \"fieldValueByName\": {\"name\": \"In Progress\"}}}}",
+            "stdin_contains": [
+              "ProjectV2Item"
+            ]
+          },
+          {
+            "prefix": [
+              "project",
+              "item-edit"
+            ]
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"project\": {\"id\": \"project-id\"}, \"fieldValueByName\": {\"name\": \"Agent review\"}}}}",
+            "stdin_contains": [
+              "ProjectV2Item"
+            ]
+          }
+        ],
+        "opencode": [
+          {
+            "argv": [
+              "auth",
+              "list"
+            ]
+          },
+          {
+            "prefix": [
+              "run"
+            ],
+            "stdin_contains": [
+              "Assigned task (JSON):",
+              "\"question\": true"
+            ],
+            "stdout": "{\"type\": \"step_start\", \"sessionID\": \"ses_question42\"}\n{\"type\": \"text\", \"sessionID\": \"ses_question42\", \"part\": {\"text\": \"{\\\"verdict\\\": \\\"pass\\\", \\\"pr_url\\\": \\\"\\\", \\\"head_sha\\\": \\\"\\\", \\\"summary\\\": \\\"Investigated \\\\u754c\\\", \\\"findings\\\": []}\"}}\n{\"type\": \"step_finish\", \"sessionID\": \"ses_question42\", \"part\": {\"reason\": \"stop\"}}\n"
+          }
+        ]
+      },
+      "sqlite": [
+        {
+          "path": "state/worklane/owner--repo/state.sqlite3",
+          "query": "SELECT number,phase FROM tasks"
+        },
+        {
+          "path": "state/worklane/owner--repo/state.sqlite3",
+          "query": "SELECT role,backend,session_id FROM sessions"
+        },
+        {
+          "path": "state/worklane/owner--repo/state.sqlite3",
+          "query": "SELECT role,stage,status FROM runs"
+        }
+      ],
+      "observe_files": [
+        "state/worklane/owner--repo/worktrees/42/README.fixture"
+      ]
+    }
+  ]
+}

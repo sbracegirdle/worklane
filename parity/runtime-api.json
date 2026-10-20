@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "encoding": "UTF-8; UTC ISO-8601; integer and boolean are distinct; absent is not empty",
+  "errors": {"fields": ["kind", "message", "retry_at?", "remaining_pids?"], "kinds": ["validation", "io", "sqlite", "github", "quota", "interrupted", "blocked", "conflict", "not_found", "busy"]},
+  "types": {
+    "Repository": {"repo": "owner/name", "root": "absolute path", "default_branch": "string|null"},
+    "Result": {"verdict": "pass|changes_requested|blocked", "pr_url": "string", "head_sha": "string", "summary": "string", "findings": "string[]"},
+    "Session": {"number": "integer", "role": "worker|reviewer|finalizer", "session_id": "string", "backend": "codex|opencode", "model": "string", "worktree": "absolute path", "created_at": "UTC", "updated_at": "UTC"},
+    "StackEdge": {"number": "integer", "pr_url": "string", "branch": "string", "base": "string", "head_sha": "40 lowercase hex", "reviewed_head": "40 lowercase hex"},
+    "Task": {"number": "integer", "phase": "string", "branch": "string?", "base": "string?", "base_sha": "40 lowercase hex?", "head_sha": "string?", "stack": "StackEdge[]?", "sessions": "map<Role,Session>?", "other_fields": "lossless typed pinned State values; preserve every source field"},
+    "Run": {"id": "string", "number": "integer", "role": "Role", "stage": "build|review|finalize", "session_id": "string|null", "status": "starting|running|completed|failed|interrupted", "started_at": "UTC", "finished_at": "UTC|null", "pid": "integer|null", "identity": "string|null", "worktree": "path", "error": "string|null", "result": "Result|null"},
+    "Input": {"text": "string, 1..8000 characters after strip", "status": "pending|sending"},
+    "Log": {"id": "integer", "run_id": "string|null", "stream": "string", "content": "string", "created_at": "UTC"},
+    "ProcessRef": {"pid": "integer", "birth": "string"},
+    "Command": {"argv": "string[]", "cwd": "absolute path", "stdin": "string|null", "timeout": "seconds", "environment": "map<string,string>"},
+    "CommandResult": {"stdout": "string", "stderr": "string", "exit": "integer including negative signal semantics"},
+    "IssueDraft": {"number": "integer|null", "title": "string", "body": "string", "status": "string", "original": "source snapshot for drift comparison|null"},
+    "SearchResult": {"row": "role/run/session snapshot", "log": "Log|null", "text": "string", "position": "casefold-aware display offset"}
+  },
+  "interfaces": {
+    "ConfigStore": {
+      "resolve(checkout, explicit_overrides)": "EffectiveConfig from inventory.config; validation errors never fall back",
+      "save(checkout, complete_values)": "EffectiveConfig; atomic replace, fsync, cleanup on failure"
+    },
+    "RepositoryLocator": {
+      "locate(path)": "Repository",
+      "project(repository, explicit_project, required_statuses, load_fields)": "Board identity, status field/options; no ambiguity guessing"
+    },
+    "StateStore": {
+      "open(repository, state_root)": "schema-versioned handle; migrations under controller lock",
+      "load(number)|all()|save(Task)": "Task|Task[]|committed Task; session mappings cannot be erased by stale saves",
+      "begin_run(Task, Stage, worktree)": "run ID, committed active assignment",
+      "attach_process(run_id, Task, ProcessRef)": "committed process identity",
+      "record_events(run_id, events, model, backend, wire)": "atomic events/logs/session mapping",
+      "queue_input(run_id, text)": "accepted Input or error; requires still-active saved session",
+      "advance_run(run_id, Result|null)": "string[] pending delivery; completion and input consumption atomic",
+      "finish_run(run_id, status, error, result)|recover_runs()": "committed invocation outcomes, preserving history",
+      "get_meta(key, default)|set_meta(key, value)": "lossless typed values, not serialized payload blobs",
+      "request_stop(immediate)|paused()|pause(value)|running()": "durable monotonic stop latch, pause state, exact controller liveness"
+    },
+    "GitHubTransport": {
+      "call(Command)": "CommandResult or quota/API failure; preserve stdout/error-body classification",
+      "pages(query, variables, cursor)": "all ordered nodes; repeated/missing cursor and incomplete total fail closed",
+      "budget.check()|record(error)|clear(previous)": "shared durable cooldown; preserve concurrent failures"
+    },
+    "AgentHarness": {
+      "selection(role, saved_session)": "effective backend/model; saved session wins",
+      "prepare(stage, Task, worktree, Session|null, prompt, result_schema, memory_fds)": "Command, effective environment and wire decoder",
+      "run(stage, Task, worktree, extra)": "Result after durable events and queued follow-ups; never silently replace sessions",
+      "resume(Session)": "interactive exact-ID invocation under controller lock; same worktree/harness",
+      "metadata(Session, Task, primary_root)": "name/project update; warning on transport failure without discarding session"
+    },
+    "ProcessSupervisor": {
+      "owned(roots, tokens, known)|signal_owned(processes, signal)": "exact birth-checked descendants; exclude unrelated processes",
+      "terminate_owned(roots, tokens, grace, known)": "remaining PID[] after TERM/KILL; never claim success with survivors",
+      "controller_lock(repository)|launch_lock(repository)|dispatch_lock(repository)": "guards with pinned inheritance and boundary semantics"
+    },
+    "Workflow": {
+      "pick(item, slot)|recover(items, slot)": "authorized Task|null, persisted before launch",
+      "execute(Task, review)|reconcile_completed(items, active)|reconcile_waiting(items, active)": "durable state transitions and bounded effects",
+      "dependencies_ready(item, Task|null)|validate_stack(Task)|reconcile_stacks(items, active)": "all native blockers, exact pinned provenance and recovery; no dropped edges",
+      "poll_human_feedback(items, active)|feedback_quiet(Task)": "batched durable authorized feedback, 300-second quiet window",
+      "verify_pr(Task, SHA)|review_threads(url)|post(Task, stage, Result)": "exact head/branch/base checks, complete discussions, idempotent comments"
+    },
+    "ReadModel": {
+      "snapshot(selected)|issue_groups(rows)": "read-only task/role tree and latest invocation activity",
+      "logs(number, raw)|search(query, rows, limit=100)|search_context(result)": "full logs, literal casefold search, bounded historical context",
+      "cached_page(kind, key, loader)|pr_status(Task)": "persisted 60-second cache with stale/offline state",
+      "wrap(text, cells)|clip(text, cells)": "lossless Unicode display-cell semantics"
+    },
+    "Actions": {
+      "controller(start|stop|stop_now, options)": "same runtime authorization and settings as CLI",
+      "load_editor(number|null)|save_editor(IssueDraft)": "validated drift-aware issue/board mutation; partial-write recovery",
+      "open_pr(Task)|resume_session(number, role)|queue_input(run_id, text)": "focused selection, exact session, visible failure"
+    }
+  },
+  "fixtures": {
+    "cli": "fixtures/cli.json: real argv and terminal interactions",
+    "runtime": "fixtures/runtime.json: test-only JSON operations mapped by port_reference_driver.py",
+    "oracle_cases": "inventory.checks: pinned test setup, controlled responses and all assertions; each remains mandatory",
+    "dependencies": "clock, monotonic clock, ID source, transport, filesystem, terminal and process supervisor are injectable",
+    "independence": "CLI and TUI consume the same runtime library and frozen fixtures; neither needs the other's implementation"
+  }
+}

@@ -4,3 +4,4 @@ GitHub errors retain retry deadlines; saved configuration preserves Unicode issu
 Browser actions preserve cached PR lookups, server quota waits, and launched browser processes.
 Quota failures are journaled once across transport, workflow, and controller boundaries.
 Lifecycle parity uses disposable repositories and saved turns, preserving exact sessions through restack recovery.
+Malformed saved stacks block execution; missing stack fields remain compatible.

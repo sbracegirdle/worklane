@@ -106,7 +106,8 @@ def main():
            'WORKLANE_NATIVE_LIFECYCLE_EVIDENCE':str(EVIDENCE/'native-lifecycle.json'),
            'WORKLANE_NATIVE_RESTACK_EVIDENCE':str(EVIDENCE/'native-restack.json'),
            'WORKLANE_NATIVE_STORAGE_EVIDENCE':str(EVIDENCE/'native-storage.json'),
-           'WORKLANE_NATIVE_RECONCILIATION_EVIDENCE':str(EVIDENCE/'native-reconciliation.json')}
+           'WORKLANE_NATIVE_RECONCILIATION_EVIDENCE':str(EVIDENCE/'native-reconciliation.json'),
+           'WORKLANE_NATIVE_STACK_SHAPE_EVIDENCE':str(EVIDENCE/'native-stack-shape.json')}
     commands = [
         ['cargo','fmt','--all','--check'],
         ['cargo','clippy','--all-targets','--locked','--offline','--','-D','warnings'],
@@ -119,6 +120,14 @@ def main():
         ['git','diff','--check'],
         ['git','diff','--cached','--check'],
     ]
+    failure_path=EVIDENCE/'native-failures.json'
+    if failure_path.exists():
+        failure_cases=json.loads(failure_path.read_text()).get('results',[])
+        if failure_cases:
+            command=['uv','run','--no-project','python','tools/native_parity.py','--fixtures','parity/fixtures/failures.json']
+            for case in failure_cases:command.extend(['--case',case['id']])
+            command.append(str(failure_path))
+            commands.insert(6,command)
     full_run=not (args.assess_only or args.refresh_native)
     results = [] if full_run else previous.get('commands',[])
     targeted=previous.get('targeted_commands',[]) if args.assess_only else []
@@ -128,7 +137,9 @@ def main():
         native_modules=[Path(path).stem for path in ACCEPTANCE.values()]
         native_modules+=['test_native_workflow','test_native_lifecycle','test_native_actions',
                          'test_native_security','test_native_gate','test_native_plan']
-        selected=commands[:3]+[['uv','run','--no-project','python','-m','unittest','-q',*native_modules]]+commands[4:6]+commands[7:]
+        native_modules+=['test_native_stack_shape']
+        selected=commands[:3]+[['uv','run','--no-project','python','-m','unittest','-q',*native_modules]]+[
+            command for command in commands[4:] if command!=['uv','run','--no-project','python','-m','unittest','-q','test_native_security']]
     for index, command in enumerate(selected):
         prefix='native-refresh' if args.refresh_native else 'validation'
         log = Path(f'/tmp/worklane50-{prefix}-{index}.log')
@@ -175,6 +186,7 @@ def main():
               'boundary_checks':len(boundary['results']),
               'supplemental_workflow_scenarios':len(workflow['results']),
               'supplemental_lifecycle_scenarios':len(lifecycle['results']),
+              'supplemental_stack_shape_scenarios':len(json.loads((EVIDENCE/'native-stack-shape.json').read_text())['results']) if (EVIDENCE/'native-stack-shape.json').exists() else 0,
               'portable_cases':len(runtime['results']),
               'security_fixtures':{'passed':sum(row['status']=='pass' for row in security['results']),
                                    'total':len(security['results']),'candidate_runtime':security['candidate_runtime']},

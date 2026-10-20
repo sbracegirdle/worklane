@@ -13,6 +13,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('output', nargs='?', type=Path, default=ROOT/'parity/evidence/native-runtime.json')
     parser.add_argument('--fixtures', type=Path, default=ROOT/'parity/fixtures/runtime.json')
+    parser.add_argument('--case',action='append',dest='cases',help='Run named registered cases; retain all other obligations as unverified.')
     args = parser.parse_args()
     binary = ROOT / 'target/debug/runtime-fixture-adapter'
     if not binary.read_bytes().startswith(b'\x7fELF'):
@@ -29,13 +30,16 @@ def main():
               'release_sha256':hashlib.sha256(binary.read_bytes()).hexdigest(), 'results':[]}
     excluded = {'runtime.terminal-initialization-error',
                 'runtime.terminal-missing-backend', 'runtime.terminal-interrupt'}
-    report['unverified_cases'] = sorted(excluded & {f['id'] for f in fixtures['scenarios']})
+    identifiers={f['id'] for f in fixtures['scenarios']}
+    selected=set(args.cases) if args.cases else identifiers
+    if selected-identifiers:parser.error('Unknown registered cases: '+', '.join(sorted(selected-identifiers)))
+    report['unverified_cases'] = sorted((identifiers-selected)|(excluded&identifiers))
     with tempfile.TemporaryDirectory() as directory:
         source = Path(directory)
         reference(source, inventory['revision'])
         oracle = [sys.executable,str(ROOT/'tools/port_reference_driver.py'),'--source',str(source)]
         for fixture in fixtures['scenarios']:
-            if fixture['id'] in excluded:
+            if fixture['id'] in excluded or fixture['id'] not in selected:
                 continue
             try:
                 expected = execute(oracle, fixture)

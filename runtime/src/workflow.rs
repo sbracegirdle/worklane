@@ -39,6 +39,23 @@ fn remove(v: &mut Value, keys: &[&str]) {
 fn list(v: &Value) -> Vec<Value> {
     v.as_array().cloned().unwrap_or_default()
 }
+fn saved_stack(task: &Value) -> Result<&[Value]> {
+    let object = task.as_object().ok_or_else(|| {
+        Error::new(
+            "validation",
+            "Saved task must be an object; inspect its history before continuing.",
+        )
+    })?;
+    match object.get("stack") {
+        None => Ok(&[]),
+        Some(value) => value.as_array().map(Vec::as_slice).ok_or_else(|| {
+            Error::new(
+                "validation",
+                "Saved task stack must be a list; inspect its history before continuing.",
+            )
+        }),
+    }
+}
 fn required_array<'a>(value: &'a Value, label: &str) -> Result<&'a Vec<Value>> {
     value.as_array().ok_or_else(|| {
         Error::new(
@@ -594,7 +611,7 @@ impl Workflow {
         let mut stack = Vec::new();
         if let Some(p) = parents.pop() {
             let parent = self.state.load(p["number"].as_i64().unwrap())?;
-            stack = list(&parent["stack"]);
+            stack = saved_stack(&parent)?.to_vec();
             stack.push(p);
             let numbers = stack
                 .iter()
@@ -682,7 +699,7 @@ impl Workflow {
                     .unwrap_or("Restack is incomplete."),
             );
         }
-        for e in list(&task["stack"]) {
+        for e in saved_stack(task)?.iter().cloned() {
             let (_, p) = self.reviewed_parent(e["number"].as_i64().unwrap_or(0))?;
             if p["headRefName"] != e["branch"]
                 || p["baseRefName"] != e["base"]
@@ -884,7 +901,7 @@ impl Workflow {
         Ok(path)
     }
     pub fn verify_stack_ancestry(&self, task: &Value, tree: &Path) -> Result<()> {
-        for e in list(&task["stack"]) {
+        for e in saved_stack(task)?.iter().cloned() {
             if self
                 .command(
                     &[
@@ -1666,6 +1683,7 @@ impl Workflow {
         Ok(())
     }
     pub fn restack(&self, task: &mut Value, remaining: &[Value], item: &mut Value) -> Result<()> {
+        saved_stack(task)?;
         self.board.require_safe()?;
         let target = remaining
             .last()
@@ -1831,6 +1849,9 @@ impl Workflow {
     pub fn reconcile_stacks(&mut self, items: &mut [Value], active: &BTreeSet<i64>) -> Result<()> {
         self.stack_items = items.to_vec();
         let mut tasks = self.state.all()?;
+        for task in &tasks {
+            saved_stack(task)?;
+        }
         tasks.sort_by_key(|t| list(&t["stack"]).len());
         for mut task in tasks {
             let n = task["number"].as_i64().unwrap();
@@ -1958,5 +1979,34 @@ mod recovery_tests {
         state.save(&mut task).unwrap();
         workflow(&state).recover_tasks().unwrap();
         assert_eq!(state.load(1).unwrap()["resume_stage"], "finalize");
+    }
+    #[test]
+    fn malformed_saved_stack_cannot_skip_ancestry_or_launch_a_turn() {
+        let root = tempfile::tempdir().unwrap();
+        let state = StateStore::open("owner/repo", Some(root.path())).unwrap();
+        let mut flow = workflow(&state).with_commands(std::sync::Arc::new(|_| {
+            panic!("Malformed saved ancestry must fail before any Git command")
+        }));
+        for value in [
+            Value::Null,
+            json!(false),
+            json!(17),
+            json!("bad"),
+            json!({"number":2}),
+        ] {
+            let mut task = json!({"number":1,"phase":"building","stack":value});
+            state.save(&mut task).unwrap();
+            assert!(flow.validate_stack(&task).is_err());
+            assert!(flow.verify_stack_ancestry(&task, &state.path).is_err());
+            assert!(flow.reconcile_stacks(&mut [], &BTreeSet::new()).is_err());
+            assert!(flow.execute(&mut task, false, -1).is_err());
+            assert_eq!(task["phase"], "blocked");
+            assert_eq!(state.load(1).unwrap()["stack"], value);
+            assert!(state.runs(Some(1)).unwrap().is_empty());
+        }
+        for task in [json!({"number":1}), json!({"number":1,"stack":[]})] {
+            flow.validate_stack(&task).unwrap();
+            flow.verify_stack_ancestry(&task, &state.path).unwrap();
+        }
     }
 }

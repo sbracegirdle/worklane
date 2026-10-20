@@ -1,4 +1,6 @@
 //! Test-only driver. Production frontends call the library directly.
+#[path = "runtime-fixture-adapter/guards.rs"]
+mod guards;
 use serde_json::{Value, json};
 use std::{
     io::{self, Read},
@@ -1178,6 +1180,20 @@ fn main() {
     let detailed = request
         .as_ref()
         .is_ok_and(|v| v["real_dependencies"] == true);
+    if let Ok(value) = &request {
+        if value["op"] == "guard.invoke" {
+            match guards::invoke(value) {
+                Ok((output, code)) => {
+                    println!("{}", harness::python_json(&output));
+                    std::process::exit(code);
+                }
+                Err(error) => {
+                    println!("{}", harness::python_json(&json!({"error":error.message})));
+                    std::process::exit(1);
+                }
+            }
+        }
+    }
     let result = request.and_then(|v| run(&v));
     match result {
         Ok(output) => println!("{}", harness::python_json(&json!({"ok":output}))),

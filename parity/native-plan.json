@@ -1,7 +1,7 @@
 {
   "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
   "inventory_sha256": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
-  "binary_sha256": "75f15107726162e2f54d86a4e71b01d2b6f3c735c4bedf5c232baf3b60f797d6",
+  "binary_sha256": "434e6509a5d5c5c722f62addd274a0a3577eb6f51a52be3aa33cff1b66c12240",
   "report_admission": {
     "native-acceptance": {
       "admitted": true,
@@ -35,10 +35,14 @@
     "native-security": {
       "admitted": true,
       "reason": null
+    },
+    "native-failures": {
+      "admitted": true,
+      "reason": null
     }
   },
-  "verified_count": 200,
-  "remaining_count": 559,
+  "verified_count": 206,
+  "remaining_count": 553,
   "verified_rows": [
     "test_config.ConfigTests.test_defaults_are_read_only_and_config_is_per_checkout",
     "test_config.ConfigTests.test_invalid_config_has_path_and_never_silently_uses_defaults",
@@ -160,6 +164,12 @@
     "test_worklane.GitHubErrorTests.test_rate_limit_is_distinguished_from_other_errors",
     "test_worklane.GitHubErrorTests.test_project_owner_error_reports_underlying_rate_limit",
     "test_worklane.GitHubErrorTests.test_real_owner_error_is_not_misreported_as_rate_limit",
+    "fixture.runtime.guard.build.blocked-result",
+    "fixture.runtime.guard.build.pass-with-findings",
+    "fixture.runtime.guard.build.question-created-pr",
+    "fixture.runtime.guard.build.invalid-sha",
+    "fixture.runtime.guard.build.wrong-head",
+    "fixture.runtime.guard.build.dirty-worktree",
     "fixture.runtime.config-defaults",
     "fixture.runtime.config-roles",
     "fixture.runtime.invalid-workers-True",
@@ -764,12 +774,6 @@
         "constant.worklane_harness.py.MODEL",
         "constant.worklane_harness.py.HARNESSES",
         "constant.worklane_process.py.OWNER_ENV",
-        "fixture.runtime.guard.build.blocked-result",
-        "fixture.runtime.guard.build.pass-with-findings",
-        "fixture.runtime.guard.build.question-created-pr",
-        "fixture.runtime.guard.build.invalid-sha",
-        "fixture.runtime.guard.build.wrong-head",
-        "fixture.runtime.guard.build.dirty-worktree",
         "fixture.runtime.guard.review.blocked-result",
         "fixture.runtime.guard.review.modified-worktree",
         "fixture.runtime.guard.stack.pending-restack",
@@ -6427,8 +6431,9 @@
         "runtime/src/workflow.rs",
         "runtime/src/controller.rs"
       ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "pending"
+      "implementation_status": "Malformed saved stack handling fixed; complete source audit and frozen suite obligations remain pending.",
+      "audit_status": "pending",
+      "source_review": "parity/source-review.json#source.worklane.py.Runner.dependencies_ready"
     },
     {
       "id": "source.worklane.py.Runner.reviewed_parent",
@@ -6487,8 +6492,9 @@
         "runtime/src/workflow.rs",
         "runtime/src/controller.rs"
       ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "pending"
+      "implementation_status": "Malformed saved stack handling fixed; complete source audit and frozen suite obligations remain pending.",
+      "audit_status": "pending",
+      "source_review": "parity/source-review.json#source.worklane.py.Runner.validate_stack"
     },
     {
       "id": "source.worklane.py.Runner.reconcile_stacks",
@@ -6517,8 +6523,9 @@
         "runtime/src/workflow.rs",
         "runtime/src/controller.rs"
       ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "pending"
+      "implementation_status": "Malformed saved stack handling fixed; complete source audit and frozen suite obligations remain pending.",
+      "audit_status": "pending",
+      "source_review": "parity/source-review.json#source.worklane.py.Runner.reconcile_stacks"
     },
     {
       "id": "source.worklane.py.Runner.restack",
@@ -6907,8 +6914,9 @@
         "runtime/src/workflow.rs",
         "runtime/src/controller.rs"
       ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "pending"
+      "implementation_status": "Malformed saved stack handling fixed; complete source audit and frozen suite obligations remain pending.",
+      "audit_status": "pending",
+      "source_review": "parity/source-review.json#source.worklane.py.Runner.verify_stack_ancestry"
     },
     {
       "id": "source.worklane.py.Runner.verify_pr",
@@ -9734,9 +9742,8 @@
       "original_checks": [
         "fixture:runtime.guard.build.blocked-result"
       ],
-      "missing_proof_set": "2a6a406b5583c50f",
+      "missing_proof_set": "4f53cda18c2baa0c",
       "obligations": [
-        "executable_assertion",
         "source_audit"
       ],
       "candidate_files_to_review": [
@@ -9756,9 +9763,8 @@
       "original_checks": [
         "fixture:runtime.guard.build.pass-with-findings"
       ],
-      "missing_proof_set": "215ca76aaac96a52",
+      "missing_proof_set": "4f53cda18c2baa0c",
       "obligations": [
-        "executable_assertion",
         "source_audit"
       ],
       "candidate_files_to_review": [
@@ -10551,9 +10557,8 @@
       "original_checks": [
         "fixture:runtime.guard.build.question-created-pr"
       ],
-      "missing_proof_set": "60d68d6cce151fef",
+      "missing_proof_set": "4f53cda18c2baa0c",
       "obligations": [
-        "executable_assertion",
         "source_audit"
       ],
       "candidate_files_to_review": [
@@ -10573,9 +10578,8 @@
       "original_checks": [
         "fixture:runtime.guard.build.invalid-sha"
       ],
-      "missing_proof_set": "c39cf911c59c2e73",
+      "missing_proof_set": "4f53cda18c2baa0c",
       "obligations": [
-        "executable_assertion",
         "source_audit"
       ],
       "candidate_files_to_review": [
@@ -10595,9 +10599,8 @@
       "original_checks": [
         "fixture:runtime.guard.build.wrong-head"
       ],
-      "missing_proof_set": "1483c685d36495cb",
+      "missing_proof_set": "4f53cda18c2baa0c",
       "obligations": [
-        "executable_assertion",
         "source_audit"
       ],
       "candidate_files_to_review": [
@@ -10617,9 +10620,8 @@
       "original_checks": [
         "fixture:runtime.guard.build.dirty-worktree"
       ],
-      "missing_proof_set": "e9d7b7e591f4a386",
+      "missing_proof_set": "4f53cda18c2baa0c",
       "obligations": [
-        "executable_assertion",
         "source_audit"
       ],
       "candidate_files_to_review": [
@@ -12293,132 +12295,6 @@
       ],
       "implementation_status": "Review required; absent proof does not establish absent implementation.",
       "audit_status": "pending"
-    },
-    {
-      "id": "fixture.runtime.guard.build.blocked-result",
-      "batch": "audits",
-      "source": "parity/fixtures/failures.json",
-      "original_stage": "runtime",
-      "original_checks": [
-        "fixture:runtime.guard.build.blocked-result"
-      ],
-      "missing_proof_set": "2a6a406b5583c50f",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/bin/runtime-fixture-adapter.rs",
-        "tools/native_parity.py",
-        "tools/port_gate.py",
-        "parity/failure-checks.json"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
-    },
-    {
-      "id": "fixture.runtime.guard.build.pass-with-findings",
-      "batch": "audits",
-      "source": "parity/fixtures/failures.json",
-      "original_stage": "runtime",
-      "original_checks": [
-        "fixture:runtime.guard.build.pass-with-findings"
-      ],
-      "missing_proof_set": "215ca76aaac96a52",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/bin/runtime-fixture-adapter.rs",
-        "tools/native_parity.py",
-        "tools/port_gate.py",
-        "parity/failure-checks.json"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
-    },
-    {
-      "id": "fixture.runtime.guard.build.question-created-pr",
-      "batch": "audits",
-      "source": "parity/fixtures/failures.json",
-      "original_stage": "runtime",
-      "original_checks": [
-        "fixture:runtime.guard.build.question-created-pr"
-      ],
-      "missing_proof_set": "60d68d6cce151fef",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/bin/runtime-fixture-adapter.rs",
-        "tools/native_parity.py",
-        "tools/port_gate.py",
-        "parity/failure-checks.json"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
-    },
-    {
-      "id": "fixture.runtime.guard.build.invalid-sha",
-      "batch": "audits",
-      "source": "parity/fixtures/failures.json",
-      "original_stage": "runtime",
-      "original_checks": [
-        "fixture:runtime.guard.build.invalid-sha"
-      ],
-      "missing_proof_set": "c39cf911c59c2e73",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/bin/runtime-fixture-adapter.rs",
-        "tools/native_parity.py",
-        "tools/port_gate.py",
-        "parity/failure-checks.json"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
-    },
-    {
-      "id": "fixture.runtime.guard.build.wrong-head",
-      "batch": "audits",
-      "source": "parity/fixtures/failures.json",
-      "original_stage": "runtime",
-      "original_checks": [
-        "fixture:runtime.guard.build.wrong-head"
-      ],
-      "missing_proof_set": "1483c685d36495cb",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/bin/runtime-fixture-adapter.rs",
-        "tools/native_parity.py",
-        "tools/port_gate.py",
-        "parity/failure-checks.json"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
-    },
-    {
-      "id": "fixture.runtime.guard.build.dirty-worktree",
-      "batch": "audits",
-      "source": "parity/fixtures/failures.json",
-      "original_stage": "runtime",
-      "original_checks": [
-        "fixture:runtime.guard.build.dirty-worktree"
-      ],
-      "missing_proof_set": "e9d7b7e591f4a386",
-      "obligations": [
-        "executable_assertion"
-      ],
-      "candidate_files_to_review": [
-        "runtime/src/bin/runtime-fixture-adapter.rs",
-        "tools/native_parity.py",
-        "tools/port_gate.py",
-        "parity/failure-checks.json"
-      ],
-      "implementation_status": "Review required; absent proof does not establish absent implementation.",
-      "audit_status": "not required"
     },
     {
       "id": "fixture.runtime.guard.review.blocked-result",
@@ -14741,12 +14617,6 @@
     "f2d5db12c336073e": [
       "fixture:runtime.guard.worktree.missing-saved"
     ],
-    "2a6a406b5583c50f": [
-      "fixture:runtime.guard.build.blocked-result"
-    ],
-    "215ca76aaac96a52": [
-      "fixture:runtime.guard.build.pass-with-findings"
-    ],
     "79f2a1ae115ecc5d": [
       "test_worklane.WorklaneTests.test_conflicts_respect_round_limit_and_human_board_edits",
       "test_worklane.WorklaneTests.test_three_failed_reviews_require_inspection"
@@ -14831,18 +14701,6 @@
     ],
     "2387ec9f831e0884": [
       "fixture:runtime.guard.worktree.existing-local-branch"
-    ],
-    "60d68d6cce151fef": [
-      "fixture:runtime.guard.build.question-created-pr"
-    ],
-    "c39cf911c59c2e73": [
-      "fixture:runtime.guard.build.invalid-sha"
-    ],
-    "1483c685d36495cb": [
-      "fixture:runtime.guard.build.wrong-head"
-    ],
-    "e9d7b7e591f4a386": [
-      "fixture:runtime.guard.build.dirty-worktree"
     ],
     "b91657dcd8b2844e": [
       "fixture:runtime.guard.review.wrong-result-head"
@@ -18672,36 +18530,6 @@
       ],
       "reference_only_is_insufficient": true
     },
-    "fixture:runtime.guard.build.blocked-result": {
-      "batch": "audits",
-      "source": "parity/fixtures/failures.json",
-      "obligation": "Implement the registered fixture operation natively and compare exact observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "tools/native_parity.py",
-        "--fixtures",
-        "parity/fixtures/failures.json"
-      ],
-      "reference_only_is_insufficient": true
-    },
-    "fixture:runtime.guard.build.pass-with-findings": {
-      "batch": "audits",
-      "source": "parity/fixtures/failures.json",
-      "obligation": "Implement the registered fixture operation natively and compare exact observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "tools/native_parity.py",
-        "--fixtures",
-        "parity/fixtures/failures.json"
-      ],
-      "reference_only_is_insufficient": true
-    },
     "fixture:runtime.guard.review.blocked-result": {
       "batch": "audits",
       "source": "parity/fixtures/failures.json",
@@ -19053,66 +18881,6 @@
       "reference_only_is_insufficient": true
     },
     "fixture:runtime.guard.worktree.existing-local-branch": {
-      "batch": "audits",
-      "source": "parity/fixtures/failures.json",
-      "obligation": "Implement the registered fixture operation natively and compare exact observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "tools/native_parity.py",
-        "--fixtures",
-        "parity/fixtures/failures.json"
-      ],
-      "reference_only_is_insufficient": true
-    },
-    "fixture:runtime.guard.build.question-created-pr": {
-      "batch": "audits",
-      "source": "parity/fixtures/failures.json",
-      "obligation": "Implement the registered fixture operation natively and compare exact observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "tools/native_parity.py",
-        "--fixtures",
-        "parity/fixtures/failures.json"
-      ],
-      "reference_only_is_insufficient": true
-    },
-    "fixture:runtime.guard.build.invalid-sha": {
-      "batch": "audits",
-      "source": "parity/fixtures/failures.json",
-      "obligation": "Implement the registered fixture operation natively and compare exact observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "tools/native_parity.py",
-        "--fixtures",
-        "parity/fixtures/failures.json"
-      ],
-      "reference_only_is_insufficient": true
-    },
-    "fixture:runtime.guard.build.wrong-head": {
-      "batch": "audits",
-      "source": "parity/fixtures/failures.json",
-      "obligation": "Implement the registered fixture operation natively and compare exact observations.",
-      "reference_command": [
-        "uv",
-        "run",
-        "--no-project",
-        "python",
-        "tools/native_parity.py",
-        "--fixtures",
-        "parity/fixtures/failures.json"
-      ],
-      "reference_only_is_insufficient": true
-    },
-    "fixture:runtime.guard.build.dirty-worktree": {
       "batch": "audits",
       "source": "parity/fixtures/failures.json",
       "obligation": "Implement the registered fixture operation natively and compare exact observations.",

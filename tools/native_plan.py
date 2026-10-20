@@ -59,6 +59,8 @@ def candidate_files(row):
 
 def build(manifest, failures, admission):
     rows,proof_sets,checks,verified=[],{},{},[]
+    review_path=ROOT/'parity/source-review.json'
+    reviews={r['row']:r for r in json.loads(review_path.read_text()).get('reviews',[])} if review_path.exists() else {}
     for row in manifest['matrix']:
         if row['stage']!='runtime':continue
         failure=failures.get(row['id'])
@@ -87,6 +89,9 @@ def build(manifest, failures, admission):
             'obligations':obligations,'candidate_files_to_review':candidate_files(row),
             'implementation_status':'Review required; absent proof does not establish absent implementation.',
             'audit_status':'pending' if failure.get('source_audit_missing') else 'not required'})
+        if row['id'] in reviews:
+            rows[-1]['source_review']='parity/source-review.json#'+row['id']
+            rows[-1]['implementation_status']=reviews[row['id']]['implementation_status']
     batches={name:{**data,'row_ids':[r['id'] for r in rows if r['batch']==name]}
              for name,data in PACKAGES.items()}
     restacks=[r['id'] for r in rows if r['id'].startswith('test_stacking.RestackTests.')]

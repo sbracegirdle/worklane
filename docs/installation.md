@@ -1,5 +1,8 @@
 # Test unmerged CLI changes locally
 
+Native TUI preview: `cargo install --path runtime --bin worklane-tui --root /tmp/worklane-52-install --debug --locked --offline`.
+#53 wires `worklane`/`tui` to `worklane_runtime::tui::run(Options)`; `~/.local/bin/worklane`, `.venv/bin/worklane`, and controller must match reviewed-main native binaries.
+
 The CLI's source and the repository it manages are separate. A local integration
 checkout, draft PR branch, or exact commit can supply the CLI while `--repo`
 continues to select the project being managed. No merge into `main` or release is

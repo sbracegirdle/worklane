@@ -382,6 +382,31 @@ class Dashboard:
         self.root, self.options = Path(root or ".").resolve(), options or {}
         self.cache, self.page, self.jobs = ViewCache(state), None, {}
         self.editor = None
+        self.composing, self.draft, self.input_run = False, "", None
+
+    def send_input(self):
+        text = self.draft.strip()
+        if text == "/help":
+            self.message = "Text sends a message; /run COMMAND requests execution; /clear clears; Esc cancels. Delivery waits for the next turn."
+            self.draft = ""
+            return
+        if text == "/clear":
+            self.draft = ""
+            return
+        if text.startswith("/run ") and text[5:].strip():
+            text = "Run this command in the assigned session worktree, within existing safeguards:\n" + text[5:]
+        elif text.startswith("//"):
+            text = text[1:]
+        elif text.startswith("/"):
+            self.message = "Unknown or incomplete command. Use /help; // sends a literal slash."
+            return
+        try:
+            self.state.queue_input(self.input_run, text)
+        except (RuntimeError, sqlite3.Error) as error:
+            self.message = str(error)
+            return  # Keep the draft, including after a stale selection or database error.
+        self.composing, self.draft = False, ""
+        self.message = "Input queued for the selected session's next turn, before workflow handoff."
 
     def github(self, loader):
         token = worklane.GITHUB_BUDGET.set(worklane.GitHubBudget(self.state))
@@ -754,7 +779,11 @@ class Dashboard:
         for log in data["logs"]:
             content = log["content"]
             stream = log.get("stream", "agent")
-            if content.startswith("$ "):
+            if stream == "user":
+                speaker, kind = "YOU", "good"
+            elif stream == "input":
+                speaker, kind = "INPUT", "live"
+            elif content.startswith("$ "):
                 speaker, kind = "COMMAND", "live"
             elif content.startswith("Files:"):
                 speaker, kind = "FILES", "files"
@@ -837,13 +866,16 @@ class Dashboard:
             self.paint(screen, bottom + 1, [(f"  #{chosen['number']}  ", c.A_BOLD), (chosen["title"], 0)])
             self.put(screen, bottom + 2, f"  {chosen['role'].upper()}  ·  Session {session.get('session_id', 'not saved yet')}", c.A_DIM)
             self.put(screen, bottom + 3, f"  {session.get('worktree') or run.get('worktree', 'Worktree not created yet')}", c.A_DIM)
+            if self.composing:
+                draft = wrapped(self.draft, max(1, width - 6))[-1]
+                self.put(screen, bottom + 3, "  > " + draft + "▏", c.A_BOLD)
         elif chosen and not self.page and not self.editor:
             self.paint(screen, bottom + 1, [(f"  #{chosen['number']}  ", c.A_BOLD),
                                            (chosen["title"], 0), (f"  /  {chosen['role']}", self.colors.get("agent", 0))])
         error = chosen["task"].get("error") if chosen and not self.page and not self.jobs else None
         self.put(screen, height - 2, "  " + (self.message or error or "Select an issue to see sessions; Enter on a session opens its transcript."),
                  self.colors.get("warn", 0) if error and not self.message else c.A_DIM)
-        controls = "b / Esc / Enter / q back   PgUp / PgDn scroll   / search   End " + ("context" if self.searching else "follow")
+        controls = "m message  b/Esc/q back  PgUp/PgDn scroll  / search  End " + ("context" if self.searching else "follow")
         if self.searching and not self.detail:
             controls = "Enter search   Backspace edit   Esc cancel" if self.editing else "↑↓/jk select  Enter open  / edit  b/Esc/q back"
         elif not self.detail:
@@ -854,6 +886,8 @@ class Dashboard:
                 controls = "s start x stop i issue B board n new e edit / search ↑↓ select Enter open a resume q quit"
         if self.page:
             controls = "↑↓/jk select Enter/i issue n new e edit r refresh Esc back" if self.page["kind"] == "board" else "↑↓/PgUp/PgDn scroll e edit r refresh Esc back"
+        if self.composing:
+            controls = "Enter queue  Esc cancel  Ctrl-U clear  /help  /run COMMAND"
         if self.editor:
             controls = "Tab field  ←/→ status  F2 save  Esc cancel"
         self.put(screen, height - 1, "  " + controls, self.colors.get("live", 0))
@@ -911,6 +945,19 @@ class Dashboard:
             text_key = key if isinstance(key, str) else ""
             if isinstance(key, str) and len(key) == 1 and ord(key) < 256:
                 key = ord(key)
+            if self.composing:
+                if key == 27:
+                    self.composing, self.draft = False, ""
+                    self.message = "Input cancelled."
+                elif key in (10, 13, c.KEY_ENTER):
+                    self.send_input()
+                elif key in (8, 127, c.KEY_BACKSPACE):
+                    self.draft = self.draft[:-1]
+                elif key == 21:
+                    self.draft = ""
+                elif text_key and text_key.isprintable() and len(self.draft) < 8000:
+                    self.draft += text_key
+                continue
             if self.editor:
                 self.editor_key(key, text_key)
                 continue
@@ -986,6 +1033,15 @@ class Dashboard:
                     self.search_origin = (self.selected, self.focus, self.detail, self.offset)
                 self.searching, self.editing, self.detail = True, True, False
                 self.open_result = None
+                continue
+            if key == ord("m") and self.detail:
+                if self.searching:
+                    self.message = "Return to the live transcript to send input."
+                elif not chosen or not chosen["active"] or not chosen["session"]:
+                    self.message = "Open an active saved session to send input; use a after stopping Worklane."
+                else:
+                    self.composing, self.draft, self.input_run = True, "", chosen["run"]["id"]
+                    self.message = "Input for this session's next turn. /help lists basic commands."
                 continue
             if not self.detail and key in (ord("s"), ord("x")):
                 self.control("start" if key == ord("s") else "stop")

@@ -26,7 +26,7 @@ claim that SQLite would coordinate multiple distributed queue owners.
   keys and scalar types are preserved without serializing JSON blobs.
 - `sessions`: issue, role, exact session ID, backend/model, stable worktree and
   timestamps. `(issue, role)` is unique, and a session ID cannot belong to two roles.
-- `runs`: one invocation per row, including role/stage, session ID, process identity,
+- `runs`: one agent run per row, including role/stage, session ID, process identity,
   status, timing, worktree and error. Results reference typed database values.
 - `run_events`: event identity, invocation, type and timestamp; all event fields
   are stored as typed database values.
@@ -38,6 +38,7 @@ claim that SQLite would coordinate multiple distributed queue owners.
 Runtime settings use typed database values too. The schema version is SQLite's
 `user_version`. Empty process-lock files and Git worktrees remain on disk as
 operational resources; they are not parallel state/log stores.
+Session input queues use typed values; completion and new submissions serialize transactionally before workflow handoff.
 
 Human feedback uses nested task values: the acknowledged comment/review snapshot,
 the pending batch, its latest observation time and its handoff generation. New

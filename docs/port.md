@@ -14,7 +14,7 @@ Choose **Rust** for the complete port. Python remains operational until stage 5 
 
 ## Executable reference
 
-- Pin: `5b2e19c245af2a8b45b81706237cc6553c0d1bea`; planning baseline: `ed9b43bdb6ce25ce9339271ffa986446105f75dd`.
+- Pin: `8dff6c1c1a2b31e174b2a192032b004f8a5f898e`; planning baseline: `ed9b43bdb6ce25ce9339271ffa986446105f75dd`.
 - Include merged OpenCode, process-tree stopping, pinned stacks and hard completion gates; reuse #30/#38 behavior without reimplementing those tickets.
 - [Inventory](../parity/inventory.json): all source/doc hashes, symbol spans, parser defaults/aliases, configuration, terminal branches and explicit failures.
 - [Matrix](../parity/matrix.md): individual executable behavioral checks and owning stages; the JSON also indexes implementation branches.

@@ -413,6 +413,17 @@
           },
           {
             "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
               "project",
               "field-list"
             ],
@@ -432,10 +443,65 @@
               "-i",
               "graphql"
             ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
             "stdout": "{\"data\": {\"node\": {\"items\": {\"nodes\": [{\"id\": \"item-id\", \"fieldValueByName\": {\"name\": \"Ready for work\"}, \"content\": {\"state\": \"OPEN\", \"number\": 42, \"title\": \"Question \\u754c\", \"body\": \"Investigate only\", \"url\": \"https://github.com/owner/repo/issues/42\", \"repository\": {\"nameWithOwner\": \"owner/repo\"}, \"issueDependenciesSummary\": {\"blockedBy\": 0}}}], \"totalCount\": 1, \"pageInfo\": {\"hasNextPage\": false, \"endCursor\": null}}}}}",
             "stdin_contains": [
               "items(first:100"
             ]
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
           },
           {
             "prefix": [
@@ -454,6 +520,17 @@
               "view"
             ],
             "stdout": "{\"state\": \"OPEN\", \"number\": 42, \"title\": \"Question \\u754c\", \"body\": \"Investigate only\", \"url\": \"https://github.com/owner/repo/issues/42\", \"repository\": {\"nameWithOwner\": \"owner/repo\"}, \"issueDependenciesSummary\": {\"blockedBy\": 0}, \"labels\": [{\"name\": \"question\"}], \"comments\": []}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
           },
           {
             "prefix": [
@@ -485,6 +562,50 @@
           },
           {
             "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
+          },
+          {
+            "prefix": [
               "issue",
               "view"
             ],
@@ -498,6 +619,17 @@
             "stdin_contains": [
               "Investigated"
             ]
+          },
+          {
+            "prefix": [
+              "api",
+              "-i",
+              "graphql"
+            ],
+            "stdin_contains": [
+              "viewerCanUpdate"
+            ],
+            "stdout": "{\"data\": {\"node\": {\"public\": false, \"viewerCanUpdate\": true}, \"repository\": {\"viewerPermission\": \"ADMIN\"}}}"
           },
           {
             "prefix": [

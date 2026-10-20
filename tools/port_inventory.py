@@ -62,7 +62,7 @@ def build(revision):
     owners = {'worklane_tui.py': ('tui', ['test_tui','test_tui_editing','test_config']),
               'worklane_harness.py': ('runtime', ['test_harness','test_sessions']),
               'worklane_process.py': ('runtime', ['test_stop','test_harness']),
-              'worklane.py': ('runtime', ['test_worklane','test_sessions','test_human_feedback','test_dependencies','test_api_budget','test_stacking','test_stop','test_config','test_add_issue','test_installation'])}
+              'worklane.py': ('runtime', ['test_worklane','test_sessions','test_human_feedback','test_dependencies','test_api_budget','test_stacking','test_stop','test_config','test_add_issue','test_installation','test_security'])}
     for path in PRODUCTION:
         stage, modules = owners[path]
         for symbol in sources[path]['symbols']:
@@ -135,6 +135,9 @@ def build(revision):
     for fixture in fixtures:
         rows.append({'id':'fixture.' + fixture['id'], 'surface': fixture['id'], 'stage':'tui' if fixture['id'].startswith('tui.') else 'runtime' if fixture['id'].startswith('runtime.') else 'cli', 'source':fixture_owners[fixture['id']], 'checks':['fixture:' + fixture['id']]})
     return {'schema':1, 'revision':revision, 'planning_revision':'ed9b43bdb6ce25ce9339271ffa986446105f75dd',
+            'stage_issues':{'runtime':50,'cli':51,'tui':52,'cutover':53},
+            'security_ownership':{'shared_preflights_feedback_and_recovery':50,'cli_flags_reports_and_detached_options':51,
+                                  'tui_options_editing_and_interactive_controls':52,'complete_native_evidence_gate':53},
             'language':'Rust', 'failure_proof_sha256':hashlib.sha256(proof_path.read_bytes()).hexdigest(), 'fixture_cases':{str(p.relative_to(ROOT)):['fixture:' + f['id'] for f in json.loads(p.read_text())['scenarios']] for p in sorted((ROOT / 'parity/fixtures').glob('*.json'))}, 'fixture_sources':{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((ROOT / 'parity/fixtures').glob('*.json'))}, 'suites':{Path(p).stem:sorted(n for n in checks if n.startswith(Path(p).stem + '.')) for p in files if p.startswith('test_')}, 'sources':sources, 'checks':checks, 'parser':surfaces['parser'], 'config':surfaces['config'], 'matrix':rows}
 
 

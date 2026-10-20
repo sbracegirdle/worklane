@@ -1,12 +1,12 @@
 {
-  "inventory_sha256": "5362dd0a11c53b7d79320ef2634c04883cd84be2ba4f3bea8be049d2dc591a9d",
+  "inventory_sha256": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
   "reference_verified": true,
-  "fixtures_sha256": "ba69b245e3b2f3f50ea89e43abbc6570b596fe71cb568b4950844bf1a34ef35b",
+  "fixtures_sha256": "5729e123c74233ebe4dc622210b445041b7a02b8e272414beb2eafdc1be138e9",
   "candidate": [
     "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13",
     "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/worklane.py"
   ],
-  "reference": "5b2e19c245af2a8b45b81706237cc6553c0d1bea",
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
   "mode": "differential",
   "results": [
     {
@@ -17,7 +17,7 @@
         "steps": [
           {
             "exit": 0,
-            "stdout": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\n\nConfigurable workers and one independent reviewer for a GitHub project board.\n\npositional arguments:\n  {run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}\n                        Command to run; board opens the project board in your\n                        browser (default: tui)\n  number                Issue number for retry or logs\n\noptions:\n  -h, --help            show this help message and exit\n  --repo REPO           Local repository checkout (default: current directory)\n  --project PROJECT     GitHub board OWNER/NUMBER; auto-detected when\n                        unambiguous\n  -t, --title TITLE     With add: new issue title (required)\n  -d, --description, --body DESCRIPTION\n                        With add: issue description (default: empty)\n  --draft               With add: use the board's Draft status\n  --shaping             With add: use the board's Shaping status\n  --harness {codex,opencode}\n                        Default harness (default: codex)\n  --model MODEL         Default model override (Codex: gpt-6.1-sol; OpenCode:\n                        configured default)\n  --worker-harness {,codex,opencode}\n                        Harness override for worker; empty inherits default\n  --worker-model WORKER_MODEL\n                        Model override for worker\n  --reviewer-harness {,codex,opencode}\n                        Harness override for reviewer; empty inherits default\n  --reviewer-model REVIEWER_MODEL\n                        Model override for reviewer\n  --finalizer-harness {,codex,opencode}\n                        Harness override for finalizer; empty inherits default\n  --finalizer-model FINALIZER_MODEL\n                        Model override for finalizer\n  --workers WORKERS     Concurrent coding workers (1 to 16; default 3); one\n                        independent reviewer\n  --effort {low,medium,high,xhigh}\n                        Reasoning effort (default high)\n  --interval INTERVAL   Polling seconds (minimum 10; default 60)\n  --once                Dispatch one batch, wait for it, then exit\n  --now                 With stop: terminate active agents as well\n  --refresh REFRESH     TUI refresh seconds (0.1 to 60; default 1)\n  --no-color            Disable TUI colours\n  --raw                 With logs: include protocol events and MCP diagnostics\n  --version             Show installed CLI version, source path and revision,\n                        then exit\n",
+            "stdout": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT]\n                   [--dangerously-allow-public-board] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\n\nConfigurable workers and one independent reviewer for a GitHub project board.\n\npositional arguments:\n  {run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}\n                        Command to run; board opens the project board in your\n                        browser (default: tui)\n  number                Issue number for retry or logs\n\noptions:\n  -h, --help            show this help message and exit\n  --repo REPO           Local repository checkout (default: current directory)\n  --project PROJECT     GitHub board OWNER/NUMBER; auto-detected when\n                        unambiguous\n  --dangerously-allow-public-board\n                        DANGEROUS: explicitly permit publicly readable boards;\n                        feedback permissions still apply\n  -t, --title TITLE     With add: new issue title (required)\n  -d, --description, --body DESCRIPTION\n                        With add: issue description (default: empty)\n  --draft               With add: use the board's Draft status\n  --shaping             With add: use the board's Shaping status\n  --harness {codex,opencode}\n                        Default harness (default: codex)\n  --model MODEL         Default model override (Codex: gpt-6.1-sol; OpenCode:\n                        configured default)\n  --worker-harness {,codex,opencode}\n                        Harness override for worker; empty inherits default\n  --worker-model WORKER_MODEL\n                        Model override for worker\n  --reviewer-harness {,codex,opencode}\n                        Harness override for reviewer; empty inherits default\n  --reviewer-model REVIEWER_MODEL\n                        Model override for reviewer\n  --finalizer-harness {,codex,opencode}\n                        Harness override for finalizer; empty inherits default\n  --finalizer-model FINALIZER_MODEL\n                        Model override for finalizer\n  --workers WORKERS     Concurrent coding workers (1 to 16; default 3); one\n                        independent reviewer\n  --effort {low,medium,high,xhigh}\n                        Reasoning effort (default high)\n  --interval INTERVAL   Polling seconds (minimum 10; default 60)\n  --once                Dispatch one batch, wait for it, then exit\n  --now                 With stop: terminate active agents as well\n  --refresh REFRESH     TUI refresh seconds (0.1 to 60; default 1)\n  --no-color            Disable TUI colours\n  --raw                 With logs: include protocol events and MCP diagnostics\n  --version             Show installed CLI version, source path and revision,\n                        then exit\n",
             "stderr": ""
           }
         ],
@@ -36,7 +36,7 @@
           {
             "exit": 2,
             "stdout": "",
-            "stderr": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\nworklane.py: error: argument action: invalid choice: 'wat' (choose from run, start, check, board, status, logs, tui, config, pause, resume, stop, retry, add, stack)\n"
+            "stderr": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT]\n                   [--dangerously-allow-public-board] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\nworklane.py: error: argument action: invalid choice: 'wat' (choose from run, start, check, board, status, logs, tui, config, pause, resume, stop, retry, add, stack)\n"
           }
         ],
         "calls": [],
@@ -54,7 +54,7 @@
           {
             "exit": 2,
             "stdout": "",
-            "stderr": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\nworklane.py: error: unrecognized arguments: --wat\n"
+            "stderr": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT]\n                   [--dangerously-allow-public-board] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\nworklane.py: error: unrecognized arguments: --wat\n"
           }
         ],
         "calls": [],
@@ -72,7 +72,7 @@
           {
             "exit": 2,
             "stdout": "",
-            "stderr": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\nworklane.py: error: argument number: invalid int value: '界'\n"
+            "stderr": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT]\n                   [--dangerously-allow-public-board] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\nworklane.py: error: argument number: invalid int value: '界'\n"
           }
         ],
         "calls": [],
@@ -90,7 +90,7 @@
           {
             "exit": 2,
             "stdout": "",
-            "stderr": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\nworklane.py: error: argument --workers: invalid int value: 'three'\n"
+            "stderr": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT]\n                   [--dangerously-allow-public-board] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\nworklane.py: error: argument --workers: invalid int value: 'three'\n"
           }
         ],
         "calls": [],
@@ -108,7 +108,7 @@
           {
             "exit": 2,
             "stdout": "",
-            "stderr": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\nworklane.py: error: argument --harness: invalid choice: 'other' (choose from codex, opencode)\n"
+            "stderr": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT]\n                   [--dangerously-allow-public-board] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\nworklane.py: error: argument --harness: invalid choice: 'other' (choose from codex, opencode)\n"
           }
         ],
         "calls": [],
@@ -126,7 +126,7 @@
           {
             "exit": 2,
             "stdout": "",
-            "stderr": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\nworklane.py: error: argument --effort: invalid choice: 'max' (choose from low, medium, high, xhigh)\n"
+            "stderr": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT]\n                   [--dangerously-allow-public-board] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\nworklane.py: error: argument --effort: invalid choice: 'max' (choose from low, medium, high, xhigh)\n"
           }
         ],
         "calls": [],
@@ -144,7 +144,7 @@
           {
             "exit": 2,
             "stdout": "",
-            "stderr": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\nworklane.py: error: argument --shaping: not allowed with argument --draft\n"
+            "stderr": "usage: worklane.py [-h] [--repo REPO] [--project PROJECT]\n                   [--dangerously-allow-public-board] [-t TITLE]\n                   [-d DESCRIPTION] [--draft | --shaping]\n                   [--harness {codex,opencode}] [--model MODEL]\n                   [--worker-harness {,codex,opencode}]\n                   [--worker-model WORKER_MODEL]\n                   [--reviewer-harness {,codex,opencode}]\n                   [--reviewer-model REVIEWER_MODEL]\n                   [--finalizer-harness {,codex,opencode}]\n                   [--finalizer-model FINALIZER_MODEL] [--workers WORKERS]\n                   [--effort {low,medium,high,xhigh}] [--interval INTERVAL]\n                   [--once] [--now] [--refresh REFRESH] [--no-color] [--raw]\n                   [--version]\n                   [{run,start,check,board,status,logs,tui,config,pause,resume,stop,retry,add,stack}]\n                   [number]\nworklane.py: error: argument --shaping: not allowed with argument --draft\n"
           }
         ],
         "calls": [],
@@ -255,7 +255,32 @@
             "stderr": "worklane: Use worklane retry ISSUE_NUMBER after fixing the blocker.\n"
           }
         ],
-        "calls": [],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($owner:String!, $name:String!) {\\n              repository(owner:$owner, name:$name) { projectsV2(first:100) {\\n                nodes { id number title closed url owner { ... on User { login } ... on Organization { login } } }\\n              } }\\n            }\", \"variables\": {\"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
         "git_calls": [],
         "files": {},
         "sqlite": []
@@ -273,7 +298,32 @@
             "stderr": "worklane: No saved task for that issue.\n"
           }
         ],
-        "calls": [],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($owner:String!, $name:String!) {\\n              repository(owner:$owner, name:$name) { projectsV2(first:100) {\\n                nodes { id number title closed url owner { ... on User { login } ... on Organization { login } } }\\n              } }\\n            }\", \"variables\": {\"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
         "git_calls": [],
         "files": {},
         "sqlite": []
@@ -475,7 +525,32 @@
             "stderr": ""
           }
         ],
-        "calls": [],
+        "calls": [
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($owner:String!, $name:String!) {\\n              repository(owner:$owner, name:$name) { projectsV2(first:100) {\\n                nodes { id number title closed url owner { ... on User { login } ... on Organization { login } } }\\n              } }\\n            }\", \"variables\": {\"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          }
+        ],
         "git_calls": [],
         "files": {},
         "sqlite": [
@@ -632,6 +707,18 @@
           {
             "tool": "gh",
             "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
               "project",
               "view",
               "2",
@@ -713,6 +800,18 @@
           {
             "tool": "gh",
             "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
               "project",
               "field-list",
               "2",
@@ -722,6 +821,18 @@
               "json"
             ],
             "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
             "cwd": "<SANDBOX>/repo"
           },
           {
@@ -822,6 +933,18 @@
           {
             "tool": "gh",
             "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
               "project",
               "field-list",
               "2",
@@ -831,6 +954,18 @@
               "json"
             ],
             "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
             "cwd": "<SANDBOX>/repo"
           },
           {
@@ -931,6 +1066,18 @@
           {
             "tool": "gh",
             "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
               "project",
               "field-list",
               "2",
@@ -940,6 +1087,18 @@
               "json"
             ],
             "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
             "cwd": "<SANDBOX>/repo"
           },
           {
@@ -1040,6 +1199,18 @@
           {
             "tool": "gh",
             "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
               "project",
               "field-list",
               "2",
@@ -1049,6 +1220,18 @@
               "json"
             ],
             "stdin": "",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
             "cwd": "<SANDBOX>/repo"
           },
           {
@@ -1156,6 +1339,18 @@
           {
             "tool": "gh",
             "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
               "project",
               "field-list",
               "2",
@@ -1179,6 +1374,18 @@
             "cwd": "<SANDBOX>/repo"
           },
           {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
             "tool": "codex",
             "argv": [
               "login",
@@ -1196,7 +1403,79 @@
               "--input",
               "-"
             ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
             "stdin": "{\"query\": \"query($id:ID!, $cursor:String) {\\n              node(id:$id) { ... on ProjectV2 { items(first:100, after:$cursor) {\\n                totalCount pageInfo { hasNextPage endCursor }\\n                nodes { id fieldValueByName(name:\\\"Status\\\") {\\n                  ... on ProjectV2ItemFieldSingleSelectValue { name }\\n                } links: fieldValueByName(name:\\\"Linked pull requests\\\") {\\n                  ... on ProjectV2ItemFieldPullRequestValue {\\n                    pullRequests(first:10) { nodes { url } pageInfo { hasNextPage endCursor } }\\n                  }\\n                } content { ... on Issue {\\n                  number title body url state repository { nameWithOwner }\\n                  issueDependenciesSummary { blockedBy }\\n                } } }\\n              } } }\\n            }\", \"variables\": {\"id\": \"project-id\", \"cursor\": null}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
+            "cwd": "<SANDBOX>/repo"
+          },
+          {
+            "tool": "gh",
+            "argv": [
+              "api",
+              "-i",
+              "graphql",
+              "--input",
+              "-"
+            ],
+            "stdin": "{\"query\": \"query($id:ID!, $owner:String!, $name:String!) {\\n              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }\\n              repository(owner:$owner, name:$name) { viewerPermission }\\n            }\", \"variables\": {\"id\": \"project-id\", \"owner\": \"owner\", \"name\": \"repo\"}}",
             "cwd": "<SANDBOX>/repo"
           }
         ],
@@ -1237,18 +1516,19 @@
     }
   ],
   "harness_hashes": {
-    "tools/native_parity.py": "f89982ccbf3f19b2caf153b5d3c056a9706e8c03fc0691a44b9646962a861b7e",
+    "tools/native_parity.py": "249e641fd9735169f2d711a89407ae6160bbcf45a95878484f3936311158d3a5",
     "tools/native_test_bridge.py": "ba54d9a89e6c26d3897d51e57756ca4e1d62dec10f3bf9f4f398c7e6b3493565",
-    "tools/native_validate.py": "13d2e419564362ba47970ca9e1a2113cd54d113770797a0ebb0b589c80e6538d",
+    "tools/native_validate.py": "633f0249e0aac30c8ae185d62fc9bf127270eb6e10fd2a3eebbd3d7081d73e75",
     "tools/parity_git.py": "5b347550f001ba6660281480c9e6ec1ab458827e46f229ee78b5ba3b37e8491c",
     "tools/parity_tool.py": "fb60b5f671154ee16f3c1cfd81ca86be6ef294ec05a89d7d42122e7ce6b7479e",
     "tools/port_checks.py": "477d6e390762a315a259c0963b2e1d0dc7a30b3439a708035cb4e3e1abc88f36",
-    "tools/port_failure_audit.py": "f930ee1b0a62a277a39abafd51389fc94fdb1dd0de29ce688b854243ac68d9dc",
-    "tools/port_failure_cases.py": "b9c1b19a939a37fa515cfbe82bffb289b3870612449c574e0449657bf0bbd386",
-    "tools/port_gate.py": "92cb049d1f5c7e3cf8b9c3514e0c6f45dd1c3ac1d6d6208b38aa680f98d6aea1",
-    "tools/port_inventory.py": "e49e304ec48b5deded92cc4b74ca725bc30b61e25466862a240c1b8f8a215297",
-    "tools/port_parity.py": "41091a2f68e1e0deb251e6f2b88f5a1877e7bb29c12d77df0191d03cae957a45",
-    "tools/port_reference_driver.py": "3d4419a794cf941ad13448f2f53c483b6ba0e08527fdacb5c7193648cab08518"
+    "tools/port_failure_audit.py": "78bccb3f868cff06920ba686d959903bee1956a7ddd965a217a3184c1a5b3bca",
+    "tools/port_failure_cases.py": "444b36b09df6bc8bbcc0057157c9ac38ea21cb4e4e2e0f7db861604d6e50e68f",
+    "tools/port_gate.py": "d76dedfc0bef62f52810efffe9f28a9235adab30c98f7a285dd9931e37ec32c0",
+    "tools/port_inventory.py": "b6afbd75f115a3f715e3f78ad788c6333d4a2b9f8c365f216eaad1804d45a053",
+    "tools/port_parity.py": "14bd6cc8fe7cfa8b1bacdd8ad8d5f93f9147c13eb787550acca78deda5448e9b",
+    "tools/port_reference_driver.py": "a544e8929db52ce4e614e7017daf707a58c5fb9d7df13df6fe1e02e4bef405ea",
+    "tools/port_security_cases.py": "df074ad396ead2707a425d101139adcb483a1aac696437e1f13de71fb07f96bd"
   },
   "fixtures_path": "parity/fixtures/cli.json",
   "environment": {
@@ -1259,15 +1539,16 @@
   },
   "candidate_hashes": {
     "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13": "50056e60c8559d1d2927f3474b413d68360e88f532e9937eefa03b1c1b7245d1",
-    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/worklane.py": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e"
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/worklane.py": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64"
   },
   "release_sha256": "50056e60c8559d1d2927f3474b413d68360e88f532e9937eefa03b1c1b7245d1",
+  "candidate_runtime": "interpreted",
   "reference_command": [
     "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13",
-    "/tmp/worklane-reference-p8xkobah/worklane.py"
+    "/tmp/worklane-reference-18e0t9p_/worklane.py"
   ],
   "reference_hashes": {
     "/home/simon/.local/share/uv/python/cpython-3.13-linux-x86_64-gnu/bin/python3.13": "50056e60c8559d1d2927f3474b413d68360e88f532e9937eefa03b1c1b7245d1",
-    "/tmp/worklane-reference-p8xkobah/worklane.py": "6f001bbf4c29cf70b9a117e3195c98d7851b6d39e5751d46c09d338fa9c8813e"
+    "/tmp/worklane-reference-18e0t9p_/worklane.py": "7f4b3bb950d4f7847b6a10fa0eea48d64db03da0c3f692f1ecabee64659ffc64"
   }
 }

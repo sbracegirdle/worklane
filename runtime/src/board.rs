@@ -7,10 +7,20 @@ use crate::{
 };
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, Ordering},
+};
 pub const READY: &str = "Ready for work";
 pub const PROGRESS: &str = "In Progress";
 pub const REVIEW: &str = "Agent review";
 pub const HUMAN: &str = "Human review";
+/// Current-invocation consent only; never deserialize this from configuration or runtime metadata.
+#[derive(Clone, Default)]
+pub struct Invocation {
+    pub project: Option<String>,
+    pub dangerously_allow_public_board: bool,
+}
 #[derive(Clone)]
 pub struct Board {
     pub repo: String,
@@ -21,6 +31,9 @@ pub struct Board {
     pub field: Value,
     pub options: BTreeMap<String, String>,
     pub required_statuses: Vec<String>,
+    pub invocation: Invocation,
+    pub security: Value,
+    pub public_warning_shown: Arc<AtomicBool>,
 }
 pub fn dependency_count(issue: &Value) -> Result<i64> {
     issue["issueDependenciesSummary"]["blockedBy"]
@@ -40,6 +53,26 @@ impl Board {
         project: Option<&str>,
         load_fields: bool,
         required_statuses: &[&str],
+    ) -> Result<Self> {
+        Self::open_with_policy(
+            repo,
+            transport,
+            project,
+            load_fields,
+            required_statuses,
+            Invocation::default(),
+            false,
+        )
+    }
+    #[allow(clippy::too_many_arguments)]
+    pub fn open_with_policy(
+        repo: &str,
+        transport: GitHubTransport,
+        project: Option<&str>,
+        load_fields: bool,
+        required_statuses: &[&str],
+        invocation: Invocation,
+        check_only: bool,
     ) -> Result<Self> {
         let (owner, name) = repo
             .split_once('/')
@@ -110,11 +143,84 @@ impl Board {
             field: Value::Null,
             options: BTreeMap::new(),
             required_statuses: required_statuses.iter().map(|s| s.to_string()).collect(),
+            invocation,
+            security: Value::Null,
+            public_warning_shown: Arc::new(AtomicBool::new(false)),
         };
-        if load_fields {
+        board.security = board.security_report()?;
+        if !check_only {
+            board.require_report(&board.security)?;
+        }
+        if load_fields && (!check_only || board.security["safe"] == true) {
             board.refresh_fields()?;
         }
         Ok(board)
+    }
+    pub fn security_report(&self) -> Result<Value> {
+        let mut report = json!({"visibility":"unknown", "project_viewer_can_update":null,
+            "repository_permission":"unknown", "safe":false,
+            "public_board_override":self.invocation.dangerously_allow_public_board,
+            "verification_limits":["Repository permissions do not establish project collaborator access.",
+              "Project collaborator grants and workflow rule settings require manual review.",
+              "Public visibility permits reading; it does not grant anonymous writes."]});
+        let (owner, name) = self
+            .repo
+            .split_once('/')
+            .ok_or_else(|| Error::new("validation", "Invalid repository."))?;
+        match self.transport.graphql(
+            r#"query($id:ID!, $owner:String!, $name:String!) {
+              node(id:$id) { ... on ProjectV2 { public viewerCanUpdate } }
+              repository(owner:$owner, name:$name) { viewerPermission }
+            }"#,
+            &json!({"id":self.project["id"],"owner":owner,"name":name}),
+        ) {
+            Ok(data) => {
+                let project = &data["node"];
+                let public = project["public"].as_bool();
+                report["visibility"] = json!(match public {
+                    Some(true) => "public",
+                    Some(false) => "private",
+                    None => "unknown",
+                });
+                report["project_viewer_can_update"] = project["viewerCanUpdate"].clone();
+                report["repository_permission"] = data["repository"]
+                    .get("viewerPermission")
+                    .cloned()
+                    .unwrap_or(json!("unknown"));
+                report["safe"] = json!(
+                    public.is_some_and(|p| !p || self.invocation.dangerously_allow_public_board)
+                        && project["viewerCanUpdate"] == true
+                        && matches!(
+                            report["repository_permission"].as_str(),
+                            Some("WRITE" | "MAINTAIN" | "ADMIN")
+                        )
+                );
+            }
+            Err(error) if error.kind == "quota" => return Err(error),
+            Err(error) => report["error"] = json!(error.to_string()),
+        }
+        Ok(report)
+    }
+    fn require_report(&self, report: &Value) -> Result<()> {
+        if report["safe"] != true {
+            return fail(format!(
+                "Board security preflight refused operation: {}; public boards require explicit --dangerously-allow-public-board.",
+                crate::harness::python_json(report)
+            ));
+        }
+        if report["visibility"] == "public"
+            && !self.public_warning_shown.swap(true, Ordering::SeqCst)
+        {
+            eprintln!(
+                "WARNING: --dangerously-allow-public-board permits operation on a publicly readable board. Review project access and automation rules; feedback still requires trusted permissions."
+            );
+        }
+        Ok(())
+    }
+    pub fn require_safe(&self) -> Result<Value> {
+        let report = self.security_report()?;
+        self.require_report(&report)?;
+        Ok(report)
     }
     pub fn refresh_fields(&mut self) -> Result<()> {
         let fields = self.transport.json(&[
@@ -164,6 +270,7 @@ impl Board {
         Ok(())
     }
     pub fn ensure_review_status(&mut self) -> Result<()> {
+        self.require_safe()?;
         if self.options.contains_key(&REVIEW.casefold()) {
             return Ok(());
         }
@@ -294,6 +401,7 @@ impl Board {
         ))
     }
     pub fn move_item(&self, item: &Value, status: &str, expected: &str) -> Result<()> {
+        self.require_safe()?;
         if self.item_status(item)?.as_deref() != Some(&expected.casefold()) {
             return fail(format!(
                 "Issue status changed; expected '{expected}'. Leaving it for inspection."
@@ -324,6 +432,7 @@ impl Board {
         Ok(())
     }
     pub fn add_issue(&self, title: &str, body: &str, status: &str) -> Result<String> {
+        self.require_safe()?;
         let option = self.options.get(&status.casefold()).ok_or_else(|| {
             Error::new(
                 "validation",

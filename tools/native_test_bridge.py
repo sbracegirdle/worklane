@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import sqlite3
 import subprocess
+import threading
 
 ROOT = Path(__file__).resolve().parents[1]
 BINARY = ROOT / 'target/debug/runtime-fixture-adapter'
@@ -28,6 +29,31 @@ def invoke(request, *, pass_fds=(), cwd=None):
             pass
         raise NativeError(error)
     return response['ok']
+
+
+def invoke_guarded(request, callback, *, pass_fds=()):
+    if callback is None:
+        return invoke(request,pass_fds=pass_fds)
+    request_read,request_write=os.pipe()
+    response_read,response_write=os.pipe()
+    def serve():
+        with os.fdopen(request_read,'rb') as stream, os.fdopen(response_write,'wb') as replies:
+            while line:=stream.readline(16*1024*1024+1):
+                if len(line)>16*1024*1024: raise RuntimeError('Oversized test callback request')
+                event=json.loads(line)
+                try:
+                    callback(event['stage'],event['task']); response={'ok':True}
+                except Exception as error:
+                    import worklane
+                    response={'error':str(error),'kind':'interrupted' if isinstance(error,worklane.InterruptedRun) else 'blocked'}
+                replies.write(json.dumps(response).encode()+b'\n');replies.flush()
+    worker=threading.Thread(target=serve,daemon=True);worker.start()
+    try:
+        return invoke({**request,'preflight_write_fd':request_write,'preflight_read_fd':response_read},
+                      pass_fds=(*pass_fds,request_write,response_read))
+    finally:
+        os.close(request_write);os.close(response_read);worker.join(timeout=2)
+        if worker.is_alive():raise RuntimeError('Test preflight callback did not close')
 
 
 class NativeState:
@@ -103,13 +129,14 @@ class NativeBackend:
         self.model, self.root, self.state, self.fd = model, root, state, runner_fd
         self.backend, self.effort = harness, effort
         self.timeout = 8 * 3600
+        self.preflight = None
 
     def run(self, stage, task, worktree, extra=''):
-        output = invoke({'op':'agent.run','repo':self.state.repo,'state_root':str(self.state.path.parent.parent),
+        output = invoke_guarded({'op':'agent.run','repo':self.state.repo,'state_root':str(self.state.path.parent.parent),
                          'task':task,'stage':stage,'tree':str(worktree),'root':str(self.root),
                          'force_backend':self.backend,'model':self.model or ('gpt-6.1-sol' if self.backend=='codex' else ''),
                          'config':{'harness':self.backend,'model':self.model or '', 'effort':self.effort},
-                         'timeout':self.timeout,'extra':extra,'runner_fd':self.fd,'include_task':True},
+                         'timeout':self.timeout,'extra':extra,'runner_fd':self.fd,'include_task':True},self.preflight,
                         pass_fds=(self.fd,))
         task.update(output['task'])
         return output['result']
@@ -118,6 +145,7 @@ class NativeBackend:
 class NativeRouter:
     def __init__(self, args, root, state, runner_fd):
         self.args, self.root, self.state, self.fd = args, root, state, runner_fd
+        self.preflight = None
 
     def selection(self, role, session=None):
         if session: return session.get('backend','codex'), session['model'] or None
@@ -128,9 +156,9 @@ class NativeRouter:
         config = {k:v for k,v in vars(self.args).items() if k in {
             'harness','model','effort','worker_harness','reviewer_harness','finalizer_harness',
             'worker_model','reviewer_model','finalizer_model'} and v is not None}
-        output = invoke({'op':'agent.run','repo':self.state.repo,'state_root':str(self.state.path.parent.parent),
+        output = invoke_guarded({'op':'agent.run','repo':self.state.repo,'state_root':str(self.state.path.parent.parent),
                          'task':task,'stage':stage,'tree':str(tree),'root':str(self.root),
-                         'config':config,'extra':extra,'runner_fd':self.fd,'include_task':True}, pass_fds=(self.fd,))
+                         'config':config,'extra':extra,'runner_fd':self.fd,'include_task':True},self.preflight,pass_fds=(self.fd,))
         task.update(output['task'])
         return output['result']
 

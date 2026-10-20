@@ -195,6 +195,11 @@
     "candidate": "pass"
   },
   {
+    "id": "test_sessions.SessionTests.test_queued_followup_rechecks_security_before_resuming_agent",
+    "reference": "pass",
+    "candidate": "pass"
+  },
+  {
     "id": "test_sessions.SessionTests.test_resume_updates_name_and_reuses_project_after_controller_restart",
     "reference": "pass",
     "candidate": "pass"

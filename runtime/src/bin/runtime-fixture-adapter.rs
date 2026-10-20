@@ -68,6 +68,7 @@ fn run(request: &Value) -> Result<Value> {
             unsafe { libc::_exit(99) }
         }
         "controller.run" => controller_fixture(request),
+        "security.call" => security_fixture(request),
         "board.project" => {
             let state = state(request)?;
             let transport = worklane_runtime::transport::GitHubTransport::new(&state, &cwd)?;
@@ -88,6 +89,9 @@ fn run(request: &Value) -> Result<Value> {
                 field: json!({}),
                 options: Default::default(),
                 required_statuses: Vec::new(),
+                invocation: Default::default(),
+                security: Value::Null,
+                public_warning_shown: Default::default(),
             };
             let agent = AgentHarness::new(&cwd, &state, &json!({}))?;
             Ok(json!(
@@ -369,6 +373,90 @@ fn run(request: &Value) -> Result<Value> {
             agent.timeout = Duration::from_secs_f64(request["timeout"].as_f64().unwrap_or(28800.));
             agent.metadata_timeout =
                 Duration::from_secs_f64(request["metadata_timeout"].as_f64().unwrap_or(15.));
+            if request["guarded"] == true {
+                let board = selected_board(request, &state, &root)?;
+                let guarded = workflow::Workflow::new(
+                    state.clone(),
+                    board,
+                    agent,
+                    root.clone(),
+                    "main".into(),
+                );
+                agent = guarded.agent;
+            }
+            if let (Some(fd), Some(reply_fd)) = (
+                request["preflight_write_fd"].as_i64(),
+                request["preflight_read_fd"].as_i64(),
+            ) {
+                use std::io::Write;
+                use std::os::fd::FromRawFd;
+                let output = unsafe { std::fs::File::from_raw_fd(fd as i32) };
+                let input = unsafe { std::fs::File::from_raw_fd(reply_fd as i32) };
+                unsafe {
+                    libc::fcntl(fd as i32, libc::F_SETFD, libc::FD_CLOEXEC);
+                    libc::fcntl(reply_fd as i32, libc::F_SETFD, libc::FD_CLOEXEC);
+                }
+                transport::nonblocking(fd as i32)?;
+                transport::nonblocking(reply_fd as i32)?;
+                let stream = std::sync::Mutex::new((input, output));
+                agent.preflight = Some(Arc::new(move |stage, task| {
+                    let mut stream = stream
+                        .lock()
+                        .map_err(|_| Error::new("io", "Test callback lock poisoned."))?;
+                    let deadline = std::time::Instant::now() + Duration::from_secs(10);
+                    let mut outgoing = serde_json::to_vec(&json!({"stage":stage,"task":task}))?;
+                    outgoing.push(b'\n');
+                    if outgoing.len() > 16 * 1024 * 1024 {
+                        return fail("Oversized test callback request.");
+                    }
+                    let mut written = 0;
+                    while written < outgoing.len() {
+                        if std::time::Instant::now() >= deadline {
+                            return fail("Test callback write timed out.");
+                        }
+                        match stream.1.write(&outgoing[written..]) {
+                            Ok(0) => return fail("Test callback closed while writing."),
+                            Ok(n) => written += n,
+                            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {
+                                std::thread::sleep(Duration::from_millis(1));
+                            }
+                            Err(error) => return Err(error.into()),
+                        }
+                    }
+                    let mut line = Vec::new();
+                    loop {
+                        transport::readable(stream.0.as_raw_fd(), deadline)?;
+                        let mut bytes = [0u8; 4096];
+                        match stream.0.read(&mut bytes) {
+                            Ok(0) => return fail("Test callback closed before replying."),
+                            Ok(n) => line.extend_from_slice(&bytes[..n]),
+                            Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => continue,
+                            Err(e) => return Err(e.into()),
+                        }
+                        if line.len() > 65536 {
+                            return fail("Oversized test callback response.");
+                        }
+                        if line.last() == Some(&b'\n') {
+                            break;
+                        }
+                    }
+                    let response: Value = serde_json::from_slice(&line)?;
+                    if let Some(error) = response["error"].as_str() {
+                        return Err(Error::new(
+                            if response["kind"] == "interrupted" {
+                                "interrupted"
+                            } else {
+                                "blocked"
+                            },
+                            error,
+                        ));
+                    }
+                    if response["ok"] != true {
+                        return fail("Invalid test callback response.");
+                    }
+                    Ok(())
+                }));
+            }
             let lock = if request["runner_fd"].is_i64() {
                 None
             } else {
@@ -403,6 +491,132 @@ fn run(request: &Value) -> Result<Value> {
         }
         _ => fail(format!("Unknown runtime operation: {op}")),
     }
+}
+fn selected_board(request: &Value, state: &StateStore, root: &Path) -> Result<board::Board> {
+    Ok(board::Board {
+        repo: state.repo.clone(),
+        transport: transport::GitHubTransport::new(state, root)?,
+        project: json!({"id":"project", "number":2, "url":"board-url"}),
+        owner: "owner".into(),
+        number: 2,
+        field: json!({"id":"status-id","options":[{"id":"ready","name":"Ready for work"}]}),
+        options: [
+            ("ready for work".into(), "ready".into()),
+            ("in progress".into(), "progress".into()),
+        ]
+        .into(),
+        required_statuses: Vec::new(),
+        invocation: board::Invocation {
+            project: Some("owner/2".into()),
+            dangerously_allow_public_board: request["override"] == true,
+        },
+        security: Value::Null,
+        public_warning_shown: Default::default(),
+    })
+}
+fn security_fixture(request: &Value) -> Result<Value> {
+    let state = state(request)?;
+    let root = request["root"]
+        .as_str()
+        .map(PathBuf::from)
+        .unwrap_or(std::env::current_dir()?);
+    let mut board = selected_board(request, &state, &root)?;
+    let agent = AgentHarness::new(&root, &state, &json!({}))?;
+    let mut flow = workflow::Workflow::new(
+        state.clone(),
+        board.clone(),
+        agent.clone(),
+        root.clone(),
+        "main".into(),
+    );
+    let actions = actions::Actions {
+        state: state.clone(),
+        root,
+        agent,
+        transport: board.transport.clone(),
+        invocation: board.invocation.clone(),
+    };
+    let mut task = request.get("task").cloned().unwrap_or(json!({"number":1}));
+    let mut items = request["items"].as_array().cloned().unwrap_or_default();
+    let mut item = request.get("item").cloned().unwrap_or(json!({}));
+    let method = string(request, "method");
+    let output = match method.as_str() {
+        "report" => board.security_report()?,
+        "open" => {
+            board::Board::open_with_policy(
+                &state.repo,
+                board.transport.clone(),
+                Some("owner/2"),
+                false,
+                &[],
+                board.invocation.clone(),
+                request["check_only"] == true,
+            )?
+            .security
+        }
+        "safe" => board.require_safe()?,
+        "add" => json!(board.add_issue("Title", "", board::READY)?),
+        "ensure_review" => {
+            board.ensure_review_status()?;
+            Value::Null
+        }
+        "move" => {
+            board.move_item(&item, board::PROGRESS, board::READY)?;
+            Value::Null
+        }
+        "feedback" => flow.human_feedback(&task)?,
+        "trusted" => {
+            flow.require_trusted_feedback(&task)?;
+            Value::Null
+        }
+        "before_turn" => {
+            flow.before_turn(request["stage"].as_str().unwrap_or("build"), &task)?;
+            Value::Null
+        }
+        "agent_result" => flow.agent_result(&mut task, "build", &flow.root, "", -1)?,
+        "recover" => json!(flow.recover(&mut items, "worker-1")?),
+        "pick" => json!(flow.pick(&mut item, "worker-1")?),
+        "poll" => {
+            flow.poll_human_feedback(&mut items, &Default::default())?;
+            Value::Null
+        }
+        "post" => {
+            flow.post(&task, "review", &json!({}))?;
+            Value::Null
+        }
+        "restack" => {
+            flow.restack(&mut task, &[], &mut item)?;
+            Value::Null
+        }
+        "retry" => {
+            actions.retry(1)?;
+            Value::Null
+        }
+        "resume" => json!(actions.resume_session(1, "worker")?),
+        "queue" => {
+            actions.queue_input(&string(request, "run_id"), "followup")?;
+            Value::Null
+        }
+        "unpause" => {
+            actions.pause(false)?;
+            Value::Null
+        }
+        "save_editor" => {
+            let mut draft = actions::IssueDraft {
+                board,
+                number: Some(1),
+                item: Some(item),
+                original: json!({"title":"Title","body":""}),
+                title: "Edit".into(),
+                body: "".into(),
+                status: board::READY.into(),
+                statuses: vec![board::READY.into()],
+            };
+            json!(actions.save_editor(&mut draft)?)
+        }
+        _ => return fail("Unknown security operation."),
+    };
+    Ok(output)
 }
 fn controller_fixture(request: &Value) -> Result<Value> {
     use worklane_runtime::{

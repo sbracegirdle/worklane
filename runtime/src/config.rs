@@ -101,7 +101,7 @@ impl ConfigStore {
         let mut graph: BTreeMap<String, Vec<String>> = BTreeMap::new();
         for edge in edges {
             let (c, p) = edge.as_str().unwrap().split_once(':').unwrap();
-            if gates.iter().any(|n| n == p) {
+            if gates.iter().any(|n| n.as_i64() == p.parse::<i64>().ok()) {
                 return Err(invalid(format!(
                     "Completion gate #{p} cannot be stackable."
                 )));

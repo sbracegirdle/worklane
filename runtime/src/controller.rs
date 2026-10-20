@@ -122,6 +122,7 @@ impl Controller {
                 && workflow.board.transport.check().is_ok()
             {
                 let result = (|| -> Result<()> {
+                    workflow.board.require_safe()?;
                     let mut items = workflow.board.items()?;
                     workflow.stack_items = items.clone();
                     let active = jobs.values().map(|(n, _)| *n).collect::<BTreeSet<_>>();

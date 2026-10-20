@@ -16,6 +16,8 @@ def assess(inventory, reports):
     checks, audits = {}, set()
     fixture_ids = {case for cases in inventory.get('fixture_cases', {}).values() for case in cases}
     for report in reports:
+        if inventory.get('language') == 'Rust' and report.get('candidate_runtime') != 'native':
+            continue
         if (report.get('mode') != 'differential' or report.get('reference') != inventory['revision']
                 or report.get('inventory_sha256') != contract_hash(inventory) or not report.get('reference_verified') or not report.get('candidate_hashes') or not report.get('candidate')):
             continue

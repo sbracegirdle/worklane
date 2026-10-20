@@ -82,10 +82,21 @@ for source, exclude in [(test_sessions.SessionTests,SESSION_EXCLUDED),(test_harn
     for name in unittest.defaultTestLoader.getTestCaseNames(source):
         if name not in exclude:
             setattr(NativeAcceptanceTests,'test_'+source.__name__+'_'+name,native_case(source,name))
+del source, exclude, name  # Do not discover the last imported reference class a second time.
 
 
 @unittest.skipUnless(os.environ.get('WORKLANE_TEST_RUST') == '1', 'opt-in native compatibility')
 class CrossRuntimeTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        subprocess.run(['cargo','build','--locked','--offline'],cwd=ROOT,check=True,capture_output=True)
+
+    def test_hard_completion_gate_cannot_be_configured_as_stack_parent(self):
+        values={'stack_dependencies':['50:49'],'completion_gates':[49]}
+        for validate in (w.validate_config,lambda values:invoke({'op':'config.validate','values':values})):
+            with self.assertRaisesRegex((RuntimeError,ValueError),'Completion gate #49 cannot be stackable'):
+                validate(values)
+
     def setUp(self):
         self.fixture = test_harness.HarnessTests()
         self.fixture.setUp()
@@ -93,7 +104,7 @@ class CrossRuntimeTests(unittest.TestCase):
 
     def fake_github(self, response):
         executable = self.fixture.bin/'gh'
-        executable.write_text(f'#!{sys.executable}\nimport os,sys\nsys.stdin.read()\nprint(os.environ["FAKE_GITHUB_RESPONSE"])\n')
+        executable.write_text(f'#!{sys.executable}\nimport os,sys,json\nbody=sys.stdin.read()\nprint(json.dumps({{"data":{{"node":{{"public":False,"viewerCanUpdate":True}},"repository":{{"viewerPermission":"ADMIN"}}}}}}) if "viewerCanUpdate" in body else os.environ["FAKE_GITHUB_RESPONSE"])\n')
         executable.chmod(0o755)
         return patch.dict(os.environ,FAKE_GITHUB_RESPONSE=json.dumps(response))
 

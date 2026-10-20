@@ -76,7 +76,7 @@ impl Workflow {
         root: PathBuf,
         base: String,
     ) -> Self {
-        Self {
+        let mut workflow = Self {
             state,
             board,
             agent,
@@ -84,7 +84,12 @@ impl Workflow {
             base,
             stack_items: Vec::new(),
             feedback_unavailable: BTreeSet::new(),
-        }
+        };
+        let guard = workflow.clone();
+        workflow.agent.preflight = Some(std::sync::Arc::new(move |stage, task| {
+            guard.before_turn(stage, task)
+        }));
+        workflow
     }
     pub fn issue(&self, number: i64) -> Result<Value> {
         self.board.transport.json(&[
@@ -220,6 +225,7 @@ impl Workflow {
             ]);
         }
         let mut feedback = json!({});
+        let mut permissions = std::collections::BTreeMap::new();
         for (source, endpoint) in sources {
             let pages = self.board.transport.json(&[
                 "api",
@@ -241,6 +247,16 @@ impl Workflow {
                     {
                         continue;
                     }
+                    let login = string(user, "login");
+                    if !self.cached_trusted_user(&login, &mut permissions)? {
+                        continue;
+                    }
+                    match self.feedback_editor(entry)? {
+                        Value::Null => (),
+                        Value::String(editor)
+                            if self.cached_trusted_user(&editor, &mut permissions)? => {}
+                        _ => continue,
+                    }
                     let updated = entry["updated_at"]
                         .as_str()
                         .or_else(|| entry["submitted_at"].as_str())
@@ -257,6 +273,82 @@ impl Workflow {
         }
         Ok(feedback)
     }
+    fn cached_trusted_user(
+        &self,
+        login: &str,
+        permissions: &mut std::collections::BTreeMap<String, bool>,
+    ) -> Result<bool> {
+        if let Some(value) = permissions.get(login) {
+            return Ok(*value);
+        }
+        let trusted = self.trusted_feedback_user(login)?;
+        permissions.insert(login.into(), trusted);
+        Ok(trusted)
+    }
+    pub fn trusted_feedback_user(&self, login: &str) -> Result<bool> {
+        if login.is_empty()
+            || !login
+                .bytes()
+                .all(|c| c.is_ascii_alphanumeric() || c == b'-')
+        {
+            return Ok(false);
+        }
+        let access = self.board.transport.json(&[
+            "api",
+            &format!("repos/{}/collaborators/{login}/permission", self.state.repo),
+        ])?;
+        Ok(matches!(
+            access["permission"].as_str(),
+            Some("write" | "maintain" | "admin")
+        ))
+    }
+    pub fn feedback_editor(&self, entry: &Value) -> Result<Value> {
+        if entry["node_id"].as_str().is_none_or(str::is_empty) {
+            return fail("Feedback edit provenance is unavailable; refusing rework.");
+        }
+        let data = self.board.transport.graphql(
+            r#"query($id:ID!) { node(id:$id) {
+          ... on IssueComment { body lastEditedAt editor { login __typename } }
+          ... on PullRequestReview { body lastEditedAt editor { login __typename } }
+          ... on PullRequestReviewComment { body lastEditedAt editor { login __typename } }
+        } }"#,
+            &json!({"id":entry["node_id"]}),
+        )?;
+        let node = &data["node"];
+        if node.get("lastEditedAt").is_none() || node["body"] != string(entry, "body") {
+            return fail("Feedback edit provenance changed or is unavailable; refusing rework.");
+        }
+        if !nonempty(&node["lastEditedAt"]) {
+            return Ok(Value::Null);
+        }
+        let editor = &node["editor"];
+        if editor["__typename"] != "User" || string(editor, "login").is_empty() {
+            return Ok(json!(false));
+        }
+        Ok(editor["login"].clone())
+    }
+    pub fn require_trusted_feedback(&self, task: &Value) -> Result<()> {
+        if nonempty(&task["human_feedback"]) {
+            let snapshot = self.human_feedback(task)?;
+            let saved = task["human_feedback"]
+                .as_object()
+                .ok_or_else(|| Error::new("validation", "Invalid saved feedback."))?;
+            if saved
+                .iter()
+                .any(|(key, value)| snapshot.get(key) != Some(value))
+            {
+                return fail("Feedback authorization or content changed; inspect before rework.");
+            }
+        }
+        Ok(())
+    }
+    pub fn before_turn(&self, stage: &str, task: &Value) -> Result<()> {
+        self.board.require_safe()?;
+        if stage == "build" {
+            self.require_trusted_feedback(task)?;
+        }
+        Ok(())
+    }
     pub fn feedback_quiet(&self, task: &Value) -> Result<bool> {
         let Some(observed) = task["human_feedback_observed_at"].as_str() else {
             return Ok(false);
@@ -268,6 +360,7 @@ impl Workflow {
         items: &mut [Value],
         active: &BTreeSet<i64>,
     ) -> Result<()> {
+        self.board.require_safe()?;
         self.feedback_unavailable.clear();
         for mut task in self.state.all()? {
             let number = task["number"].as_i64().unwrap();
@@ -803,6 +896,7 @@ impl Workflow {
         Ok(())
     }
     pub fn post(&self, task: &Value, stage: &str, result: &Value) -> Result<()> {
+        self.board.require_safe()?;
         let mut marker = format!(
             "<!-- worklane:{}:{stage}:{}:{}",
             task["number"],
@@ -911,7 +1005,7 @@ impl Workflow {
         }
         Ok(())
     }
-    fn agent_result(
+    pub fn agent_result(
         &self,
         task: &mut Value,
         stage: &str,
@@ -919,6 +1013,7 @@ impl Workflow {
         extra: &str,
         fd: RawFd,
     ) -> Result<Value> {
+        self.before_turn(stage, task)?;
         if task.get("completed_turns").is_none() {
             task["completed_turns"] = json!({});
         }
@@ -1103,6 +1198,7 @@ impl Workflow {
                 ));
             }
             if flag(&pr, "isDraft") {
+                self.board.require_safe()?;
                 self.board.transport.text(
                     &[
                         "pr",
@@ -1199,6 +1295,7 @@ impl Workflow {
         Ok(())
     }
     pub fn recover(&self, items: &mut [Value], slot: &str) -> Result<Option<Value>> {
+        self.board.require_safe()?;
         for mut task in self.state.all()? {
             let explicit_retry = task["phase"] == "retry";
             if nonempty(&task["stack_blocked"])
@@ -1223,6 +1320,9 @@ impl Workflow {
             };
             if !self.dependencies_ready(current, Some(&task))? {
                 continue;
+            }
+            if stage == "build" {
+                self.require_trusted_feedback(&task)?;
             }
             let status = string(current, "status").casefold();
             let expected = if stage == "build" { PROGRESS } else { REVIEW };
@@ -1308,6 +1408,7 @@ impl Workflow {
         Ok(None)
     }
     pub fn pick(&self, item: &mut Value, slot: &str) -> Result<Option<Value>> {
+        self.board.require_safe()?;
         let n = item["content"]["number"]
             .as_i64()
             .ok_or_else(|| Error::new("validation", "Missing issue number."))?;
@@ -1340,6 +1441,7 @@ impl Workflow {
             {
                 return Ok(None);
             }
+            self.require_trusted_feedback(&previous)?;
             previous["human_feedback_seen"] = previous["human_feedback_snapshot"].clone();
             remove(&mut previous, &["human_feedback_pending"]);
         }
@@ -1545,6 +1647,7 @@ impl Workflow {
         Ok(())
     }
     pub fn restack(&self, task: &mut Value, remaining: &[Value], item: &mut Value) -> Result<()> {
+        self.board.require_safe()?;
         let target = remaining
             .last()
             .map(|e| string(e, "branch"))
@@ -1633,6 +1736,7 @@ impl Workflow {
             {
                 return fail("Child PR changed during restack; inspect before pushing.");
             }
+            self.board.require_safe()?;
             command(
                 &[
                     "git",
@@ -1643,6 +1747,7 @@ impl Workflow {
                 &tree,
                 None,
             )?;
+            self.board.require_safe()?;
             self.board.transport.text(
                 &[
                     "pr",
@@ -1765,7 +1870,12 @@ mod recovery_tests {
     use super::*;
     use crate::transport::GitHubTransport;
     fn workflow(state: &StateStore) -> Workflow {
-        let transport = GitHubTransport::new(state, &state.path).unwrap();
+        let mut transport = GitHubTransport::new(state, &state.path).unwrap();
+        let gh = state.path.join("test-gh");
+        std::fs::write(&gh, "#!/bin/sh\ncat >/dev/null\nprintf '%s' '{\"data\":{\"node\":{\"public\":false,\"viewerCanUpdate\":true},\"repository\":{\"viewerPermission\":\"ADMIN\"}}}'\n").unwrap();
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&gh, std::fs::Permissions::from_mode(0o700)).unwrap();
+        transport.executable = gh;
         let board = Board {
             repo: state.repo.clone(),
             transport,
@@ -1775,6 +1885,9 @@ mod recovery_tests {
             field: json!({}),
             options: Default::default(),
             required_statuses: Vec::new(),
+            invocation: Default::default(),
+            security: Value::Null,
+            public_warning_shown: Default::default(),
         };
         let mut agent = AgentHarness::new(&state.path, state, &json!({})).unwrap();
         // A regression must fail before any provider invocation.

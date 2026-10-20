@@ -24,6 +24,7 @@ use std::{
 };
 pub const MODEL: &str = "gpt-6.1-sol";
 pub type ResumeCommand = (Vec<String>, Option<BTreeMap<String, String>>);
+pub type TurnPreflight = std::sync::Arc<dyn Fn(&str, &Value) -> Result<()> + Send + Sync>;
 pub const RESULT_SCHEMA: &str = r#"{"type":"object","additionalProperties":false,"properties":{"verdict":{"type":"string","enum":["pass","changes_requested","blocked"]},"pr_url":{"type":"string"},"head_sha":{"type":"string"},"summary":{"type":"string"},"findings":{"type":"array","items":{"type":"string"}}},"required":["verdict","pr_url","head_sha","summary","findings"]}"#;
 pub fn validate_session_id(backend: &str, id: &str) -> Result<String> {
     match backend {
@@ -428,6 +429,7 @@ pub struct AgentHarness {
     pub timeout: Duration,
     pub metadata_timeout: Duration,
     pub required_backend: Option<String>,
+    pub preflight: Option<TurnPreflight>,
 }
 impl AgentHarness {
     pub fn new(root: &Path, state: &StateStore, config: &Value) -> Result<Self> {
@@ -438,6 +440,7 @@ impl AgentHarness {
             timeout: Duration::from_secs(8 * 3600),
             metadata_timeout: Duration::from_secs(15),
             required_backend: None,
+            preflight: None,
         })
     }
     pub fn selection(&self, role: &str, session: Option<&Value>) -> (String, String) {
@@ -603,6 +606,7 @@ impl AgentHarness {
             root: self.root.clone(),
             agent: self.clone(),
             transport: crate::transport::GitHubTransport::new(&self.state, &self.root)?,
+            invocation: Default::default(),
         }
         .resume_session(
             session["number"].as_i64().unwrap_or(0),
@@ -849,6 +853,9 @@ impl AgentHarness {
                 let mut turn_prompt = prompt.clone();
                 if !inputs.is_empty() {
                     turn_prompt.push_str(&format!("\nAdditional user requests from the Worklane TUI (JSON):\n{}\nHandle these within the assigned task and existing safeguards. Inspect prior actions before retrying an interrupted request; return the required structured result.\n",python_json(&json!(inputs))));
+                }
+                if let Some(preflight) = &self.preflight {
+                    preflight(stage, task)?;
                 }
                 let prepared = self.prepare(
                     stage,

@@ -1,7 +1,7 @@
 use crate::unicode::CaseFold;
 use crate::{
     Result,
-    board::{Board, READY},
+    board::{Board, Invocation, READY},
     controller::Controller,
     fail,
     harness::AgentHarness,
@@ -18,6 +18,7 @@ pub struct Actions {
     pub root: PathBuf,
     pub agent: AgentHarness,
     pub transport: GitHubTransport,
+    pub invocation: Invocation,
 }
 pub struct IssueDraft {
     pub board: Board,
@@ -30,7 +31,34 @@ pub struct IssueDraft {
     pub statuses: Vec<String>,
 }
 impl Actions {
+    pub fn security_board(&self) -> Result<Board> {
+        self.security_board_at(&self.root)
+    }
+    fn security_board_at(&self, checkout: &Path) -> Result<Board> {
+        let runtime = self.state.get_meta("runtime", json!({}))?;
+        let config = crate::config::ConfigStore::resolve(checkout, &json!({}))?;
+        // Project selection may persist; dangerous consent must come from this invocation.
+        let project = self
+            .invocation
+            .project
+            .as_deref()
+            .filter(|s| !s.is_empty())
+            .or_else(|| runtime["project"].as_str().filter(|s| !s.is_empty()))
+            .or_else(|| config["project"].as_str().filter(|s| !s.is_empty()));
+        Board::open_with_policy(
+            &self.state.repo,
+            self.transport.clone(),
+            project,
+            false,
+            &[],
+            self.invocation.clone(),
+            false,
+        )
+    }
     pub fn pause(&self, value: bool) -> Result<()> {
+        if !value {
+            self.security_board()?;
+        }
         if !value
             && self.state.running()?
             && self.state.get_meta("shutdown", json!({}))?["requested"] == true
@@ -43,10 +71,20 @@ impl Actions {
         Controller::stop(&self.state, immediate)
     }
     pub fn start(&self, argv: &[String]) -> Result<i32> {
+        self.security_board()?;
+        let mut argv = argv
+            .iter()
+            .filter(|arg| arg.as_str() != "--dangerously-allow-public-board")
+            .cloned()
+            .collect::<Vec<_>>();
+        if self.invocation.dangerously_allow_public_board {
+            argv.push("--dangerously-allow-public-board".into());
+        }
         let observed = self.state.get_meta("shutdown", json!({}))?;
-        Controller::start(&self.state, argv, &self.root, &observed)
+        Controller::start(&self.state, &argv, &self.root, &observed)
     }
     pub fn retry(&self, n: i64) -> Result<()> {
+        self.security_board()?;
         let _lock = self.state.controller_lock(false)?;
         let mut task = self.state.load(n)?;
         if task.as_object().is_none_or(|o| o.is_empty()) {
@@ -86,6 +124,7 @@ impl Actions {
         self.state.save(&mut task)
     }
     pub fn queue_input(&self, id: &str, text: &str) -> Result<()> {
+        self.security_board()?;
         self.state.queue_input(id, text)
     }
     pub fn resume_session(&self, n: i64, role: &str) -> Result<i32> {
@@ -108,6 +147,7 @@ impl Actions {
                 }
             }
         }
+        self.security_board_at(Path::new(&string(&session, "worktree")))?;
         let result = self.agent.resume_locked(&session, &lock)?;
         if result != 0 {
             return fail(format!(
@@ -135,8 +175,16 @@ impl Actions {
         fail("No PR is saved for this issue yet.")
     }
     pub fn load_editor(&self, project: Option<&str>, number: Option<i64>) -> Result<IssueDraft> {
-        let board = Board::open(&self.state.repo, self.transport.clone(), project, true, &[])?;
-        let statuses = board.field["options"]
+        let board = Board::open_with_policy(
+            &self.state.repo,
+            self.transport.clone(),
+            project,
+            true,
+            &[],
+            self.invocation.clone(),
+            false,
+        )?;
+        let mut statuses = board.field["options"]
             .as_array()
             .unwrap()
             .iter()
@@ -175,6 +223,9 @@ impl Actions {
                     .unwrap_or(&statuses[0])
                     .clone()
             });
+        if item.is_some() && status.is_empty() {
+            statuses.insert(0, String::new());
+        }
         Ok(IssueDraft {
             board,
             number,
@@ -187,6 +238,7 @@ impl Actions {
         })
     }
     pub fn save_editor(&self, editor: &mut IssueDraft) -> Result<String> {
+        editor.board.require_safe()?;
         let title = editor.title.trim();
         if title.is_empty() {
             return fail("Title is required.");

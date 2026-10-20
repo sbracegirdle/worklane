@@ -255,6 +255,7 @@ pub fn next_cursor(page: &Value, seen: &mut BTreeSet<String>) -> Result<Option<S
 #[derive(Clone)]
 pub struct GitHubTransport {
     pub cwd: PathBuf,
+    pub executable: PathBuf,
     pub budget: StateStore,
     controller_token: String,
 }
@@ -262,6 +263,7 @@ impl GitHubTransport {
     pub fn new(state: &StateStore, cwd: &Path) -> Result<Self> {
         Ok(Self {
             cwd: cwd.into(),
+            executable: "gh".into(),
             controller_token: crate::string(
                 &state.get_meta("runtime", json!({}))?,
                 "ownership_token",
@@ -382,7 +384,7 @@ impl GitHubTransport {
         Ok(response)
     }
     pub fn text(&self, args: &[&str], stdin: Option<&str>) -> Result<String> {
-        let mut argv = vec!["gh".into()];
+        let mut argv = vec![self.executable.to_string_lossy().into_owned()];
         argv.extend(args.iter().map(|s| s.to_string()));
         Ok(self
             .call(&CommandRequest {

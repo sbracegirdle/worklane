@@ -21,6 +21,8 @@ def main():
         ['cargo','test','--locked','--offline'],
         ['uv','run','--no-project','python','-m','unittest','-q'],
         ['uv','run','--no-project','python','tools/native_parity.py',str(EVIDENCE/'native-runtime.json')],
+        ['uv','run','--no-project','python','tools/native_parity.py','--fixtures','parity/fixtures/security.json',str(EVIDENCE/'native-security.json')],
+        ['uv','run','--no-project','python','-m','unittest','-q','test_native_security'],
         ['uv','run','--no-project','python','tools/port_inventory.py','--revision',json.loads((ROOT/'parity/inventory.json').read_text())['revision']],
         ['git','diff','--check'],
         ['git','diff','--cached','--check'],
@@ -36,8 +38,10 @@ def main():
     manifest = json.loads((ROOT/'parity/inventory.json').read_text())
     acceptance = json.loads((EVIDENCE/'native-acceptance.json').read_text())
     runtime = json.loads((EVIDENCE/'native-runtime.json').read_text())
+    security = json.loads((EVIDENCE/'native-security.json').read_text())
     passed = {row['id'] for row in acceptance if row['reference']==row['candidate']=='pass'}
     passed.update('fixture:'+row['id'] for row in runtime['results'] if row['status']=='pass')
+    passed.update('fixture:'+row['id'] for row in security['results'] if row['status']=='pass')
     rows = []
     for row in manifest['matrix']:
         if row['stage'] != 'runtime':
@@ -46,7 +50,7 @@ def main():
         for check in row['checks']:
             checks.update(manifest['suites'][check[6:]] if check.startswith('suite:') else [check])
         missing = sorted(checks-passed)
-        source_audit = row['id'].startswith(('source.','constant.','document.'))
+        source_audit = row['id'].startswith(('source.','constant.','failure.','document.'))
         rows.append({'id':row['id'],'status':'unverified' if missing or source_audit else 'complete',
                      'missing_check_count':len(missing),'source_audit_required':source_audit})
     unverified = [row['id'] for row in rows if row['status']!='complete']
@@ -55,6 +59,9 @@ def main():
     report = {'reference':manifest['revision'],'current_main':current_main,'upstream_drift':main_drift,'candidate_hashes':runtime['candidate_hashes'],
               'environment':{key:env[key] for key in ('UV_CACHE_DIR','WORKLANE_TEST_RUST','WORKLANE_TEST_INSTALL','WORKLANE_TEST_OPENCODE')},
               'commands':results,'acceptance_checks':len(acceptance),'portable_cases':len(runtime['results']),
+              'security_fixtures':{'passed':sum(row['status']=='pass' for row in security['results']),
+                                   'total':len(security['results']),'candidate_runtime':security['candidate_runtime']},
+              'security_ownership':manifest['security_ownership'],
               'passed_checks':sorted(passed),
               'inventory_sha256':hashlib.sha256((ROOT/'parity/inventory.json').read_bytes()).hexdigest(),
               'runtime_rows':rows,'unverified_rows':unverified,

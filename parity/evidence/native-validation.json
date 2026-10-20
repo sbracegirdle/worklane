@@ -1,26 +1,9 @@
 {
-  "reference": "5b2e19c245af2a8b45b81706237cc6553c0d1bea",
+  "reference": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
   "current_main": "8dff6c1c1a2b31e174b2a192032b004f8a5f898e",
-  "upstream_drift": [
-    "docs/operations.md",
-    "test_add_issue.py",
-    "test_api_budget.py",
-    "test_config.py",
-    "test_dependencies.py",
-    "test_harness.py",
-    "test_human_feedback.py",
-    "test_installation.py",
-    "test_security.py",
-    "test_sessions.py",
-    "test_stacking.py",
-    "test_tui.py",
-    "test_tui_editing.py",
-    "test_worklane.py",
-    "worklane.py",
-    "worklane_tui.py"
-  ],
+  "upstream_drift": [],
   "candidate_hashes": {
-    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "aab48e50de9e28e4bfd845f6a1154a654ef46158118812ed03fbe2cac00103c6"
+    "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/target/debug/runtime-fixture-adapter": "fca4673df1658fc364dcdb23399b60823b91f5e9c0af2f5fb5be67f77957e57a"
   },
   "environment": {
     "UV_CACHE_DIR": "/tmp/worklane-50-uv",
@@ -53,7 +36,7 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-1.log",
-      "tail": "    Checking worklane-runtime v0.1.0 (/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/runtime)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.62s"
+      "tail": "    Checking worklane-runtime v0.1.0 (/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/runtime)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.19s"
     },
     {
       "command": [
@@ -64,7 +47,7 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-2.log",
-      "tail": "test logs_are_keyset_paged_without_losing_history ... ok\n\ntest result: ok. 32 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.21s\n\n   Doc-tests worklane_runtime\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n"
+      "tail": "test logs_are_keyset_paged_without_losing_history ... ok\n\ntest result: ok. 32 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 8.45s\n\n   Doc-tests worklane_runtime\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n"
     },
     {
       "command": [
@@ -78,7 +61,7 @@
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-3.log",
-      "tail": "#1 blocked: Completed implementation expected Agent review; board is done. Check project automations/manual edits, then run worklane retry 1 to revalidate the saved build. Board status was preserved.\n#1 completion unavailable: 'headRefName'\n#1 blocked: Completed implementation expected Agent review; board is missing/closed. Check project automations/manual edits, then run worklane retry 1 to revalidate the saved build. Board status was preserved.\nreviewer: #1 Issue\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n----------------------------------------------------------------------\nRan 402 tests in 90.262s\n\nOK (skipped=2)"
+      "tail": "#1 blocked: Completed implementation expected Agent review; board is done. Check project automations/manual edits, then run worklane retry 1 to revalidate the saved build. Board status was preserved.\n#1 completion unavailable: 'headRefName'\n#1 blocked: Completed implementation expected Agent review; board is missing/closed. Check project automations/manual edits, then run worklane retry 1 to revalidate the saved build. Board status was preserved.\nreviewer: #1 Issue\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n#1 blocked: Unresolved PR review threads block completion: thread-1 (file.py)\n----------------------------------------------------------------------\nRan 417 tests in 117.601s\n\nOK (skipped=2)"
     },
     {
       "command": [
@@ -99,13 +82,43 @@
         "run",
         "--no-project",
         "python",
-        "tools/port_inventory.py",
-        "--revision",
-        "5b2e19c245af2a8b45b81706237cc6553c0d1bea"
+        "tools/native_parity.py",
+        "--fixtures",
+        "parity/fixtures/security.json",
+        "/home/simon/.local/state/worklane/sbracegirdle--worklane/worktrees/50/parity/evidence/native-security.json"
       ],
       "exit": 0,
       "log": "/tmp/worklane50-validation-5.log",
-      "tail": "{\"revision\": \"5b2e19c245af2a8b45b81706237cc6553c0d1bea\", \"files\": 38, \"checks\": 324, \"rows\": 1016}"
+      "tail": "{\"passed\": 51, \"total\": 51, \"failures\": []}"
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "-m",
+        "unittest",
+        "-q",
+        "test_native_security"
+      ],
+      "exit": 0,
+      "log": "/tmp/worklane50-validation-6.log",
+      "tail": "----------------------------------------------------------------------\nRan 10 tests in 37.058s\n\nOK"
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--no-project",
+        "python",
+        "tools/port_inventory.py",
+        "--revision",
+        "8dff6c1c1a2b31e174b2a192032b004f8a5f898e"
+      ],
+      "exit": 0,
+      "log": "/tmp/worklane50-validation-7.log",
+      "tail": "{\"revision\": \"8dff6c1c1a2b31e174b2a192032b004f8a5f898e\", \"files\": 39, \"checks\": 348, \"rows\": 1104}"
     },
     {
       "command": [
@@ -114,7 +127,7 @@
         "--check"
       ],
       "exit": 0,
-      "log": "/tmp/worklane50-validation-6.log",
+      "log": "/tmp/worklane50-validation-8.log",
       "tail": ""
     },
     {
@@ -125,12 +138,23 @@
         "--check"
       ],
       "exit": 0,
-      "log": "/tmp/worklane50-validation-7.log",
+      "log": "/tmp/worklane50-validation-9.log",
       "tail": ""
     }
   ],
-  "acceptance_checks": 46,
+  "acceptance_checks": 47,
   "portable_cases": 29,
+  "security_fixtures": {
+    "passed": 51,
+    "total": 51,
+    "candidate_runtime": "native"
+  },
+  "security_ownership": {
+    "shared_preflights_feedback_and_recovery": 50,
+    "cli_flags_reports_and_detached_options": 51,
+    "tui_options_editing_and_interactive_controls": 52,
+    "complete_native_evidence_gate": 53
+  },
   "passed_checks": [
     "fixture:runtime.agent-opencode-build",
     "fixture:runtime.agent-opencode-finalize",
@@ -153,6 +177,57 @@
     "fixture:runtime.mismatched-session",
     "fixture:runtime.pinned-stack-reopen",
     "fixture:runtime.queued-input-restart",
+    "fixture:runtime.security-deny-add",
+    "fixture:runtime.security-deny-agent_result",
+    "fixture:runtime.security-deny-ensure_review",
+    "fixture:runtime.security-deny-move",
+    "fixture:runtime.security-deny-pick",
+    "fixture:runtime.security-deny-poll",
+    "fixture:runtime.security-deny-post",
+    "fixture:runtime.security-deny-recover",
+    "fixture:runtime.security-deny-restack",
+    "fixture:runtime.security-deny-save_editor",
+    "fixture:runtime.security-feedback-admin",
+    "fixture:runtime.security-feedback-bot-editor",
+    "fixture:runtime.security-feedback-changed-provenance",
+    "fixture:runtime.security-feedback-maintain",
+    "fixture:runtime.security-feedback-missing-node-id",
+    "fixture:runtime.security-feedback-missing-provenance",
+    "fixture:runtime.security-feedback-outsider",
+    "fixture:runtime.security-feedback-revoked-editor",
+    "fixture:runtime.security-feedback-trusted-editor",
+    "fixture:runtime.security-feedback-write",
+    "fixture:runtime.security-open-explicit-public",
+    "fixture:runtime.security-open-malformed",
+    "fixture:runtime.security-open-private",
+    "fixture:runtime.security-open-project-denied",
+    "fixture:runtime.security-open-public",
+    "fixture:runtime.security-open-read-only",
+    "fixture:runtime.security-open-unknown",
+    "fixture:runtime.security-report-explicit-public",
+    "fixture:runtime.security-report-malformed",
+    "fixture:runtime.security-report-private",
+    "fixture:runtime.security-report-project-denied",
+    "fixture:runtime.security-report-public",
+    "fixture:runtime.security-report-quota",
+    "fixture:runtime.security-report-read-only",
+    "fixture:runtime.security-report-unknown",
+    "fixture:runtime.security-safe-explicit-public",
+    "fixture:runtime.security-safe-malformed",
+    "fixture:runtime.security-safe-private",
+    "fixture:runtime.security-safe-project-denied",
+    "fixture:runtime.security-safe-public",
+    "fixture:runtime.security-safe-read-only",
+    "fixture:runtime.security-safe-unknown",
+    "fixture:runtime.security-trusted-admin",
+    "fixture:runtime.security-trusted-bot-editor",
+    "fixture:runtime.security-trusted-changed-provenance",
+    "fixture:runtime.security-trusted-maintain",
+    "fixture:runtime.security-trusted-missing-provenance",
+    "fixture:runtime.security-trusted-outsider",
+    "fixture:runtime.security-trusted-revoked-editor",
+    "fixture:runtime.security-trusted-trusted-editor",
+    "fixture:runtime.security-trusted-write",
     "fixture:runtime.session-bad-codex",
     "fixture:runtime.session-bad-opencode",
     "fixture:runtime.session-codex",
@@ -200,6 +275,7 @@
     "test_sessions.SessionTests.test_missing_id_never_falls_back_to_new_session",
     "test_sessions.SessionTests.test_project_uses_primary_checkout_and_preserves_execution_worktree",
     "test_sessions.SessionTests.test_provider_failure_keeps_session_for_explicit_retry",
+    "test_sessions.SessionTests.test_queued_followup_rechecks_security_before_resuming_agent",
     "test_sessions.SessionTests.test_resume_updates_name_and_reuses_project_after_controller_restart",
     "test_sessions.SessionTests.test_session_event_and_mapping_commit_together_before_crash",
     "test_sessions.SessionTests.test_session_is_committed_before_turn_finishes",
@@ -208,7 +284,7 @@
     "test_sessions.SessionTests.test_timeout_retains_session",
     "test_sessions.SessionTests.test_worker_reviewer_and_finalizer_are_separate_and_resumable"
   ],
-  "inventory_sha256": "5362dd0a11c53b7d79320ef2634c04883cd84be2ba4f3bea8be049d2dc591a9d",
+  "inventory_sha256": "0dc776af1e628b2e77f8d123480067375c8f48e58bac30ad35d0930af8f77737",
   "runtime_rows": [
     {
       "id": "test_api_budget.ApiBudgetTests.test_three_workers_and_review_request_budget",
@@ -709,7 +785,127 @@
       "source_audit_required": false
     },
     {
+      "id": "test_security.SecurityTests.test_private_public_unknown_and_permissions_fail_closed",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.SecurityTests.test_override_is_explicit_warns_and_never_allows_unknown_visibility",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.SecurityTests.test_failed_security_read_refuses_even_with_override",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.SecurityTests.test_visibility_changes_block_each_mutation_dispatch_resume_and_rework",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.SecurityTests.test_check_reports_rejected_public_unknown_and_failed_checks",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.SecurityTests.test_check_stack_inspector_needs_no_agent_backend",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.SecurityTests.test_detached_override_propagates_only_when_supplied",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.SecurityTests.test_public_override_cannot_be_saved_in_checkout_configuration",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.SecurityTests.test_interactive_resume_rechecks_live_security_without_runtime_override",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_outsider_comments_reviews_and_inline_feedback_never_trigger_rework",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_public_override_does_not_authorize_outsider_feedback",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_current_write_maintain_admin_permissions_authorize_feedback_not_association",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_outsider_edits_of_trusted_feedback_cannot_authorize_rework",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_missing_or_racing_edit_provenance_and_permission_failures_fail_closed",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_revoked_author_or_editor_permission_blocks_pending_rework",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_recovery_reauthorizes_revoked_authors_and_editors_before_status_changes",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_recovery_permission_lookup_failures_preserve_saved_work_and_board_status",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_recovery_still_resumes_currently_trusted_feedback",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_security.FeedbackAuthorizationTests.test_saved_feedback_is_reauthorized_before_agent_and_status_claim",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
       "id": "test_sessions.SessionTests.test_live_input_runs_followup_in_exact_session_before_returning_result",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_sessions.SessionTests.test_queued_followup_rechecks_security_before_resuming_agent",
       "status": "complete",
       "missing_check_count": 0,
       "source_audit_required": false
@@ -992,6 +1188,18 @@
     },
     {
       "id": "test_stacking.RestackTests.test_squash_parent_merge_restacks_without_rewriting_and_requires_review",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_stacking.RestackTests.test_security_change_before_push_preserves_remote_branch_and_pending_intent",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": false
+    },
+    {
+      "id": "test_stacking.RestackTests.test_security_change_after_push_prevents_pr_retarget_and_board_transition",
       "status": "unverified",
       "missing_check_count": 1,
       "source_audit_required": false
@@ -1563,769 +1771,811 @@
     {
       "id": "source.worklane.py.validate_config",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.load_config",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.save_config",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubRateLimit",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubRateLimit.__init__",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.github_scoped",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.rate_limit_error",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.InterruptedRun",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.memory_fd",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.now",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.command",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.raw_command",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.gh",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.graphql",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.read_json",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.locked",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.process_identity",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.event_text",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.readable_log",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.__init__",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.connect",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._put",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._put.visit",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._get",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._upgrade",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._remove_archived_files",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.get_meta",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.set_meta",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.log_sessions",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._save",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.load",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.save",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.all",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.paused",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.pause",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.dependency_blocks",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.request_stop",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.session",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.runs",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.begin_run",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.attach_process",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._attach_session",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.attach_session",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._log",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State._event",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.record_event",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.record_events",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.append_log",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.log_entries",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.events",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.finish_run",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.queue_input",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.advance_run",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.recover_runs",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.State.running",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget.__init__",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget.snapshot",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget.check",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget.record",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget._record",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget.clear",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.GitHubBudget.call",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.DatabaseLogWriter",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.DatabaseLogWriter.__init__",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.DatabaseLogWriter.write",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.DatabaseLogWriter.flush",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.DatabaseLogWriter.isatty",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.dependency_count",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.__init__",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
+      "source_audit_required": true
+    },
+    {
+      "id": "source.worklane.py.Board.security_report",
+      "status": "unverified",
+      "missing_check_count": 211,
+      "source_audit_required": true
+    },
+    {
+      "id": "source.worklane.py.Board.require_safe",
+      "status": "unverified",
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.refresh_fields",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.add_issue",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.ensure_review_status",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.next_cursor",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.linked_prs",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.items",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.dependencies_ready",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.item_status",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Board.move",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.AgentBackend",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.AgentBackend.__init__",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.AgentBackend.run",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.AgentBackend._invoke",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.AgentBackend._invoke.received",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.HarnessBackend",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.HarnessBackend.__init__",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.HarnessBackend.selection",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.HarnessBackend.run",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.__init__",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.stack_policy",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.dependency_block",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.dependencies_ready",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.reviewed_parent",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.validate_stack",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.reconcile_stacks",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.restack",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.issue",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.pr_number",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.pr",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
+      "source_audit_required": true
+    },
+    {
+      "id": "source.worklane.py.Runner.trusted_feedback_user",
+      "status": "unverified",
+      "missing_check_count": 211,
+      "source_audit_required": true
+    },
+    {
+      "id": "source.worklane.py.Runner.feedback_editor",
+      "status": "unverified",
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.human_feedback",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
+      "source_audit_required": true
+    },
+    {
+      "id": "source.worklane.py.Runner.human_feedback.trusted",
+      "status": "unverified",
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.poll_human_feedback",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.feedback_quiet",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.review_threads",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.refresh_review_threads",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.verify_stack_ancestry",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.verify_pr",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.post",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.worktree",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
+      "source_audit_required": true
+    },
+    {
+      "id": "source.worklane.py.Runner.require_trusted_feedback",
+      "status": "unverified",
+      "missing_check_count": 211,
+      "source_audit_required": true
+    },
+    {
+      "id": "source.worklane.py.Runner.before_turn",
+      "status": "unverified",
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.agent_result",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.build",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.request_rework",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.requeue_conflict",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.review",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.execute",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.recover_tasks",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.reconcile_completed",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.reconcile_waiting",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.recover",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.pick",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.github_backoff",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.Runner.run",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.repository",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.installation_info",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.harness_option_names",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "source.worklane.py.harness_flags",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
@@ -2541,1010 +2791,1040 @@
     {
       "id": "config.harness",
       "status": "unverified",
-      "missing_check_count": 40,
+      "missing_check_count": 42,
       "source_audit_required": false
     },
     {
       "id": "config.workers",
       "status": "unverified",
-      "missing_check_count": 40,
+      "missing_check_count": 42,
       "source_audit_required": false
     },
     {
       "id": "config.model",
       "status": "unverified",
-      "missing_check_count": 40,
+      "missing_check_count": 42,
       "source_audit_required": false
     },
     {
       "id": "config.effort",
       "status": "unverified",
-      "missing_check_count": 40,
+      "missing_check_count": 42,
       "source_audit_required": false
     },
     {
       "id": "config.interval",
       "status": "unverified",
-      "missing_check_count": 40,
+      "missing_check_count": 42,
       "source_audit_required": false
     },
     {
       "id": "config.project",
       "status": "unverified",
-      "missing_check_count": 40,
+      "missing_check_count": 42,
       "source_audit_required": false
     },
     {
       "id": "config.stack_dependencies",
       "status": "unverified",
-      "missing_check_count": 40,
+      "missing_check_count": 42,
       "source_audit_required": false
     },
     {
       "id": "config.completion_gates",
       "status": "unverified",
-      "missing_check_count": 40,
+      "missing_check_count": 42,
       "source_audit_required": false
     },
     {
       "id": "config.worker_harness",
       "status": "unverified",
-      "missing_check_count": 40,
+      "missing_check_count": 42,
       "source_audit_required": false
     },
     {
       "id": "config.worker_model",
       "status": "unverified",
-      "missing_check_count": 40,
+      "missing_check_count": 42,
       "source_audit_required": false
     },
     {
       "id": "config.reviewer_harness",
       "status": "unverified",
-      "missing_check_count": 40,
+      "missing_check_count": 42,
       "source_audit_required": false
     },
     {
       "id": "config.reviewer_model",
       "status": "unverified",
-      "missing_check_count": 40,
+      "missing_check_count": 42,
       "source_audit_required": false
     },
     {
       "id": "config.finalizer_harness",
       "status": "unverified",
-      "missing_check_count": 40,
+      "missing_check_count": 42,
       "source_audit_required": false
     },
     {
       "id": "config.finalizer_model",
       "status": "unverified",
-      "missing_check_count": 40,
+      "missing_check_count": 42,
       "source_audit_required": false
     },
     {
       "id": "failure.worklane.py.51",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.54",
-      "status": "complete",
+      "status": "unverified",
       "missing_check_count": 0,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.59",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.64",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.66",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.68",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.72",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.74",
-      "status": "complete",
+      "status": "unverified",
       "missing_check_count": 0,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.176",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.181",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.285",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.308",
       "status": "unverified",
       "missing_check_count": 2,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.845",
       "status": "unverified",
       "missing_check_count": 2,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.2130",
+      "id": "failure.worklane.py.2240",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.57",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.62",
-      "status": "complete",
+      "status": "unverified",
       "missing_check_count": 0,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.79",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.83",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.99",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.284",
       "status": "unverified",
       "missing_check_count": 4,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.406",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.655",
-      "status": "complete",
+      "status": "unverified",
       "missing_check_count": 0,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.713",
-      "status": "complete",
+      "status": "unverified",
       "missing_check_count": 0,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.715",
-      "status": "complete",
+      "status": "unverified",
       "missing_check_count": 0,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.778",
       "status": "unverified",
       "missing_check_count": 6,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.883",
+      "id": "failure.worklane.py.915",
       "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.893",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.932",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.940",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1034",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1038",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1055",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1061",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1063",
-      "status": "complete",
       "missing_check_count": 0,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1065",
-      "status": "complete",
+      "id": "failure.worklane.py.927",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.938",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.978",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.986",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1081",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1085",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1103",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1109",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1111",
+      "status": "unverified",
       "missing_check_count": 0,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1325",
+      "id": "failure.worklane.py.1113",
+      "status": "unverified",
+      "missing_check_count": 0,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1378",
       "status": "unverified",
       "missing_check_count": 2,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1330",
+      "id": "failure.worklane.py.1383",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1334",
+      "id": "failure.worklane.py.1387",
       "status": "unverified",
       "missing_check_count": 2,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1337",
+      "id": "failure.worklane.py.1390",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1342",
+      "id": "failure.worklane.py.1395",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1393",
+      "id": "failure.worklane.py.1447",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1396",
+      "id": "failure.worklane.py.1450",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1398",
+      "id": "failure.worklane.py.1452",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1400",
+      "id": "failure.worklane.py.1454",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1411",
+      "id": "failure.worklane.py.1465",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1461",
+      "id": "failure.worklane.py.1517",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1625",
+      "id": "failure.worklane.py.1533",
+      "status": "unverified",
+      "missing_check_count": 0,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1541",
+      "status": "unverified",
+      "missing_check_count": 0,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1715",
       "status": "unverified",
       "missing_check_count": 3,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1638",
+      "id": "failure.worklane.py.1728",
       "status": "unverified",
       "missing_check_count": 3,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1640",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1678",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.1730",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1732",
+      "id": "failure.worklane.py.1769",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1754",
+      "id": "failure.worklane.py.1833",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1835",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1857",
       "status": "unverified",
       "missing_check_count": 2,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1794",
+      "id": "failure.worklane.py.1897",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1799",
+      "id": "failure.worklane.py.1902",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.292",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.323",
-      "status": "complete",
+      "status": "unverified",
       "missing_check_count": 0,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.433",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.539",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.722",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.726",
-      "status": "complete",
+      "status": "unverified",
       "missing_check_count": 0,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.872",
+      "id": "failure.worklane.py.874",
       "status": "unverified",
       "missing_check_count": 2,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.887",
+      "id": "failure.worklane.py.907",
+      "status": "unverified",
+      "missing_check_count": 0,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.931",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.909",
+      "id": "failure.worklane.py.954",
       "status": "unverified",
       "missing_check_count": 3,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.911",
+      "id": "failure.worklane.py.956",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.987",
+      "id": "failure.worklane.py.1033",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1117",
+      "id": "failure.worklane.py.1166",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1148",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1184",
-      "status": "unverified",
-      "missing_check_count": 2,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1186",
-      "status": "complete",
-      "missing_check_count": 0,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1188",
-      "status": "complete",
-      "missing_check_count": 0,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1191",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1193",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1195",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.1197",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1203",
+      "id": "failure.worklane.py.1233",
       "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
+      "missing_check_count": 2,
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1346",
+      "id": "failure.worklane.py.1235",
       "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
+      "missing_check_count": 0,
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1405",
+      "id": "failure.worklane.py.1237",
       "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
+      "missing_check_count": 0,
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1417",
+      "id": "failure.worklane.py.1240",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1431",
+      "id": "failure.worklane.py.1242",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1436",
+      "id": "failure.worklane.py.1244",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1476",
+      "id": "failure.worklane.py.1246",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1645",
+      "id": "failure.worklane.py.1252",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1690",
+      "id": "failure.worklane.py.1399",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1700",
+      "id": "failure.worklane.py.1459",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1471",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1485",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1492",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1556",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.1735",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1739",
+      "id": "failure.worklane.py.1781",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1742",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1744",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1789",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.1791",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1808",
+      "id": "failure.worklane.py.1806",
       "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
+      "missing_check_count": 0,
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1823",
+      "id": "failure.worklane.py.1838",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1836",
+      "id": "failure.worklane.py.1842",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.2025",
+      "id": "failure.worklane.py.1845",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.279",
+      "id": "failure.worklane.py.1847",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.550",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.810",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1004",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1098",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1141",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1182",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1298",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1381",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1423",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1443",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1558",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1632",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1705",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
-    },
-    {
-      "id": "failure.worklane.py.1827",
-      "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.1892",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1903",
+      "id": "failure.worklane.py.1894",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.2011",
+      "id": "failure.worklane.py.1911",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.2044",
+      "id": "failure.worklane.py.1926",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1940",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.2134",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.279",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.550",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.810",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1050",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1147",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1190",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1231",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1351",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1434",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1477",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1499",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1648",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1722",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1796",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1931",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.1996",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.2007",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.2120",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
+    },
+    {
+      "id": "failure.worklane.py.2153",
+      "status": "unverified",
+      "missing_check_count": 1,
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane.py.282",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1079",
+      "id": "failure.worklane.py.1127",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1125",
+      "id": "failure.worklane.py.1174",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1162",
+      "id": "failure.worklane.py.1211",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1165",
-      "status": "complete",
+      "id": "failure.worklane.py.1214",
+      "status": "unverified",
       "missing_check_count": 0,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1370",
+      "id": "failure.worklane.py.1423",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1684",
+      "id": "failure.worklane.py.1775",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.2020",
+      "id": "failure.worklane.py.2129",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.1367",
+      "id": "failure.worklane.py.1420",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
-      "id": "failure.worklane.py.2101",
+      "id": "failure.worklane.py.2211",
       "status": "unverified",
       "missing_check_count": 2,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.HUMAN_FEEDBACK_QUIET_SECONDS",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.WORKERS",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.REVIEWER",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.READY",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.PROGRESS",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.REVIEW",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.HUMAN",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.ACTIVE",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.ROLES",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.CONFIG_FILE",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.CONFIG_DEFAULTS",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.GITHUB_BUDGET",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.RESULT_SCHEMA",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.COMMON_PROMPT",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.BUILD_PROMPT",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.REVIEW_PROMPT",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.FINALIZE_PROMPT",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.PROTOCOL",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.ANSI_ESCAPE",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.MCP_DIAGNOSTIC",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "constant.worklane.py.CodexBackend",
       "status": "unverified",
-      "missing_check_count": 188,
+      "missing_check_count": 211,
       "source_audit_required": true
     },
     {
       "id": "failure.worklane_harness.py.23",
-      "status": "complete",
+      "status": "unverified",
       "missing_check_count": 0,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane_harness.py.211",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane_harness.py.68",
       "status": "unverified",
-      "missing_check_count": 1,
-      "source_audit_required": false
+      "missing_check_count": 2,
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane_harness.py.83",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane_harness.py.99",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane_harness.py.147",
-      "status": "complete",
+      "status": "unverified",
       "missing_check_count": 0,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane_harness.py.89",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane_harness.py.92",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "failure.worklane_harness.py.144",
       "status": "unverified",
       "missing_check_count": 1,
-      "source_audit_required": false
+      "source_audit_required": true
     },
     {
       "id": "constant.worklane_harness.py.MODEL",
@@ -4253,6 +4533,312 @@
       "status": "unverified",
       "missing_check_count": 1,
       "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-report-private",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-report-public",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-report-explicit-public",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-report-unknown",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-report-malformed",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-report-read-only",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-report-project-denied",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-safe-private",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-safe-public",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-safe-explicit-public",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-safe-unknown",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-safe-malformed",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-safe-read-only",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-safe-project-denied",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-open-private",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-open-public",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-open-explicit-public",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-open-unknown",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-open-malformed",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-open-read-only",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-open-project-denied",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-deny-add",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-deny-ensure_review",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-deny-move",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-deny-pick",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-deny-recover",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-deny-poll",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-deny-agent_result",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-deny-post",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-deny-restack",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-deny-save_editor",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-feedback-write",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-trusted-write",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-feedback-maintain",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-trusted-maintain",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-feedback-admin",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-trusted-admin",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-feedback-outsider",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-trusted-outsider",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-feedback-trusted-editor",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-trusted-trusted-editor",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-feedback-revoked-editor",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-trusted-revoked-editor",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-feedback-bot-editor",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-trusted-bot-editor",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-feedback-missing-provenance",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-trusted-missing-provenance",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-feedback-changed-provenance",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-trusted-changed-provenance",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-feedback-missing-node-id",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
+    },
+    {
+      "id": "fixture.runtime.security-report-quota",
+      "status": "complete",
+      "missing_check_count": 0,
+      "source_audit_required": false
     }
   ],
   "unverified_rows": [
@@ -4322,6 +4908,25 @@
     "test_port_parity.EvidenceGateTests.test_mixed_release_and_conflicting_check_results_block_cutover",
     "test_port_parity.EvidenceGateTests.test_fixture_identity_hash_and_case_membership_are_mandatory",
     "test_port_parity.EvidenceGateTests.test_unknown_fixture_fields_and_bad_command_arrays_fail_closed",
+    "test_security.SecurityTests.test_private_public_unknown_and_permissions_fail_closed",
+    "test_security.SecurityTests.test_override_is_explicit_warns_and_never_allows_unknown_visibility",
+    "test_security.SecurityTests.test_failed_security_read_refuses_even_with_override",
+    "test_security.SecurityTests.test_visibility_changes_block_each_mutation_dispatch_resume_and_rework",
+    "test_security.SecurityTests.test_check_reports_rejected_public_unknown_and_failed_checks",
+    "test_security.SecurityTests.test_check_stack_inspector_needs_no_agent_backend",
+    "test_security.SecurityTests.test_detached_override_propagates_only_when_supplied",
+    "test_security.SecurityTests.test_public_override_cannot_be_saved_in_checkout_configuration",
+    "test_security.SecurityTests.test_interactive_resume_rechecks_live_security_without_runtime_override",
+    "test_security.FeedbackAuthorizationTests.test_outsider_comments_reviews_and_inline_feedback_never_trigger_rework",
+    "test_security.FeedbackAuthorizationTests.test_public_override_does_not_authorize_outsider_feedback",
+    "test_security.FeedbackAuthorizationTests.test_current_write_maintain_admin_permissions_authorize_feedback_not_association",
+    "test_security.FeedbackAuthorizationTests.test_outsider_edits_of_trusted_feedback_cannot_authorize_rework",
+    "test_security.FeedbackAuthorizationTests.test_missing_or_racing_edit_provenance_and_permission_failures_fail_closed",
+    "test_security.FeedbackAuthorizationTests.test_revoked_author_or_editor_permission_blocks_pending_rework",
+    "test_security.FeedbackAuthorizationTests.test_recovery_reauthorizes_revoked_authors_and_editors_before_status_changes",
+    "test_security.FeedbackAuthorizationTests.test_recovery_permission_lookup_failures_preserve_saved_work_and_board_status",
+    "test_security.FeedbackAuthorizationTests.test_recovery_still_resumes_currently_trusted_feedback",
+    "test_security.FeedbackAuthorizationTests.test_saved_feedback_is_reauthorized_before_agent_and_status_claim",
     "test_sessions.SessionTests.test_app_server_transport_timeout_eof_and_initialize_error",
     "test_sessions.SessionTests.test_human_feedback_dispatch_resumes_original_worker_with_batch",
     "test_sessions.SessionTests.test_conflict_rework_resumes_original_worker_with_findings",
@@ -4341,6 +4946,8 @@
     "test_stacking.StackTests.test_completion_gate_rejects_unreviewed_merged_head",
     "test_stacking.StackTests.test_active_handoff_revalidates_draft_conflict_and_board_withdrawal",
     "test_stacking.RestackTests.test_squash_parent_merge_restacks_without_rewriting_and_requires_review",
+    "test_stacking.RestackTests.test_security_change_before_push_preserves_remote_branch_and_pending_intent",
+    "test_stacking.RestackTests.test_security_change_after_push_prevents_pr_retarget_and_board_transition",
     "test_stacking.RestackTests.test_interrupted_retarget_reuses_recorded_merge_and_push",
     "test_stacking.RestackTests.test_dirty_worktree_or_changed_merged_revision_preserves_child",
     "test_stacking.RestackTests.test_conflicting_restack_aborts_without_losing_original_work",
@@ -4507,6 +5114,8 @@
     "source.worklane.py.dependency_count",
     "source.worklane.py.Board",
     "source.worklane.py.Board.__init__",
+    "source.worklane.py.Board.security_report",
+    "source.worklane.py.Board.require_safe",
     "source.worklane.py.Board.refresh_fields",
     "source.worklane.py.Board.add_issue",
     "source.worklane.py.Board.ensure_review_status",
@@ -4537,7 +5146,10 @@
     "source.worklane.py.Runner.issue",
     "source.worklane.py.Runner.pr_number",
     "source.worklane.py.Runner.pr",
+    "source.worklane.py.Runner.trusted_feedback_user",
+    "source.worklane.py.Runner.feedback_editor",
     "source.worklane.py.Runner.human_feedback",
+    "source.worklane.py.Runner.human_feedback.trusted",
     "source.worklane.py.Runner.poll_human_feedback",
     "source.worklane.py.Runner.feedback_quiet",
     "source.worklane.py.Runner.review_threads",
@@ -4546,6 +5158,8 @@
     "source.worklane.py.Runner.verify_pr",
     "source.worklane.py.Runner.post",
     "source.worklane.py.Runner.worktree",
+    "source.worklane.py.Runner.require_trusted_feedback",
+    "source.worklane.py.Runner.before_turn",
     "source.worklane.py.Runner.agent_result",
     "source.worklane.py.Runner.build",
     "source.worklane.py.Runner.request_rework",
@@ -4613,116 +5227,134 @@
     "config.finalizer_harness",
     "config.finalizer_model",
     "failure.worklane.py.51",
+    "failure.worklane.py.54",
     "failure.worklane.py.59",
     "failure.worklane.py.64",
     "failure.worklane.py.66",
     "failure.worklane.py.68",
     "failure.worklane.py.72",
+    "failure.worklane.py.74",
     "failure.worklane.py.176",
     "failure.worklane.py.181",
     "failure.worklane.py.285",
     "failure.worklane.py.308",
     "failure.worklane.py.845",
-    "failure.worklane.py.2130",
+    "failure.worklane.py.2240",
     "failure.worklane.py.57",
+    "failure.worklane.py.62",
     "failure.worklane.py.79",
     "failure.worklane.py.83",
     "failure.worklane.py.99",
     "failure.worklane.py.284",
     "failure.worklane.py.406",
+    "failure.worklane.py.655",
+    "failure.worklane.py.713",
+    "failure.worklane.py.715",
     "failure.worklane.py.778",
-    "failure.worklane.py.883",
-    "failure.worklane.py.893",
-    "failure.worklane.py.932",
-    "failure.worklane.py.940",
-    "failure.worklane.py.1034",
-    "failure.worklane.py.1038",
-    "failure.worklane.py.1055",
-    "failure.worklane.py.1061",
-    "failure.worklane.py.1325",
-    "failure.worklane.py.1330",
-    "failure.worklane.py.1334",
-    "failure.worklane.py.1337",
-    "failure.worklane.py.1342",
-    "failure.worklane.py.1393",
-    "failure.worklane.py.1396",
-    "failure.worklane.py.1398",
-    "failure.worklane.py.1400",
-    "failure.worklane.py.1411",
-    "failure.worklane.py.1461",
-    "failure.worklane.py.1625",
-    "failure.worklane.py.1638",
-    "failure.worklane.py.1640",
-    "failure.worklane.py.1678",
+    "failure.worklane.py.915",
+    "failure.worklane.py.927",
+    "failure.worklane.py.938",
+    "failure.worklane.py.978",
+    "failure.worklane.py.986",
+    "failure.worklane.py.1081",
+    "failure.worklane.py.1085",
+    "failure.worklane.py.1103",
+    "failure.worklane.py.1109",
+    "failure.worklane.py.1111",
+    "failure.worklane.py.1113",
+    "failure.worklane.py.1378",
+    "failure.worklane.py.1383",
+    "failure.worklane.py.1387",
+    "failure.worklane.py.1390",
+    "failure.worklane.py.1395",
+    "failure.worklane.py.1447",
+    "failure.worklane.py.1450",
+    "failure.worklane.py.1452",
+    "failure.worklane.py.1454",
+    "failure.worklane.py.1465",
+    "failure.worklane.py.1517",
+    "failure.worklane.py.1533",
+    "failure.worklane.py.1541",
+    "failure.worklane.py.1715",
+    "failure.worklane.py.1728",
     "failure.worklane.py.1730",
-    "failure.worklane.py.1732",
-    "failure.worklane.py.1754",
-    "failure.worklane.py.1794",
-    "failure.worklane.py.1799",
+    "failure.worklane.py.1769",
+    "failure.worklane.py.1833",
+    "failure.worklane.py.1835",
+    "failure.worklane.py.1857",
+    "failure.worklane.py.1897",
+    "failure.worklane.py.1902",
     "failure.worklane.py.292",
+    "failure.worklane.py.323",
     "failure.worklane.py.433",
     "failure.worklane.py.539",
     "failure.worklane.py.722",
-    "failure.worklane.py.872",
-    "failure.worklane.py.887",
-    "failure.worklane.py.909",
-    "failure.worklane.py.911",
-    "failure.worklane.py.987",
-    "failure.worklane.py.1117",
-    "failure.worklane.py.1148",
-    "failure.worklane.py.1184",
-    "failure.worklane.py.1191",
-    "failure.worklane.py.1193",
-    "failure.worklane.py.1195",
+    "failure.worklane.py.726",
+    "failure.worklane.py.874",
+    "failure.worklane.py.907",
+    "failure.worklane.py.931",
+    "failure.worklane.py.954",
+    "failure.worklane.py.956",
+    "failure.worklane.py.1033",
+    "failure.worklane.py.1166",
     "failure.worklane.py.1197",
-    "failure.worklane.py.1203",
-    "failure.worklane.py.1346",
-    "failure.worklane.py.1405",
-    "failure.worklane.py.1417",
-    "failure.worklane.py.1431",
-    "failure.worklane.py.1436",
-    "failure.worklane.py.1476",
-    "failure.worklane.py.1645",
-    "failure.worklane.py.1690",
-    "failure.worklane.py.1700",
+    "failure.worklane.py.1233",
+    "failure.worklane.py.1235",
+    "failure.worklane.py.1237",
+    "failure.worklane.py.1240",
+    "failure.worklane.py.1242",
+    "failure.worklane.py.1244",
+    "failure.worklane.py.1246",
+    "failure.worklane.py.1252",
+    "failure.worklane.py.1399",
+    "failure.worklane.py.1459",
+    "failure.worklane.py.1471",
+    "failure.worklane.py.1485",
+    "failure.worklane.py.1492",
+    "failure.worklane.py.1556",
     "failure.worklane.py.1735",
-    "failure.worklane.py.1739",
-    "failure.worklane.py.1742",
-    "failure.worklane.py.1744",
-    "failure.worklane.py.1789",
+    "failure.worklane.py.1781",
     "failure.worklane.py.1791",
-    "failure.worklane.py.1808",
-    "failure.worklane.py.1823",
-    "failure.worklane.py.1836",
-    "failure.worklane.py.2025",
+    "failure.worklane.py.1806",
+    "failure.worklane.py.1838",
+    "failure.worklane.py.1842",
+    "failure.worklane.py.1845",
+    "failure.worklane.py.1847",
+    "failure.worklane.py.1892",
+    "failure.worklane.py.1894",
+    "failure.worklane.py.1911",
+    "failure.worklane.py.1926",
+    "failure.worklane.py.1940",
+    "failure.worklane.py.2134",
     "failure.worklane.py.279",
     "failure.worklane.py.550",
     "failure.worklane.py.810",
-    "failure.worklane.py.1004",
-    "failure.worklane.py.1098",
-    "failure.worklane.py.1141",
-    "failure.worklane.py.1182",
-    "failure.worklane.py.1298",
-    "failure.worklane.py.1381",
-    "failure.worklane.py.1423",
-    "failure.worklane.py.1443",
-    "failure.worklane.py.1558",
-    "failure.worklane.py.1632",
-    "failure.worklane.py.1705",
-    "failure.worklane.py.1827",
-    "failure.worklane.py.1892",
-    "failure.worklane.py.1903",
-    "failure.worklane.py.2011",
-    "failure.worklane.py.2044",
+    "failure.worklane.py.1050",
+    "failure.worklane.py.1147",
+    "failure.worklane.py.1190",
+    "failure.worklane.py.1231",
+    "failure.worklane.py.1351",
+    "failure.worklane.py.1434",
+    "failure.worklane.py.1477",
+    "failure.worklane.py.1499",
+    "failure.worklane.py.1648",
+    "failure.worklane.py.1722",
+    "failure.worklane.py.1796",
+    "failure.worklane.py.1931",
+    "failure.worklane.py.1996",
+    "failure.worklane.py.2007",
+    "failure.worklane.py.2120",
+    "failure.worklane.py.2153",
     "failure.worklane.py.282",
-    "failure.worklane.py.1079",
-    "failure.worklane.py.1125",
-    "failure.worklane.py.1162",
-    "failure.worklane.py.1370",
-    "failure.worklane.py.1684",
-    "failure.worklane.py.2020",
-    "failure.worklane.py.1367",
-    "failure.worklane.py.2101",
+    "failure.worklane.py.1127",
+    "failure.worklane.py.1174",
+    "failure.worklane.py.1211",
+    "failure.worklane.py.1214",
+    "failure.worklane.py.1423",
+    "failure.worklane.py.1775",
+    "failure.worklane.py.2129",
+    "failure.worklane.py.1420",
+    "failure.worklane.py.2211",
     "constant.worklane.py.HUMAN_FEEDBACK_QUIET_SECONDS",
     "constant.worklane.py.WORKERS",
     "constant.worklane.py.REVIEWER",
@@ -4744,10 +5376,12 @@
     "constant.worklane.py.ANSI_ESCAPE",
     "constant.worklane.py.MCP_DIAGNOSTIC",
     "constant.worklane.py.CodexBackend",
+    "failure.worklane_harness.py.23",
     "failure.worklane_harness.py.211",
     "failure.worklane_harness.py.68",
     "failure.worklane_harness.py.83",
     "failure.worklane_harness.py.99",
+    "failure.worklane_harness.py.147",
     "failure.worklane_harness.py.89",
     "failure.worklane_harness.py.92",
     "failure.worklane_harness.py.144",

@@ -163,7 +163,7 @@ def main():
         raise ValueError('Previous audit used another reference')
     previous = prior.get('failures', {})
     report = {'fixture_hashes':{name:hashlib.sha256(json.dumps(fixture,sort_keys=True,ensure_ascii=False).encode()).hexdigest() for name,(_,fixture) in fixtures.items()},
-              'harness_hashes':{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [*(ROOT/'tools').glob('*.py'), ROOT/'parity/fixture-schema.json'] if p.name in ('port_parity.py','port_reference_driver.py','port_failure_cases.py','parity_tool.py','parity_git.py','fixture-schema.json')},
+              'harness_hashes':{str(p.relative_to(ROOT)):hashlib.sha256(p.read_bytes()).hexdigest() for p in [*(ROOT/'tools').glob('*.py'), ROOT/'parity/fixture-schema.json'] if p.name in ('port_parity.py','port_reference_driver.py','port_failure_cases.py','port_security_cases.py','parity_tool.py','parity_git.py','fixture-schema.json')},
               'reference':inventory['revision'], 'mutation':'Replace the complete raise statement with pass; retain line numbers', 'failures':{}}
     with tempfile.TemporaryDirectory(prefix='worklane-failure-oracle-') as directory:
         root = Path(directory)
@@ -204,6 +204,7 @@ def main():
             print(identifier, len(checks), flush=True)
             args.output.write_text(json.dumps(report,indent=2)+'\n')
     gaps = [row for row,value in report['failures'].items() if not value['checks']]
+    args.output.write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps({'failures':len(sites),'detected':len(sites)-len(gaps),'gaps':gaps}))
     return int(bool(gaps))
 
